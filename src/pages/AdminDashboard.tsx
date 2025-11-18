@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -80,13 +80,30 @@ const AdminDashboard = () => {
   };
 
   const calculateHours = (clockIn: string | null, clockOut: string | null) => {
-    if (!clockIn || !clockOut) return "In progress";
+    if (!clockIn || !clockOut) return null;
     
     const inTime = new Date(clockIn);
     const outTime = new Date(clockOut);
     const hours = (outTime.getTime() - inTime.getTime()) / (1000 * 60 * 60);
-    return `${hours.toFixed(2)} hours`;
+    return hours;
   };
+
+  const workerSummary = useMemo(() => {
+    const summary = new Map<string, { name: string; totalHours: number; entries: number }>();
+    
+    entries.forEach((entry) => {
+      const hours = calculateHours(entry.clock_in, entry.clock_out);
+      const existing = summary.get(entry.worker_name) || { name: entry.worker_name, totalHours: 0, entries: 0 };
+      
+      summary.set(entry.worker_name, {
+        name: entry.worker_name,
+        totalHours: existing.totalHours + (hours || 0),
+        entries: existing.entries + 1,
+      });
+    });
+    
+    return Array.from(summary.values()).sort((a, b) => b.totalHours - a.totalHours);
+  }, [entries]);
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -140,6 +157,33 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {workerSummary.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold text-foreground">Sammanfattning per medarbetare</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workerSummary.map((worker) => (
+                <Card key={worker.name} className="p-4 space-y-2">
+                  <h3 className="font-semibold text-lg text-foreground">{worker.name}</h3>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Totalt antal pass:</span>
+                      <span className="font-medium">{worker.entries}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Totala timmar:</span>
+                      <span className="font-medium">{worker.totalHours.toFixed(2)} h</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Genomsnitt/pass:</span>
+                      <span className="font-medium">{(worker.totalHours / worker.entries).toFixed(2)} h</span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="rounded-md border overflow-auto">
           <Table>
             <TableHeader>
@@ -174,7 +218,10 @@ const AdminDashboard = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {calculateHours(entry.clock_in, entry.clock_out)}
+                      {(() => {
+                        const hours = calculateHours(entry.clock_in, entry.clock_out);
+                        return hours ? `${hours.toFixed(2)} h` : "Pågående";
+                      })()}
                     </TableCell>
                   </TableRow>
                 ))
