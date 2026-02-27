@@ -135,8 +135,8 @@ const Index = () => {
           <div className="flex justify-center mb-4">
             <Clock className="h-16 w-16 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Brålands Gård 
-Min Tid
+          <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid
+
           </h1>
           <p className="text-muted-foreground">Select your name and clock in or out</p>
         </div>
