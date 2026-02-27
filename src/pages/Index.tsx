@@ -138,7 +138,10 @@ const Index = () => {
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid
 
           </h1>
-          <p className="text-muted-foreground">Select your name and clock in or out</p>
+          <p className="text-muted-foreground">Välj det namn och stämpla in när du börja jobba.
+Glöm inte stämpla ut när du är klar eller tar rast och stämpa in igen efter raseten. 
+
+          </p>
         </div>
 
         <div className="space-y-6">
@@ -154,11 +157,8 @@ const Index = () => {
           </Select>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button
-              onClick={handleClockIn}
-              size="lg"
-              className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
-              disabled={!selectedWorker}>
+            <Button onClick={handleClockIn} size="lg" className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
+            disabled={!selectedWorker}>
 
               <LogIn className="mr-2 h-6 w-6" />
               Clock In
