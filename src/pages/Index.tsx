@@ -16,43 +16,43 @@ const Index = () => {
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("workers")
-        .select("*")
-        .order("name");
-      
+      const { data, error } = await supabase.
+      from("workers").
+      select("*").
+      order("name");
+
       if (error) throw error;
       return data;
-    },
+    }
   });
 
   const handleClockIn = async () => {
     if (!selectedWorker) {
       toast({
         title: "Please select your name",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
 
-    const worker = workers.find(w => w.id === selectedWorker);
+    const worker = workers.find((w) => w.id === selectedWorker);
     if (!worker) return;
 
-    const { data, error } = await supabase
-      .from("time_entries")
-      .insert({
-        worker_id: selectedWorker,
-        worker_name: worker.name,
-        clock_in: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    const { data, error } = await supabase.
+    from("time_entries").
+    insert({
+      worker_id: selectedWorker,
+      worker_name: worker.name,
+      clock_in: new Date().toISOString()
+    }).
+    select().
+    single();
 
     if (error) {
       toast({
         title: "Error clocking in",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
@@ -64,29 +64,29 @@ const Index = () => {
     if (!selectedWorker) {
       toast({
         title: "Please select your name",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
 
-    const worker = workers.find(w => w.id === selectedWorker);
+    const worker = workers.find((w) => w.id === selectedWorker);
     if (!worker) return;
 
     // Find the most recent clock-in entry without a clock-out
-    const { data: recentEntry, error: fetchError } = await supabase
-      .from("time_entries")
-      .select("*")
-      .eq("worker_id", selectedWorker)
-      .is("clock_out", null)
-      .order("clock_in", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const { data: recentEntry, error: fetchError } = await supabase.
+    from("time_entries").
+    select("*").
+    eq("worker_id", selectedWorker).
+    is("clock_out", null).
+    order("clock_in", { ascending: false }).
+    limit(1).
+    maybeSingle();
 
     if (fetchError) {
       toast({
         title: "Error",
         description: fetchError.message,
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
@@ -95,21 +95,21 @@ const Index = () => {
       toast({
         title: "No active clock-in found",
         description: "Please clock in first",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
 
-    const { error: updateError } = await supabase
-      .from("time_entries")
-      .update({ clock_out: new Date().toISOString() })
-      .eq("id", recentEntry.id);
+    const { error: updateError } = await supabase.
+    from("time_entries").
+    update({ clock_out: new Date().toISOString() }).
+    eq("id", recentEntry.id);
 
     if (updateError) {
       toast({
         title: "Error clocking out",
         description: updateError.message,
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
@@ -124,8 +124,8 @@ const Index = () => {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/admin")}
-          className="text-muted-foreground hover:text-foreground"
-        >
+          className="text-muted-foreground hover:text-foreground">
+
           <Settings className="h-5 w-5" />
         </Button>
       </div>
@@ -135,7 +135,9 @@ const Index = () => {
           <div className="flex justify-center mb-4">
             <Clock className="h-16 w-16 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Campsite Time Clock</h1>
+          <h1 className="text-3xl font-bold text-foreground">Brålands Gård 
+Min Tid
+          </h1>
           <p className="text-muted-foreground">Select your name and clock in or out</p>
         </div>
 
@@ -145,11 +147,9 @@ const Index = () => {
               <SelectValue placeholder="Select your name" />
             </SelectTrigger>
             <SelectContent>
-              {workers.map((worker) => (
-                <SelectItem key={worker.id} value={worker.id} className="text-lg py-3">
+              {workers.map((worker) => <SelectItem key={worker.id} value={worker.id} className="text-lg py-3">
                   {worker.name}
-                </SelectItem>
-              ))}
+                </SelectItem>)}
             </SelectContent>
           </Select>
 
@@ -158,8 +158,8 @@ const Index = () => {
               onClick={handleClockIn}
               size="lg"
               className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
-              disabled={!selectedWorker}
-            >
+              disabled={!selectedWorker}>
+
               <LogIn className="mr-2 h-6 w-6" />
               Clock In
             </Button>
@@ -168,16 +168,16 @@ const Index = () => {
               size="lg"
               variant="secondary"
               className="h-24 text-xl font-semibold"
-              disabled={!selectedWorker}
-            >
+              disabled={!selectedWorker}>
+
               <LogOut className="mr-2 h-6 w-6" />
               Clock Out
             </Button>
           </div>
         </div>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
