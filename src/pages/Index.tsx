@@ -138,8 +138,8 @@ const Index = () => {
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid
 
           </h1>
-          <p className="text-muted-foreground">Välj det namn och stämpla in när du börja jobba.
-Glöm inte stämpla ut när du är klar eller tar rast och stämpa in igen efter raseten. 
+          <p className="text-muted-foreground">Välj det namn och stämpla in när du börja jobba. Glöm inte stämpla ut när du är klar eller tar rast 
+och stämpla in igen efter rasten. 
 
           </p>
         </div>
