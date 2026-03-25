@@ -119,13 +119,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 flex gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/login")}
+          className="text-muted-foreground hover:text-foreground">
+          <LogIn className="h-4 w-4 mr-1" />
+          Logga in
+        </Button>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigate("/admin")}
           className="text-muted-foreground hover:text-foreground">
-
           <Settings className="h-5 w-5" />
         </Button>
       </div>
