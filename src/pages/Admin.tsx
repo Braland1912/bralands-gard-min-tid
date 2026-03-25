@@ -5,24 +5,34 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Admin = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simple password check (in production, use proper authentication)
-    if (password === "campsite2024") {
-      navigate("/admin/dashboard");
-    } else {
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
       toast({
-        title: "Incorrect password",
+        title: "Login failed",
+        description: "Invalid email or password.",
         variant: "destructive",
       });
-      setPassword("");
+    } else {
+      navigate("/admin/dashboard");
     }
   };
 
@@ -34,26 +44,36 @@ const Admin = () => {
             <Lock className="h-16 w-16 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Admin Access</h1>
-          <p className="text-muted-foreground">Enter password to continue</p>
+          <p className="text-muted-foreground">Sign in to continue</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-14 text-lg"
+            autoFocus
+            required
+          />
           <Input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="h-14 text-lg"
-            autoFocus
+            required
           />
-          
+
           <div className="space-y-3">
             <Button
               type="submit"
               size="lg"
               className="w-full text-lg"
+              disabled={loading}
             >
-              Login
+              {loading ? "Signing in..." : "Login"}
             </Button>
             <Button
               type="button"
@@ -66,10 +86,6 @@ const Admin = () => {
             </Button>
           </div>
         </form>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Default password: campsite2024
-        </p>
       </Card>
     </div>
   );
