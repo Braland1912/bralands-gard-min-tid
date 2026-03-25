@@ -8,6 +8,8 @@ import Confirmation from "./pages/Confirmation";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./pages/Register";
+import MemberLogin from "./pages/MemberLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
