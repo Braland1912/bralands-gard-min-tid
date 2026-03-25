@@ -8,6 +8,8 @@ import Confirmation from "./pages/Confirmation";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./pages/Register";
+import MemberLogin from "./pages/MemberLogin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/confirmation" element={<Confirmation />} />
+          <Route path="/invite/:token" element={<Register />} />
+          <Route path="/login" element={<MemberLogin />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>

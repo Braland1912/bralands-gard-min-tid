@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Download, Calendar } from "lucide-react";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
+import InvitationManager from "@/components/InvitationManager";
+import PendingMembers from "@/components/PendingMembers";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -128,6 +130,10 @@ const AdminDashboard = () => {
             </Button>
           </div>
         </div>
+
+        <InvitationManager />
+
+        <PendingMembers />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
