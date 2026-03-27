@@ -84,7 +84,7 @@ const Index = () => {
         <Card className="w-full max-w-md p-8 space-y-8 shadow-lg text-center">
           <div className="space-y-4">
             <div className="flex justify-center">
-              <Trees className="h-20 w-20 text-primary" />
+              <img src={logo} alt="Brålands Gård" className="h-20 sm:h-24 w-auto max-w-[220px] object-contain" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Brålands Gård</h1>
             <p className="text-muted-foreground text-lg">
