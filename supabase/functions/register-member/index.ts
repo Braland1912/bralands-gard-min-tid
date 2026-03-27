@@ -54,12 +54,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create auth user (auto-confirmed but they can't do anything until approved)
+    // Create auth user (auto-confirmed and approved immediately)
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { first_name: firstName, last_name: lastName, phone, status: "pending" },
+      user_metadata: { first_name: firstName, last_name: lastName, phone, status: "approved" },
     });
 
     if (authError) {
@@ -82,10 +82,20 @@ Deno.serve(async (req) => {
         phone,
         invitation_id: invitation.id,
         user_id: authData.user.id,
-        status: "pending",
+        status: "approved",
       });
 
     if (insertError) throw insertError;
+
+    // Create worker immediately
+    const { error: workerError } = await supabaseAdmin
+      .from("workers")
+      .insert({
+        name: `${firstName} ${lastName}`,
+        user_id: authData.user.id,
+      });
+
+    if (workerError) throw workerError;
 
     // Update invitation used count
     await supabaseAdmin
