@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
+import { useWorker } from "@/hooks/useWorker";
 
 const Admin = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +16,20 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin();
+  const { data: worker } = useWorker(user?.id);
+
+  // Redirect logged-in users appropriately
+  useEffect(() => {
+    if (authLoading || adminLoading) return;
+    if (user && isAdmin) {
+      navigate("/admin/dashboard", { replace: true });
+    } else if (user && !isAdmin) {
+      // Non-admin user trying to access /admin → redirect home
+      navigate("/", { replace: true });
+    }
+  }, [user, isAdmin, authLoading, adminLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,18 +40,52 @@ const Admin = () => {
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       toast({
         title: "Inloggning misslyckades",
         description: "Fel e-post eller lösenord.",
         variant: "destructive",
       });
-    } else {
-      navigate("/admin/dashboard");
+      return;
     }
+
+    // Check if the logged-in user is admin
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (data) {
+        navigate("/admin/dashboard");
+      } else {
+        // Not an admin - sign out and show error
+        await supabase.auth.signOut();
+        toast({
+          title: "Åtkomst nekad",
+          description: "Du har inte administratörsrättigheter.",
+          variant: "destructive",
+        });
+      }
+    }
+    setLoading(false);
   };
+
+  // Don't show login form while checking auth
+  if (authLoading || adminLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Laddar...</p>
+      </div>
+    );
+  }
+
+  // If user is logged in, the useEffect will handle redirect
+  if (user) return null;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
