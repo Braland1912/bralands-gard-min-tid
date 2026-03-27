@@ -94,7 +94,7 @@ const TeamMembers = () => {
     setNewPassword("");
   };
 
-
+  return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -111,14 +111,26 @@ const TeamMembers = () => {
           {workers.map((worker) => (
             <Card key={worker.id} className="p-3 flex items-center justify-between">
               <span className="font-medium text-foreground">{worker.name}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => setDeleteTarget({ id: worker.id, name: worker.name })}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                  onClick={() => setResetTarget({ userId: worker.user_id || "", name: worker.name })}
+                  disabled={!worker.user_id}
+                  title="Återställ lösenord"
+                >
+                  <KeyRound className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  onClick={() => setDeleteTarget({ id: worker.id, name: worker.name })}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
@@ -140,6 +152,28 @@ const TeamMembers = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!resetTarget} onOpenChange={(open) => { if (!open) { setResetTarget(null); setNewPassword(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Återställ lösenord</DialogTitle>
+            <DialogDescription>
+              Ange ett nytt lösenord för <strong>{resetTarget?.name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              type="password"
+              placeholder="Nytt lösenord (minst 6 tecken)"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <Button onClick={handleResetPassword} disabled={resetting} className="w-full">
+              {resetting ? "Sparar..." : "Sätt nytt lösenord"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
