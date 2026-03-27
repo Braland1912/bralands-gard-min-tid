@@ -62,7 +62,7 @@ const SalaryReport = () => {
     mutationFn: async ({ workerId, rate }: { workerId: string; rate: number }) => {
       const { error } = await supabase
         .from("workers")
-        .update({ hourly_rate: rate } as any)
+        .update({ hourly_rate: rate })
         .eq("id", workerId);
       if (error) throw error;
     },
@@ -83,7 +83,7 @@ const SalaryReport = () => {
       if (!entry.clock_in || !entry.clock_out) return;
       const hours = (new Date(entry.clock_out).getTime() - new Date(entry.clock_in).getTime()) / (1000 * 60 * 60);
       const worker = workerMap.get(entry.worker_id);
-      const rate = (worker as any)?.hourly_rate ?? 0;
+      const rate = worker?.hourly_rate ?? 0;
 
       const existing = summary.get(entry.worker_id) || {
         name: entry.worker_name,
