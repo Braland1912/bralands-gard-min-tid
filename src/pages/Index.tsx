@@ -128,9 +128,9 @@ const Index = () => {
 
       <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
         <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
+          <Link to="/" className="flex justify-center mb-4">
             <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
-          </div>
+          </Link>
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
           {workerLoading ? (
             <Skeleton className="h-6 w-48 mx-auto" />

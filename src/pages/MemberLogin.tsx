@@ -62,9 +62,9 @@ const MemberLogin = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 space-y-6 shadow-lg">
         <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
+          <Link to="/" className="flex justify-center mb-4">
             <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
-          </div>
+          </Link>
           <h1 className="text-3xl font-bold text-foreground">{forgotMode ? "Återställ lösenord" : "Logga in"}</h1>
           <p className="text-muted-foreground">{forgotMode ? "Ange din e-post för att få en återställningslänk" : "Logga in med ditt konto"}</p>
         </div>
