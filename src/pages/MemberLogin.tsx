@@ -26,14 +26,6 @@ const MemberLogin = () => {
       return;
     }
 
-    // Check if user is approved
-    const status = data.user?.user_metadata?.status;
-    if (status === "pending") {
-      await supabase.auth.signOut();
-      toast({ title: "Väntar på godkännande", description: "Din ansökan väntar fortfarande på godkännande av admin.", variant: "destructive" });
-      return;
-    }
-
     navigate("/");
   };
 
