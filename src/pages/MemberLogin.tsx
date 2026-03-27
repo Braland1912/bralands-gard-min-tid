@@ -69,30 +69,62 @@ const MemberLogin = () => {
           <p className="text-muted-foreground">Logga in med ditt konto</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <Input
-            type="email"
-            placeholder="E-postadress"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="h-14 text-lg"
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Lösenord"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-lg"
-            required
-          />
-          <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
-            {loading ? "Loggar in..." : "Logga in"}
-          </Button>
-          <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => navigate("/")}>
-            Tillbaka
-          </Button>
-        </form>
+        {forgotMode ? (
+          resetSent ? (
+            <div className="space-y-4 text-center">
+              <p className="text-foreground">Ett e-postmeddelande med en återställningslänk har skickats till <strong>{email}</strong>.</p>
+              <p className="text-sm text-muted-foreground">Kolla din inkorg (och skräpposten).</p>
+              <Button variant="outline" size="lg" className="w-full text-lg" onClick={() => { setForgotMode(false); setResetSent(false); }}>
+                Tillbaka till inloggning
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="E-postadress"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-14 text-lg"
+                required
+              />
+              <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
+                {loading ? "Skickar..." : "Skicka återställningslänk"}
+              </Button>
+              <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => setForgotMode(false)}>
+                Tillbaka till inloggning
+              </Button>
+            </form>
+          )
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="E-postadress"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-14 text-lg"
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Lösenord"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-14 text-lg"
+              required
+            />
+            <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
+              {loading ? "Loggar in..." : "Logga in"}
+            </Button>
+            <Button type="button" variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => setForgotMode(true)}>
+              Glömt lösenord?
+            </Button>
+            <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => navigate("/")}>
+              Tillbaka
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );
