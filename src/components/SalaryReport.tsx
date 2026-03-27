@@ -102,6 +102,7 @@ const SalaryReport = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [entries, workers]);
 
+  const totalHours = salaryData.reduce((sum, w) => sum + w.totalHours, 0);
   const totalEarned = salaryData.reduce((sum, w) => sum + w.totalHours * w.hourlyRate, 0);
 
   return (
