@@ -80,20 +80,24 @@ const MemberLogin = () => {
             </div>
           ) : (
             <form onSubmit={handleForgotPassword} className="space-y-4">
-              <Input
-                type="email"
-                placeholder="E-postadress"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-14 text-lg"
-                required
-              />
+              <div className="space-y-2">
+                <label htmlFor="reset-email" className="text-sm font-medium text-foreground">E-postadress</label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="namn@exempel.se"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-14 text-lg"
+                  required
+                />
+              </div>
               <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
                 {loading ? "Skickar..." : "Skicka återställningslänk"}
               </Button>
-              <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => setForgotMode(false)}>
-                Tillbaka till inloggning
-              </Button>
+              <button type="button" className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors" onClick={() => setForgotMode(false)}>
+                Avbryt
+              </button>
             </form>
           )
         ) : (
