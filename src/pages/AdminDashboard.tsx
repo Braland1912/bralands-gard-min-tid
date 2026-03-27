@@ -10,6 +10,7 @@ import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import InvitationManager from "@/components/InvitationManager";
 import TeamMembers from "@/components/TeamMembers";
 import PendingMembers from "@/components/PendingMembers";
+import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
