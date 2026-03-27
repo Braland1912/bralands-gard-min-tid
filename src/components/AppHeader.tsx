@@ -14,9 +14,10 @@ const AppHeader = () => {
   const { data: worker } = useWorker(user?.id);
   const { isAdmin } = useAdmin();
 
-  // Hide header on admin dashboard (has its own header) and login pages
+  // Hide header on admin dashboard (has its own header), login pages, and registration
   const hiddenPaths = ["/admin/dashboard", "/admin", "/login"];
-  if (hiddenPaths.includes(location.pathname)) return null;
+  const isHidden = hiddenPaths.includes(location.pathname) || location.pathname.startsWith("/invite/");
+  if (isHidden) return null;
 
   const handleLogout = async () => {
     await signOut();

@@ -46,9 +46,9 @@ const MyTime = () => {
         .from("time_entries")
         .select("*")
         .eq("worker_id", worker.id)
-        .gte("created_at", monthStart)
-        .lte("created_at", monthEnd)
-        .order("created_at", { ascending: false });
+        .gte("clock_in", monthStart)
+        .lte("clock_in", monthEnd)
+        .order("clock_in", { ascending: false });
       if (error) throw error;
       return data;
     },
