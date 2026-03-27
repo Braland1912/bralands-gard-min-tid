@@ -148,7 +148,7 @@ const MyTime = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   if (loading || !user) return null;
