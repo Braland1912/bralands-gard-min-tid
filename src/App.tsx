@@ -30,7 +30,7 @@ const App = () => (
           <Route path="/invite/:token" element={<Register />} />
           <Route path="/login" element={<MemberLogin />} />
           <Route path="/my-time" element={<MyTime />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
