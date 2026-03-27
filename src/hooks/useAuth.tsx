@@ -22,12 +22,9 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.auth.signOut();
-      }
+      await supabase.auth.signOut({ scope: 'local' });
     } catch {
-      // Session already expired, clear local state
+      // Session already expired
     } finally {
       setUser(null);
     }

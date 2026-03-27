@@ -3,15 +3,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Download, Calendar, Clock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Download, Calendar, Clock, Pencil, Trash2, Plus, Loader2, Save } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminTimeLog = () => {
   const [selectedWorker, setSelectedWorker] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [editEntry, setEditEntry] = useState<any | null>(null);
+  const [editClockIn, setEditClockIn] = useState("");
+  const [editClockOut, setEditClockOut] = useState("");
+  const [deleteEntry, setDeleteEntry] = useState<any | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addWorkerId, setAddWorkerId] = useState("");
+  const [addClockIn, setAddClockIn] = useState("");
+  const [addClockOut, setAddClockOut] = useState("");
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
@@ -22,7 +35,7 @@ const AdminTimeLog = () => {
     },
   });
 
-  const { data: entries = [] } = useQuery({
+  const { data: entries = [], isLoading } = useQuery({
     queryKey: ["time_entries", selectedWorker, selectedDate],
     queryFn: async () => {
       let query = supabase.from("time_entries").select("*").order("clock_in", { ascending: false });
@@ -39,6 +52,75 @@ const AdminTimeLog = () => {
       return data;
     },
   });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["time_entries"] });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, clock_in, clock_out }: { id: string; clock_in: string; clock_out: string | null }) => {
+      const update: any = { clock_in: new Date(clock_in).toISOString() };
+      if (clock_out) update.clock_out = new Date(clock_out).toISOString();
+      else update.clock_out = null;
+      const { error } = await supabase.from("time_entries").update(update).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      setEditEntry(null);
+      toast({ title: "Stämpling uppdaterad" });
+    },
+    onError: (e: any) => toast({ title: "Fel", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("time_entries").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      setDeleteEntry(null);
+      toast({ title: "Stämpling raderad" });
+    },
+    onError: (e: any) => toast({ title: "Fel", description: e.message, variant: "destructive" }),
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async () => {
+      const worker = workers.find((w) => w.id === addWorkerId);
+      if (!worker) throw new Error("Välj en medarbetare");
+      if (!addClockIn) throw new Error("Ange in-tid");
+      const insert: any = {
+        worker_id: worker.id,
+        worker_name: worker.name,
+        clock_in: new Date(addClockIn).toISOString(),
+      };
+      if (addClockOut) insert.clock_out = new Date(addClockOut).toISOString();
+      const { error } = await supabase.from("time_entries").insert(insert);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      setShowAdd(false);
+      setAddWorkerId("");
+      setAddClockIn("");
+      setAddClockOut("");
+      toast({ title: "Stämpling tillagd" });
+    },
+    onError: (e: any) => toast({ title: "Fel", description: e.message, variant: "destructive" }),
+  });
+
+  const openEdit = (entry: any) => {
+    setEditEntry(entry);
+    setEditClockIn(entry.clock_in ? toLocalDatetime(entry.clock_in) : "");
+    setEditClockOut(entry.clock_out ? toLocalDatetime(entry.clock_out) : "");
+  };
+
+  const toLocalDatetime = (iso: string) => {
+    const d = new Date(iso);
+    const offset = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+  };
 
   const groupedByDay = useMemo(() => {
     const groups = new Map<string, typeof entries>();
@@ -76,12 +158,18 @@ const AdminTimeLog = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">Tidslogg</h2>
-        <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2">
-          <Download className="h-4 w-4" />
-          CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowAdd(true)} className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Lägg till</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-1.5">
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">CSV</span>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -107,7 +195,11 @@ const AdminTimeLog = () => {
         </div>
       </div>
 
-      {groupedByDay.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : groupedByDay.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <Clock className="h-12 w-12 text-muted-foreground/40 mb-3" />
           <p className="text-muted-foreground font-medium">Inga tidsposter hittades</p>
@@ -126,25 +218,35 @@ const AdminTimeLog = () => {
                     ? ((new Date(entry.clock_out).getTime() - new Date(entry.clock_in).getTime()) / 3600000)
                     : null;
                   return (
-                    <Card key={entry.id} className="p-3 flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-foreground">{entry.worker_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        {hours !== null ? (
-                          <p className="font-semibold text-foreground">{hours.toFixed(2)} h</p>
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <span className="relative flex h-2.5 w-2.5">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-                            </span>
-                            <p className="text-sm text-primary font-medium">Pågående</p>
+                    <Card key={entry.id} className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-foreground">{entry.worker_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right mr-1">
+                            {hours !== null ? (
+                              <p className="font-semibold text-foreground text-sm">{hours.toFixed(2)} h</p>
+                            ) : (
+                              <div className="flex items-center gap-1.5">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                <p className="text-xs text-primary font-medium">Pågående</p>
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openEdit(entry)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteEntry(entry)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   );
@@ -154,6 +256,106 @@ const AdminTimeLog = () => {
           ))}
         </div>
       )}
+
+      {/* Edit dialog */}
+      <Dialog open={!!editEntry} onOpenChange={(open) => !open && setEditEntry(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Redigera stämpling</DialogTitle>
+            <DialogDescription>{editEntry?.worker_name}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">In</label>
+              <Input type="datetime-local" value={editClockIn} onChange={(e) => setEditClockIn(e.target.value)} className="h-12 text-base" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Ut</label>
+              <Input type="datetime-local" value={editClockOut} onChange={(e) => setEditClockOut(e.target.value)} className="h-12 text-base" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditEntry(null)}>Avbryt</Button>
+            <Button
+              onClick={() => editEntry && updateMutation.mutate({ id: editEntry.id, clock_in: editClockIn, clock_out: editClockOut || null })}
+              disabled={updateMutation.isPending || !editClockIn}
+              className="gap-1.5"
+            >
+              {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Spara
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deleteEntry} onOpenChange={(open) => !open && setDeleteEntry(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Radera stämpling?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteEntry && (
+                <>Stämpling för <strong>{deleteEntry.worker_name}</strong> den {deleteEntry.clock_in ? format(new Date(deleteEntry.clock_in), "d MMMM HH:mm", { locale: sv }) : "okänt"} tas bort permanent.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteEntry && deleteMutation.mutate(deleteEntry.id)}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
+              Radera
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add dialog */}
+      <Dialog open={showAdd} onOpenChange={setShowAdd}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Lägg till stämpling</DialogTitle>
+            <DialogDescription>Skapa en manuell tidsstämpling</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Medarbetare</label>
+              <Select value={addWorkerId} onValueChange={setAddWorkerId}>
+                <SelectTrigger className="h-12 text-base">
+                  <SelectValue placeholder="Välj medarbetare" />
+                </SelectTrigger>
+                <SelectContent>
+                  {workers.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">In</label>
+              <Input type="datetime-local" value={addClockIn} onChange={(e) => setAddClockIn(e.target.value)} className="h-12 text-base" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Ut (valfritt)</label>
+              <Input type="datetime-local" value={addClockOut} onChange={(e) => setAddClockOut(e.target.value)} className="h-12 text-base" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAdd(false)}>Avbryt</Button>
+            <Button
+              onClick={() => addMutation.mutate()}
+              disabled={addMutation.isPending || !addWorkerId || !addClockIn}
+              className="gap-1.5"
+            >
+              {addMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Lägg till
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
