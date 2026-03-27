@@ -11,6 +11,7 @@ import AdminTeam from "@/components/admin/AdminTeam";
 import InvitationManager from "@/components/InvitationManager";
 import SalaryReport from "@/components/SalaryReport";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
+import logo from "@/assets/logo-braland.svg";
 
 const tabs = [
   { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
@@ -62,9 +63,12 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card min-h-screen">
-        <div className="p-4 border-b border-border">
-          <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
-          <p className="text-xs text-muted-foreground">Administration</p>
+        <div className="p-4 border-b border-border flex items-center gap-3">
+          <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain" />
+          <div>
+            <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
+            <p className="text-xs text-muted-foreground">Administration</p>
+          </div>
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {tabs.map((tab) => (
@@ -98,7 +102,8 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
         <header className="md:hidden sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-          <div>
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain" />
             <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
           </div>
           <div className="flex items-center gap-1">

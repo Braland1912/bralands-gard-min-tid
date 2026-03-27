@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Clock, LogIn, LogOut, Settings, Power, FileText, Trees } from "lucide-react";
+import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
+import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -83,7 +84,7 @@ const Index = () => {
         <Card className="w-full max-w-md p-8 space-y-8 shadow-lg text-center">
           <div className="space-y-4">
             <div className="flex justify-center">
-              <Trees className="h-20 w-20 text-primary" />
+              <img src={logo} alt="Brålands Gård" className="h-20 sm:h-24 w-auto max-w-[220px] object-contain" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">Brålands Gård</h1>
             <p className="text-muted-foreground text-lg">
@@ -128,7 +129,7 @@ const Index = () => {
       <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <Clock className="h-16 w-16 text-primary" />
+            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
           {workerLoading ? (
