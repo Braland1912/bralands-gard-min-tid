@@ -63,9 +63,12 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card min-h-screen">
-        <div className="p-4 border-b border-border">
-          <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
-          <p className="text-xs text-muted-foreground">Administration</p>
+        <div className="p-4 border-b border-border flex items-center gap-3">
+          <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain" />
+          <div>
+            <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
+            <p className="text-xs text-muted-foreground">Administration</p>
+          </div>
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {tabs.map((tab) => (
