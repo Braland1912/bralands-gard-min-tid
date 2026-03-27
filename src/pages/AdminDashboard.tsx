@@ -23,8 +23,16 @@ const tabs = [
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("oversikt");
+  const [refreshing, setRefreshing] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setTimeout(() => setRefreshing(false), 500);
+  };
 
   const handleLogout = async () => {
     await signOut();
