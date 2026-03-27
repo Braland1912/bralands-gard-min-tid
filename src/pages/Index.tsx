@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
@@ -83,9 +83,9 @@ const Index = () => {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 space-y-8 shadow-lg text-center">
           <div className="space-y-4">
-            <div className="flex justify-center">
+            <Link to="/" className="flex justify-center">
               <img src={logo} alt="Brålands Gård" className="h-20 sm:h-24 w-auto max-w-[220px] object-contain" />
-            </div>
+            </Link>
             <h1 className="text-3xl font-bold text-foreground">Brålands Gård</h1>
             <p className="text-muted-foreground text-lg">
               Logga in för att stämpla din tid
@@ -128,9 +128,9 @@ const Index = () => {
 
       <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
         <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
+          <Link to="/" className="flex justify-center mb-4">
             <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
-          </div>
+          </Link>
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
           {workerLoading ? (
             <Skeleton className="h-6 w-48 mx-auto" />
