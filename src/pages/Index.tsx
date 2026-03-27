@@ -129,7 +129,7 @@ const Index = () => {
       <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-4">
-            <Clock className="h-16 w-16 text-primary" />
+            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
           {workerLoading ? (
