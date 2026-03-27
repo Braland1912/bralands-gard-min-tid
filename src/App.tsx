@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/invite/:token" element={<Register />} />
           <Route path="/login" element={<MemberLogin />} />
           <Route path="/my-time" element={<MyTime />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
