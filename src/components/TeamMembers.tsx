@@ -31,6 +31,9 @@ const TeamMembers = () => {
   const [resetTarget, setResetTarget] = useState<{ userId: string; name: string } | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [resetting, setResetting] = useState(false);
+  const [editingRate, setEditingRate] = useState<string | null>(null);
+  const [rateValue, setRateValue] = useState("");
+  const [savingRate, setSavingRate] = useState(false);
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
