@@ -103,6 +103,26 @@ const SalaryReport = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [entries, workers]);
 
+  const entriesByWorker = useMemo(() => {
+    const map = new Map<string, typeof entries>();
+    entries.forEach((entry) => {
+      if (!entry.clock_in || !entry.clock_out) return;
+      const list = map.get(entry.worker_id) || [];
+      list.push(entry);
+      map.set(entry.worker_id, list);
+    });
+    return map;
+  }, [entries]);
+
+  const toggleExpanded = (workerId: string) => {
+    setExpandedWorkers((prev) => {
+      const next = new Set(prev);
+      if (next.has(workerId)) next.delete(workerId);
+      else next.add(workerId);
+      return next;
+    });
+  };
+
   const totalHours = salaryData.reduce((sum, w) => sum + w.totalHours, 0);
   const totalEarned = salaryData.reduce((sum, w) => sum + w.totalHours * w.hourlyRate, 0);
 
