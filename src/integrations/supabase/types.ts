@@ -85,6 +85,53 @@ export type Database = {
           },
         ]
       }
+      time_correction_requests: {
+        Row: {
+          admin_note: string | null
+          clock_in: string | null
+          clock_out: string | null
+          created_at: string
+          date: string
+          id: string
+          reason: string
+          status: string
+          worker_id: string
+          worker_name: string
+        }
+        Insert: {
+          admin_note?: string | null
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          reason: string
+          status?: string
+          worker_id: string
+          worker_name: string
+        }
+        Update: {
+          admin_note?: string | null
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          reason?: string
+          status?: string
+          worker_id?: string
+          worker_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_correction_requests_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       time_entries: {
         Row: {
           clock_in: string | null
