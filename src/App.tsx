@@ -11,7 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
-import ResetPassword from "./pages/ResetPassword";
+
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
 

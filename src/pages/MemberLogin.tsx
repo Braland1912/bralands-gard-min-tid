@@ -14,27 +14,6 @@ const MemberLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [forgotMode, setForgotMode] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({ title: "Ange e-post", description: "Fyll i din e-postadress.", variant: "destructive" });
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Fel", description: error.message, variant: "destructive" });
-    } else {
-      setResetSent(true);
-    }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -65,70 +44,37 @@ const MemberLogin = () => {
           <Link to="/" className="flex justify-center mb-4">
             <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
           </Link>
-          <h1 className="text-3xl font-bold text-foreground">{forgotMode ? "Återställ lösenord" : "Logga in"}</h1>
-          <p className="text-muted-foreground">{forgotMode ? "Ange din e-post för att få en återställningslänk" : "Logga in med ditt konto"}</p>
+          <h1 className="text-3xl font-bold text-foreground">Logga in</h1>
+          <p className="text-muted-foreground">Logga in med ditt konto</p>
         </div>
 
-        {forgotMode ? (
-          resetSent ? (
-            <div className="space-y-4 text-center">
-              <p className="text-foreground">Ett e-postmeddelande med en återställningslänk har skickats till <strong>{email}</strong>.</p>
-              <p className="text-sm text-muted-foreground">Kolla din inkorg (och skräpposten).</p>
-              <Button variant="outline" size="lg" className="w-full text-lg" onClick={() => { setForgotMode(false); setResetSent(false); }}>
-                Tillbaka till inloggning
-              </Button>
-            </div>
-          ) : (
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="reset-email" className="text-sm font-medium text-foreground">E-postadress</label>
-                <Input
-                  id="reset-email"
-                  type="email"
-                  placeholder="namn@exempel.se"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-14 text-lg"
-                  required
-                />
-              </div>
-              <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
-                {loading ? "Skickar..." : "Skicka återställningslänk"}
-              </Button>
-              <button type="button" className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors" onClick={() => setForgotMode(false)}>
-                Avbryt
-              </button>
-            </form>
-          )
-        ) : (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              type="email"
-              placeholder="E-postadress"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-14 text-lg"
-              required
-            />
-            <Input
-              type="password"
-              placeholder="Lösenord"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-14 text-lg"
-              required
-            />
-            <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
-              {loading ? "Loggar in..." : "Logga in"}
-            </Button>
-            <Button type="button" variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={() => setForgotMode(true)}>
-              Glömt lösenord?
-            </Button>
-            <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => navigate("/")}>
-              Tillbaka
-            </Button>
-          </form>
-        )}
+        <form onSubmit={handleLogin} className="space-y-4">
+          <Input
+            type="email"
+            placeholder="E-postadress"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-14 text-lg"
+            required
+          />
+          <Input
+            type="password"
+            placeholder="Lösenord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-14 text-lg"
+            required
+          />
+          <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
+            {loading ? "Loggar in..." : "Logga in"}
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Glömt lösenordet? Kontakta admin.
+          </p>
+          <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => navigate("/")}>
+            Tillbaka
+          </Button>
+        </form>
       </Card>
     </div>
   );
