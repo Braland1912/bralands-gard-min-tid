@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import MemberLogin from "./pages/MemberLogin";
+import MyTime from "./pages/MyTime";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
