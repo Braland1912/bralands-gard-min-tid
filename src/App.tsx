@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/invite/:token" element={<Register />} />
           <Route path="/login" element={<MemberLogin />} />
+          <Route path="/my-time" element={<MyTime />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
