@@ -37,14 +37,18 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 space-y-6 shadow-lg">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
-            <Lock className="h-16 w-16 text-primary" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-sm p-10 space-y-8">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Lock className="h-7 w-7 text-primary" />
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Adminåtkomst</h1>
-          <p className="text-muted-foreground">Logga in för att fortsätta</p>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground">Adminåtkomst</h1>
+            <p className="text-muted-foreground">Logga in för att fortsätta</p>
+          </div>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -53,7 +57,7 @@ const Admin = () => {
             placeholder="E-post"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-14 text-lg"
+            className="h-12"
             autoFocus
             required
           />
@@ -62,7 +66,7 @@ const Admin = () => {
             placeholder="Lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-lg"
+            className="h-12"
             required
           />
 
@@ -70,16 +74,16 @@ const Admin = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full text-lg"
+              className="w-full"
               disabled={loading}
             >
               {loading ? "Loggar in..." : "Logga in"}
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="lg"
-              className="w-full text-lg"
+              className="w-full text-muted-foreground"
               onClick={() => navigate("/")}
             >
               Tillbaka

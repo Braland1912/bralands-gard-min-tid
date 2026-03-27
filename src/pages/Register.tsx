@@ -66,15 +66,17 @@ const Register = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 space-y-6 text-center shadow-lg">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="w-full max-w-sm p-10 space-y-6 text-center">
           <div className="flex justify-center">
-            <CheckCircle className="h-20 w-20 text-primary" />
+            <CheckCircle className="h-16 w-16 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Välkommen!</h1>
-          <p className="text-muted-foreground">
-            Ditt konto är klart. Du kan nu logga in och börja rapportera tid.
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold text-foreground">Välkommen!</h1>
+            <p className="text-muted-foreground">
+              Ditt konto är klart. Du kan nu logga in och börja rapportera tid.
+            </p>
+          </div>
           <Button onClick={() => window.location.href = "/login"} className="w-full">
             Gå till inloggning
           </Button>
@@ -84,30 +86,36 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 space-y-6 shadow-lg">
-        <div className="text-center space-y-2">
-          <div className="flex justify-center mb-4">
-            <UserPlus className="h-16 w-16 text-primary" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-sm p-10 space-y-8">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <UserPlus className="h-7 w-7 text-primary" />
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Registrera dig</h1>
-          <p className="text-muted-foreground">
-            Fyll i dina uppgifter för att gå med i teamet
-          </p>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground">Registrera dig</h1>
+            <p className="text-muted-foreground">
+              Fyll i dina uppgifter för att gå med i teamet
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Input
               placeholder="Förnamn"
               value={form.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
+              className="h-12"
               required
             />
             <Input
               placeholder="Efternamn"
               value={form.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
+              className="h-12"
               required
             />
           </div>
@@ -116,6 +124,7 @@ const Register = () => {
             placeholder="E-postadress"
             value={form.email}
             onChange={(e) => handleChange("email", e.target.value)}
+            className="h-12"
             required
           />
           <Input
@@ -123,6 +132,7 @@ const Register = () => {
             placeholder="Telefonnummer"
             value={form.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
+            className="h-12"
             required
           />
           <Input
@@ -130,6 +140,7 @@ const Register = () => {
             placeholder="Lösenord (minst 6 tecken)"
             value={form.password}
             onChange={(e) => handleChange("password", e.target.value)}
+            className="h-12"
             required
           />
           <Input
@@ -137,9 +148,10 @@ const Register = () => {
             placeholder="Bekräfta lösenord"
             value={form.confirmPassword}
             onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            className="h-12"
             required
           />
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? "Skapar konto..." : "Skapa konto"}
           </Button>
         </form>

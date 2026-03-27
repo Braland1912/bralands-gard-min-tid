@@ -8,7 +8,7 @@ const AppHeader = () => {
   if (location.pathname === "/admin/dashboard") return null;
 
   return (
-    <header className="w-full border-b border-border bg-background px-4 py-3 flex items-center">
+    <header className="w-full border-b border-border bg-card px-5 py-3 flex items-center">
       <Logo />
     </header>
   );

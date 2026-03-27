@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Clock, Users, AlertTriangle, UserCheck } from "lucide-react";
+import { Clock, AlertTriangle, UserCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminOverviewProps {
@@ -69,8 +69,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       icon: Clock,
       loading: loadingActive,
       tab: "tidslogg",
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
     {
       label: "Timmar idag",
@@ -78,8 +76,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       icon: Clock,
       loading: loadingHours,
       tab: "tidslogg",
-      color: "text-accent-foreground",
-      bg: "bg-accent/20",
     },
     {
       label: "Väntande rättelser",
@@ -87,8 +83,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       icon: AlertTriangle,
       loading: loadingCorrections,
       tab: "rattelser",
-      color: "text-destructive",
-      bg: "bg-destructive/10",
     },
     {
       label: "Väntande ansökningar",
@@ -96,28 +90,26 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       icon: UserCheck,
       loading: loadingMembers,
       tab: "team",
-      color: "text-primary",
-      bg: "bg-primary/10",
     },
   ];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-foreground">Översikt</h2>
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-foreground">Översikt</h2>
       <div className="grid grid-cols-2 gap-3">
         {cards.map((card) => (
           <button
             key={card.label}
             onClick={() => onNavigate(card.tab)}
-            className={`${card.bg} rounded-xl p-4 text-left transition-transform active:scale-95 hover:shadow-md`}
+            className="border border-border bg-card rounded-2xl p-5 text-left transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <card.icon className={`h-6 w-6 ${card.color} mb-2`} />
+            <card.icon className="h-5 w-5 text-primary mb-3" />
             {card.loading ? (
-              <Skeleton className="h-8 w-16 mb-1" />
+              <Skeleton className="h-7 w-14 mb-1" />
             ) : (
-              <p className="text-2xl font-bold text-foreground">{card.value}</p>
+              <p className="text-2xl font-semibold text-foreground">{card.value}</p>
             )}
-            <p className="text-sm text-muted-foreground">{card.label}</p>
+            <p className="text-sm text-muted-foreground mt-1">{card.label}</p>
           </button>
         ))}
       </div>

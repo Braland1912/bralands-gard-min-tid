@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
+import { LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -93,24 +93,25 @@ const Index = () => {
     );
   }
 
-  // Welcome screen for unauthenticated users
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 space-y-8 shadow-lg text-center">
-          <div className="space-y-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <Card className="w-full max-w-sm p-10 space-y-10 text-center">
+          <div className="space-y-6">
             <Link to="/" className="flex justify-center">
-              <img src={logo} alt="Brålands Gård" className="h-20 sm:h-24 w-auto max-w-[220px] object-contain" />
+              <img src={logo} alt="Brålands Gård" className="h-20 sm:h-24 w-auto max-w-[200px] object-contain" />
             </Link>
-            <h1 className="text-3xl font-bold text-foreground">Brålands Gård</h1>
-            <p className="text-muted-foreground text-lg">
-              Logga in för att stämpla din tid
-            </p>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-semibold text-foreground">Brålands Gård</h1>
+              <p className="text-muted-foreground">
+                Logga in för att stämpla din tid
+              </p>
+            </div>
           </div>
           <Button
             onClick={() => navigate("/login")}
             size="lg"
-            className="w-full h-14 text-lg font-semibold gap-2"
+            className="w-full h-14 text-base font-semibold gap-2"
           >
             <LogIn className="h-5 w-5" />
             Logga in
@@ -121,8 +122,8 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="absolute top-4 right-4 flex gap-2">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+      <div className="absolute top-5 right-5 flex gap-2">
         <Button
           variant="ghost"
           size="sm"
@@ -142,38 +143,43 @@ const Index = () => {
         </Button>
       </div>
 
-      <Card className="w-full max-w-md p-8 space-y-8 shadow-lg">
-        <div className="text-center space-y-2">
+      <Card className="w-full max-w-sm p-10 space-y-8">
+        <div className="text-center space-y-3">
           <Link to="/" className="flex justify-center mb-4">
-            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
+            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[180px] object-contain" />
           </Link>
-          <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
           {workerLoading ? (
             <Skeleton className="h-6 w-48 mx-auto" />
           ) : worker ? (
-            <p className="text-lg text-muted-foreground">
-              Hej, <span className="font-semibold text-foreground">{worker.name}</span>! 👋
-            </p>
+            <div className="space-y-1">
+              <p className="text-lg text-muted-foreground">
+                Hej, <span className="font-semibold text-foreground">{worker.name}</span> 👋
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Stämpla in när du börjar. Glöm inte stämpla ut.
+              </p>
+            </div>
           ) : (
             <div className="space-y-1">
               <p className="text-lg font-semibold text-primary">👋 Inloggad som admin</p>
               <p className="text-sm text-muted-foreground">
-                Gå till <button onClick={() => navigate("/admin/dashboard")} className="underline text-primary hover:text-primary/80">admin dashboard</button> för att hantera teamet.
+                Gå till{" "}
+                <button onClick={() => navigate("/admin/dashboard")} className="underline text-primary hover:text-primary/80">
+                  admin dashboard
+                </button>{" "}
+                för att hantera teamet.
               </p>
             </div>
           )}
-          <p className="text-sm text-muted-foreground">
-            Stämpla in när du börjar jobba. Glöm inte stämpla ut när du är klar eller tar rast.
-          </p>
         </div>
 
         {worker && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={handleClockIn}
                 size="lg"
-                className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
+                className="h-24 text-lg font-semibold"
               >
                 <LogIn className="mr-2 h-6 w-6" />
                 Stämpla in
@@ -181,16 +187,16 @@ const Index = () => {
               <Button
                 onClick={handleClockOut}
                 size="lg"
-                variant="secondary"
-                className="h-24 text-xl font-semibold"
+                variant="outline"
+                className="h-24 text-lg font-semibold"
               >
                 <LogOut className="mr-2 h-6 w-6" />
                 Stämpla ut
               </Button>
             </div>
             <Button
-              variant="outline"
-              className="w-full"
+              variant="ghost"
+              className="w-full text-muted-foreground"
               onClick={() => navigate("/my-time")}
             >
               <FileText className="mr-2 h-4 w-4" />
