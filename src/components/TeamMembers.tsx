@@ -1,0 +1,107 @@
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Trash2, Users } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+const TeamMembers = () => {
+  const queryClient = useQueryClient();
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const { data: workers = [] } = useQuery({
+    queryKey: ["workers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workers")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+
+    const { error } = await supabase
+      .from("workers")
+      .delete()
+      .eq("id", deleteTarget.id);
+
+    setDeleting(false);
+    setDeleteTarget(null);
+
+    if (error) {
+      toast.error("Kunde inte ta bort medlemmen");
+      return;
+    }
+
+    toast.success(`${deleteTarget.name} har tagits bort`);
+    queryClient.invalidateQueries({ queryKey: ["workers"] });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-muted-foreground" />
+          <h2 className="text-xl font-semibold text-foreground">Teammedlemmar</h2>
+          <span className="text-sm text-muted-foreground">({workers.length} aktiva)</span>
+        </div>
+      </div>
+
+      {workers.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Inga teammedlemmar ännu.</p>
+      ) : (
+        <div className="space-y-2">
+          {workers.map((worker) => (
+            <Card key={worker.id} className="p-3 flex items-center justify-between">
+              <span className="font-medium text-foreground">{worker.name}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setDeleteTarget({ id: worker.id, name: worker.name })}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort medlem</AlertDialogTitle>
+            <AlertDialogDescription>
+              Är du säker på att du vill ta bort <strong>{deleteTarget?.name}</strong> från teamet? Detta kan inte ångras.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting}>
+              {deleting ? "Tar bort..." : "Ta bort"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default TeamMembers;

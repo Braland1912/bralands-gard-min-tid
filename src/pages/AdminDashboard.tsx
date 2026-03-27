@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft, Download, Calendar } from "lucide-react";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import InvitationManager from "@/components/InvitationManager";
+import TeamMembers from "@/components/TeamMembers";
 import PendingMembers from "@/components/PendingMembers";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,6 +133,8 @@ const AdminDashboard = () => {
         </div>
 
         <InvitationManager />
+
+        <TeamMembers />
 
         <PendingMembers />
 
