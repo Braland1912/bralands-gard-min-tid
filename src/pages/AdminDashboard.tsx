@@ -63,38 +63,38 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card min-h-screen">
-        <div className="p-4 border-b border-border flex items-center gap-3">
+        <div className="p-5 border-b border-border flex items-center gap-3">
           <button onClick={() => setActiveTab("oversikt")} className="focus:outline-none">
             <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain cursor-pointer" />
           </button>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
+            <h1 className="text-base font-semibold text-foreground">Brålands Gård</h1>
             <p className="text-xs text-muted-foreground">Administration</p>
           </div>
         </div>
-        <nav className="flex-1 p-2 space-y-1">
+        <nav className="flex-1 p-3 space-y-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                 activeTab === tab.id
                   ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
-              <tab.icon className="h-5 w-5" />
+              <tab.icon className="h-4 w-4" />
               {tab.label}
             </button>
           ))}
         </nav>
-        <div className="p-3 border-t border-border space-y-2">
+        <div className="p-3 border-t border-border space-y-1">
           <ChangePasswordDialog />
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-150"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
             Logga ut
           </button>
         </div>
@@ -110,22 +110,22 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-1">
             <button
               onClick={handleRefresh}
-              className="p-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+              className="p-2 rounded-xl text-muted-foreground hover:bg-accent transition-colors"
             >
-              <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
             </button>
             <ChangePasswordDialog />
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="p-2 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-4 w-4" />
             </button>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-4 pb-24 md:pb-6 max-w-4xl mx-auto w-full">
+        <main className="flex-1 p-5 pb-24 md:pb-6 max-w-4xl mx-auto w-full">
           {renderContent()}
         </main>
 
@@ -135,13 +135,13 @@ const AdminDashboard = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg min-w-[56px] transition-colors ${
+              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl min-w-[52px] transition-colors ${
                 activeTab === tab.id
                   ? "text-primary"
                   : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-5 w-5" />
+              <tab.icon className="h-4 w-4" />
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
