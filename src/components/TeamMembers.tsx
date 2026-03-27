@@ -134,27 +134,71 @@ const TeamMembers = () => {
       ) : (
         <div className="space-y-2">
           {workers.map((worker) => (
-            <Card key={worker.id} className="p-3 flex items-center justify-between">
-              <span className="font-medium text-foreground">{worker.name}</span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-                  onClick={() => setResetTarget({ userId: worker.user_id || "", name: worker.name })}
-                  disabled={!worker.user_id}
-                  title="Återställ lösenord"
-                >
-                  <KeyRound className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => setDeleteTarget({ id: worker.id, name: worker.name })}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+            <Card key={worker.id} className="p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-foreground">{worker.name}</span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                    onClick={() => setResetTarget({ userId: worker.user_id || "", name: worker.name })}
+                    disabled={!worker.user_id}
+                    title="Återställ lösenord"
+                  >
+                    <KeyRound className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setDeleteTarget({ id: worker.id, name: worker.name })}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {editingRate === worker.id ? (
+                  <div className="flex items-center gap-1 flex-1">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={rateValue}
+                      onChange={(e) => setRateValue(e.target.value)}
+                      className="h-8 w-24 text-sm"
+                      placeholder="0"
+                      autoFocus
+                    />
+                    <span className="text-sm text-muted-foreground">kr/h</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-primary"
+                      onClick={() => handleSaveRate(worker.id)}
+                      disabled={savingRate}
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground"
+                      onClick={() => { setEditingRate(null); setRateValue(""); }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <button
+                    className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={() => { setEditingRate(worker.id); setRateValue(String(worker.hourly_rate || 0)); }}
+                  >
+                    <DollarSign className="h-3.5 w-3.5" />
+                    <span>{worker.hourly_rate || 0} kr/h</span>
+                  </button>
+                )}
               </div>
             </Card>
           ))}
