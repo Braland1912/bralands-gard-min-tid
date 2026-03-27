@@ -36,6 +36,7 @@ const MyTime = () => {
   const now = new Date();
   const monthStart = startOfMonth(now).toISOString();
   const monthEnd = endOfMonth(now).toISOString();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
   const { data: entries = [], isLoading: entriesLoading } = useQuery({
     queryKey: ["my-time-entries", worker?.id, monthStart],
@@ -53,6 +54,46 @@ const MyTime = () => {
     },
     enabled: !!worker,
   });
+
+  // Today's entries for summary
+  const { data: todayEntries = [] } = useQuery({
+    queryKey: ["my-today-entries", worker?.id],
+    queryFn: async () => {
+      if (!worker) return [];
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("clock_in, clock_out")
+        .eq("worker_id", worker.id)
+        .gte("clock_in", todayStart)
+        .order("clock_in", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!worker,
+    refetchInterval: 30000,
+  });
+
+  const todayStats = (() => {
+    let totalMs = 0;
+    let activeStart: string | null = null;
+    for (const e of todayEntries) {
+      if (e.clock_in && e.clock_out) {
+        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
+      } else if (e.clock_in && !e.clock_out) {
+        activeStart = e.clock_in;
+        totalMs += Date.now() - new Date(e.clock_in).getTime();
+      }
+    }
+    return { totalH: totalMs / 3600000, activeStart };
+  })();
+
+  // Monthly total
+  const monthTotal = entries.reduce((sum, e) => {
+    if (e.clock_in && e.clock_out) {
+      return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
+    }
+    return sum;
+  }, 0);
 
   const { data: corrections = [] } = useQuery({
     queryKey: ["my-corrections", worker?.id],
@@ -127,6 +168,29 @@ const MyTime = () => {
             <Power className="h-4 w-4 mr-1" />
             Logga ut
           </Button>
+        </div>
+
+        {/* Today & month summary */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium uppercase tracking-wide">Idag</span>
+            </div>
+            <p className="text-xl font-semibold text-foreground">{todayStats.totalH.toFixed(1)} h</p>
+            {todayStats.activeStart && (
+              <p className="text-[11px] text-primary font-medium">
+                ● Aktiv sedan {new Date(todayStats.activeStart).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+              </p>
+            )}
+          </div>
+          <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium uppercase tracking-wide">Denna månad</span>
+            </div>
+            <p className="text-xl font-semibold text-foreground">{monthTotal.toFixed(1)} h</p>
+          </div>
         </div>
 
         {/* Time entries */}
