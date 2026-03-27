@@ -13,6 +13,7 @@ import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import AppHeader from "./components/AppHeader";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AppHeader />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/confirmation" element={<Confirmation />} />
