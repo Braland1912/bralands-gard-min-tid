@@ -102,6 +102,7 @@ const SalaryReport = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [entries, workers]);
 
+  const totalHours = salaryData.reduce((sum, w) => sum + w.totalHours, 0);
   const totalEarned = salaryData.reduce((sum, w) => sum + w.totalHours * w.hourlyRate, 0);
 
   return (
@@ -188,6 +189,14 @@ const SalaryReport = () => {
                   </TableCell>
                 </TableRow>
               ))
+            )}
+            {salaryData.length > 0 && (
+              <TableRow className="bg-muted/50 font-bold border-t-2">
+                <TableCell>Totalt</TableCell>
+                <TableCell className="text-right">{totalHours.toFixed(2)}</TableCell>
+                <TableCell className="text-right">—</TableCell>
+                <TableCell className="text-right">{totalEarned.toFixed(0)} kr</TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
