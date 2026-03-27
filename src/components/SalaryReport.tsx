@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { sv } from "date-fns/locale";
 import { toast } from "sonner";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, Download } from "lucide-react";
 
 const SalaryReport = () => {
   const queryClient = useQueryClient();
@@ -105,22 +105,47 @@ const SalaryReport = () => {
   const totalHours = salaryData.reduce((sum, w) => sum + w.totalHours, 0);
   const totalEarned = salaryData.reduce((sum, w) => sum + w.totalHours * w.hourlyRate, 0);
 
+  const exportSalaryCSV = () => {
+    const headers = ["Namn", "Totala timmar", "Timlön (kr)", "Totalt intjänat (kr)"];
+    const rows = salaryData.map(w => [
+      w.name,
+      w.totalHours.toFixed(2),
+      w.hourlyRate.toFixed(0),
+      (w.totalHours * w.hourlyRate).toFixed(0),
+    ]);
+    rows.push(["Totalt", totalHours.toFixed(2), "—", totalEarned.toFixed(0)]);
+
+    const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lonerapport-${selectedMonth}.csv`;
+    a.click();
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-foreground">Lönerapport</h2>
-        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {monthOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportSalaryCSV} disabled={salaryData.length === 0} className="gap-2">
+            <Download className="h-4 w-4" />
+            Exportera till CSV
+          </Button>
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {monthOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="rounded-md border overflow-auto">
