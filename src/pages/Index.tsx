@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Clock, LogIn, LogOut, Settings, Power } from "lucide-react";
+import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -162,23 +162,33 @@ const Index = () => {
         </div>
 
         {worker && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                onClick={handleClockIn}
+                size="lg"
+                className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
+              >
+                <LogIn className="mr-2 h-6 w-6" />
+                Stämpla in
+              </Button>
+              <Button
+                onClick={handleClockOut}
+                size="lg"
+                variant="secondary"
+                className="h-24 text-xl font-semibold"
+              >
+                <LogOut className="mr-2 h-6 w-6" />
+                Stämpla ut
+              </Button>
+            </div>
             <Button
-              onClick={handleClockIn}
-              size="lg"
-              className="h-24 text-xl font-semibold bg-primary hover:bg-primary/90"
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate("/my-time")}
             >
-              <LogIn className="mr-2 h-6 w-6" />
-              Stämpla in
-            </Button>
-            <Button
-              onClick={handleClockOut}
-              size="lg"
-              variant="secondary"
-              className="h-24 text-xl font-semibold"
-            >
-              <LogOut className="mr-2 h-6 w-6" />
-              Stämpla ut
+              <FileText className="mr-2 h-4 w-4" />
+              Min tid & korrigeringar
             </Button>
           </div>
         )}

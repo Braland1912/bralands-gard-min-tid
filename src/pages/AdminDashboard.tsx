@@ -10,6 +10,7 @@ import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import InvitationManager from "@/components/InvitationManager";
 import TeamMembers from "@/components/TeamMembers";
 import PendingMembers from "@/components/PendingMembers";
+import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -137,6 +138,8 @@ const AdminDashboard = () => {
         <TeamMembers />
 
         <PendingMembers />
+
+        <TimeCorrectionRequests />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
