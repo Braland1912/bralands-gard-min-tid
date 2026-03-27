@@ -104,7 +104,6 @@ const AdminDashboard = () => {
         <header className="md:hidden sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain" />
-            <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
           </div>
           <div className="flex items-center gap-1">
             <button
