@@ -190,6 +190,22 @@ const Index = () => {
 
         {worker && (
           <div className="space-y-4">
+            {/* Today's hours summary */}
+            <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase tracking-wide">Idag</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">
+                {todayStats.totalH.toFixed(1)} h
+              </p>
+              {todayStats.activeStart && (
+                <p className="text-xs text-primary font-medium">
+                  ● Aktiv sedan {new Date(todayStats.activeStart).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={handleClockIn}
