@@ -71,10 +71,13 @@ const Register = () => {
           <div className="flex justify-center">
             <CheckCircle className="h-20 w-20 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Tack!</h1>
+          <h1 className="text-2xl font-bold text-foreground">Välkommen!</h1>
           <p className="text-muted-foreground">
-            Din ansökan väntar på godkännande av admin. Du får tillgång till appen när din ansökan har godkänts.
+            Ditt konto är klart. Du kan nu logga in och börja rapportera tid.
           </p>
+          <Button onClick={() => window.location.href = "/login"} className="w-full">
+            Gå till inloggning
+          </Button>
         </Card>
       </div>
     );
