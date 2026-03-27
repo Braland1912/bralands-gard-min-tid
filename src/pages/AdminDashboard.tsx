@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -22,8 +23,16 @@ const tabs = [
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("oversikt");
+  const [refreshing, setRefreshing] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries();
+    setTimeout(() => setRefreshing(false), 500);
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -92,7 +101,13 @@ const AdminDashboard = () => {
           <div>
             <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleRefresh}
+              className="p-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
+            </button>
             <ChangePasswordDialog />
             <button
               onClick={handleLogout}

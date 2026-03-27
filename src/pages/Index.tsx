@@ -138,9 +138,12 @@ const Index = () => {
               Hej, <span className="font-semibold text-foreground">{worker.name}</span>! 👋
             </p>
           ) : (
-            <p className="text-muted-foreground">
-              Ditt konto är inte kopplat till en medarbetare. Kontakta admin.
-            </p>
+            <div className="space-y-1">
+              <p className="text-lg font-semibold text-primary">👋 Inloggad som admin</p>
+              <p className="text-sm text-muted-foreground">
+                Gå till <button onClick={() => navigate("/admin/dashboard")} className="underline text-primary hover:text-primary/80">admin dashboard</button> för att hantera teamet.
+              </p>
+            </div>
           )}
           <p className="text-sm text-muted-foreground">
             Stämpla in när du börjar jobba. Glöm inte stämpla ut när du är klar eller tar rast.

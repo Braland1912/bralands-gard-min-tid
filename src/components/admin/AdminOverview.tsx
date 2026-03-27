@@ -24,11 +24,11 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     queryKey: ["today-hours"],
     queryFn: async () => {
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const { data, error } = await supabase
         .from("time_entries")
         .select("clock_in, clock_out")
-        .gte("clock_in", today.toISOString())
+        .gte("clock_in", startOfDay.toISOString())
         .not("clock_out", "is", null);
       if (error) throw error;
       return (data || []).reduce((sum, e) => {

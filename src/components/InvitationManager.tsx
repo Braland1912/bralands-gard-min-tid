@@ -69,9 +69,9 @@ const InvitationManager = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-foreground">Inbjudningslänkar</h2>
-        <Button onClick={generateInvite} disabled={generating} className="gap-2">
+        <Button onClick={generateInvite} disabled={generating} className="gap-2 w-full sm:w-auto">
           <Link2 className="h-4 w-4" />
           {generating ? "Skapar..." : "Generera inbjudningslänk"}
         </Button>
