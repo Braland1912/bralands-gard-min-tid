@@ -12,7 +12,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify the caller is authenticated
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -25,7 +24,7 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is admin using their JWT
+    // Verify caller identity
     const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -37,9 +36,16 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check caller is admin
-    const isAdmin = caller.user_metadata?.role === "admin";
-    if (!isAdmin) {
+    // Check caller is admin via user_roles table
+    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    const { data: roleData, error: roleError } = await adminClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", caller.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (roleError || !roleData) {
       return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -54,8 +60,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use service role to update the target user's password
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
     const { error } = await adminClient.auth.admin.updateUserById(user_id, {
       password: new_password,
     });

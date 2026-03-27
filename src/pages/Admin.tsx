@@ -27,8 +27,8 @@ const Admin = () => {
 
     if (error) {
       toast({
-        title: "Login failed",
-        description: "Invalid email or password.",
+        title: "Inloggning misslyckades",
+        description: "Fel e-post eller lösenord.",
         variant: "destructive",
       });
     } else {
@@ -43,14 +43,14 @@ const Admin = () => {
           <div className="flex justify-center mb-4">
             <Lock className="h-16 w-16 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Admin Access</h1>
-          <p className="text-muted-foreground">Sign in to continue</p>
+          <h1 className="text-3xl font-bold text-foreground">Adminåtkomst</h1>
+          <p className="text-muted-foreground">Logga in för att fortsätta</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <Input
             type="email"
-            placeholder="Email"
+            placeholder="E-post"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="h-14 text-lg"
@@ -59,7 +59,7 @@ const Admin = () => {
           />
           <Input
             type="password"
-            placeholder="Password"
+            placeholder="Lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="h-14 text-lg"
@@ -73,7 +73,7 @@ const Admin = () => {
               className="w-full text-lg"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Login"}
+              {loading ? "Loggar in..." : "Logga in"}
             </Button>
             <Button
               type="button"
@@ -82,9 +82,13 @@ const Admin = () => {
               className="w-full text-lg"
               onClick={() => navigate("/")}
             >
-              Back
+              Tillbaka
             </Button>
           </div>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Glömt lösenordet? Kontakta administratören.
+          </p>
         </form>
       </Card>
     </div>
