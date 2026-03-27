@@ -18,7 +18,7 @@ const MemberLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
 
     if (error) {
@@ -30,14 +30,16 @@ const MemberLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 space-y-6 shadow-lg">
-        <div className="text-center space-y-2">
-          <Link to="/" className="flex justify-center mb-4">
-            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[200px] object-contain" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-sm p-10 space-y-8">
+        <div className="text-center space-y-4">
+          <Link to="/" className="flex justify-center">
+            <img src={logo} alt="Brålands Gård" className="h-16 sm:h-20 w-auto max-w-[180px] object-contain" />
           </Link>
-          <h1 className="text-3xl font-bold text-foreground">Logga in</h1>
-          <p className="text-muted-foreground">Logga in med ditt konto</p>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground">Logga in</h1>
+            <p className="text-muted-foreground">Logga in med ditt konto</p>
+          </div>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -46,7 +48,7 @@ const MemberLogin = () => {
             placeholder="E-postadress"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-14 text-lg"
+            className="h-12"
             required
           />
           <Input
@@ -54,16 +56,16 @@ const MemberLogin = () => {
             placeholder="Lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-14 text-lg"
+            className="h-12"
             required
           />
-          <Button type="submit" size="lg" className="w-full text-lg" disabled={loading}>
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? "Loggar in..." : "Logga in"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
             Glömt lösenordet? Kontakta admin.
           </p>
-          <Button type="button" variant="outline" size="lg" className="w-full text-lg" onClick={() => navigate("/")}>
+          <Button type="button" variant="ghost" size="lg" className="w-full text-muted-foreground" onClick={() => navigate("/")}>
             Tillbaka
           </Button>
         </form>

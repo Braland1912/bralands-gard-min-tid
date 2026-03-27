@@ -19,30 +19,30 @@ const Confirmation = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8 space-y-6 text-center shadow-lg">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="w-full max-w-sm p-10 space-y-6 text-center">
         <div className="flex justify-center">
           <CheckCircle className="h-20 w-20 text-primary animate-in zoom-in duration-500" />
         </div>
         
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">
-            {type === "in" ? "Clocked In!" : "Clocked Out!"}
+          <h1 className="text-2xl font-semibold text-foreground">
+            {type === "in" ? "Instämplad!" : "Utstämplad!"}
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             {name}
           </p>
-          <p className="text-lg text-muted-foreground">
-            {new Date().toLocaleString()}
+          <p className="text-sm text-muted-foreground">
+            {new Date().toLocaleString("sv-SE")}
           </p>
         </div>
 
         <Button
           onClick={() => navigate("/")}
           size="lg"
-          className="w-full text-lg"
+          className="w-full"
         >
-          Back to Main Screen
+          Tillbaka
         </Button>
       </Card>
     </div>
