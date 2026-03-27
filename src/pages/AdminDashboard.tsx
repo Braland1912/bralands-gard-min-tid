@@ -101,7 +101,13 @@ const AdminDashboard = () => {
           <div>
             <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleRefresh}
+              className="p-2 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <RefreshCw className={`h-5 w-5 ${refreshing ? "animate-spin" : ""}`} />
+            </button>
             <ChangePasswordDialog />
             <button
               onClick={handleLogout}
