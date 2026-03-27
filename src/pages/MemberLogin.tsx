@@ -65,8 +65,8 @@ const MemberLogin = () => {
           <div className="flex justify-center mb-4">
             <LogIn className="h-16 w-16 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Logga in</h1>
-          <p className="text-muted-foreground">Logga in med ditt konto</p>
+          <h1 className="text-3xl font-bold text-foreground">{forgotMode ? "Återställ lösenord" : "Logga in"}</h1>
+          <p className="text-muted-foreground">{forgotMode ? "Ange din e-post för att få en återställningslänk" : "Logga in med ditt konto"}</p>
         </div>
 
         {forgotMode ? (
