@@ -142,6 +142,8 @@ const AdminDashboard = () => {
 
         <TimeCorrectionRequests />
 
+        <SalaryReport />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Filter by Worker</label>
