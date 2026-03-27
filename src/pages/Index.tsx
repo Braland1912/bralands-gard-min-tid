@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +15,21 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: worker, isLoading: workerLoading } = useWorker(user?.id);
+  const [welcomeShown, setWelcomeShown] = useState(false);
+
+  useEffect(() => {
+    if (worker && !welcomeShown) {
+      const shown = sessionStorage.getItem("welcome_shown");
+      if (!shown) {
+        sessionStorage.setItem("welcome_shown", "true");
+        toast({
+          title: `Välkommen, ${worker.name}! 🎉`,
+          description: "Ditt konto har blivit godkänt. Du kan nu stämpla in och ut.",
+        });
+        setWelcomeShown(true);
+      }
+    }
+  }, [worker, welcomeShown, toast]);
 
   const handleClockIn = async () => {
     if (!worker) return;
