@@ -62,7 +62,7 @@ const SalaryReport = () => {
     mutationFn: async ({ workerId, rate }: { workerId: string; rate: number }) => {
       const { error } = await supabase
         .from("workers")
-        .update({ hourly_rate: rate } as any)
+        .update({ hourly_rate: rate })
         .eq("id", workerId);
       if (error) throw error;
     },
