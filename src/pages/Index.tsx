@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Clock, LogIn, LogOut, Settings, Power, FileText, Trees } from "lucide-react";
+import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
+import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
