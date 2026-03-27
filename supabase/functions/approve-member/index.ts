@@ -56,12 +56,12 @@ Deno.serve(async (req) => {
     }
 
     if (action === "approve") {
-      // Add to workers table
+      // Add to workers table with user_id reference
       const { error: workerError } = await supabaseAdmin
         .from("workers")
         .insert({
-          id: member.user_id,
           name: `${member.first_name} ${member.last_name}`,
+          user_id: member.user_id,
         });
 
       if (workerError) throw workerError;
