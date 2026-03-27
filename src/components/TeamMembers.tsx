@@ -64,8 +64,37 @@ const TeamMembers = () => {
     toast.success(`${deleteTarget.name} har tagits bort`);
     queryClient.invalidateQueries({ queryKey: ["workers"] });
   };
+  const handleResetPassword = async () => {
+    if (!resetTarget || newPassword.length < 6) {
+      toast.error("Lösenordet måste vara minst 6 tecken");
+      return;
+    }
+    setResetting(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ user_id: resetTarget.userId, new_password: newPassword }),
+      }
+    );
+    const result = await res.json();
+    setResetting(false);
+    if (!res.ok) {
+      toast.error(result.error || "Kunde inte återställa lösenord");
+      return;
+    }
+    toast.success(`Lösenord för ${resetTarget.name} har återställts`);
+    setResetTarget(null);
+    setNewPassword("");
+  };
 
-  return (
+
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
