@@ -188,52 +188,85 @@ const SalaryReport = () => {
               </TableRow>
             ) : (
               salaryData.map((worker) => (
-                <TableRow key={worker.id}>
-                  <TableCell className="font-medium">{worker.name}</TableCell>
-                  <TableCell className="text-right">{worker.totalHours.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
-                    {editingWorkerId === worker.id ? (
-                      <div className="flex items-center justify-end gap-1">
-                        <Input
-                          type="number"
-                          value={editRate}
-                          onChange={(e) => setEditRate(e.target.value)}
-                          className="w-20 h-8 text-right"
-                          min={0}
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                          onClick={() => updateRateMutation.mutate({ workerId: worker.id, rate: Number(editRate) })}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingWorkerId(null)}>
-                          <X className="h-4 w-4" />
-                        </Button>
+                <React.Fragment key={worker.id}>
+                  <TableRow
+                    className="cursor-pointer hover:bg-muted/30"
+                    onClick={() => toggleExpanded(worker.id)}
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {expandedWorkers.has(worker.id) ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        {worker.name}
                       </div>
-                    ) : (
-                      <div className="flex items-center justify-end gap-1">
-                        <span>{worker.hourlyRate.toFixed(0)}</span>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8"
-                          onClick={() => {
-                            setEditingWorkerId(worker.id);
-                            setEditRate(String(worker.hourlyRate));
-                          }}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">
-                    {(worker.totalHours * worker.hourlyRate).toFixed(0)} kr
-                  </TableCell>
-                </TableRow>
+                    </TableCell>
+                    <TableCell className="text-right">{worker.totalHours.toFixed(2)}</TableCell>
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                      {editingWorkerId === worker.id ? (
+                        <div className="flex items-center justify-end gap-1">
+                          <Input
+                            type="number"
+                            value={editRate}
+                            onChange={(e) => setEditRate(e.target.value)}
+                            className="w-20 h-8 text-right"
+                            min={0}
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => updateRateMutation.mutate({ workerId: worker.id, rate: Number(editRate) })}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setEditingWorkerId(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-1">
+                          <span>{worker.hourlyRate.toFixed(0)}</span>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setEditingWorkerId(worker.id);
+                              setEditRate(String(worker.hourlyRate));
+                            }}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {(worker.totalHours * worker.hourlyRate).toFixed(0)} kr
+                    </TableCell>
+                  </TableRow>
+                  {expandedWorkers.has(worker.id) && (
+                    (entriesByWorker.get(worker.id) || []).map((entry) => {
+                      const hours = (new Date(entry.clock_out!).getTime() - new Date(entry.clock_in!).getTime()) / (1000 * 60 * 60);
+                      return (
+                        <TableRow key={entry.id} className="bg-muted/20 text-sm">
+                          <TableCell className="pl-12 text-muted-foreground">
+                            {format(new Date(entry.clock_in!), "d MMM yyyy", { locale: sv })}
+                          </TableCell>
+                          <TableCell className="text-right text-muted-foreground">{hours.toFixed(2)}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">
+                            {format(new Date(entry.clock_in!), "HH:mm")} – {format(new Date(entry.clock_out!), "HH:mm")}
+                          </TableCell>
+                          <TableCell className="text-right text-muted-foreground">
+                            {(hours * worker.hourlyRate).toFixed(0)} kr
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </React.Fragment>
               ))
             )}
             {salaryData.length > 0 && (
