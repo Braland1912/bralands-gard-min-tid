@@ -20,6 +20,41 @@ const Index = () => {
   const { isAdmin } = useAdmin();
   const [welcomeShown, setWelcomeShown] = useState(false);
 
+  // Fetch today's time entries for this worker
+  const { data: todayEntries = [] } = useQuery({
+    queryKey: ["my-today-entries", worker?.id],
+    queryFn: async () => {
+      if (!worker) return [];
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("clock_in, clock_out")
+        .eq("worker_id", worker.id)
+        .gte("clock_in", startOfDay)
+        .order("clock_in", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!worker,
+    refetchInterval: 30000, // refresh every 30s for live feel
+  });
+
+  const todayStats = (() => {
+    let totalMs = 0;
+    let activeStart: string | null = null;
+    for (const e of todayEntries) {
+      if (e.clock_in && e.clock_out) {
+        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
+      } else if (e.clock_in && !e.clock_out) {
+        activeStart = e.clock_in;
+        totalMs += Date.now() - new Date(e.clock_in).getTime();
+      }
+    }
+    const totalH = totalMs / 3600000;
+    return { totalH, activeStart };
+  })();
+
   // If admin is logged in, redirect to admin dashboard
   useEffect(() => {
     if (!loading && user && isAdmin) {
