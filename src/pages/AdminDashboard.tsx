@@ -36,8 +36,9 @@ const AdminDashboard = () => {
   };
 
   const handleLogout = async () => {
+    queryClient.clear();
     await signOut();
-    navigate("/login");
+    navigate("/", { replace: true });
   };
 
   const renderContent = () => {

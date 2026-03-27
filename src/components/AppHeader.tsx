@@ -21,7 +21,7 @@ const AppHeader = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const getInitials = (name: string) => {
