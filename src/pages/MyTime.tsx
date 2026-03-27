@@ -36,6 +36,7 @@ const MyTime = () => {
   const now = new Date();
   const monthStart = startOfMonth(now).toISOString();
   const monthEnd = endOfMonth(now).toISOString();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
   const { data: entries = [], isLoading: entriesLoading } = useQuery({
     queryKey: ["my-time-entries", worker?.id, monthStart],
