@@ -170,6 +170,29 @@ const MyTime = () => {
           </Button>
         </div>
 
+        {/* Today & month summary */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium uppercase tracking-wide">Idag</span>
+            </div>
+            <p className="text-xl font-semibold text-foreground">{todayStats.totalH.toFixed(1)} h</p>
+            {todayStats.activeStart && (
+              <p className="text-[11px] text-primary font-medium">
+                ● Aktiv sedan {new Date(todayStats.activeStart).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+              </p>
+            )}
+          </div>
+          <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium uppercase tracking-wide">Denna månad</span>
+            </div>
+            <p className="text-xl font-semibold text-foreground">{monthTotal.toFixed(1)} h</p>
+          </div>
+        </div>
+
         {/* Time entries */}
         <div className="space-y-4">
           <h2 className="text-base font-semibold text-foreground">
