@@ -11,6 +11,7 @@ import AdminTeam from "@/components/admin/AdminTeam";
 import InvitationManager from "@/components/InvitationManager";
 import SalaryReport from "@/components/SalaryReport";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
+import logo from "@/assets/logo-braland.svg";
 
 const tabs = [
   { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
