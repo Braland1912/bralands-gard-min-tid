@@ -104,8 +104,8 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
         <header className="md:hidden sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain" />
+          <button onClick={() => setActiveTab("oversikt")} className="flex items-center gap-2 focus:outline-none">
+            <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain cursor-pointer" />
           </div>
           <div className="flex items-center gap-1">
             <button
