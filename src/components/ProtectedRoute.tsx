@@ -47,8 +47,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Non-admin users get redirected to home, not to /admin login
   if (!authenticated || !isAdmin) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
