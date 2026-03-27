@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Link2, Copy, Check } from "lucide-react";
+import { Link2, Copy, Check, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -54,6 +54,17 @@ const InvitationManager = () => {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const deleteInvitation = async (id: string) => {
+    if (!confirm("Är du säker på att du vill ta bort denna inbjudningslänk?")) return;
+    const { error } = await supabase.from("invitations").delete().eq("id", id);
+    if (error) {
+      toast.error("Kunde inte ta bort inbjudningslänken");
+      return;
+    }
+    toast.success("Inbjudningslänk borttagen");
+    refetch();
+  };
+
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
 
   return (
@@ -86,18 +97,28 @@ const InvitationManager = () => {
                   )}
                 </div>
               </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => copyLink(inv.token)}
-                disabled={isExpired(inv.expires_at)}
-              >
-                {copied === inv.token ? (
-                  <Check className="h-4 w-4 text-primary" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyLink(inv.token)}
+                  disabled={isExpired(inv.expires_at)}
+                >
+                  {copied === inv.token ? (
+                    <Check className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => deleteInvitation(inv.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
