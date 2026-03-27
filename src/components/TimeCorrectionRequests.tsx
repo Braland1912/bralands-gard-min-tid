@@ -81,7 +81,11 @@ const TimeCorrectionRequests = () => {
       </h2>
 
       {pendingRequests.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Inga väntande förfrågningar.</p>
+        <div className="flex flex-col items-center py-8 text-center">
+          <Check className="h-10 w-10 text-primary/40 mb-2" />
+          <p className="font-medium text-muted-foreground">Inga väntande förfrågningar</p>
+          <p className="text-sm text-muted-foreground">Alla rättelser är hanterade 🎉</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {pendingRequests.map((r: any) => (
