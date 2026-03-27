@@ -95,6 +95,7 @@ const MyTime = () => {
     return sum;
   }, 0);
 
+  const { data: corrections = [] } = useQuery({
     queryKey: ["my-corrections", worker?.id],
     queryFn: async () => {
       if (!worker) return [];
