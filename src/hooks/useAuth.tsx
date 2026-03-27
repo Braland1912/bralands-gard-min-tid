@@ -21,7 +21,16 @@ export const useAuth = () => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.auth.signOut();
+      }
+    } catch {
+      // Session already expired, clear local state
+    } finally {
+      setUser(null);
+    }
   };
 
   return { user, loading, signOut };
