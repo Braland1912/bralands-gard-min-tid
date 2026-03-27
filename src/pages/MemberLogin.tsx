@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo-braland.svg";
 import { useToast } from "@/hooks/use-toast";
 
 const MemberLogin = () => {
