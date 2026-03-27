@@ -64,7 +64,9 @@ const AdminDashboard = () => {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card min-h-screen">
         <div className="p-4 border-b border-border flex items-center gap-3">
-          <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain" />
+          <button onClick={() => setActiveTab("oversikt")} className="focus:outline-none">
+            <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain cursor-pointer" />
+          </button>
           <div>
             <h1 className="text-lg font-bold text-foreground">Brålands Gård</h1>
             <p className="text-xs text-muted-foreground">Administration</p>
