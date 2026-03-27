@@ -99,7 +99,7 @@ const MyTime = () => {
 
   const statusBadge = (status: string) => {
     switch (status) {
-      case "approved": return <Badge className="bg-green-600">Godkänd</Badge>;
+      case "approved": return <Badge className="bg-primary text-primary-foreground">Godkänd</Badge>;
       case "denied": return <Badge variant="destructive">Nekad</Badge>;
       default: return <Badge variant="secondary">Väntar</Badge>;
     }
@@ -113,15 +113,15 @@ const MyTime = () => {
   if (loading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-5">
+      <div className="max-w-2xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">Min tid</h1>
+            <h1 className="text-xl font-semibold text-foreground">Min tid</h1>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground">
             <Power className="h-4 w-4 mr-1" />
@@ -130,17 +130,17 @@ const MyTime = () => {
         </div>
 
         {/* Time entries */}
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold text-foreground">
             Tidrapport – {format(now, "MMMM yyyy", { locale: sv })}
           </h2>
           {entriesLoading ? (
             <div className="space-y-2">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
             </div>
           ) : entries.length === 0 ? (
-            <div className="flex flex-col items-center py-8 text-center">
-              <Clock className="h-10 w-10 text-muted-foreground/40 mb-2" />
+            <div className="flex flex-col items-center py-10 text-center">
+              <Clock className="h-8 w-8 text-muted-foreground/30 mb-3" />
               <p className="text-muted-foreground">Inga poster denna månad</p>
             </div>
           ) : (
@@ -150,17 +150,17 @@ const MyTime = () => {
                   ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
                   : null;
                 return (
-                  <Card key={e.id} className="p-3 flex items-center justify-between">
+                  <Card key={e.id} className="p-4 flex items-center justify-between">
                     <div>
                       <p className="font-medium text-foreground">
                         {e.clock_in ? format(new Date(e.clock_in), "d MMM", { locale: sv }) : "–"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"} — {e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary">Aktiv</span>}
+                        {e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"} — {e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
                       </p>
                     </div>
                     <p className="font-semibold text-foreground">
-                      {hours ? `${hours.toFixed(2)} h` : "–"}
+                      {hours ? `${hours.toFixed(1)} h` : "–"}
                     </p>
                   </Card>
                 );
@@ -170,17 +170,17 @@ const MyTime = () => {
         </div>
 
         {/* Correction requests */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Korrigeringsförfrågningar</h2>
+            <h2 className="text-base font-semibold text-foreground">Korrigeringsförfrågningar</h2>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="gap-1 h-11">
+                <Button size="sm" className="gap-1">
                   <Plus className="h-4 w-4" />
                   Rapportera
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="rounded-2xl">
                 <DialogHeader>
                   <DialogTitle>Rapportera saknad tid</DialogTitle>
                 </DialogHeader>
@@ -188,25 +188,25 @@ const MyTime = () => {
                   className="space-y-4"
                   onSubmit={(e) => { e.preventDefault(); submitMutation.mutate(); }}
                 >
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium">Datum</label>
                     <Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} required className="h-12" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
                       <label className="text-sm font-medium">Instämpling</label>
                       <Input type="time" value={formClockIn} onChange={(e) => setFormClockIn(e.target.value)} className="h-12" />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <label className="text-sm font-medium">Utstämpling</label>
                       <Input type="time" value={formClockOut} onChange={(e) => setFormClockOut(e.target.value)} className="h-12" />
                     </div>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <label className="text-sm font-medium">Anledning</label>
-                    <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} required placeholder="T.ex. glömde stämpla in" />
+                    <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} required placeholder="T.ex. glömde stämpla in" className="rounded-xl" />
                   </div>
-                  <Button type="submit" disabled={submitMutation.isPending} className="w-full h-12">
+                  <Button type="submit" disabled={submitMutation.isPending} size="lg" className="w-full">
                     {submitMutation.isPending ? "Skickar..." : "Skicka förfrågan"}
                   </Button>
                 </form>
@@ -215,14 +215,14 @@ const MyTime = () => {
           </div>
 
           {corrections.length === 0 ? (
-            <div className="flex flex-col items-center py-6 text-center">
-              <FileText className="h-8 w-8 text-muted-foreground/40 mb-2" />
+            <div className="flex flex-col items-center py-8 text-center">
+              <FileText className="h-8 w-8 text-muted-foreground/30 mb-3" />
               <p className="text-sm text-muted-foreground">Inga korrigeringsförfrågningar ännu</p>
             </div>
           ) : (
             <div className="space-y-2">
               {corrections.map((c: any) => (
-                <Card key={c.id} className="p-3 space-y-1">
+                <Card key={c.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="font-medium text-foreground">{c.date}</p>
                     {statusBadge(c.status)}
