@@ -190,6 +190,14 @@ const SalaryReport = () => {
                 </TableRow>
               ))
             )}
+            {salaryData.length > 0 && (
+              <TableRow className="bg-muted/50 font-bold border-t-2">
+                <TableCell>Totalt</TableCell>
+                <TableCell className="text-right">{totalHours.toFixed(2)}</TableCell>
+                <TableCell className="text-right">—</TableCell>
+                <TableCell className="text-right">{totalEarned.toFixed(0)} kr</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
