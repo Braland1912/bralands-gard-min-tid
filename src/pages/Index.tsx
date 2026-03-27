@@ -1,58 +1,21 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Clock, LogIn, LogOut, Settings, Power, FileText } from "lucide-react";
+import { Clock, LogIn, LogOut, Settings, Power, FileText, Trees } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import type { User } from "@supabase/supabase-js";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorker } from "@/hooks/useWorker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/login");
-    }
-  }, [loading, user, navigate]);
-
-  const { data: worker } = useQuery({
-    queryKey: ["my-worker", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data, error } = await supabase
-        .from("workers")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+  const { data: worker, isLoading: workerLoading } = useWorker(user?.id);
 
   const handleClockIn = async () => {
     if (!worker) return;
-
     const { error } = await supabase
       .from("time_entries")
       .insert({
@@ -65,13 +28,11 @@ const Index = () => {
       toast({ title: "Fel vid instämpling", description: error.message, variant: "destructive" });
       return;
     }
-
     navigate(`/confirmation?type=in&name=${encodeURIComponent(worker.name)}`);
   };
 
   const handleClockOut = async () => {
     if (!worker) return;
-
     const { data: recentEntry, error: fetchError } = await supabase
       .from("time_entries")
       .select("*")
@@ -85,7 +46,6 @@ const Index = () => {
       toast({ title: "Fel", description: fetchError.message, variant: "destructive" });
       return;
     }
-
     if (!recentEntry) {
       toast({ title: "Ingen aktiv instämpling", description: "Stämpla in först", variant: "destructive" });
       return;
@@ -100,24 +60,48 @@ const Index = () => {
       toast({ title: "Fel vid utstämpling", description: updateError.message, variant: "destructive" });
       return;
     }
-
     navigate(`/confirmation?type=out&name=${encodeURIComponent(worker.name)}`);
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
+    await signOut();
+    navigate("/");
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Laddar...</p>
+        <Skeleton className="h-8 w-32" />
       </div>
     );
   }
 
-  if (!user) return null;
+  // Welcome screen for unauthenticated users
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-md p-8 space-y-8 shadow-lg text-center">
+          <div className="space-y-4">
+            <div className="flex justify-center">
+              <Trees className="h-20 w-20 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground">Brålands Gård</h1>
+            <p className="text-muted-foreground text-lg">
+              Logga in för att stämpla din tid
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/login")}
+            size="lg"
+            className="w-full h-14 text-lg font-semibold gap-2"
+          >
+            <LogIn className="h-5 w-5" />
+            Logga in
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -147,7 +131,9 @@ const Index = () => {
             <Clock className="h-16 w-16 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Brålands Gård - Min Tid</h1>
-          {worker ? (
+          {workerLoading ? (
+            <Skeleton className="h-6 w-48 mx-auto" />
+          ) : worker ? (
             <p className="text-lg text-muted-foreground">
               Hej, <span className="font-semibold text-foreground">{worker.name}</span>! 👋
             </p>
