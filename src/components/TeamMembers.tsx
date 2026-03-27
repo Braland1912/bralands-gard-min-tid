@@ -97,6 +97,28 @@ const TeamMembers = () => {
     setNewPassword("");
   };
 
+  const handleSaveRate = async (workerId: string) => {
+    const rate = parseFloat(rateValue);
+    if (isNaN(rate) || rate < 0) {
+      toast.error("Ange en giltig timlön");
+      return;
+    }
+    setSavingRate(true);
+    const { error } = await supabase
+      .from("workers")
+      .update({ hourly_rate: rate })
+      .eq("id", workerId);
+    setSavingRate(false);
+    if (error) {
+      toast.error("Kunde inte spara timlön");
+      return;
+    }
+    toast.success("Timlön uppdaterad");
+    setEditingRate(null);
+    setRateValue("");
+    queryClient.invalidateQueries({ queryKey: ["workers"] });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
