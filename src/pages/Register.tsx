@@ -140,7 +140,7 @@ const Register = () => {
             required
           />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Skickar..." : "Skicka ansökan"}
+            {loading ? "Skapar konto..." : "Skapa konto"}
           </Button>
         </form>
       </Card>
