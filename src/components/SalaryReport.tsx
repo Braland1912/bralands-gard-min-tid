@@ -281,12 +281,6 @@ const SalaryReport = () => {
         </Table>
       </div>
 
-      {salaryData.length > 0 && (
-        <Card className="p-4 flex justify-between items-center">
-          <span className="font-medium text-foreground">Total lönekostnad denna månad</span>
-          <span className="text-xl font-bold text-foreground">{totalEarned.toFixed(0)} kr</span>
-        </Card>
-      )}
     </div>
   );
 };
