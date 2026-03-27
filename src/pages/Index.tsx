@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogIn, LogOut, FileText } from "lucide-react";
+import { LogIn, LogOut, FileText, Clock } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
@@ -18,6 +19,41 @@ const Index = () => {
   const { data: worker, isLoading: workerLoading } = useWorker(user?.id);
   const { isAdmin } = useAdmin();
   const [welcomeShown, setWelcomeShown] = useState(false);
+
+  // Fetch today's time entries for this worker
+  const { data: todayEntries = [] } = useQuery({
+    queryKey: ["my-today-entries", worker?.id],
+    queryFn: async () => {
+      if (!worker) return [];
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("clock_in, clock_out")
+        .eq("worker_id", worker.id)
+        .gte("clock_in", startOfDay)
+        .order("clock_in", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!worker,
+    refetchInterval: 30000, // refresh every 30s for live feel
+  });
+
+  const todayStats = (() => {
+    let totalMs = 0;
+    let activeStart: string | null = null;
+    for (const e of todayEntries) {
+      if (e.clock_in && e.clock_out) {
+        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
+      } else if (e.clock_in && !e.clock_out) {
+        activeStart = e.clock_in;
+        totalMs += Date.now() - new Date(e.clock_in).getTime();
+      }
+    }
+    const totalH = totalMs / 3600000;
+    return { totalH, activeStart };
+  })();
 
   // If admin is logged in, redirect to admin dashboard
   useEffect(() => {
@@ -154,6 +190,22 @@ const Index = () => {
 
         {worker && (
           <div className="space-y-4">
+            {/* Today's hours summary */}
+            <div className="bg-muted/50 rounded-xl p-4 text-center space-y-1">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span className="text-xs font-medium uppercase tracking-wide">Idag</span>
+              </div>
+              <p className="text-2xl font-semibold text-foreground">
+                {todayStats.totalH.toFixed(1)} h
+              </p>
+              {todayStats.activeStart && (
+                <p className="text-xs text-primary font-medium">
+                  ● Aktiv sedan {new Date(todayStats.activeStart).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={handleClockIn}
