@@ -55,7 +55,46 @@ const MyTime = () => {
     enabled: !!worker,
   });
 
-  const { data: corrections = [] } = useQuery({
+  // Today's entries for summary
+  const { data: todayEntries = [] } = useQuery({
+    queryKey: ["my-today-entries", worker?.id],
+    queryFn: async () => {
+      if (!worker) return [];
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("clock_in, clock_out")
+        .eq("worker_id", worker.id)
+        .gte("clock_in", todayStart)
+        .order("clock_in", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!worker,
+    refetchInterval: 30000,
+  });
+
+  const todayStats = (() => {
+    let totalMs = 0;
+    let activeStart: string | null = null;
+    for (const e of todayEntries) {
+      if (e.clock_in && e.clock_out) {
+        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
+      } else if (e.clock_in && !e.clock_out) {
+        activeStart = e.clock_in;
+        totalMs += Date.now() - new Date(e.clock_in).getTime();
+      }
+    }
+    return { totalH: totalMs / 3600000, activeStart };
+  })();
+
+  // Monthly total
+  const monthTotal = entries.reduce((sum, e) => {
+    if (e.clock_in && e.clock_out) {
+      return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
+    }
+    return sum;
+  }, 0);
+
     queryKey: ["my-corrections", worker?.id],
     queryFn: async () => {
       if (!worker) return [];
