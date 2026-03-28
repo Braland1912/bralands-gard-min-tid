@@ -16,7 +16,6 @@ const Register = () => {
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -45,7 +44,6 @@ const Register = () => {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
-        phone: form.phone,
         password: form.password,
       },
     });
@@ -124,14 +122,6 @@ const Register = () => {
             placeholder="E-postadress"
             value={form.email}
             onChange={(e) => handleChange("email", e.target.value)}
-            className="h-12"
-            required
-          />
-          <Input
-            type="tel"
-            placeholder="Telefonnummer"
-            value={form.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
             className="h-12"
             required
           />
