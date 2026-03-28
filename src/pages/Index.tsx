@@ -135,7 +135,7 @@ const Index = () => {
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
     if (activeEntry) {
-      toast({ title: "Redan instämplad", description: "Du har redan en aktiv stämpling.", variant: "destructive" });
+      toast({ title: "Du ar redan instamplad", description: "Du har redan en aktiv stampling. Stampla ut forst.", variant: "destructive" });
       return;
     }
 
