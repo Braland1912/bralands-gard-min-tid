@@ -43,8 +43,8 @@ const Admin = () => {
     if (error) {
       setLoading(false);
       toast({
-        title: "Inloggning misslyckades",
-        description: "Fel e-post eller lösenord.",
+        title: "Inloggningen misslyckades",
+        description: "Kontrollera att e-post och losenord ar ratt och forsok igen.",
         variant: "destructive",
       });
       return;
