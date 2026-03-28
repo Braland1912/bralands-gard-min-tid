@@ -186,7 +186,7 @@ const Index = () => {
       setTimeout(() => setClockOutState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock out failed:", err);
-      toast({ title: "Utstämpling misslyckades", description: err.message || "Försök igen.", variant: "destructive" });
+      toast({ title: "Utstampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockOutState("idle");
     }
   }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient]);
