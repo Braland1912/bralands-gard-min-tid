@@ -66,8 +66,8 @@ const Admin = () => {
         // Not an admin - sign out and show error
         await supabase.auth.signOut();
         toast({
-          title: "Åtkomst nekad",
-          description: "Du har inte administratörsrättigheter.",
+          title: "Atkomst nekad",
+          description: "Det har kontot har inte administratorsratigheter.",
           variant: "destructive",
         });
       }
