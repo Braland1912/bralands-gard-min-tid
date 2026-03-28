@@ -172,9 +172,9 @@ const AdminTimeLog = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <Select value={selectedWorker} onValueChange={setSelectedWorker}>
-          <SelectTrigger className="h-12 text-base">
+          <SelectTrigger className="h-12 text-base rounded-xl border-border">
             <SelectValue placeholder="Alla medarbetare" />
           </SelectTrigger>
           <SelectContent>
@@ -184,15 +184,12 @@ const AdminTimeLog = () => {
             ))}
           </SelectContent>
         </Select>
-        <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="pl-10 h-12 text-base"
-          />
-        </div>
+        <Input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="h-12 text-base rounded-xl border-border"
+        />
       </div>
 
       {isLoading ? (
