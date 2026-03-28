@@ -244,7 +244,7 @@ const Index = () => {
           ) : worker ? (
             <div className="space-y-1">
               <p className="text-lg text-muted-foreground">
-                Hej, <span className="font-semibold text-foreground">{worker.name}</span> 👋
+                Hej, <span className="font-semibold text-foreground">{worker.name}</span>
               </p>
             </div>
           ) : (
