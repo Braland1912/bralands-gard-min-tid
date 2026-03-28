@@ -22,7 +22,7 @@ const MemberLogin = () => {
     setLoading(false);
 
     if (error) {
-      toast({ title: "Inloggning misslyckades", description: "Fel e-post eller lösenord.", variant: "destructive" });
+      toast({ title: "Inloggningen misslyckades", description: "Kontrollera att e-post och losenord ar ratt och forsok igen.", variant: "destructive" });
       return;
     }
 
@@ -63,7 +63,7 @@ const MemberLogin = () => {
             {loading ? "Loggar in..." : "Logga in"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            Glömt lösenordet? Kontakta admin.
+            Glomt losenordet? Kontakta din arbetsledare.
           </p>
           <Button type="button" variant="ghost" size="lg" className="w-full text-muted-foreground" onClick={() => navigate("/")}>
             Tillbaka

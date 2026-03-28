@@ -135,7 +135,7 @@ const Index = () => {
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
     if (activeEntry) {
-      toast({ title: "Redan instämplad", description: "Du har redan en aktiv stämpling.", variant: "destructive" });
+      toast({ title: "Du ar redan instamplad", description: "Du har redan en aktiv stampling. Stampla ut forst.", variant: "destructive" });
       return;
     }
 
@@ -158,7 +158,7 @@ const Index = () => {
       setTimeout(() => setClockInState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock in failed:", err);
-      toast({ title: "Stämpling misslyckades", description: err.message || "Försök igen.", variant: "destructive" });
+      toast({ title: "Instampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockInState("idle");
     }
   }, [worker, clockInState, isOnline, activeEntry, toast, queryClient]);
@@ -166,7 +166,7 @@ const Index = () => {
   const handleClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
     if (!activeEntry) {
-      toast({ title: "Ingen aktiv stämpling", description: "Du måste stämpla in först.", variant: "destructive" });
+      toast({ title: "Ingen aktiv stampling", description: "Du behover stampla in forst innan du kan stampla ut.", variant: "destructive" });
       return;
     }
 
@@ -186,7 +186,7 @@ const Index = () => {
       setTimeout(() => setClockOutState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock out failed:", err);
-      toast({ title: "Utstämpling misslyckades", description: err.message || "Försök igen.", variant: "destructive" });
+      toast({ title: "Utstampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockOutState("idle");
     }
   }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient]);
@@ -244,7 +244,7 @@ const Index = () => {
           ) : worker ? (
             <div className="space-y-1">
               <p className="text-lg text-muted-foreground">
-                Hej, <span className="font-semibold text-foreground">{worker.name}</span> 👋
+                Hej, <span className="font-semibold text-foreground">{worker.name}</span>
               </p>
             </div>
           ) : (

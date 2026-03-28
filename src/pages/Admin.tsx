@@ -43,8 +43,8 @@ const Admin = () => {
     if (error) {
       setLoading(false);
       toast({
-        title: "Inloggning misslyckades",
-        description: "Fel e-post eller lösenord.",
+        title: "Inloggningen misslyckades",
+        description: "Kontrollera att e-post och losenord ar ratt och forsok igen.",
         variant: "destructive",
       });
       return;
@@ -66,8 +66,8 @@ const Admin = () => {
         // Not an admin - sign out and show error
         await supabase.auth.signOut();
         toast({
-          title: "Åtkomst nekad",
-          description: "Du har inte administratörsrättigheter.",
+          title: "Atkomst nekad",
+          description: "Det har kontot har inte administratorsratigheter.",
           variant: "destructive",
         });
       }
@@ -142,7 +142,7 @@ const Admin = () => {
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
-            Glömt lösenordet? Kontakta administratören.
+            Glomt losenordet? Kontakta en annan administrator.
           </p>
         </form>
       </Card>
