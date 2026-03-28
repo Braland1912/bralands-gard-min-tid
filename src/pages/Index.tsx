@@ -158,7 +158,7 @@ const Index = () => {
       setTimeout(() => setClockInState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock in failed:", err);
-      toast({ title: "Stämpling misslyckades", description: err.message || "Försök igen.", variant: "destructive" });
+      toast({ title: "Instampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockInState("idle");
     }
   }, [worker, clockInState, isOnline, activeEntry, toast, queryClient]);
