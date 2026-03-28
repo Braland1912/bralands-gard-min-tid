@@ -44,7 +44,6 @@ const Register = () => {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
-        phone: form.phone,
         password: form.password,
       },
     });
