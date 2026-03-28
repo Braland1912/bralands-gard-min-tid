@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
         first_name: firstName,
         last_name: lastName,
         email,
-        phone,
+        phone: phone || "",
         invitation_id: invitation.id,
         user_id: authData.user.id,
         status: "approved",
