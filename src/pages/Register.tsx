@@ -126,14 +126,6 @@ const Register = () => {
             required
           />
           <Input
-            type="tel"
-            placeholder="Telefonnummer"
-            value={form.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            className="h-12"
-            required
-          />
-          <Input
             type="password"
             placeholder="Lösenord (minst 6 tecken)"
             value={form.password}
