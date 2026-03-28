@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
       email,
       password,
       email_confirm: true,
-      user_metadata: { first_name: firstName, last_name: lastName, phone, status: "approved" },
+      user_metadata: { first_name: firstName, last_name: lastName, status: "approved" },
     });
 
     if (authError) {
