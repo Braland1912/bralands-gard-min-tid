@@ -142,7 +142,7 @@ const Admin = () => {
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
-            Glömt lösenordet? Kontakta administratören.
+            Glomt losenordet? Kontakta en annan administrator.
           </p>
         </form>
       </Card>

@@ -63,7 +63,7 @@ const MemberLogin = () => {
             {loading ? "Loggar in..." : "Logga in"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            Glömt lösenordet? Kontakta admin.
+            Glomt losenordet? Kontakta din arbetsledare.
           </p>
           <Button type="button" variant="ghost" size="lg" className="w-full text-muted-foreground" onClick={() => navigate("/")}>
             Tillbaka
