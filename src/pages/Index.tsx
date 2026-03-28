@@ -166,7 +166,7 @@ const Index = () => {
   const handleClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
     if (!activeEntry) {
-      toast({ title: "Ingen aktiv stämpling", description: "Du måste stämpla in först.", variant: "destructive" });
+      toast({ title: "Ingen aktiv stampling", description: "Du behover stampla in forst innan du kan stampla ut.", variant: "destructive" });
       return;
     }
 
