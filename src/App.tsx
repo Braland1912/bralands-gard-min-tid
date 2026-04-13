@@ -11,6 +11,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Register from "./pages/Register";
 import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
+import MySchedule from "./pages/MySchedule";
+import AdminSchedule from "./pages/AdminSchedule";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
@@ -35,6 +37,12 @@ const App = () => (
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-schedule" element={<MySchedule />} />
+          <Route path="/admin/schedule" element={
+            <ProtectedRoute>
+              <AdminSchedule />
             </ProtectedRoute>
           } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
