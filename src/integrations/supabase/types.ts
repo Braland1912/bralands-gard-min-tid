@@ -85,6 +85,30 @@ export type Database = {
           },
         ]
       }
+      schedules: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          shift_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          shift_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          shift_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       time_correction_requests: {
         Row: {
           admin_note: string | null
@@ -187,6 +211,7 @@ export type Database = {
       }
       workers: {
         Row: {
+          can_see_team: boolean
           created_at: string | null
           hourly_rate: number | null
           id: string
@@ -194,6 +219,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          can_see_team?: boolean
           created_at?: string | null
           hourly_rate?: number | null
           id?: string
@@ -201,6 +227,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          can_see_team?: boolean
           created_at?: string | null
           hourly_rate?: number | null
           id?: string
