@@ -176,19 +176,49 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   // Today's shifts grouped per user_id (sorted, excluding "off")
   const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
   const todayShiftsByUser = new Map<string, string[]>();
+  const todayShiftIdsByUser = new Map<string, string[]>();
   (todayShifts as any[])
     .filter((s) => s.shift_type !== "off")
     .forEach((s) => {
       if (!todayShiftsByUser.has(s.user_id)) todayShiftsByUser.set(s.user_id, []);
       todayShiftsByUser.get(s.user_id)!.push(s.shift_type);
+      if (!todayShiftIdsByUser.has(s.user_id)) todayShiftIdsByUser.set(s.user_id, []);
+      todayShiftIdsByUser.get(s.user_id)!.push(s.id);
     });
   todayShiftsByUser.forEach((arr) =>
     arr.sort((a, b) => (SHIFT_ORDER[a] ?? 99) - (SHIFT_ORDER[b] ?? 99)),
   );
   const todayWorkers = Array.from(todayShiftsByUser.keys())
-    .map((uid) => ({ worker: workerByUserId.get(uid), shifts: todayShiftsByUser.get(uid)! }))
+    .map((uid) => ({
+      worker: workerByUserId.get(uid),
+      shifts: todayShiftsByUser.get(uid)!,
+      shiftIds: todayShiftIdsByUser.get(uid) ?? [],
+    }))
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+
+  // Compute checklist progress per user for today
+  const checklistProgressByUser = new Map<string, { done: number; total: number }>();
+  if (todayChecklistData) {
+    const { lists, items } = todayChecklistData;
+    const listsByShift = new Map<string, string[]>();
+    (lists as any[]).forEach((l) => {
+      if (!listsByShift.has(l.shift_id)) listsByShift.set(l.shift_id, []);
+      listsByShift.get(l.shift_id)!.push(l.id);
+    });
+    todayWorkers.forEach((row) => {
+      const listIds: string[] = [];
+      row.shiftIds.forEach((sid) => {
+        const lids = listsByShift.get(sid);
+        if (lids) listIds.push(...lids);
+      });
+      if (listIds.length === 0) return;
+      const relItems = (items as any[]).filter((i) => listIds.includes(i.shift_checklist_id));
+      if (relItems.length === 0) return;
+      const done = relItems.filter((i) => i.is_checked).length;
+      checklistProgressByUser.set(row.worker.user_id, { done, total: relItems.length });
+    });
+  }
 
   // Week shifts grouped per user → map of dayIdx → shift_types[]
   const weekByUser = new Map<string, Map<number, string[]>>();
