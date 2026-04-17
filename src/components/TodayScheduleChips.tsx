@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -71,6 +73,13 @@ const TodayScheduleChips = ({ userId }: Props) => {
           );
         })}
       </div>
+      <Link
+        to="/my-schedule"
+        className="flex items-center justify-center gap-1.5 text-xs font-medium text-primary hover:underline pt-1"
+      >
+        <CalendarDays className="h-3.5 w-3.5" />
+        Se hela veckan
+      </Link>
     </div>
   );
 };
