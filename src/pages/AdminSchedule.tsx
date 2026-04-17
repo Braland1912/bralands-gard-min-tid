@@ -1,11 +1,8 @@
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight, ArrowLeft, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -14,53 +11,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
-type ShiftType = "morning" | "day" | "evening" | "off";
+type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
-type ShiftCfg = {
-  type: ShiftType;
-  start: string; // "07" | "10" | "17"
-  label: string;
-  chipBg: string;
-  chipText: string;
-  chipBorder: string;
-};
-
-const SHIFTS: ShiftCfg[] = [
-  { type: "morning", start: "07", label: "Morgon", chipBg: "bg-[#DBEAFE]", chipText: "text-blue-800", chipBorder: "border-blue-200" },
-  { type: "day", start: "10", label: "Dag", chipBg: "bg-[#FEF9C3]", chipText: "text-yellow-800", chipBorder: "border-yellow-200" },
-  { type: "evening", start: "17", label: "Kväll", chipBg: "bg-[#EDE9FE]", chipText: "text-purple-800", chipBorder: "border-purple-200" },
-  { type: "off", start: "", label: "Ledigt", chipBg: "bg-gray-100", chipText: "text-gray-600", chipBorder: "border-gray-200" },
+const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; time: string; bg: string; border: string; text: string }[] = [
+  { type: "morning", emoji: "🌅", label: "Morgon", time: "06–14", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  { type: "day", emoji: "☀️", label: "Dag", time: "10–18", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { type: "evening", emoji: "🌙", label: "Kväll", time: "14–22", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { type: "busy", emoji: "🔒", label: "Upptagen", time: "Hel dag", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  { type: "off", emoji: "💤", label: "Ledigt", time: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 ];
 
-const SHIFT_MAP: Record<ShiftType, ShiftCfg> = SHIFTS.reduce(
-  (acc, s) => ({ ...acc, [s.type]: s }),
-  {} as Record<ShiftType, ShiftCfg>,
-);
-
-const TIME_SHIFTS = SHIFTS.filter((s) => s.type !== "off");
-
+const SHIFT_MAP = Object.fromEntries(SHIFT_OPTIONS.map((s) => [s.type, s]));
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
+const FULL_DAY_NAMES = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"];
 
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-
-const Chip = ({ shift }: { shift: ShiftType }) => {
-  const cfg = SHIFT_MAP[shift];
-  return (
-    <span
-      className={`inline-flex items-center justify-center min-w-[40px] h-7 px-2 rounded-full border ${cfg.chipBg} ${cfg.chipText} ${cfg.chipBorder} text-xs font-semibold`}
-    >
-      {shift === "off" ? "Ledigt" : cfg.start}
-    </span>
-  );
-};
 
 const AdminSchedule = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [weekOffset, setWeekOffset] = useState(0);
-  const [openCell, setOpenCell] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<{ worker: any; date: Date; dayIndex: number } | null>(null);
 
   const referenceDate = useMemo(() => {
     const now = new Date();
@@ -113,35 +86,19 @@ const AdminSchedule = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
-      setOpenCell(null);
+      setSheet(null);
     },
     onError: () => {
       toast({ title: "Kunde inte spara", description: "Försök igen eller kontrollera din behörighet.", variant: "destructive" });
     },
   });
 
-  const deleteShift = useMutation({
-    mutationFn: async ({ userId, date }: { userId: string; date: string }) => {
-      const { error } = await supabase.from("schedules").delete().eq("user_id", userId).eq("date", date);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
-      setOpenCell(null);
-    },
-    onError: () => {
-      toast({ title: "Kunde inte ta bort", variant: "destructive" });
-    },
-  });
-
   const isLoading = workersLoading || schedulesLoading;
-
-  const cellKey = (userId: string, date: Date) => `${userId}_${format(date, "yyyy-MM-dd")}`;
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
-        {/* Top bar */}
+        {/* Top bar: title + nav */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-foreground">Schema</h1>
@@ -186,7 +143,12 @@ const AdminSchedule = () => {
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
                   return (
-                    <div key={i} className={`px-2 py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}>
+                    <div
+                      key={i}
+                      className={`px-2 py-3 text-center border-l border-border ${
+                        today ? "bg-primary/5" : ""
+                      }`}
+                    >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
                       </div>
@@ -207,16 +169,21 @@ const AdminSchedule = () => {
               {/* Body */}
               {isLoading ? (
                 <div className="p-4 space-y-2">
-                  {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full rounded-xl" />
+                  ))}
                 </div>
               ) : allWorkers.length === 0 ? (
-                <div className="p-10 text-center text-sm text-muted-foreground">Inga medarbetare att visa.</div>
+                <div className="p-10 text-center text-sm text-muted-foreground">
+                  Inga medarbetare att visa.
+                </div>
               ) : (
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
                     className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
                   >
+                    {/* Worker cell */}
                     <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
@@ -226,53 +193,36 @@ const AdminSchedule = () => {
                       <span className="text-sm font-medium text-foreground truncate">{w.name}</span>
                     </div>
 
+                    {/* Day cells */}
                     {weekDays.map((d, i) => {
                       const shift = w.user_id ? getShift(w.user_id, d) : null;
                       const today = isToday(d);
-                      const key = w.user_id ? cellKey(w.user_id, d) : "";
-                      const isOpen = openCell === key;
-                      const dateStr = format(d, "yyyy-MM-dd");
-
-                      const cellInner = (
+                      const cfg = shift ? SHIFT_MAP[shift] : null;
+                      return (
                         <button
+                          key={i}
+                          onClick={() => w.user_id && setSheet({ worker: w, date: d, dayIndex: i })}
                           disabled={!w.user_id}
-                          className={`w-full border-l border-border min-h-[64px] p-1.5 flex items-center justify-center transition-colors ${
+                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col items-center justify-center transition-colors ${
                             today ? "bg-primary/[0.03]" : ""
                           } ${w.user_id ? "hover:bg-primary/5 cursor-pointer" : "cursor-not-allowed opacity-50"}`}
                         >
-                          {shift ? <Chip shift={shift} /> : <span className="text-muted-foreground/40 text-lg">+</span>}
+                          {cfg ? (
+                            <div
+                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1`}
+                            >
+                              <span className="text-base leading-none">{cfg.emoji}</span>
+                              <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
+                                {cfg.label}
+                              </span>
+                              {cfg.time && (
+                                <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground/40 text-lg">+</span>
+                          )}
                         </button>
-                      );
-
-                      if (!w.user_id) return <div key={i}>{cellInner}</div>;
-
-                      return (
-                        <Popover
-                          key={i}
-                          open={isOpen}
-                          onOpenChange={(o) => setOpenCell(o ? key : null)}
-                        >
-                          <PopoverTrigger asChild>{cellInner}</PopoverTrigger>
-                          <PopoverContent className="w-64 p-3" align="center">
-                            {shift ? (
-                              <EditPopover
-                                currentShift={shift}
-                                onChange={(newType) =>
-                                  upsertShift.mutate({ userId: w.user_id, date: dateStr, shiftType: newType })
-                                }
-                                onDelete={() => deleteShift.mutate({ userId: w.user_id, date: dateStr })}
-                                saving={upsertShift.isPending || deleteShift.isPending}
-                              />
-                            ) : (
-                              <CreatePopover
-                                onPick={(type) =>
-                                  upsertShift.mutate({ userId: w.user_id, date: dateStr, shiftType: type })
-                                }
-                                saving={upsertShift.isPending}
-                              />
-                            )}
-                          </PopoverContent>
-                        </Popover>
                       );
                     })}
                   </div>
@@ -282,93 +232,65 @@ const AdminSchedule = () => {
           </div>
         </Card>
       </div>
-    </div>
-  );
-};
 
-const CreatePopover = ({
-  onPick,
-  saving,
-}: {
-  onPick: (t: ShiftType) => void;
-  saving: boolean;
-}) => {
-  return (
-    <div className="space-y-1.5">
-      <div className="text-xs font-medium text-muted-foreground px-1 pb-1">Välj pass</div>
-      {SHIFTS.map((s) => (
-        <button
-          key={s.type}
-          disabled={saving}
-          onClick={() => onPick(s.type)}
-          className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg border border-border hover:bg-muted/60 transition-colors text-left disabled:opacity-50`}
-        >
-          <Chip shift={s.type} />
-          <span className="text-sm text-foreground">
-            {s.type === "off" ? "Ledigt" : `${s.label} (${s.start})`}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-};
+      {/* Bottom sheet */}
+      {sheet && (
+        <div className="fixed inset-0 z-50" onClick={() => setSheet(null)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300 max-w-[480px] mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-center mb-4">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
+            </div>
 
-const EditPopover = ({
-  currentShift,
-  onChange,
-  onDelete,
-  saving,
-}: {
-  currentShift: ShiftType;
-  onChange: (t: ShiftType) => void;
-  onDelete: () => void;
-  saving: boolean;
-}) => {
-  const isOff = currentShift === "off";
-  const startValue = isOff ? "07" : SHIFT_MAP[currentShift].start;
+            <div className="text-center mb-5">
+              <div className="text-base font-semibold text-foreground">{sheet.worker.name}</div>
+              <div className="text-sm text-muted-foreground">
+                {FULL_DAY_NAMES[sheet.dayIndex]} · {format(sheet.date, "d MMM yyyy", { locale: sv })}
+              </div>
+            </div>
 
-  const handleStart = (val: string) => {
-    const next = TIME_SHIFTS.find((s) => s.start === val);
-    if (next) onChange(next.type);
-  };
+            <div className="space-y-2 mb-5">
+              {SHIFT_OPTIONS.map((opt) => {
+                const currentShift = sheet.worker.user_id ? getShift(sheet.worker.user_id, sheet.date) : null;
+                const isSelected = currentShift === opt.type;
+                return (
+                  <button
+                    key={opt.type}
+                    onClick={() =>
+                      upsertShift.mutate({
+                        userId: sheet.worker.user_id,
+                        date: format(sheet.date, "yyyy-MM-dd"),
+                        shiftType: opt.type,
+                      })
+                    }
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
+                      isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="text-xl">{opt.emoji}</span>
+                    <div className="flex-1 text-left">
+                      <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
+                        {opt.label}
+                      </span>
+                      {opt.time && (
+                        <span className="text-xs text-muted-foreground ml-2">{opt.time}</span>
+                      )}
+                    </div>
+                    {isSelected && <Check className="h-4 w-4 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
 
-  const handleToggleOff = (checked: boolean) => {
-    onChange(checked ? "off" : "morning");
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="text-xs font-medium text-muted-foreground px-1">Redigera pass</div>
-
-      <div className="space-y-1.5">
-        <Label className="text-xs">Starttid</Label>
-        <Select value={startValue} onValueChange={handleStart} disabled={isOff || saving}>
-          <SelectTrigger className="h-9">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {TIME_SHIFTS.map((s) => (
-              <SelectItem key={s.start} value={s.start}>
-                {s.start} – {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
-        <Label htmlFor="off-toggle" className="text-sm cursor-pointer">Ledigt</Label>
-        <Switch id="off-toggle" checked={isOff} onCheckedChange={handleToggleOff} disabled={saving} />
-      </div>
-
-      <button
-        onClick={onDelete}
-        disabled={saving}
-        className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 text-sm font-medium transition-colors disabled:opacity-50"
-      >
-        <Trash2 className="h-4 w-4" />
-        Ta bort
-      </button>
+            <Button variant="outline" className="w-full" onClick={() => setSheet(null)}>
+              Avbryt
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
