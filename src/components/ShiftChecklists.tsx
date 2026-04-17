@@ -383,9 +383,164 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
 
       {lists.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">Inga checklistor på detta pass.</p>
+      ) : mode === "admin" ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleListDragEnd}
+        >
+          <SortableContext items={lists.map((l) => l.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-3">
+              {lists.map((list) => {
+                const listItems = items.filter((i) => i.shift_checklist_id === list.id);
+                const doneCount = listItems.filter((i) => i.is_checked).length;
+                const totalCount = listItems.length;
+                const allDone = totalCount > 0 && doneCount === totalCount;
+                const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+                return (
+                  <SortableItem key={list.id} id={list.id}>
+                    <div className="border border-border rounded-xl p-3 space-y-2 bg-background flex-1 min-w-0">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <Input
+                            defaultValue={list.name}
+                            onBlur={(e) => {
+                              const v = e.target.value.trim();
+                              if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
+                            }}
+                            className="h-7 text-sm font-semibold flex-1 min-w-0"
+                          />
+                          <div className="flex items-center gap-2 shrink-0">
+                            {totalCount > 0 && (
+                              <span
+                                className={`text-[11px] font-medium tabular-nums ${
+                                  allDone ? "text-emerald-700" : "text-muted-foreground"
+                                }`}
+                              >
+                                {doneCount}/{totalCount}
+                              </span>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-primary"
+                              onClick={() => saveAsTemplate.mutate(list.id)}
+                              disabled={saveAsTemplate.isPending}
+                              title="Spara som mall"
+                            >
+                              <BookmarkPlus className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => deleteList.mutate(list.id)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                        {totalCount > 0 && (
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                allDone ? "bg-emerald-500" : "bg-primary"
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleItemDragEnd(list.id, listItems)}
+                      >
+                        <SortableContext items={listItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                          <div className="space-y-1.5">
+                            {listItems.map((item) => (
+                              <SortableItem key={item.id} id={item.id}>
+                                <Checkbox
+                                  checked={item.is_checked}
+                                  onCheckedChange={(v) =>
+                                    toggleItem.mutate({ id: item.id, checked: v === true })
+                                  }
+                                />
+                                <span
+                                  className={`flex-1 text-sm ${
+                                    item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
+                                  }`}
+                                >
+                                  {item.text}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                                  onClick={() => removeItem.mutate(item.id)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </SortableItem>
+                            ))}
+                          </div>
+                        </SortableContext>
+                      </DndContext>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          value={newItemFor[list.id] ?? ""}
+                          onChange={(e) =>
+                            setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const text = (newItemFor[list.id] ?? "").trim();
+                              if (text) {
+                                addItem.mutate(
+                                  { listId: list.id, text },
+                                  {
+                                    onSuccess: () =>
+                                      setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                  },
+                                );
+                              }
+                            }
+                          }}
+                          placeholder="Lägg till punkt..."
+                          className="h-8 text-sm"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const text = (newItemFor[list.id] ?? "").trim();
+                            if (text) {
+                              addItem.mutate(
+                                { listId: list.id, text },
+                                {
+                                  onSuccess: () =>
+                                    setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                },
+                              );
+                            }
+                          }}
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </SortableItem>
+                );
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
       ) : (
         <div className="space-y-3">
-          {lists.map((list, listIdx) => {
+          {lists.map((list) => {
             const listItems = items.filter((i) => i.shift_checklist_id === list.id);
             const doneCount = listItems.filter((i) => i.is_checked).length;
             const totalCount = listItems.length;
@@ -395,18 +550,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
               <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    {mode === "admin" ? (
-                      <Input
-                        defaultValue={list.name}
-                        onBlur={(e) => {
-                          const v = e.target.value.trim();
-                          if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
-                        }}
-                        className="h-7 text-sm font-semibold flex-1 min-w-0"
-                      />
-                    ) : (
-                      <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
-                    )}
+                    <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
                     <div className="flex items-center gap-2 shrink-0">
                       {totalCount > 0 && (
                         <span
@@ -416,48 +560,6 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                         >
                           {doneCount}/{totalCount}
                         </span>
-                      )}
-                      {mode === "admin" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                            onClick={() => reorderList.mutate({ listId: list.id, direction: "up" })}
-                            disabled={listIdx === 0 || reorderList.isPending}
-                            title="Flytta upp"
-                          >
-                            <ArrowUp className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                            onClick={() => reorderList.mutate({ listId: list.id, direction: "down" })}
-                            disabled={listIdx === lists.length - 1 || reorderList.isPending}
-                            title="Flytta ner"
-                          >
-                            <ArrowDown className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-muted-foreground hover:text-primary"
-                            onClick={() => saveAsTemplate.mutate(list.id)}
-                            disabled={saveAsTemplate.isPending}
-                            title="Spara som mall"
-                          >
-                            <BookmarkPlus className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:text-destructive"
-                            onClick={() => deleteList.mutate(list.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </>
                       )}
                     </div>
                   </div>
@@ -472,6 +574,31 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                     </div>
                   )}
                 </div>
+
+                <div className="space-y-1.5">
+                  {listItems.map((item) => (
+                    <div key={item.id} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={item.is_checked}
+                        onCheckedChange={(v) =>
+                          toggleItem.mutate({ id: item.id, checked: v === true })
+                        }
+                      />
+                      <span
+                        className={`flex-1 text-sm ${
+                          item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
+                        }`}
+                      >
+                        {item.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
                 {mode === "admin" ? (
                   <DndContext
