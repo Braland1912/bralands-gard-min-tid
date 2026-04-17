@@ -338,10 +338,9 @@ const Index = () => {
               </Button>
             </div>
 
+            <TodayScheduleChips userId={user.id} />
+
             <Button
-              variant="ghost"
-              className="w-full text-muted-foreground"
-              onClick={() => navigate("/my-time")}
             >
               <FileText className="mr-2 h-4 w-4" />
               Min tid & korrigeringar
