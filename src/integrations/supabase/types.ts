@@ -189,6 +189,70 @@ export type Database = {
         }
         Relationships: []
       }
+      shift_checklist_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_checked: boolean
+          shift_checklist_id: string
+          sort_order: number
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_checked?: boolean
+          shift_checklist_id: string
+          sort_order?: number
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_checked?: boolean
+          shift_checklist_id?: string
+          sort_order?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_checklist_items_shift_checklist_id_fkey"
+            columns: ["shift_checklist_id"]
+            isOneToOne: false
+            referencedRelation: "shift_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shift_checklists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          shift_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          shift_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          shift_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_checklists_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       time_correction_requests: {
         Row: {
           admin_note: string | null

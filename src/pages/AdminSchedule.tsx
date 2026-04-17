@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ShiftChecklists from "@/components/ShiftChecklists";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
@@ -129,6 +130,35 @@ const AdminSchedule = () => {
     return entry ? (entry.shift_type as ShiftType) : null;
   };
 
+  const getShiftRow = (userId: string, date: Date, idx: 0 | 1): any | null => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    return (
+      schedules.find(
+        (s: any) => s.user_id === userId && s.date === dateStr && (s.shift_index ?? 0) === idx,
+      ) || null
+    );
+  };
+
+  const scheduleIds = (schedules as any[]).map((s) => s.id);
+
+  const { data: checklistCounts = {} } = useQuery({
+    queryKey: ["shift-checklist-counts", scheduleIds.join(",")],
+    queryFn: async () => {
+      if (scheduleIds.length === 0) return {} as Record<string, number>;
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("shift_id")
+        .in("shift_id", scheduleIds);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        counts[r.shift_id] = (counts[r.shift_id] ?? 0) + 1;
+      });
+      return counts;
+    },
+    enabled: scheduleIds.length > 0,
+  });
+
   const upsertShift = useMutation({
     mutationFn: async ({
       userId,
@@ -151,7 +181,6 @@ const AdminSchedule = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
-      setSheet(null);
     },
     onError: () => {
       toast({ title: "Kunde inte spara", description: "Försök igen eller kontrollera din behörighet.", variant: "destructive" });
@@ -179,16 +208,23 @@ const AdminSchedule = () => {
 
   const isLoading = workersLoading || schedulesLoading;
 
-  const renderChip = (shift: ShiftType, onClick: (e: React.MouseEvent) => void) => {
+  const renderChip = (
+    shift: ShiftType,
+    onClick: (e: React.MouseEvent) => void,
+    hasChecklists = false,
+  ) => {
     const cfg = SHIFT_MAP[shift];
     return (
       <div
         role="button"
         onClick={onClick}
-        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity relative`}
       >
         <span className="text-sm leading-none">{cfg.emoji}</span>
         <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
+        {hasChecklists && (
+          <span className="absolute -top-1 -right-1 text-[10px] leading-none" title="Har checklista">📋</span>
+        )}
       </div>
     );
   };
@@ -316,6 +352,10 @@ const AdminSchedule = () => {
                     {weekDays.map((d, i) => {
                       const shift0 = w.user_id ? getShiftAt(w.user_id, d, 0) : null;
                       const shift1 = w.user_id ? getShiftAt(w.user_id, d, 1) : null;
+                      const row0 = w.user_id ? getShiftRow(w.user_id, d, 0) : null;
+                      const row1 = w.user_id ? getShiftRow(w.user_id, d, 1) : null;
+                      const has0 = !!(row0 && checklistCounts[row0.id]);
+                      const has1 = !!(row1 && checklistCounts[row1.id]);
                       const today = isToday(d);
                       const hasAny = !!shift0 || !!shift1;
 
@@ -341,15 +381,23 @@ const AdminSchedule = () => {
                           ) : (
                             <>
                               {shift0 &&
-                                renderChip(shift0, (e) => {
-                                  e.stopPropagation();
-                                  setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
-                                })}
-                              {shift1
-                                ? renderChip(shift1, (e) => {
+                                renderChip(
+                                  shift0,
+                                  (e) => {
                                     e.stopPropagation();
-                                    setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
-                                  })
+                                    setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
+                                  },
+                                  has0,
+                                )}
+                              {shift1
+                                ? renderChip(
+                                    shift1,
+                                    (e) => {
+                                      e.stopPropagation();
+                                      setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
+                                    },
+                                    has1,
+                                  )
                                 : w.user_id && (
                                     <button
                                       onClick={() =>
@@ -379,7 +427,7 @@ const AdminSchedule = () => {
         <div className="fixed inset-0 z-50" onClick={() => setSheet(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300 max-w-[480px] mx-auto"
+            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300 max-w-[480px] mx-auto max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-center mb-4">
@@ -428,6 +476,15 @@ const AdminSchedule = () => {
                 );
               })}
             </div>
+
+            {sheet.worker.user_id && getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
+              <div className="mb-5 pt-4 border-t border-border">
+                <ShiftChecklists
+                  shiftId={getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)!.id}
+                  mode="admin"
+                />
+              </div>
+            )}
 
             <div className="flex gap-2">
               {sheet.worker.user_id &&

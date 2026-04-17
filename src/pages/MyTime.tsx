@@ -15,6 +15,7 @@ import { sv } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
+import ShiftChecklists from "@/components/ShiftChecklists";
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
@@ -70,6 +71,42 @@ const MyTime = () => {
     },
     enabled: !!worker,
     refetchInterval: 30000,
+  });
+
+  const todayDateStr = format(now, "yyyy-MM-dd");
+  const { data: todayShifts = [] } = useQuery({
+    queryKey: ["my-today-shifts", user?.id, todayDateStr],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", todayDateStr)
+        .order("shift_index", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  const todayShiftIds = (todayShifts as any[]).map((s) => s.id);
+  const { data: todayChecklistMap = {} } = useQuery({
+    queryKey: ["my-today-checklists-presence", todayShiftIds.join(",")],
+    queryFn: async () => {
+      if (todayShiftIds.length === 0) return {} as Record<string, boolean>;
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("shift_id")
+        .in("shift_id", todayShiftIds);
+      if (error) throw error;
+      const map: Record<string, boolean> = {};
+      (data ?? []).forEach((r: any) => {
+        map[r.shift_id] = true;
+      });
+      return map;
+    },
+    enabled: todayShiftIds.length > 0,
   });
 
   const todayStats = (() => {
@@ -221,6 +258,20 @@ const MyTime = () => {
             <p className="text-xl font-semibold text-foreground tabular-nums">{monthTotal.toFixed(1)} h</p>
           </div>
         </div>
+
+        {/* Today's checklists */}
+        {(todayShifts as any[]).filter((s) => todayChecklistMap[s.id]).length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">Dagens checklistor</h2>
+            {(todayShifts as any[])
+              .filter((s) => todayChecklistMap[s.id])
+              .map((s) => (
+                <div key={s.id} className="border border-border rounded-xl p-4">
+                  <ShiftChecklists shiftId={s.id} mode="worker" />
+                </div>
+              ))}
+          </div>
+        )}
 
         {/* Time entries grouped by week → day */}
         <div className="space-y-6">
