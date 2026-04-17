@@ -46,6 +46,35 @@ export type Database = {
           },
         ]
       }
+      checklist_template_shift_types: {
+        Row: {
+          created_at: string
+          id: string
+          shift_type: string
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          shift_type: string
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          shift_type?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_template_shift_types_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checklist_templates: {
         Row: {
           created_at: string
