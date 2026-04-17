@@ -61,7 +61,10 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
           <div key={list.id} className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
-              <Progress value={pct} className="h-1.5 w-20" />
+              <Progress
+                value={pct}
+                className={`h-1.5 w-20 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
+              />
               <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
                 {done}/{total}
               </span>
