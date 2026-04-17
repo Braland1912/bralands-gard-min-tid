@@ -73,7 +73,42 @@ const MyTime = () => {
     refetchInterval: 30000,
   });
 
-  const todayStats = (() => {
+  const todayDateStr = format(now, "yyyy-MM-dd");
+  const { data: todayShifts = [] } = useQuery({
+    queryKey: ["my-today-shifts", user?.id, todayDateStr],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", todayDateStr)
+        .order("shift_index", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  const todayShiftIds = (todayShifts as any[]).map((s) => s.id);
+  const { data: todayChecklistMap = {} } = useQuery({
+    queryKey: ["my-today-checklists-presence", todayShiftIds.join(",")],
+    queryFn: async () => {
+      if (todayShiftIds.length === 0) return {} as Record<string, boolean>;
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("shift_id")
+        .in("shift_id", todayShiftIds);
+      if (error) throw error;
+      const map: Record<string, boolean> = {};
+      (data ?? []).forEach((r: any) => {
+        map[r.shift_id] = true;
+      });
+      return map;
+    },
+    enabled: todayShiftIds.length > 0,
+  });
+
     let totalMs = 0;
     let activeStart: string | null = null;
     for (const e of todayEntries) {
