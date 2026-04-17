@@ -109,6 +109,7 @@ const MyTime = () => {
     enabled: todayShiftIds.length > 0,
   });
 
+  const todayStats = (() => {
     let totalMs = 0;
     let activeStart: string | null = null;
     for (const e of todayEntries) {
