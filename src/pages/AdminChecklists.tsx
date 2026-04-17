@@ -327,43 +327,53 @@ const AdminChecklists = () => {
             <p className="text-sm text-muted-foreground">Inga mallar ännu. Skapa din första mall.</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {templates.map((tpl) => (
-              <Card key={tpl.id} className="p-4 hover:bg-muted/30 transition-colors h-full relative">
-                <button
-                  onClick={() => handleOpenExisting(tpl)}
-                  className="text-left w-full"
-                >
-                  <div className="flex items-start justify-between gap-3 pr-8">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <ListChecks className="h-4 w-4 text-primary shrink-0" />
-                        <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
-                      </p>
-                    </div>
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                  </div>
-                </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateTemplate.mutate(tpl);
-                  }}
-                  disabled={duplicateTemplate.isPending}
-                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-                  aria-label="Kopiera mall"
-                  title="Kopiera mall"
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-              </Card>
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleTemplateDragEnd}
+          >
+            <SortableContext items={templates.map((t) => t.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {templates.map((tpl) => (
+                  <SortableItem key={tpl.id} id={tpl.id}>
+                    <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
+                      <button
+                        onClick={() => handleOpenExisting(tpl)}
+                        className="text-left w-full"
+                      >
+                        <div className="flex items-start justify-between gap-3 pr-8">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <ListChecks className="h-4 w-4 text-primary shrink-0" />
+                              <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1.5">
+                              {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
+                            </p>
+                          </div>
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                        </div>
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          duplicateTemplate.mutate(tpl);
+                        }}
+                        disabled={duplicateTemplate.isPending}
+                        className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                        aria-label="Kopiera mall"
+                        title="Kopiera mall"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </Card>
+                  </SortableItem>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
