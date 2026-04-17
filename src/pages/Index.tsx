@@ -413,36 +413,133 @@ const Index = () => {
         )}
       </Card>
 
-      <AlertDialog open={confirmClockOutOpen} onOpenChange={setConfirmClockOutOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Du har obockade punkter</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Dialog
+        open={confirmClockOutOpen}
+        onOpenChange={(o) => {
+          if (submittingEarly) return;
+          setConfirmClockOutOpen(o);
+          if (!o) setEarlyReason("");
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Du har obockade punkter</DialogTitle>
+            <DialogDescription>
               Det finns {checklistStatus?.unchecked ?? 0} obockade{" "}
-              {checklistStatus?.unchecked === 1 ? "punkt" : "punkter"} på dagens checklistor.
-              Vill du gå tillbaka och bocka av dem innan du stämplar ut?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
+              {checklistStatus?.unchecked === 1 ? "punkt" : "punkter"} på dagens
+              checklistor. Skriv kort varför du stämplar ut innan allt är klart,
+              eller välj "Tar bara rast".
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-12 justify-start gap-2 text-base"
+              disabled={submittingEarly}
+              onClick={async () => {
+                setConfirmClockOutOpen(false);
+                setEarlyReason("");
+                await performClockOut();
+                toast({
+                  title: "Trevlig rast!",
+                  description:
+                    "Glöm inte att stämpla in igen när du är tillbaka.",
+                  duration: 8000,
+                });
+              }}
+            >
+              <Coffee className="h-5 w-5" />
+              Tar bara rast
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  eller
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Varför stämplar du ut nu?
+              </label>
+              <Textarea
+                value={earlyReason}
+                onChange={(e) => setEarlyReason(e.target.value)}
+                placeholder="T.ex. blev sjuk, fick åka tidigare..."
+                rows={3}
+                disabled={submittingEarly}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="ghost"
+              disabled={submittingEarly}
               onClick={() => {
                 setConfirmClockOutOpen(false);
+                setEarlyReason("");
                 navigate("/my-schedule");
               }}
             >
               Visa checklista
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setConfirmClockOutOpen(false);
-                performClockOut();
+            </Button>
+            <Button
+              disabled={submittingEarly || earlyReason.trim().length < 3}
+              onClick={async () => {
+                if (!worker) return;
+                setSubmittingEarly(true);
+                try {
+                  const today = new Date();
+                  const dateStr = `${today.getFullYear()}-${String(
+                    today.getMonth() + 1
+                  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+                  const { error } = await supabase
+                    .from("time_correction_requests")
+                    .insert({
+                      worker_id: worker.id,
+                      worker_name: worker.name,
+                      date: dateStr,
+                      reason: `Tidig utstämpling med obockade punkter (${
+                        checklistStatus?.unchecked ?? 0
+                      } st): ${earlyReason.trim()}`,
+                    });
+                  if (error) throw error;
+                  setConfirmClockOutOpen(false);
+                  setEarlyReason("");
+                  await performClockOut();
+                  toast({
+                    title: "Orsak skickad",
+                    description: "Admin får din notering.",
+                  });
+                } catch (err: any) {
+                  console.error("Failed to log early clock-out reason:", err);
+                  toast({
+                    title: "Kunde inte spara orsak",
+                    description: "Försök igen.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setSubmittingEarly(false);
+                }
               }}
             >
-              Stämpla ut ändå
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              {submittingEarly ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Stämpla ut"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
