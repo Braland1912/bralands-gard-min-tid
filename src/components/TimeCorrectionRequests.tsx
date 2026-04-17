@@ -4,11 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Check, X, ListChecks } from "lucide-react";
+
+type FilterMode = "all" | "early" | "normal";
 
 const EARLY_PREFIX = "Tidig utstämpling med obockade punkter";
 
@@ -28,6 +31,7 @@ const TimeCorrectionRequests = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<FilterMode>("all");
 
   const { data: requests = [] } = useQuery({
     queryKey: ["correction-requests"],
@@ -83,9 +87,43 @@ const TimeCorrectionRequests = () => {
   const normalPending = requests.filter((r: any) => r.status === "pending" && !isEarlyClockout(r));
   const handledRequests = requests.filter((r: any) => r.status !== "pending");
 
+  const showEarly = filter === "all" || filter === "early";
+  const showNormal = filter === "all" || filter === "normal";
+  const filteredHandled = handledRequests.filter((r: any) => {
+    if (filter === "early") return isEarlyClockout(r);
+    if (filter === "normal") return !isEarlyClockout(r);
+    return true;
+  });
+
+  const totalEarly = requests.filter((r: any) => isEarlyClockout(r)).length;
+  const totalNormal = requests.filter((r: any) => !isEarlyClockout(r)).length;
+
   return (
     <div className="space-y-6">
+      {/* Filter */}
+      <ToggleGroup
+        type="single"
+        value={filter}
+        onValueChange={(v) => v && setFilter(v as FilterMode)}
+        className="justify-start gap-2 flex-wrap"
+      >
+        <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
+          Alla
+          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{requests.length}</Badge>
+        </ToggleGroupItem>
+        <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
+          <ListChecks className="h-3.5 w-3.5 mr-1" />
+          Tidiga utstämplingar
+          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalEarly}</Badge>
+        </ToggleGroupItem>
+        <ToggleGroupItem value="normal" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
+          Korrigeringar
+          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalNormal}</Badge>
+        </ToggleGroupItem>
+      </ToggleGroup>
+
       {/* Tidig utstämpling — egen sektion */}
+      {showEarly && (
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
           <ListChecks className="h-5 w-5 text-amber-600" />
