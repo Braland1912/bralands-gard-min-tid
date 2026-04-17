@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar, ListChecks, Menu } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
@@ -47,6 +48,19 @@ const AdminDashboard = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: pendingCount = 0 } = useQuery({
+    queryKey: ["pending-corrections-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("time_correction_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      if (error) throw error;
+      return count ?? 0;
+    },
+    refetchInterval: 30000,
+  });
 
   const handleTabChange = (tabId: string) => {
     if (tabId === "schema") {
@@ -173,7 +187,14 @@ const AdminDashboard = () => {
                   : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-4 w-4" />
+              <div className="relative">
+                <tab.icon className="h-4 w-4" />
+                {tab.id === "rattelser" && pendingCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-semibold flex items-center justify-center leading-none">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
