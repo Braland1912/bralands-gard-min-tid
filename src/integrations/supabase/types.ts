@@ -85,6 +85,30 @@ export type Database = {
           },
         ]
       }
+      schedule_days: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_published: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_published?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_published?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           created_at: string
