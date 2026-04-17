@@ -296,16 +296,20 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
                   >
                     {/* Worker cell */}
-                    <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                          {getInitials(w.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm font-medium text-foreground truncate">{w.name}</span>
+                    <div className={`${isMobile ? "px-2 gap-1.5" : "px-4 gap-2.5"} py-3 flex items-center sticky left-0 bg-card`}>
+                      {!isMobile && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                            {getInitials(w.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
+                        {isMobile ? getShortName(w.name) : w.name}
+                      </span>
                     </div>
 
                     {/* Day cells */}
