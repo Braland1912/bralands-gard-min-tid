@@ -209,32 +209,43 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-semibold text-foreground">Checklistor</span>
         </div>
         {mode === "admin" && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={addFromTemplate.isPending}>
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                Lägg till checklista
-                <ChevronDown className="h-3 w-3 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {templates.length === 0 ? (
-                <DropdownMenuItem disabled>Inga mallar än</DropdownMenuItem>
-              ) : (
-                templates.map((t: any) => (
-                  <DropdownMenuItem key={t.id} onClick={() => addFromTemplate.mutate(t.id)}>
-                    {t.name}
-                  </DropdownMenuItem>
-                ))
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-1.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={addFromTemplate.isPending}>
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Från mall
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {templates.length === 0 ? (
+                  <DropdownMenuItem disabled>Inga mallar än</DropdownMenuItem>
+                ) : (
+                  templates.map((t: any) => (
+                    <DropdownMenuItem key={t.id} onClick={() => addFromTemplate.mutate(t.id)}>
+                      {t.name}
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createBlank.mutate()}
+              disabled={createBlank.isPending}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Skapa ny
+            </Button>
+          </div>
         )}
       </div>
 
