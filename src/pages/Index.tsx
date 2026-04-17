@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogIn, LogOut, FileText, Clock, Check, Loader2, AlertTriangle, Wifi, WifiOff } from "lucide-react";
+import { LogIn, LogOut, FileText, Clock, Check, Loader2, AlertTriangle, WifiOff, ListChecks } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,17 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
+import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type ClockState = "idle" | "loading" | "confirmed";
 
@@ -65,6 +76,8 @@ const Index = () => {
   const [clockInState, setClockInState] = useState<ClockState>("idle");
   const [clockOutState, setClockOutState] = useState<ClockState>("idle");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [confirmClockOutOpen, setConfirmClockOutOpen] = useState(false);
+  const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
 
   // Track online status
   useEffect(() => {
@@ -164,7 +177,7 @@ const Index = () => {
     }
   }, [worker, clockInState, isOnline, activeEntry, toast, queryClient]);
 
-  const handleClockOut = useCallback(async () => {
+  const performClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
     if (!activeEntry) {
       toast({ title: "Ingen aktiv stampling", description: "Du behover stampla in forst innan du kan stampla ut.", variant: "destructive" });
@@ -191,6 +204,18 @@ const Index = () => {
       setClockOutState("idle");
     }
   }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient]);
+
+  const handleClockOut = useCallback(() => {
+    if (!worker || clockOutState !== "idle" || !isOnline || !activeEntry) {
+      performClockOut();
+      return;
+    }
+    if ((checklistStatus?.unchecked ?? 0) > 0) {
+      setConfirmClockOutOpen(true);
+      return;
+    }
+    performClockOut();
+  }, [worker, clockOutState, isOnline, activeEntry, checklistStatus, performClockOut]);
 
   const handleForgottenCorrection = () => {
     navigate("/my-time");
@@ -313,6 +338,49 @@ const Index = () => {
               </p>
             </div>
 
+            {/* Checklist reminder banner — shown while clocked in if there are unchecked items today */}
+            {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (
+              <button
+                type="button"
+                onClick={() => navigate("/my-schedule")}
+                className={`w-full text-left rounded-xl border p-3 transition-colors ${
+                  checklistStatus.unchecked > 0
+                    ? "bg-amber-50 border-amber-200 hover:bg-amber-100"
+                    : "bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <ListChecks
+                    className={`h-5 w-5 shrink-0 mt-0.5 ${
+                      checklistStatus.unchecked > 0 ? "text-amber-600" : "text-emerald-600"
+                    }`}
+                  />
+                  <div className="space-y-0.5 flex-1 min-w-0">
+                    <p
+                      className={`text-sm font-medium ${
+                        checklistStatus.unchecked > 0 ? "text-amber-800" : "text-emerald-800"
+                      }`}
+                    >
+                      {checklistStatus.unchecked > 0
+                        ? `${checklistStatus.unchecked} obockade ${
+                            checklistStatus.unchecked === 1 ? "punkt" : "punkter"
+                          } på dagens checklistor`
+                        : "Alla dagens checklistor är klara"}
+                    </p>
+                    <p
+                      className={`text-xs ${
+                        checklistStatus.unchecked > 0 ? "text-amber-700" : "text-emerald-700"
+                      }`}
+                    >
+                      {checklistStatus.unchecked > 0
+                        ? "Bocka av punkterna under passet — tryck här för att öppna."
+                        : "Bra jobbat! Tryck för att se dem."}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            )}
+
             {/* Clock in/out buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
@@ -343,6 +411,37 @@ const Index = () => {
           </div>
         )}
       </Card>
+
+      <AlertDialog open={confirmClockOutOpen} onOpenChange={setConfirmClockOutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Du har obockade punkter</AlertDialogTitle>
+            <AlertDialogDescription>
+              Det finns {checklistStatus?.unchecked ?? 0} obockade{" "}
+              {checklistStatus?.unchecked === 1 ? "punkt" : "punkter"} på dagens checklistor.
+              Vill du gå tillbaka och bocka av dem innan du stämplar ut?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setConfirmClockOutOpen(false);
+                navigate("/my-schedule");
+              }}
+            >
+              Visa checklista
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmClockOutOpen(false);
+                performClockOut();
+              }}
+            >
+              Stämpla ut ändå
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
