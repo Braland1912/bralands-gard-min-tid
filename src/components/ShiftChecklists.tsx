@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ListChecks, ChevronDown, BookmarkPlus } from "lucide-react";
+import { Plus, Trash2, ListChecks, ChevronDown, BookmarkPlus, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ export type ShiftChecklist = {
   id: string;
   shift_id: string;
   name: string;
+  sort_order: number;
 };
 
 export type ShiftChecklistItem = {
@@ -46,6 +47,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         .from("shift_checklists")
         .select("*")
         .eq("shift_id", shiftId)
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data as ShiftChecklist[];
@@ -96,9 +98,10 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         .order("sort_order", { ascending: true });
       if (tplItemsErr) throw tplItemsErr;
 
+      const nextSort = lists.length;
       const { data: newList, error: listErr } = await supabase
         .from("shift_checklists")
-        .insert({ shift_id: shiftId, name: tpl.name })
+        .insert({ shift_id: shiftId, name: tpl.name, sort_order: nextSort })
         .select()
         .single();
       if (listErr) throw listErr;
@@ -124,9 +127,10 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const createBlank = useMutation({
     mutationFn: async () => {
       if (!shiftId) throw new Error("Inget pass valt");
+      const nextSort = lists.length;
       const { error } = await supabase
         .from("shift_checklists")
-        .insert({ shift_id: shiftId, name: "Ny checklista" });
+        .insert({ shift_id: shiftId, name: "Ny checklista", sort_order: nextSort });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -176,6 +180,30 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
       toast({ title: "Sparad som mall" });
     },
     onError: () => toast({ title: "Kunde inte spara som mall", variant: "destructive" }),
+  });
+
+  const reorderList = useMutation({
+    mutationFn: async ({ listId, direction }: { listId: string; direction: "up" | "down" }) => {
+      const sorted = [...lists].sort((a, b) => a.sort_order - b.sort_order);
+      const idx = sorted.findIndex((l) => l.id === listId);
+      if (idx === -1) return;
+      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= sorted.length) return;
+      const a = sorted[idx];
+      const b = sorted[swapIdx];
+      const { error: e1 } = await supabase
+        .from("shift_checklists")
+        .update({ sort_order: b.sort_order })
+        .eq("id", a.id);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase
+        .from("shift_checklists")
+        .update({ sort_order: a.sort_order })
+        .eq("id", b.id);
+      if (e2) throw e2;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
+    onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
   });
 
   const deleteList = useMutation({
@@ -287,7 +315,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         <p className="text-xs text-muted-foreground italic">Inga checklistor på detta pass.</p>
       ) : (
         <div className="space-y-3">
-          {lists.map((list) => {
+          {lists.map((list, listIdx) => {
             const listItems = items.filter((i) => i.shift_checklist_id === list.id);
             const doneCount = listItems.filter((i) => i.is_checked).length;
             const totalCount = listItems.length;
@@ -321,6 +349,26 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                       )}
                       {mode === "admin" && (
                         <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderList.mutate({ listId: list.id, direction: "up" })}
+                            disabled={listIdx === 0 || reorderList.isPending}
+                            title="Flytta upp"
+                          >
+                            <ArrowUp className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderList.mutate({ listId: list.id, direction: "down" })}
+                            disabled={listIdx === lists.length - 1 || reorderList.isPending}
+                            title="Flytta ner"
+                          >
+                            <ArrowDown className="h-3.5 w-3.5" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
