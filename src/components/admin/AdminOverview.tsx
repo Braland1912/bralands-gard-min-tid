@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight, Check, Circle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 
@@ -66,6 +68,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
   const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
   const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekStart = addWeeks(baseWeekStart, weekOffset);
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
@@ -124,6 +127,33 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 60000,
   });
 
+  // Today's shift IDs for checklist lookup
+  const todayShiftIds = (todayShifts as any[])
+    .filter((s) => s.shift_type !== "off")
+    .map((s) => s.id);
+
+  const { data: todayChecklistData } = useQuery({
+    queryKey: ["overview-today-checklists", todayStr, todayShiftIds.sort().join(",")],
+    enabled: todayShiftIds.length > 0,
+    queryFn: async () => {
+      const { data: cls, error } = await supabase
+        .from("shift_checklists")
+        .select("id, name, shift_id, sort_order")
+        .in("shift_id", todayShiftIds)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      if (!cls || cls.length === 0) return { lists: [], items: [] };
+      const { data: items, error: e2 } = await supabase
+        .from("shift_checklist_items")
+        .select("id, shift_checklist_id, text, is_checked, sort_order")
+        .in("shift_checklist_id", cls.map((c) => c.id))
+        .order("sort_order", { ascending: true });
+      if (e2) throw e2;
+      return { lists: cls, items: items ?? [] };
+    },
+    refetchInterval: 60000,
+  });
+
   const { data: weekShifts = [], isLoading: loadingWeek } = useQuery({
     queryKey: ["overview-week-shifts", format(weekStart, "yyyy-MM-dd")],
     queryFn: async () => {
@@ -146,19 +176,49 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   // Today's shifts grouped per user_id (sorted, excluding "off")
   const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
   const todayShiftsByUser = new Map<string, string[]>();
+  const todayShiftIdsByUser = new Map<string, string[]>();
   (todayShifts as any[])
     .filter((s) => s.shift_type !== "off")
     .forEach((s) => {
       if (!todayShiftsByUser.has(s.user_id)) todayShiftsByUser.set(s.user_id, []);
       todayShiftsByUser.get(s.user_id)!.push(s.shift_type);
+      if (!todayShiftIdsByUser.has(s.user_id)) todayShiftIdsByUser.set(s.user_id, []);
+      todayShiftIdsByUser.get(s.user_id)!.push(s.id);
     });
   todayShiftsByUser.forEach((arr) =>
     arr.sort((a, b) => (SHIFT_ORDER[a] ?? 99) - (SHIFT_ORDER[b] ?? 99)),
   );
   const todayWorkers = Array.from(todayShiftsByUser.keys())
-    .map((uid) => ({ worker: workerByUserId.get(uid), shifts: todayShiftsByUser.get(uid)! }))
+    .map((uid) => ({
+      worker: workerByUserId.get(uid),
+      shifts: todayShiftsByUser.get(uid)!,
+      shiftIds: todayShiftIdsByUser.get(uid) ?? [],
+    }))
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+
+  // Compute checklist progress per user for today
+  const checklistProgressByUser = new Map<string, { done: number; total: number }>();
+  if (todayChecklistData) {
+    const { lists, items } = todayChecklistData;
+    const listsByShift = new Map<string, string[]>();
+    (lists as any[]).forEach((l) => {
+      if (!listsByShift.has(l.shift_id)) listsByShift.set(l.shift_id, []);
+      listsByShift.get(l.shift_id)!.push(l.id);
+    });
+    todayWorkers.forEach((row) => {
+      const listIds: string[] = [];
+      row.shiftIds.forEach((sid) => {
+        const lids = listsByShift.get(sid);
+        if (lids) listIds.push(...lids);
+      });
+      if (listIds.length === 0) return;
+      const relItems = (items as any[]).filter((i) => listIds.includes(i.shift_checklist_id));
+      if (relItems.length === 0) return;
+      const done = relItems.filter((i) => i.is_checked).length;
+      checklistProgressByUser.set(row.worker.user_id, { done, total: relItems.length });
+    });
+  }
 
   // Week shifts grouped per user → map of dayIdx → shift_types[]
   const weekByUser = new Map<string, Map<number, string[]>>();
@@ -348,21 +408,47 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <p className="text-sm text-muted-foreground italic">Ingen är schemalagd idag.</p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.today.divide}`}>
-            {todayWorkers.map((row) => (
-              <li key={row.worker.id} className="py-2.5 flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
-                    {getInitials(row.worker.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-medium text-foreground truncate flex-1">
-                  {row.worker.name}
-                </p>
-                <span className="text-base leading-none tabular-nums" aria-label="Pass">
-                  {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
-                </span>
-              </li>
-            ))}
+            {todayWorkers.map((row) => {
+              const progress = checklistProgressByUser.get(row.worker.user_id);
+              const pct = progress ? (progress.done / progress.total) * 100 : 0;
+              const complete = progress && pct === 100;
+              return (
+                <li key={row.worker.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedWorker({ worker: row.worker, shiftIds: row.shiftIds })}
+                    className="w-full text-left py-2.5 flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
+                        {getInitials(row.worker.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-foreground truncate flex-1">
+                          {row.worker.name}
+                        </p>
+                        <span className="text-base leading-none tabular-nums shrink-0" aria-label="Pass">
+                          {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
+                        </span>
+                      </div>
+                      {progress && (
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <Progress
+                            value={pct}
+                            className={`h-1.5 flex-1 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
+                          />
+                          <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                            {progress.done}/{progress.total}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
@@ -442,6 +528,97 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+
+      {/* Read-only checklist viewer for selected worker */}
+      <Sheet open={!!selectedWorker} onOpenChange={(o) => !o && setSelectedWorker(null)}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+          {selectedWorker && (
+            <>
+              <SheetHeader className="text-left">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-11 w-11">
+                    <AvatarFallback className={`text-sm font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
+                      {getInitials(selectedWorker.worker.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <SheetTitle className="truncate">{selectedWorker.worker.name}</SheetTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Checklistor {format(today, "EEEE d MMM", { locale: sv })}
+                    </p>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="mt-5 space-y-5">
+                {(() => {
+                  if (!todayChecklistData) return <Skeleton className="h-24 w-full rounded-xl" />;
+                  const { lists, items } = todayChecklistData;
+                  const userLists = (lists as any[]).filter((l) =>
+                    selectedWorker.shiftIds.includes(l.shift_id),
+                  );
+                  if (userLists.length === 0) {
+                    return (
+                      <p className="text-sm text-muted-foreground italic">
+                        Inga checklistor för dagen.
+                      </p>
+                    );
+                  }
+                  return userLists.map((list) => {
+                    const listItems = (items as any[])
+                      .filter((i) => i.shift_checklist_id === list.id)
+                      .sort((a, b) => a.sort_order - b.sort_order);
+                    const done = listItems.filter((i) => i.is_checked).length;
+                    const total = listItems.length;
+                    const pct = total > 0 ? (done / total) * 100 : 0;
+                    const complete = total > 0 && done === total;
+                    return (
+                      <div key={list.id} className="border rounded-xl p-4 bg-background/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-semibold text-foreground">{list.name}</h4>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {done}/{total}
+                          </span>
+                        </div>
+                        <Progress
+                          value={pct}
+                          className={`h-1.5 mb-3 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
+                        />
+                        {listItems.length === 0 ? (
+                          <p className="text-xs text-muted-foreground italic">Inga punkter</p>
+                        ) : (
+                          <ul className="space-y-2">
+                            {listItems.map((it) => (
+                              <li key={it.id} className="flex items-center gap-2.5 text-sm">
+                                {it.is_checked ? (
+                                  <span className="h-5 w-5 rounded-full bg-[hsl(150_45%_45%)] flex items-center justify-center shrink-0">
+                                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                                  </span>
+                                ) : (
+                                  <Circle className="h-5 w-5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+                                )}
+                                <span className={it.is_checked ? "text-muted-foreground line-through" : "text-foreground"}>
+                                  {it.text}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+
+              <div className="mt-6">
+                <Button variant="outline" className="w-full" onClick={() => setSelectedWorker(null)}>
+                  Stäng
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
