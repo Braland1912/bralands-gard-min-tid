@@ -254,6 +254,24 @@ const MySchedule = () => {
           </button>
         )}
 
+        {checklistStatus?.hasShifts && checklistStatus.total > 0 && (
+          checklistStatus.unchecked > 0 ? (
+            <div className="flex items-start gap-2.5 rounded-xl border border-yellow-300 bg-yellow-50 px-3 py-2.5">
+              <ListChecks className="h-4 w-4 text-yellow-700 mt-0.5 shrink-0" />
+              <div className="text-xs text-yellow-800 leading-snug">
+                Du har <span className="font-semibold">{checklistStatus.unchecked}</span> obockade punkter på dagens pass. Glöm inte att bocka av allt innan du stämplar ut.
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start gap-2.5 rounded-xl border border-green-300 bg-green-50 px-3 py-2.5">
+              <CheckCircle2 className="h-4 w-4 text-green-700 mt-0.5 shrink-0" />
+              <div className="text-xs text-green-800 leading-snug">
+                Bra jobbat! Alla punkter på dagens pass är avbockade.
+              </div>
+            </div>
+          )
+        )}
+
         {/* Week navigator */}
         <div className="flex items-center justify-between">
           <button onClick={() => setWeekOffset((o) => o - 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
