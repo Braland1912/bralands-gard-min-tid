@@ -130,6 +130,35 @@ const AdminSchedule = () => {
     return entry ? (entry.shift_type as ShiftType) : null;
   };
 
+  const getShiftRow = (userId: string, date: Date, idx: 0 | 1): any | null => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    return (
+      schedules.find(
+        (s: any) => s.user_id === userId && s.date === dateStr && (s.shift_index ?? 0) === idx,
+      ) || null
+    );
+  };
+
+  const scheduleIds = (schedules as any[]).map((s) => s.id);
+
+  const { data: checklistCounts = {} } = useQuery({
+    queryKey: ["shift-checklist-counts", scheduleIds.join(",")],
+    queryFn: async () => {
+      if (scheduleIds.length === 0) return {} as Record<string, number>;
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("shift_id")
+        .in("shift_id", scheduleIds);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        counts[r.shift_id] = (counts[r.shift_id] ?? 0) + 1;
+      });
+      return counts;
+    },
+    enabled: scheduleIds.length > 0,
+  });
+
   const upsertShift = useMutation({
     mutationFn: async ({
       userId,
