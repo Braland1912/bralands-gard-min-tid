@@ -147,6 +147,38 @@ const AdminChecklists = () => {
     onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
   });
 
+  const duplicateTemplate = useMutation({
+    mutationFn: async (tpl: Template) => {
+      const items = allItems.filter((i) => i.template_id === tpl.id);
+      const { data: newTpl, error } = await supabase
+        .from("checklist_templates")
+        .insert({ name: `${tpl.name} (kopia)` })
+        .select()
+        .single();
+      if (error) throw error;
+      if (items.length > 0) {
+        const { error: insErr } = await supabase
+          .from("checklist_template_items")
+          .insert(
+            items.map((i, idx) => ({
+              template_id: newTpl.id,
+              text: i.text,
+              sort_order: idx,
+            })),
+          );
+        if (insErr) throw insErr;
+      }
+      return { tpl: newTpl as Template, items };
+    },
+    onSuccess: ({ tpl, items }) => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
+      openEdit(tpl, items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })));
+      toast({ title: "Mall kopierad", description: "Döp om den och spara." });
+    },
+    onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
+  });
+
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
