@@ -283,9 +283,6 @@ const AdminSchedule = () => {
                     </div>
                   );
                 })}
-                <div className="px-3 py-3 border-l border-border text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center">
-                  Behörighet
-                </div>
               </div>
 
               {/* Body */}
