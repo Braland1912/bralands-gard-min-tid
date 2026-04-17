@@ -99,7 +99,7 @@ const TimeCorrectionRequests = () => {
   const totalNormal = requests.filter((r: any) => !isEarlyClockout(r)).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       {/* Filter */}
       <ToggleGroup
         type="single"
