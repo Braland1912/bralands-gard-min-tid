@@ -187,7 +187,14 @@ const AdminDashboard = () => {
                   : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-4 w-4" />
+              <div className="relative">
+                <tab.icon className="h-4 w-4" />
+                {tab.id === "rattelser" && pendingCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-semibold flex items-center justify-center leading-none">
+                    {pendingCount > 99 ? "99+" : pendingCount}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
