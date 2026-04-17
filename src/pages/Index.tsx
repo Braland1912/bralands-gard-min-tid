@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LogIn, LogOut, FileText, Clock, Check, Loader2, AlertTriangle, Wifi, WifiOff } from "lucide-react";
+import { LogIn, LogOut, FileText, Clock, Check, Loader2, AlertTriangle, WifiOff, ListChecks } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,17 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
+import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type ClockState = "idle" | "loading" | "confirmed";
 
