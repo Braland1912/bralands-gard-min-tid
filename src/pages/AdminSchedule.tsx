@@ -10,6 +10,7 @@ import { sv } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
@@ -28,10 +29,19 @@ const FULL_DAY_NAMES = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lö
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
+const getShortName = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0]}`;
+};
+
 const AdminSchedule = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
+  const workerColClass = isMobile ? "grid-cols-[88px_repeat(7,minmax(0,1fr))]" : "grid-cols-[180px_repeat(7,minmax(0,1fr))]";
+  const minWidthClass = isMobile ? "min-w-[600px]" : "min-w-[760px]";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
@@ -222,10 +232,10 @@ const AdminSchedule = () => {
         {/* Grid */}
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[760px]">
+            <div className={minWidthClass}>
               {/* Header row */}
-              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))_200px] border-b border-border bg-muted/30">
-                <div className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <div className={`grid ${workerColClass} border-b border-border bg-muted/30`}>
+                <div className={`${isMobile ? "px-2" : "px-4"} py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide`}>
                   Medarbetare
                 </div>
                 {weekDays.map((d, i) => {
@@ -286,16 +296,20 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
                   >
                     {/* Worker cell */}
-                    <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                          {getInitials(w.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm font-medium text-foreground truncate">{w.name}</span>
+                    <div className={`${isMobile ? "px-2 gap-1.5" : "px-4 gap-2.5"} py-3 flex items-center sticky left-0 bg-card`}>
+                      {!isMobile && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                            {getInitials(w.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
+                        {isMobile ? getShortName(w.name) : w.name}
+                      </span>
                     </div>
 
                     {/* Day cells */}
