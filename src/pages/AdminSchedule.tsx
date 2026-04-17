@@ -238,7 +238,7 @@ const AdminSchedule = () => {
           <div className="overflow-x-auto">
             <div className="min-w-[760px]">
               {/* Header row */}
-              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border bg-muted/30">
+              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))_200px] border-b border-border bg-muted/30">
                 <div className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Medarbetare
                 </div>
