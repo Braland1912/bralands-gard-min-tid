@@ -205,8 +205,9 @@ const AdminSchedule = () => {
 
       const { data: links } = await supabase
         .from("checklist_template_shift_types")
-        .select("template_id")
-        .eq("shift_type", shiftType);
+        .select("template_id, sort_order")
+        .eq("shift_type", shiftType)
+        .order("sort_order", { ascending: true });
       const templateIds = (links ?? []).map((l: any) => l.template_id);
       if (templateIds.length === 0) return;
 
