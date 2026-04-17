@@ -528,6 +528,97 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+
+      {/* Read-only checklist viewer for selected worker */}
+      <Sheet open={!!selectedWorker} onOpenChange={(o) => !o && setSelectedWorker(null)}>
+        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+          {selectedWorker && (
+            <>
+              <SheetHeader className="text-left">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-11 w-11">
+                    <AvatarFallback className={`text-sm font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
+                      {getInitials(selectedWorker.worker.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <SheetTitle className="truncate">{selectedWorker.worker.name}</SheetTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Checklistor {format(today, "EEEE d MMM", { locale: sv })}
+                    </p>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="mt-5 space-y-5">
+                {(() => {
+                  if (!todayChecklistData) return <Skeleton className="h-24 w-full rounded-xl" />;
+                  const { lists, items } = todayChecklistData;
+                  const userLists = (lists as any[]).filter((l) =>
+                    selectedWorker.shiftIds.includes(l.shift_id),
+                  );
+                  if (userLists.length === 0) {
+                    return (
+                      <p className="text-sm text-muted-foreground italic">
+                        Inga checklistor för dagen.
+                      </p>
+                    );
+                  }
+                  return userLists.map((list) => {
+                    const listItems = (items as any[])
+                      .filter((i) => i.shift_checklist_id === list.id)
+                      .sort((a, b) => a.sort_order - b.sort_order);
+                    const done = listItems.filter((i) => i.is_checked).length;
+                    const total = listItems.length;
+                    const pct = total > 0 ? (done / total) * 100 : 0;
+                    const complete = total > 0 && done === total;
+                    return (
+                      <div key={list.id} className="border rounded-xl p-4 bg-background/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-semibold text-foreground">{list.name}</h4>
+                          <span className="text-xs text-muted-foreground tabular-nums">
+                            {done}/{total}
+                          </span>
+                        </div>
+                        <Progress
+                          value={pct}
+                          className={`h-1.5 mb-3 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
+                        />
+                        {listItems.length === 0 ? (
+                          <p className="text-xs text-muted-foreground italic">Inga punkter</p>
+                        ) : (
+                          <ul className="space-y-2">
+                            {listItems.map((it) => (
+                              <li key={it.id} className="flex items-center gap-2.5 text-sm">
+                                {it.is_checked ? (
+                                  <span className="h-5 w-5 rounded-full bg-[hsl(150_45%_45%)] flex items-center justify-center shrink-0">
+                                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                                  </span>
+                                ) : (
+                                  <Circle className="h-5 w-5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+                                )}
+                                <span className={it.is_checked ? "text-muted-foreground line-through" : "text-foreground"}>
+                                  {it.text}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+
+              <div className="mt-6">
+                <Button variant="outline" className="w-full" onClick={() => setSelectedWorker(null)}>
+                  Stäng
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
