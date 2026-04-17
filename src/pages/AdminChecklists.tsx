@@ -176,10 +176,24 @@ const AdminChecklists = () => {
         const { error: insErr } = await supabase.from("checklist_template_items").insert(filtered);
         if (insErr) throw insErr;
       }
+
+      // Sync shift type links
+      const { error: delLinkErr } = await supabase
+        .from("checklist_template_shift_types")
+        .delete()
+        .eq("template_id", editing.id);
+      if (delLinkErr) throw delLinkErr;
+      if (editShiftTypes.length > 0) {
+        const { error: linkErr } = await supabase
+          .from("checklist_template_shift_types")
+          .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
+        if (linkErr) throw linkErr;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       setEditing(null);
       toast({ title: "Mall sparad" });
     },
