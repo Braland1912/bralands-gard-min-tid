@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -315,7 +315,7 @@ const AdminSchedule = () => {
                         className="mt-1.5 inline-flex items-center justify-center p-1 rounded-md border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50"
                       >
                         {published ? (
-                          <X className="h-3.5 w-3.5 text-red-500" />
+                          <Undo2 className="h-3.5 w-3.5 text-yellow-400" />
                         ) : (
                           <Check className="h-3.5 w-3.5 text-green-500" />
                         )}
