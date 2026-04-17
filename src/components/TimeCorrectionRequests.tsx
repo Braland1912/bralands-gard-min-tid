@@ -203,8 +203,10 @@ const TimeCorrectionRequests = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Vanliga korrigeringar */}
+      {showNormal && (
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
           Korrigeringsförfrågningar
@@ -267,8 +269,9 @@ const TimeCorrectionRequests = () => {
           </div>
         )}
       </div>
+      )}
 
-      {handledRequests.length > 0 && (
+      {filteredHandled.length > 0 && (
         <div className="space-y-2 pt-2">
           <h3 className="text-sm font-medium text-muted-foreground">Hanterade</h3>
           <div className="rounded-md border overflow-auto">
