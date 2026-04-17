@@ -76,6 +76,41 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
+  const { data: scheduleDays = [] } = useQuery({
+    queryKey: ["admin-schedule-days", format(weekStart, "yyyy-MM-dd"), format(weekEnd, "yyyy-MM-dd")],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("schedule_days")
+        .select("*")
+        .gte("date", format(weekStart, "yyyy-MM-dd"))
+        .lte("date", format(weekEnd, "yyyy-MM-dd"));
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isDayPublished = (date: Date) => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    const row = scheduleDays.find((d: any) => d.date === dateStr);
+    return row?.is_published === true;
+  };
+
+  const togglePublish = useMutation({
+    mutationFn: async ({ date, publish }: { date: string; publish: boolean }) => {
+      const { error } = await supabase
+        .from("schedule_days")
+        .upsert({ date, is_published: publish, updated_at: new Date().toISOString() }, { onConflict: "date" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedule-days"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera publicering", variant: "destructive" });
+    },
+  });
+
   const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
     const dateStr = format(date, "yyyy-MM-dd");
     const entry = schedules.find(
@@ -195,6 +230,8 @@ const AdminSchedule = () => {
                 </div>
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
+                  const published = isDayPublished(d);
+                  const dateStr = format(d, "yyyy-MM-dd");
                   return (
                     <div
                       key={i}
@@ -212,6 +249,23 @@ const AdminSchedule = () => {
                           {format(d, "d")}
                         </span>
                       </div>
+                      <div className="mt-1.5 flex items-center justify-center gap-1">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            published ? "bg-green-500" : "bg-yellow-400"
+                          }`}
+                        />
+                        <span className="text-[10px] text-muted-foreground">
+                          {published ? "Publicerad" : "Ej publicerad"}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => togglePublish.mutate({ date: dateStr, publish: !published })}
+                        disabled={togglePublish.isPending}
+                        className="mt-1.5 inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-medium border border-border bg-background hover:bg-muted text-foreground transition-colors disabled:opacity-50"
+                      >
+                        {published ? "Avpublicera" : "Publicera"}
+                      </button>
                     </div>
                   );
                 })}

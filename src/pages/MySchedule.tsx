@@ -72,6 +72,26 @@ const MySchedule = () => {
     enabled: !!user,
   });
 
+  const { data: scheduleDays = [] } = useQuery({
+    queryKey: ["schedule-days", format(weekStart, "yyyy-MM-dd"), format(weekEnd, "yyyy-MM-dd")],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("schedule_days")
+        .select("*")
+        .gte("date", format(weekStart, "yyyy-MM-dd"))
+        .lte("date", format(weekEnd, "yyyy-MM-dd"));
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isDayPublished = (date: Date) => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    const row = scheduleDays.find((d: any) => d.date === dateStr);
+    return row?.is_published === true;
+  };
+
   const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
     const dateStr = format(date, "yyyy-MM-dd");
     const entry = schedules.find(
@@ -114,6 +134,21 @@ const MySchedule = () => {
     date: Date;
     today: boolean;
   }) => {
+    const published = isDayPublished(date);
+
+    if (!published) {
+      return (
+        <div
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
+            today ? "ring-2 ring-primary" : ""
+          }`}
+        >
+          <span className="text-base leading-none">🔒</span>
+          <span className="text-[10px] italic text-muted-foreground mt-1">Ej klar</span>
+        </div>
+      );
+    }
+
     const s0 = userId ? getShiftAt(userId, date, 0) : null;
     const s1 = userId ? getShiftAt(userId, date, 1) : null;
     const hasAny = !!s0 || !!s1;
