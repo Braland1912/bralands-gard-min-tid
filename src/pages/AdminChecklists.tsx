@@ -205,13 +205,12 @@ const AdminChecklists = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {templates.map((tpl) => (
-              <button
-                key={tpl.id}
-                onClick={() => handleOpenExisting(tpl)}
-                className="text-left"
-              >
-                <Card className="p-4 hover:bg-muted/30 transition-colors h-full">
-                  <div className="flex items-start justify-between gap-3">
+              <Card key={tpl.id} className="p-4 hover:bg-muted/30 transition-colors h-full relative">
+                <button
+                  onClick={() => handleOpenExisting(tpl)}
+                  className="text-left w-full"
+                >
+                  <div className="flex items-start justify-between gap-3 pr-8">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <ListChecks className="h-4 w-4 text-primary shrink-0" />
@@ -223,8 +222,22 @@ const AdminChecklists = () => {
                     </div>
                     <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                   </div>
-                </Card>
-              </button>
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    duplicateTemplate.mutate(tpl);
+                  }}
+                  disabled={duplicateTemplate.isPending}
+                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                  aria-label="Kopiera mall"
+                  title="Kopiera mall"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </Card>
             ))}
           </div>
         )}
