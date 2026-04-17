@@ -136,16 +136,22 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     if (w.user_id) workerByUserId.set(w.user_id, w);
   });
 
-  const todayWorkingUserIds = Array.from(
-    new Set(
-      (todayShifts as any[])
-        .filter((s) => s.shift_type !== "off")
-        .map((s) => s.user_id),
-    ),
+  // Today's shifts grouped per user_id (sorted, excluding "off")
+  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
+  const todayShiftsByUser = new Map<string, string[]>();
+  (todayShifts as any[])
+    .filter((s) => s.shift_type !== "off")
+    .forEach((s) => {
+      if (!todayShiftsByUser.has(s.user_id)) todayShiftsByUser.set(s.user_id, []);
+      todayShiftsByUser.get(s.user_id)!.push(s.shift_type);
+    });
+  todayShiftsByUser.forEach((arr) =>
+    arr.sort((a, b) => (SHIFT_ORDER[a] ?? 99) - (SHIFT_ORDER[b] ?? 99)),
   );
-  const todayWorkers = todayWorkingUserIds
-    .map((uid) => workerByUserId.get(uid))
-    .filter(Boolean);
+  const todayWorkers = Array.from(todayShiftsByUser.keys())
+    .map((uid) => ({ worker: workerByUserId.get(uid), shifts: todayShiftsByUser.get(uid)! }))
+    .filter((r) => r.worker)
+    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
   const weekByUser = new Map<string, Set<number>>();
   (weekShifts as any[]).forEach((s) => {
