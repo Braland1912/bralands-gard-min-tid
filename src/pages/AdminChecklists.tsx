@@ -72,7 +72,21 @@ const AdminChecklists = () => {
     enabled: !!user,
   });
 
+  const { data: allShiftLinks = [] } = useQuery({
+    queryKey: ["checklist-template-shift-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("checklist_template_shift_types")
+        .select("template_id, shift_type");
+      if (error) throw error;
+      return data as ShiftLink[];
+    },
+    enabled: !!user,
+  });
+
   const countFor = (id: string) => allItems.filter((i) => i.template_id === id).length;
+  const shiftTypesFor = (id: string) =>
+    allShiftLinks.filter((l) => l.template_id === id).map((l) => l.shift_type);
 
   const createTemplate = useMutation({
     mutationFn: async () => {
@@ -86,21 +100,22 @@ const AdminChecklists = () => {
     },
     onSuccess: (tpl) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
-      openEdit(tpl, []);
+      openEdit(tpl, [], []);
     },
     onError: () => toast({ title: "Kunde inte skapa mall", variant: "destructive" }),
   });
 
-  const openEdit = (tpl: Template, items: Item[]) => {
+  const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
     setEditing(tpl);
     setEditName(tpl.name);
     setEditItems(items);
+    setEditShiftTypes(shiftTypes);
     setNewItemText("");
   };
 
   const handleOpenExisting = (tpl: Template) => {
     const items = allItems.filter((i) => i.template_id === tpl.id);
-    openEdit(tpl, items);
+    openEdit(tpl, items, shiftTypesFor(tpl.id));
   };
 
   const handleAddItem = () => {
