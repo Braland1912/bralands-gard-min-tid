@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
@@ -67,12 +68,14 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
       {lists.map((list) => {
         const total = list.items.length;
         const done = list.items.filter((i) => i.is_checked).length;
+        const pct = total > 0 ? (done / total) * 100 : 0;
         return (
           <div key={list.id} className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">{list.name}</p>
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {done}/{total} klara
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
+              <Progress value={pct} className="h-1.5 w-20" />
+              <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                {done}/{total}
               </span>
             </div>
             <ul className="space-y-1">
@@ -157,7 +160,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
         {data.shifts.map((s: any) => {
           const cfg = SHIFT_CONFIG[s.shift_type as ShiftType];
           if (!cfg) return null;
-          const hasLists = (data.counts[s.id] || 0) > 0;
+          const hasLists = (data.counts?.[s.id] || 0) > 0;
           const isOpen = openShiftId === s.id;
           return (
             <button
