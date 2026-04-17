@@ -15,6 +15,7 @@ import { sv } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
+import ShiftChecklists from "@/components/ShiftChecklists";
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
