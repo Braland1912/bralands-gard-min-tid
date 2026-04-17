@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ListChecks, ChevronDown, BookmarkPlus } from "lucide-react";
+import { Plus, Trash2, ListChecks, ChevronDown, BookmarkPlus, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ export type ShiftChecklist = {
   id: string;
   shift_id: string;
   name: string;
+  sort_order: number;
 };
 
 export type ShiftChecklistItem = {
@@ -46,6 +47,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         .from("shift_checklists")
         .select("*")
         .eq("shift_id", shiftId)
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: true });
       if (error) throw error;
       return data as ShiftChecklist[];
