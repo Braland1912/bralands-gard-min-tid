@@ -130,7 +130,12 @@ const AdminDashboard = () => {
               }`}
             >
               <tab.icon className="h-4 w-4" />
-              {tab.label}
+              <span className="flex-1 text-left">{tab.label}</span>
+              {tab.id === "rattelser" && pendingCount > 0 && (
+                <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center leading-none">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
