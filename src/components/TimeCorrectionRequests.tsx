@@ -286,7 +286,7 @@ const TimeCorrectionRequests = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {handledRequests.map((r: any) => (
+                {filteredHandled.map((r: any) => (
                   <TableRow key={r.id}>
                     <TableCell>{r.worker_name}</TableCell>
                     <TableCell>{r.date}</TableCell>
