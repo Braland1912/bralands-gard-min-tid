@@ -460,57 +460,63 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                   )}
                 </div>
 
-                <div className="space-y-1.5">
-                  {listItems.map((item, itemIdx) => (
-                    <div key={item.id} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={item.is_checked}
-                        onCheckedChange={(v) =>
-                          toggleItem.mutate({ id: item.id, checked: v === true })
-                        }
-                      />
-                      <span
-                        className={`flex-1 text-sm ${
-                          item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
-                        }`}
-                      >
-                        {item.text}
-                      </span>
-                      {mode === "admin" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                            onClick={() => reorderItem.mutate({ itemId: item.id, listId: list.id, direction: "up" })}
-                            disabled={itemIdx === 0 || reorderItem.isPending}
-                            title="Flytta upp"
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                            onClick={() => reorderItem.mutate({ itemId: item.id, listId: list.id, direction: "down" })}
-                            disabled={itemIdx === listItems.length - 1 || reorderItem.isPending}
-                            title="Flytta ner"
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                            onClick={() => removeItem.mutate(item.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {mode === "admin" ? (
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleItemDragEnd(list.id, listItems)}
+                  >
+                    <SortableContext items={listItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-1.5">
+                        {listItems.map((item) => (
+                          <SortableItem key={item.id} id={item.id}>
+                            <Checkbox
+                              checked={item.is_checked}
+                              onCheckedChange={(v) =>
+                                toggleItem.mutate({ id: item.id, checked: v === true })
+                              }
+                            />
+                            <span
+                              className={`flex-1 text-sm ${
+                                item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
+                              }`}
+                            >
+                              {item.text}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                              onClick={() => removeItem.mutate(item.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </SortableItem>
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                ) : (
+                  <div className="space-y-1.5">
+                    {listItems.map((item) => (
+                      <div key={item.id} className="flex items-center gap-2">
+                        <Checkbox
+                          checked={item.is_checked}
+                          onCheckedChange={(v) =>
+                            toggleItem.mutate({ id: item.id, checked: v === true })
+                          }
+                        />
+                        <span
+                          className={`flex-1 text-sm ${
+                            item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
+                          }`}
+                        >
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {mode === "admin" && (
                   <div className="flex items-center gap-2 pt-1">
