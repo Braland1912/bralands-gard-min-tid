@@ -338,6 +338,49 @@ const Index = () => {
               </p>
             </div>
 
+            {/* Checklist reminder banner — shown while clocked in if there are unchecked items today */}
+            {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (
+              <button
+                type="button"
+                onClick={() => navigate("/my-schedule")}
+                className={`w-full text-left rounded-xl border p-3 transition-colors ${
+                  checklistStatus.unchecked > 0
+                    ? "bg-amber-50 border-amber-200 hover:bg-amber-100"
+                    : "bg-emerald-50 border-emerald-200 hover:bg-emerald-100"
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  <ListChecks
+                    className={`h-5 w-5 shrink-0 mt-0.5 ${
+                      checklistStatus.unchecked > 0 ? "text-amber-600" : "text-emerald-600"
+                    }`}
+                  />
+                  <div className="space-y-0.5 flex-1 min-w-0">
+                    <p
+                      className={`text-sm font-medium ${
+                        checklistStatus.unchecked > 0 ? "text-amber-800" : "text-emerald-800"
+                      }`}
+                    >
+                      {checklistStatus.unchecked > 0
+                        ? `${checklistStatus.unchecked} obockade ${
+                            checklistStatus.unchecked === 1 ? "punkt" : "punkter"
+                          } på dagens checklistor`
+                        : "Alla dagens checklistor är klara"}
+                    </p>
+                    <p
+                      className={`text-xs ${
+                        checklistStatus.unchecked > 0 ? "text-amber-700" : "text-emerald-700"
+                      }`}
+                    >
+                      {checklistStatus.unchecked > 0
+                        ? "Bocka av punkterna under passet — tryck här för att öppna."
+                        : "Bra jobbat! Tryck för att se dem."}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            )}
+
             {/* Clock in/out buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
@@ -368,6 +411,37 @@ const Index = () => {
           </div>
         )}
       </Card>
+
+      <AlertDialog open={confirmClockOutOpen} onOpenChange={setConfirmClockOutOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Du har obockade punkter</AlertDialogTitle>
+            <AlertDialogDescription>
+              Det finns {checklistStatus?.unchecked ?? 0} obockade{" "}
+              {checklistStatus?.unchecked === 1 ? "punkt" : "punkter"} på dagens checklistor.
+              Vill du gå tillbaka och bocka av dem innan du stämplar ut?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setConfirmClockOutOpen(false);
+                navigate("/my-schedule");
+              }}
+            >
+              Visa checklista
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmClockOutOpen(false);
+                performClockOut();
+              }}
+            >
+              Stämpla ut ändå
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
