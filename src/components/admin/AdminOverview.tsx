@@ -12,6 +12,45 @@ interface AdminOverviewProps {
 
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 
+const SHIFT_EMOJI: Record<string, string> = {
+  morning: "🌅",
+  day: "☀️",
+  evening: "🌙",
+  busy: "🔒",
+  off: "💤",
+};
+
+// Shared section palette (matches the four stat cards above)
+const SECTION_STYLE = {
+  active: {
+    tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
+    iconBg: "bg-[hsl(183_25%_90%)]",
+    iconColor: "text-[hsl(183_25%_35%)]",
+    avatarBg: "bg-[hsl(183_25%_88%)]",
+    avatarText: "text-[hsl(183_25%_28%)]",
+    divide: "divide-[hsl(183_25%_88%)]",
+    dot: "bg-[hsl(183_25%_38%)]",
+  },
+  today: {
+    tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
+    iconBg: "bg-[hsl(38_60%_90%)]",
+    iconColor: "text-[hsl(32_55%_38%)]",
+    avatarBg: "bg-[hsl(38_60%_88%)]",
+    avatarText: "text-[hsl(32_55%_30%)]",
+    divide: "divide-[hsl(38_60%_88%)]",
+    dot: "bg-[hsl(32_55%_45%)]",
+  },
+  week: {
+    tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
+    iconBg: "bg-[hsl(150_25%_90%)]",
+    iconColor: "text-[hsl(150_30%_32%)]",
+    avatarBg: "bg-[hsl(150_25%_88%)]",
+    avatarText: "text-[hsl(150_30%_25%)]",
+    divide: "divide-[hsl(150_25%_88%)]",
+    dot: "bg-[hsl(150_30%_38%)]",
+  },
+};
+
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
