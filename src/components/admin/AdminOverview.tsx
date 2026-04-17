@@ -28,7 +28,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  // Pending corrections (kept)
   const { data: pendingCorrections = [], isLoading: loadingCorrections } = useQuery({
     queryKey: ["pending-corrections-list"],
     queryFn: async () => {
@@ -43,7 +42,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 30000,
   });
 
-  // Currently clocked in
   const { data: activeEntries = [], isLoading: loadingActive } = useQuery({
     queryKey: ["active-entries-list"],
     queryFn: async () => {
@@ -58,7 +56,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 30000,
   });
 
-  // All workers (for scheduled lists)
   const { data: workers = [], isLoading: loadingWorkers } = useQuery({
     queryKey: ["workers-overview"],
     queryFn: async () => {
@@ -68,7 +65,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     },
   });
 
-  // Schedules for today
   const { data: todayShifts = [], isLoading: loadingToday } = useQuery({
     queryKey: ["overview-today-shifts", todayStr],
     queryFn: async () => {
@@ -82,7 +78,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 60000,
   });
 
-  // Schedules for this week
   const { data: weekShifts = [], isLoading: loadingWeek } = useQuery({
     queryKey: ["overview-week-shifts", format(weekStart, "yyyy-MM-dd")],
     queryFn: async () => {
@@ -97,13 +92,11 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 60000,
   });
 
-  // Map workers by user_id for quick lookup
   const workerByUserId = new Map<string, any>();
   (workers as any[]).forEach((w) => {
     if (w.user_id) workerByUserId.set(w.user_id, w);
   });
 
-  // Today's working workers (deduped by user_id, exclude "off")
   const todayWorkingUserIds = Array.from(
     new Set(
       (todayShifts as any[])
@@ -115,7 +108,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     .map((uid) => workerByUserId.get(uid))
     .filter(Boolean);
 
-  // Week schedule grouped per user_id → set of day indices
   const weekByUser = new Map<string, Set<number>>();
   (weekShifts as any[]).forEach((s) => {
     if (s.shift_type === "off") return;
@@ -132,46 +124,85 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
+  const stats = [
+    {
+      key: "active",
+      label: "Instämplade nu",
+      value: loadingActive ? "…" : activeEntries.length,
+      icon: Clock,
+      // teal
+      tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
+      iconBg: "bg-[hsl(183_25%_90%)]",
+      iconColor: "text-[hsl(183_25%_35%)]",
+      valueColor: "text-[hsl(183_25%_28%)]",
+    },
+    {
+      key: "today",
+      label: "Jobbar idag",
+      value: loadingToday || loadingWorkers ? "…" : todayWorkers.length,
+      icon: Users,
+      // soft amber
+      tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
+      iconBg: "bg-[hsl(38_60%_90%)]",
+      iconColor: "text-[hsl(32_55%_38%)]",
+      valueColor: "text-[hsl(32_55%_30%)]",
+    },
+    {
+      key: "week",
+      label: "Jobbar i veckan",
+      value: loadingWeek || loadingWorkers ? "…" : weekRows.length,
+      icon: CalendarDays,
+      // soft sage
+      tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
+      iconBg: "bg-[hsl(150_25%_90%)]",
+      iconColor: "text-[hsl(150_30%_32%)]",
+      valueColor: "text-[hsl(150_30%_25%)]",
+    },
+    {
+      key: "corrections",
+      label: "Väntande rättelser",
+      value: loadingCorrections ? "…" : pendingCorrections.length,
+      icon: AlertTriangle,
+      onClick: () => onNavigate("rattelser"),
+      // soft rose
+      tint: "bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)]",
+      iconBg: "bg-[hsl(8_55%_92%)]",
+      iconColor: "text-[hsl(8_55%_42%)]",
+      valueColor: "text-[hsl(8_55%_35%)]",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-foreground">Översikt</h2>
 
-      {/* Pending corrections summary card (compact, clickable) */}
-      <button
-        onClick={() => onNavigate("rattelser")}
-        className={`w-full border rounded-2xl p-4 text-left flex items-center justify-between transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] ${
-          pendingCorrections.length > 0
-            ? "border-primary/30 bg-primary/5"
-            : "border-border bg-card"
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-              pendingCorrections.length > 0 ? "bg-primary/10" : "bg-muted"
-            }`}
-          >
-            <AlertTriangle
-              className={`h-5 w-5 ${
-                pendingCorrections.length > 0 ? "text-primary" : "text-muted-foreground"
-              }`}
-            />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Väntande rättelser</p>
-            <p
-              className={`text-lg font-semibold ${
-                pendingCorrections.length > 0 ? "text-primary" : "text-foreground"
+      {/* Stat grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats.map((s) => {
+          const Icon = s.icon;
+          const Wrapper: any = s.onClick ? "button" : "div";
+          return (
+            <Wrapper
+              key={s.key}
+              onClick={s.onClick}
+              className={`text-left border rounded-2xl p-4 ${s.tint} ${
+                s.onClick ? "transition-all duration-150 hover:scale-[1.02] active:scale-[0.99] cursor-pointer" : ""
               }`}
             >
-              {loadingCorrections ? "…" : pendingCorrections.length}
-            </p>
-          </div>
-        </div>
-        <span className="text-xs text-muted-foreground">Visa →</span>
-      </button>
+              <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${s.iconBg} mb-3`}>
+                <Icon className={`h-4 w-4 ${s.iconColor}`} />
+              </div>
+              <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
+              <p className={`text-2xl font-semibold tabular-nums mt-0.5 ${s.valueColor}`}>{s.value}</p>
+              {s.onClick && (
+                <p className="text-[11px] text-muted-foreground mt-1.5">Hantera →</p>
+              )}
+            </Wrapper>
+          );
+        })}
+      </div>
 
-      {/* Section 1: Currently clocked in */}
+      {/* Section: Currently clocked in */}
       <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -231,7 +262,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         )}
       </section>
 
-      {/* Section 2: Working today */}
+      {/* Section: Working today */}
       <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -265,7 +296,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         )}
       </section>
 
-      {/* Section 3: Working this week */}
+      {/* Section: Working this week */}
       <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -290,48 +321,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 <span className="text-xs text-muted-foreground">
                   {row.days.map((d) => DAY_NAMES[d]).join(", ")}
                 </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Section 4: Pending corrections list */}
-      <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertTriangle
-              className={`h-4 w-4 ${
-                pendingCorrections.length > 0 ? "text-primary" : "text-muted-foreground"
-              }`}
-            />
-            <h3 className="text-base font-semibold text-foreground">Väntande rättelser</h3>
-          </div>
-          <button
-            onClick={() => onNavigate("rattelser")}
-            className="text-xs text-primary font-medium hover:underline"
-          >
-            Hantera →
-          </button>
-        </div>
-
-        {loadingCorrections ? (
-          <div className="space-y-2">
-            {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
-          </div>
-        ) : pendingCorrections.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Inga väntande rättelser.</p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {(pendingCorrections as any[]).map((c) => (
-              <li key={c.id} className="py-2.5 flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground truncate">{c.worker_name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {format(new Date(c.date), "d MMM yyyy", { locale: sv })}
-                    {c.reason ? ` · ${c.reason}` : ""}
-                  </p>
-                </div>
               </li>
             ))}
           </ul>
