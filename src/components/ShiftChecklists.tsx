@@ -121,6 +121,29 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onError: () => toast({ title: "Kunde inte lägga till checklista", variant: "destructive" }),
   });
 
+  const createBlank = useMutation({
+    mutationFn: async () => {
+      if (!shiftId) throw new Error("Inget pass valt");
+      const { error } = await supabase
+        .from("shift_checklists")
+        .insert({ shift_id: shiftId, name: "Ny checklista" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+    },
+    onError: () => toast({ title: "Kunde inte skapa checklista", variant: "destructive" }),
+  });
+
+  const renameList = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase.from("shift_checklists").update({ name }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
+  });
+
   const deleteList = useMutation({
     mutationFn: async (listId: string) => {
       const { error } = await supabase.from("shift_checklists").delete().eq("id", listId);
