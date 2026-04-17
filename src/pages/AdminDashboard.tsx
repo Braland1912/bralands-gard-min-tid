@@ -36,6 +36,10 @@ const AdminDashboard = () => {
       navigate("/admin/schedule");
       return;
     }
+    if (tabId === "checklistor") {
+      navigate("/admin/checklists");
+      return;
+    }
     setActiveTab(tabId);
   };
 
