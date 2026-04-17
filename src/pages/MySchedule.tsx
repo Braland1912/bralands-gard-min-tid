@@ -14,12 +14,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
-const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; time: string; bg: string; border: string; text: string }> = {
-  morning: { emoji: "🌅", label: "Morgon", time: "06–14", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
-  day: { emoji: "☀️", label: "Dag", time: "10–18", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
-  evening: { emoji: "🌙", label: "Kväll", time: "14–22", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
-  busy: { emoji: "🔒", label: "Upptagen", time: "Hel dag", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
-  off: { emoji: "💤", label: "Ledigt", time: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
+const SHIFT_CONFIG: Record<ShiftType, { start: string; bg: string; border: string; text: string }> = {
+  morning: { start: "7", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  day: { start: "10", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  evening: { start: "17", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  busy: { start: "", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  off: { start: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 };
 
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
