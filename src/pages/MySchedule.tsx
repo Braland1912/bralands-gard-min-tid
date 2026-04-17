@@ -36,6 +36,7 @@ const MySchedule = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { data: worker } = useWorker(user?.id);
+  const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
   const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
 
