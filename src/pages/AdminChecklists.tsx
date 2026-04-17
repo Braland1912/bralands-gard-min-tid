@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type Template = { id: string; name: string };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
@@ -148,7 +149,7 @@ const AdminChecklists = () => {
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>

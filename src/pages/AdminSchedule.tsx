@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
+import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -233,7 +234,7 @@ const AdminSchedule = () => {
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
-      <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-6xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
         {/* Top bar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
