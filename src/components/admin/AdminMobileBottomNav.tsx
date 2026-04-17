@@ -34,18 +34,28 @@ const AdminMobileBottomNav = ({ active }: Props) => {
   const queryClient = useQueryClient();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const { data: pendingCount = 0 } = useQuery({
-    queryKey: ["pending-corrections-count"],
+  const { data: pendingCounts = { normal: 0, early: 0 } } = useQuery({
+    queryKey: ["pending-corrections-counts"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from("time_correction_requests")
-        .select("*", { count: "exact", head: true })
+        .select("reason")
         .eq("status", "pending");
       if (error) throw error;
-      return count ?? 0;
+      const EARLY_PREFIX = "Tidig utstämpling med obockade punkter";
+      let early = 0;
+      let normal = 0;
+      (data ?? []).forEach((r: any) => {
+        if (typeof r.reason === "string" && r.reason.startsWith(EARLY_PREFIX)) early++;
+        else normal++;
+      });
+      return { normal, early };
     },
     refetchInterval: 30000,
   });
+
+  const pendingCount = pendingCounts.normal;
+  const earlyCount = pendingCounts.early;
 
   const goToDashboard = (tab: string) => {
     navigate("/admin/dashboard", { state: { tab } });
