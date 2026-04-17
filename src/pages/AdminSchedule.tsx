@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -165,19 +164,6 @@ const AdminSchedule = () => {
     },
     onError: () => {
       toast({ title: "Kunde inte ta bort", description: "Försök igen.", variant: "destructive" });
-    },
-  });
-
-  const toggleCanSeeTeam = useMutation({
-    mutationFn: async ({ workerId, value }: { workerId: string; value: boolean }) => {
-      const { error } = await supabase.from("workers").update({ can_see_team: value }).eq("id", workerId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-workers-schedule"] });
-    },
-    onError: () => {
-      toast({ title: "Kunde inte uppdatera behörighet", variant: "destructive" });
     },
   });
 
