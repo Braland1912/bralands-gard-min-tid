@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
+import ShiftTypeLinkedTemplates from "@/components/ShiftTypeLinkedTemplates";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
@@ -547,7 +548,13 @@ const AdminSchedule = () => {
             </div>
 
             {sheet.worker.user_id && getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
-              <div className="mb-5 pt-4 border-t border-border">
+              <div className="mb-5 pt-4 border-t border-border space-y-4">
+                {(() => {
+                  const currentType = getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex);
+                  const cfg = currentType ? SHIFT_MAP[currentType] : null;
+                  if (!currentType || !cfg) return null;
+                  return <ShiftTypeLinkedTemplates shiftType={currentType} shiftTypeLabel={cfg.label} />;
+                })()}
                 <ShiftChecklists
                   shiftId={getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)!.id}
                   mode="admin"
