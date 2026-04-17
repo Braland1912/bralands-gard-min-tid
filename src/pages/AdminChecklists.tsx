@@ -24,7 +24,7 @@ import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 
-type Template = { id: string; name: string };
+type Template = { id: string; name: string; sort_order: number };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
 
