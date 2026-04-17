@@ -21,9 +21,20 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Template = { id: string; name: string };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
+type ShiftLink = { template_id: string; shift_type: string };
+
+const SHIFT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: "morning", label: "Morgon" },
+  { value: "day", label: "Dag" },
+  { value: "evening", label: "Kväll" },
+  { value: "busy", label: "Ej tillg." },
+  { value: "fishing", label: "Fiske" },
+  { value: "clearing", label: "Röja" },
+];
 
 const AdminChecklists = () => {
   const { user } = useAuth();
@@ -32,6 +43,7 @@ const AdminChecklists = () => {
   const [editing, setEditing] = useState<Template | null>(null);
   const [editName, setEditName] = useState("");
   const [editItems, setEditItems] = useState<Item[]>([]);
+  const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
   const [newItemText, setNewItemText] = useState("");
 
   const { data: templates = [], isLoading } = useQuery({
@@ -60,7 +72,21 @@ const AdminChecklists = () => {
     enabled: !!user,
   });
 
+  const { data: allShiftLinks = [] } = useQuery({
+    queryKey: ["checklist-template-shift-types"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("checklist_template_shift_types")
+        .select("template_id, shift_type");
+      if (error) throw error;
+      return data as ShiftLink[];
+    },
+    enabled: !!user,
+  });
+
   const countFor = (id: string) => allItems.filter((i) => i.template_id === id).length;
+  const shiftTypesFor = (id: string) =>
+    allShiftLinks.filter((l) => l.template_id === id).map((l) => l.shift_type);
 
   const createTemplate = useMutation({
     mutationFn: async () => {
@@ -74,21 +100,22 @@ const AdminChecklists = () => {
     },
     onSuccess: (tpl) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
-      openEdit(tpl, []);
+      openEdit(tpl, [], []);
     },
     onError: () => toast({ title: "Kunde inte skapa mall", variant: "destructive" }),
   });
 
-  const openEdit = (tpl: Template, items: Item[]) => {
+  const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
     setEditing(tpl);
     setEditName(tpl.name);
     setEditItems(items);
+    setEditShiftTypes(shiftTypes);
     setNewItemText("");
   };
 
   const handleOpenExisting = (tpl: Template) => {
     const items = allItems.filter((i) => i.template_id === tpl.id);
-    openEdit(tpl, items);
+    openEdit(tpl, items, shiftTypesFor(tpl.id));
   };
 
   const handleAddItem = () => {
@@ -149,10 +176,24 @@ const AdminChecklists = () => {
         const { error: insErr } = await supabase.from("checklist_template_items").insert(filtered);
         if (insErr) throw insErr;
       }
+
+      // Sync shift type links
+      const { error: delLinkErr } = await supabase
+        .from("checklist_template_shift_types")
+        .delete()
+        .eq("template_id", editing.id);
+      if (delLinkErr) throw delLinkErr;
+      if (editShiftTypes.length > 0) {
+        const { error: linkErr } = await supabase
+          .from("checklist_template_shift_types")
+          .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
+        if (linkErr) throw linkErr;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       setEditing(null);
       toast({ title: "Mall sparad" });
     },
@@ -177,6 +218,7 @@ const AdminChecklists = () => {
   const duplicateTemplate = useMutation({
     mutationFn: async (tpl: Template) => {
       const items = allItems.filter((i) => i.template_id === tpl.id);
+      const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
         .insert({ name: `${tpl.name} (kopia)` })
@@ -195,12 +237,16 @@ const AdminChecklists = () => {
           );
         if (insErr) throw insErr;
       }
-      return { tpl: newTpl as Template, items };
+      return { tpl: newTpl as Template, items, linkedTypes };
     },
-    onSuccess: ({ tpl, items }) => {
+    onSuccess: ({ tpl, items, linkedTypes }) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
-      openEdit(tpl, items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })));
+      openEdit(
+        tpl,
+        items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })),
+        linkedTypes,
+      );
       toast({ title: "Mall kopierad", description: "Döp om den och spara." });
     },
     onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
@@ -280,6 +326,34 @@ const AdminChecklists = () => {
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Namn</label>
               <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Mallnamn" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
+              <p className="text-[11px] text-muted-foreground">
+                Mallen läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {SHIFT_TYPE_OPTIONS.map((opt) => {
+                  const checked = editShiftTypes.includes(opt.value);
+                  return (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-2 cursor-pointer hover:bg-muted/50"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          setEditShiftTypes((prev) =>
+                            v === true ? [...prev, opt.value] : prev.filter((s) => s !== opt.value),
+                          );
+                        }}
+                      />
+                      <span className="text-sm text-foreground">{opt.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="space-y-2">

@@ -174,6 +174,15 @@ const AdminSchedule = () => {
       shiftType: ShiftType;
       shiftIndex: 0 | 1;
     }) => {
+      // Check if this shift already exists (so we know if it's newly created)
+      const { data: existing } = await supabase
+        .from("schedules")
+        .select("id, shift_type")
+        .eq("user_id", userId)
+        .eq("date", date)
+        .eq("shift_index", shiftIndex)
+        .maybeSingle();
+
       const { error } = await supabase
         .from("schedules")
         .upsert(
@@ -181,9 +190,59 @@ const AdminSchedule = () => {
           { onConflict: "user_id,date,shift_index" },
         );
       if (error) throw error;
+
+      // Auto-attach templates only when shift is newly created
+      if (existing) return;
+
+      const { data: created } = await supabase
+        .from("schedules")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("date", date)
+        .eq("shift_index", shiftIndex)
+        .maybeSingle();
+      if (!created) return;
+
+      const { data: links } = await supabase
+        .from("checklist_template_shift_types")
+        .select("template_id")
+        .eq("shift_type", shiftType);
+      const templateIds = (links ?? []).map((l: any) => l.template_id);
+      if (templateIds.length === 0) return;
+
+      const { data: templates } = await supabase
+        .from("checklist_templates")
+        .select("id, name")
+        .in("id", templateIds);
+      const { data: items } = await supabase
+        .from("checklist_template_items")
+        .select("template_id, text, sort_order")
+        .in("template_id", templateIds)
+        .order("sort_order", { ascending: true });
+
+      for (let i = 0; i < (templates ?? []).length; i++) {
+        const tpl = (templates as any[])[i];
+        const { data: newList, error: clErr } = await supabase
+          .from("shift_checklists")
+          .insert({ shift_id: created.id, name: tpl.name, sort_order: i })
+          .select("id")
+          .single();
+        if (clErr || !newList) continue;
+        const tplItems = (items ?? []).filter((it: any) => it.template_id === tpl.id);
+        if (tplItems.length > 0) {
+          await supabase.from("shift_checklist_items").insert(
+            tplItems.map((it: any, idx: number) => ({
+              shift_checklist_id: newList.id,
+              text: it.text,
+              sort_order: idx,
+            })),
+          );
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
     },
     onError: () => {
       toast({ title: "Kunde inte spara", description: "Försök igen eller kontrollera din behörighet.", variant: "destructive" });
