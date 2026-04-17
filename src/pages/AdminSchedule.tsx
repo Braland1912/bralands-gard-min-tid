@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
-import ShiftTypeLinkedTemplates from "@/components/ShiftTypeLinkedTemplates";
+
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
