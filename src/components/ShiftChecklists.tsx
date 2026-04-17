@@ -249,31 +249,51 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklist-items"] }),
   });
 
-  const reorderItem = useMutation({
-    mutationFn: async ({ itemId, listId, direction }: { itemId: string; listId: string; direction: "up" | "down" }) => {
-      const sorted = items
-        .filter((i) => i.shift_checklist_id === listId)
-        .sort((a, b) => a.sort_order - b.sort_order);
-      const idx = sorted.findIndex((i) => i.id === itemId);
-      if (idx === -1) return;
-      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= sorted.length) return;
-      const a = sorted[idx];
-      const b = sorted[swapIdx];
-      const { error: e1 } = await supabase
-        .from("shift_checklist_items")
-        .update({ sort_order: b.sort_order })
-        .eq("id", a.id);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase
-        .from("shift_checklist_items")
-        .update({ sort_order: a.sort_order })
-        .eq("id", b.id);
-      if (e2) throw e2;
+  const reorderItems = useMutation({
+    mutationFn: async ({ listId, orderedIds }: { listId: string; orderedIds: string[] }) => {
+      // Update each item's sort_order to its new index
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("shift_checklist_items")
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklist-items"] }),
-    onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
+    onMutate: async ({ listId, orderedIds }) => {
+      await queryClient.cancelQueries({ queryKey: ["shift-checklist-items"] });
+      const key = ["shift-checklist-items", listIds.join(",")];
+      const prev = queryClient.getQueryData<ShiftChecklistItem[]>(key);
+      queryClient.setQueryData<ShiftChecklistItem[]>(key, (old) =>
+        (old ?? []).map((i) =>
+          i.shift_checklist_id === listId
+            ? { ...i, sort_order: orderedIds.indexOf(i.id) }
+            : i,
+        ),
+      );
+      return { prev, key };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev && ctx?.key) queryClient.setQueryData(ctx.key, ctx.prev);
+      toast({ title: "Kunde inte ändra ordning", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["shift-checklist-items"] }),
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleItemDragEnd = (listId: string, listItems: ShiftChecklistItem[]) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = listItems.findIndex((i) => i.id === active.id);
+    const newIdx = listItems.findIndex((i) => i.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const orderedIds = arrayMove(listItems, oldIdx, newIdx).map((i) => i.id);
+    reorderItems.mutate({ listId, orderedIds });
+  };
 
   const toggleItem = useMutation({
     mutationFn: async ({ id, checked }: { id: string; checked: boolean }) => {
