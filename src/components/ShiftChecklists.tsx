@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, ListChecks, ChevronDown } from "lucide-react";
+import { Plus, Trash2, ListChecks, ChevronDown, BookmarkPlus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -142,6 +142,40 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
+  });
+
+  const saveAsTemplate = useMutation({
+    mutationFn: async (listId: string) => {
+      const list = lists.find((l) => l.id === listId);
+      if (!list) throw new Error("Lista hittades inte");
+      const listItems = items
+        .filter((i) => i.shift_checklist_id === listId)
+        .sort((a, b) => a.sort_order - b.sort_order);
+
+      const { data: newTpl, error: tplErr } = await supabase
+        .from("checklist_templates")
+        .insert({ name: list.name })
+        .select()
+        .single();
+      if (tplErr) throw tplErr;
+
+      if (listItems.length > 0) {
+        const payload = listItems.map((it, idx) => ({
+          template_id: newTpl.id,
+          text: it.text,
+          sort_order: idx,
+        }));
+        const { error: itemsErr } = await supabase
+          .from("checklist_template_items")
+          .insert(payload);
+        if (itemsErr) throw itemsErr;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
+      toast({ title: "Sparad som mall" });
+    },
+    onError: () => toast({ title: "Kunde inte spara som mall", variant: "destructive" }),
   });
 
   const deleteList = useMutation({
@@ -286,14 +320,26 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                         </span>
                       )}
                       {mode === "admin" && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
-                          onClick={() => deleteList.mutate(list.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-primary"
+                            onClick={() => saveAsTemplate.mutate(list.id)}
+                            disabled={saveAsTemplate.isPending}
+                            title="Spara som mall"
+                          >
+                            <BookmarkPlus className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            onClick={() => deleteList.mutate(list.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
