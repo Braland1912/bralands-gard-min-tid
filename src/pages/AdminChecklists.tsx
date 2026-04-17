@@ -218,6 +218,7 @@ const AdminChecklists = () => {
   const duplicateTemplate = useMutation({
     mutationFn: async (tpl: Template) => {
       const items = allItems.filter((i) => i.template_id === tpl.id);
+      const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
         .insert({ name: `${tpl.name} (kopia)` })
@@ -236,12 +237,16 @@ const AdminChecklists = () => {
           );
         if (insErr) throw insErr;
       }
-      return { tpl: newTpl as Template, items };
+      return { tpl: newTpl as Template, items, linkedTypes };
     },
-    onSuccess: ({ tpl, items }) => {
+    onSuccess: ({ tpl, items, linkedTypes }) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
-      openEdit(tpl, items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })));
+      openEdit(
+        tpl,
+        items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })),
+        linkedTypes,
+      );
       toast({ title: "Mall kopierad", description: "Döp om den och spara." });
     },
     onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
