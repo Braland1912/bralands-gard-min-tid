@@ -548,13 +548,7 @@ const AdminSchedule = () => {
             </div>
 
             {sheet.worker.user_id && getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
-              <div className="mb-5 pt-4 border-t border-border space-y-4">
-                {(() => {
-                  const currentType = getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex);
-                  const cfg = currentType ? SHIFT_MAP[currentType] : null;
-                  if (!currentType || !cfg) return null;
-                  return <ShiftTypeLinkedTemplates shiftType={currentType} shiftTypeLabel={cfg.label} />;
-                })()}
+              <div className="mb-5 pt-4 border-t border-border">
                 <ShiftChecklists
                   shiftId={getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)!.id}
                   mode="admin"
