@@ -477,6 +477,15 @@ const AdminSchedule = () => {
               })}
             </div>
 
+            {sheet.worker.user_id && getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
+              <div className="mb-5 pt-4 border-t border-border">
+                <ShiftChecklists
+                  shiftId={getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)!.id}
+                  mode="admin"
+                />
+              </div>
+            )}
+
             <div className="flex gap-2">
               {sheet.worker.user_id &&
                 getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
