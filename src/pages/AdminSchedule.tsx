@@ -13,12 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
-const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; time: string; bg: string; border: string; text: string }[] = [
-  { type: "morning", emoji: "🌅", label: "Morgon", time: "06–14", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
-  { type: "day", emoji: "☀️", label: "Dag", time: "10–18", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
-  { type: "evening", emoji: "🌙", label: "Kväll", time: "14–22", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
-  { type: "busy", emoji: "🔒", label: "Upptagen", time: "Hel dag", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
-  { type: "off", emoji: "💤", label: "Ledigt", time: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
+const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; time: string; start: string; bg: string; border: string; text: string }[] = [
+  { type: "morning", emoji: "🌅", label: "Morgon", time: "06–14", start: "7", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  { type: "day", emoji: "☀️", label: "Dag", time: "10–18", start: "10", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { type: "evening", emoji: "🌙", label: "Kväll", time: "14–22", start: "17", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { type: "busy", emoji: "🔒", label: "Upptagen", time: "Hel dag", start: "", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  { type: "off", emoji: "💤", label: "Ledigt", time: "", start: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 ];
 
 const SHIFT_MAP = Object.fromEntries(SHIFT_OPTIONS.map((s) => [s.type, s]));
@@ -209,15 +209,9 @@ const AdminSchedule = () => {
                         >
                           {cfg ? (
                             <div
-                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1`}
+                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex items-center justify-center px-1 py-1`}
                             >
-                              <span className="text-base leading-none">{cfg.emoji}</span>
-                              <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
-                                {cfg.label}
-                              </span>
-                              {cfg.time && (
-                                <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>
-                              )}
+                              <span className={`text-lg font-bold ${cfg.text}`}>{cfg.start}</span>
                             </div>
                           ) : (
                             <span className="text-muted-foreground/40 text-lg">+</span>
