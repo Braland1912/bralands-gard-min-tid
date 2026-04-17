@@ -221,10 +221,26 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         <div className="space-y-3">
           {lists.map((list) => {
             const listItems = items.filter((i) => i.shift_checklist_id === list.id);
+            const doneCount = listItems.filter((i) => i.is_checked).length;
+            const totalCount = listItems.length;
+            const allDone = totalCount > 0 && doneCount === totalCount;
             return (
               <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-foreground">{list.name}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
+                    {totalCount > 0 && (
+                      <span
+                        className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
+                          allDone
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {doneCount}/{totalCount} klara
+                      </span>
+                    )}
+                  </div>
                   {mode === "admin" && (
                     <Button
                       variant="ghost"
