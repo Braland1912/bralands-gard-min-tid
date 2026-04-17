@@ -59,18 +59,27 @@ const AdminDashboard = () => {
     }
   }, [location.state]);
 
-  const { data: pendingCount = 0 } = useQuery({
-    queryKey: ["pending-corrections-count"],
+  const { data: pendingCounts = { normal: 0, early: 0 } } = useQuery({
+    queryKey: ["pending-corrections-counts"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from("time_correction_requests")
-        .select("*", { count: "exact", head: true })
+        .select("reason")
         .eq("status", "pending");
       if (error) throw error;
-      return count ?? 0;
+      const EARLY_PREFIX = "Tidig utstämpling med obockade punkter";
+      let early = 0;
+      let normal = 0;
+      (data ?? []).forEach((r: any) => {
+        if (typeof r.reason === "string" && r.reason.startsWith(EARLY_PREFIX)) early++;
+        else normal++;
+      });
+      return { normal, early };
     },
     refetchInterval: 30000,
   });
+  const pendingCount = pendingCounts.normal;
+  const earlyCount = pendingCounts.early;
 
   const handleTabChange = (tabId: string) => {
     if (tabId === "schema") {
@@ -141,6 +150,14 @@ const AdminDashboard = () => {
             >
               <tab.icon className="h-4 w-4" />
               <span className="flex-1 text-left">{tab.label}</span>
+              {tab.id === "rattelser" && earlyCount > 0 && (
+                <span
+                  className="min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-semibold flex items-center justify-center leading-none"
+                  title="Nya tidiga utstämplingar"
+                >
+                  {earlyCount > 99 ? "99+" : earlyCount}
+                </span>
+              )}
               {tab.id === "rattelser" && pendingCount > 0 && (
                 <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center leading-none">
                   {pendingCount > 99 ? "99+" : pendingCount}
