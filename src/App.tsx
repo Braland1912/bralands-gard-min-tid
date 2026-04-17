@@ -46,6 +46,11 @@ const App = () => (
               <AdminSchedule />
             </ProtectedRoute>
           } />
+          <Route path="/admin/checklists" element={
+            <ProtectedRoute>
+              <AdminChecklists />
+            </ProtectedRoute>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
