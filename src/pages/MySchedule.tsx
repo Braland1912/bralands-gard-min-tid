@@ -91,12 +91,16 @@ const MySchedule = () => {
     );
   }
 
-  const Chip = ({ shift }: { shift: ShiftType }) => {
+  const Chip = ({ shift, full }: { shift: ShiftType; full?: boolean }) => {
     const cfg = SHIFT_CONFIG[shift];
     return (
-      <div className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1`}>
-        <span className="text-sm leading-none">{cfg.emoji}</span>
-        <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
+      <div
+        className={`w-full rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 ${
+          full ? "flex-1 py-2" : "py-1"
+        }`}
+      >
+        <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
+        <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
       </div>
     );
   };
@@ -113,21 +117,26 @@ const MySchedule = () => {
     const s0 = userId ? getShiftAt(userId, date, 0) : null;
     const s1 = userId ? getShiftAt(userId, date, 1) : null;
     const hasAny = !!s0 || !!s1;
+    const onlyOne = hasAny && !(s0 && s1);
+
+    if (!hasAny) {
+      return (
+        <div
+          className={`flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] ${
+            today ? "ring-2 ring-primary" : ""
+          }`}
+        >
+          <span className="text-xs text-gray-300">–</span>
+        </div>
+      );
+    }
 
     return (
       <div
-        className={`flex flex-col gap-1 rounded-xl border p-1.5 min-h-[68px] justify-center ${
-          today ? "ring-2 ring-primary" : ""
-        } ${hasAny ? "border-border bg-card" : "border-dashed border-gray-200 bg-gray-50/50 items-center"}`}
+        className={`flex flex-col gap-1 min-h-[68px] rounded-xl ${today ? "ring-2 ring-primary" : ""}`}
       >
-        {hasAny ? (
-          <>
-            {s0 && <Chip shift={s0} />}
-            {s1 && <Chip shift={s1} />}
-          </>
-        ) : (
-          <span className="text-xs text-gray-300">–</span>
-        )}
+        {s0 && <Chip shift={s0} full={onlyOne} />}
+        {s1 && <Chip shift={s1} full={onlyOne} />}
       </div>
     );
   };
