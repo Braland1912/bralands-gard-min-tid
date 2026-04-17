@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,12 +13,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
-const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; time: string; bg: string; border: string; text: string }> = {
-  morning: { emoji: "🌅", label: "Morgon", time: "06–14", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
-  day: { emoji: "☀️", label: "Dag", time: "10–18", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
-  evening: { emoji: "🌙", label: "Kväll", time: "14–22", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
-  busy: { emoji: "🔒", label: "Upptagen", time: "Hel dag", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
-  off: { emoji: "💤", label: "Ledigt", time: "", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
+const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; bg: string; border: string; text: string }> = {
+  morning: { emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  day: { emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  evening: { emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  busy: { emoji: "🔒", label: "Upptagen", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  off: { emoji: "💤", label: "Ledigt", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 };
 
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
@@ -73,9 +72,11 @@ const MySchedule = () => {
     enabled: !!user,
   });
 
-  const getShift = (userId: string, date: Date): ShiftType | null => {
+  const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
     const dateStr = format(date, "yyyy-MM-dd");
-    const entry = schedules.find((s: any) => s.user_id === userId && s.date === dateStr);
+    const entry = schedules.find(
+      (s: any) => s.user_id === userId && s.date === dateStr && (s.shift_index ?? 0) === idx,
+    );
     return entry ? (entry.shift_type as ShiftType) : null;
   };
 
@@ -90,20 +91,43 @@ const MySchedule = () => {
     );
   }
 
-  const ShiftChip = ({ shift, isToday: today }: { shift: ShiftType | null; isToday?: boolean }) => {
-    if (!shift) {
-      return (
-        <div className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 py-2 px-1 min-h-[68px] ${today ? "ring-2 ring-primary" : ""}`}>
-          <span className="text-xs text-gray-300">–</span>
-        </div>
-      );
-    }
+  const Chip = ({ shift }: { shift: ShiftType }) => {
     const cfg = SHIFT_CONFIG[shift];
     return (
-      <div className={`flex flex-col items-center justify-center rounded-xl border ${cfg.border} ${cfg.bg} py-2 px-1 min-h-[68px] ${today ? "ring-2 ring-primary" : ""}`}>
-        <span className="text-base leading-none">{cfg.emoji}</span>
-        <span className={`text-[10px] font-semibold mt-1 ${cfg.text}`}>{cfg.label}</span>
-        {cfg.time && <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>}
+      <div className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1`}>
+        <span className="text-sm leading-none">{cfg.emoji}</span>
+        <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
+      </div>
+    );
+  };
+
+  const DayCell = ({
+    userId,
+    date,
+    today,
+  }: {
+    userId: string | null | undefined;
+    date: Date;
+    today: boolean;
+  }) => {
+    const s0 = userId ? getShiftAt(userId, date, 0) : null;
+    const s1 = userId ? getShiftAt(userId, date, 1) : null;
+    const hasAny = !!s0 || !!s1;
+
+    return (
+      <div
+        className={`flex flex-col gap-1 rounded-xl border p-1.5 min-h-[68px] justify-center ${
+          today ? "ring-2 ring-primary" : ""
+        } ${hasAny ? "border-border bg-card" : "border-dashed border-gray-200 bg-gray-50/50 items-center"}`}
+      >
+        {hasAny ? (
+          <>
+            {s0 && <Chip shift={s0} />}
+            {s1 && <Chip shift={s1} />}
+          </>
+        ) : (
+          <span className="text-xs text-gray-300">–</span>
+        )}
       </div>
     );
   };
@@ -111,7 +135,6 @@ const MySchedule = () => {
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-[480px] mx-auto px-4 py-6 space-y-5">
-        {/* Back to today */}
         {!isCurrentWeek && (
           <button
             onClick={() => setWeekOffset(0)}
@@ -160,20 +183,9 @@ const MySchedule = () => {
             <Skeleton className="h-24 w-full rounded-2xl" />
           ) : (
             <div className="grid grid-cols-7 gap-1.5">
-              {weekDays.map((d, i) => {
-                const shift = myUserId ? getShift(myUserId, d) : null;
-                const today = isToday(d);
-                return (
-                  <div key={i} className="relative">
-                    <ShiftChip shift={shift} isToday={today} />
-                    {today && (
-                      <div className="flex justify-center mt-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {weekDays.map((d, i) => (
+                <DayCell key={i} userId={myUserId} date={d} today={isToday(d)} />
+              ))}
             </div>
           )}
         </div>
@@ -197,17 +209,15 @@ const MySchedule = () => {
                         <span className="text-sm font-semibold text-foreground">{w.name}</span>
                         {isMe && (
                           <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
-                            Du ⭐
+                            Du
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="grid grid-cols-7 gap-1.5">
-                      {weekDays.map((d, i) => {
-                        const shift = w.user_id ? getShift(w.user_id, d) : null;
-                        const today = isToday(d);
-                        return <ShiftChip key={i} shift={shift} isToday={today} />;
-                      })}
+                      {weekDays.map((d, i) => (
+                        <DayCell key={i} userId={w.user_id} date={d} today={isToday(d)} />
+                      ))}
                     </div>
                   </Card>
                 );
