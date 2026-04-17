@@ -303,7 +303,7 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))_200px] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
                   >
                     {/* Worker cell */}
                     <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
