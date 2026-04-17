@@ -181,8 +181,8 @@ const TodayScheduleChips = ({ userId }: Props) => {
                 isOpen ? "ring-2 ring-primary/40" : ""
               }`}
             >
-              <span className="text-base leading-none">{cfg.emoji}</span>
-              <span className={`font-semibold mt-0.5 ${cfg.text} text-xs`}>{cfg.label}</span>
+              <span className="text-sm leading-none">{cfg.emoji}</span>
+              <span className={`font-semibold mt-0.5 ${cfg.text} text-xs whitespace-nowrap`}>{cfg.label}</span>
               {hasLists && (
                 <span className="absolute top-1 right-1.5 text-[10px]">📋</span>
               )}
