@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Trash2, Users, KeyRound, DollarSign, Check, X, Mail, Copy } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -227,6 +228,23 @@ const TeamMembers = () => {
                       <span>{worker.hourly_rate || 0} kr/h</span>
                     </button>
                   )}
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
+                  <span className="text-xs text-muted-foreground">Kan se teamets schema</span>
+                  <Switch
+                    checked={worker.can_see_team === true}
+                    onCheckedChange={async (v) => {
+                      const { error } = await supabase
+                        .from("workers")
+                        .update({ can_see_team: v })
+                        .eq("id", worker.id);
+                      if (error) {
+                        toast.error("Kunde inte uppdatera behörighet");
+                        return;
+                      }
+                      queryClient.invalidateQueries({ queryKey: ["workers"] });
+                    }}
+                  />
                 </div>
               </Card>
             );

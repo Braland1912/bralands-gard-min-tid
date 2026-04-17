@@ -239,8 +239,8 @@ const MySchedule = () => {
           <div>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Teamets vecka</h2>
             <div className="space-y-3">
-              {allWorkers.map((w: any) => {
-                const isMe = w.user_id === myUserId;
+              {allWorkers.filter((w: any) => w.user_id && w.user_id !== myUserId).map((w: any) => {
+                const isMe = false;
                 return (
                   <Card key={w.id} className={`p-4 ${isMe ? "ring-2 ring-primary" : ""}`}>
                     <div className="flex items-center gap-2.5 mb-3">
