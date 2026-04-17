@@ -209,15 +209,9 @@ const AdminSchedule = () => {
                         >
                           {cfg ? (
                             <div
-                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1`}
+                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex items-center justify-center px-1 py-1`}
                             >
-                              <span className="text-base leading-none">{cfg.emoji}</span>
-                              <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
-                                {cfg.label}
-                              </span>
-                              {cfg.time && (
-                                <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>
-                              )}
+                              <span className={`text-lg font-bold ${cfg.text}`}>{cfg.start}</span>
                             </div>
                           ) : (
                             <span className="text-muted-foreground/40 text-lg">+</span>
