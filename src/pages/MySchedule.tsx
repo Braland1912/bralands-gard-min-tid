@@ -12,6 +12,8 @@ import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
+import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
+import { CheckCircle2, ListChecks } from "lucide-react";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
