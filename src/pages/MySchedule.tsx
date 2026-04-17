@@ -162,9 +162,6 @@ const MySchedule = () => {
       >
         <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
         <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
-        {hasChecklist && (
-          <span className="absolute top-0.5 right-0.5 text-[9px]">📋</span>
-        )}
       </button>
     );
   };
