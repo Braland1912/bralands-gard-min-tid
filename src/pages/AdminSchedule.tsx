@@ -352,6 +352,10 @@ const AdminSchedule = () => {
                     {weekDays.map((d, i) => {
                       const shift0 = w.user_id ? getShiftAt(w.user_id, d, 0) : null;
                       const shift1 = w.user_id ? getShiftAt(w.user_id, d, 1) : null;
+                      const row0 = w.user_id ? getShiftRow(w.user_id, d, 0) : null;
+                      const row1 = w.user_id ? getShiftRow(w.user_id, d, 1) : null;
+                      const has0 = !!(row0 && checklistCounts[row0.id]);
+                      const has1 = !!(row1 && checklistCounts[row1.id]);
                       const today = isToday(d);
                       const hasAny = !!shift0 || !!shift1;
 
@@ -377,15 +381,23 @@ const AdminSchedule = () => {
                           ) : (
                             <>
                               {shift0 &&
-                                renderChip(shift0, (e) => {
-                                  e.stopPropagation();
-                                  setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
-                                })}
-                              {shift1
-                                ? renderChip(shift1, (e) => {
+                                renderChip(
+                                  shift0,
+                                  (e) => {
                                     e.stopPropagation();
-                                    setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
-                                  })
+                                    setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
+                                  },
+                                  has0,
+                                )}
+                              {shift1
+                                ? renderChip(
+                                    shift1,
+                                    (e) => {
+                                      e.stopPropagation();
+                                      setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
+                                    },
+                                    has1,
+                                  )
                                 : w.user_id && (
                                     <button
                                       onClick={() =>
