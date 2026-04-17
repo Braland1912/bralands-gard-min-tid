@@ -193,29 +193,42 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onError: () => toast({ title: "Kunde inte spara som mall", variant: "destructive" }),
   });
 
-  const reorderList = useMutation({
-    mutationFn: async ({ listId, direction }: { listId: string; direction: "up" | "down" }) => {
-      const sorted = [...lists].sort((a, b) => a.sort_order - b.sort_order);
-      const idx = sorted.findIndex((l) => l.id === listId);
-      if (idx === -1) return;
-      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= sorted.length) return;
-      const a = sorted[idx];
-      const b = sorted[swapIdx];
-      const { error: e1 } = await supabase
-        .from("shift_checklists")
-        .update({ sort_order: b.sort_order })
-        .eq("id", a.id);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase
-        .from("shift_checklists")
-        .update({ sort_order: a.sort_order })
-        .eq("id", b.id);
-      if (e2) throw e2;
+  const reorderLists = useMutation({
+    mutationFn: async ({ orderedIds }: { orderedIds: string[] }) => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("shift_checklists")
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
-    onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
+    onMutate: async ({ orderedIds }) => {
+      await queryClient.cancelQueries({ queryKey: ["shift-checklists", shiftId] });
+      const key = ["shift-checklists", shiftId];
+      const prev = queryClient.getQueryData<ShiftChecklist[]>(key);
+      queryClient.setQueryData<ShiftChecklist[]>(key, (old) =>
+        (old ?? []).map((l) => ({ ...l, sort_order: orderedIds.indexOf(l.id) })),
+      );
+      return { prev, key };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev && ctx?.key) queryClient.setQueryData(ctx.key, ctx.prev);
+      toast({ title: "Kunde inte ändra ordning", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
   });
+
+  const handleListDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const sorted = [...lists].sort((a, b) => a.sort_order - b.sort_order);
+    const oldIdx = sorted.findIndex((l) => l.id === active.id);
+    const newIdx = sorted.findIndex((l) => l.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const orderedIds = arrayMove(sorted, oldIdx, newIdx).map((l) => l.id);
+    reorderLists.mutate({ orderedIds });
+  };
 
   const deleteList = useMutation({
     mutationFn: async (listId: string) => {
