@@ -238,6 +238,32 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklist-items"] }),
   });
 
+  const reorderItem = useMutation({
+    mutationFn: async ({ itemId, listId, direction }: { itemId: string; listId: string; direction: "up" | "down" }) => {
+      const sorted = items
+        .filter((i) => i.shift_checklist_id === listId)
+        .sort((a, b) => a.sort_order - b.sort_order);
+      const idx = sorted.findIndex((i) => i.id === itemId);
+      if (idx === -1) return;
+      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= sorted.length) return;
+      const a = sorted[idx];
+      const b = sorted[swapIdx];
+      const { error: e1 } = await supabase
+        .from("shift_checklist_items")
+        .update({ sort_order: b.sort_order })
+        .eq("id", a.id);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase
+        .from("shift_checklist_items")
+        .update({ sort_order: a.sort_order })
+        .eq("id", b.id);
+      if (e2) throw e2;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklist-items"] }),
+    onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
+  });
+
   const toggleItem = useMutation({
     mutationFn: async ({ id, checked }: { id: string; checked: boolean }) => {
       const { error } = await supabase
@@ -404,7 +430,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                 </div>
 
                 <div className="space-y-1.5">
-                  {listItems.map((item) => (
+                  {listItems.map((item, itemIdx) => (
                     <div key={item.id} className="flex items-center gap-2">
                       <Checkbox
                         checked={item.is_checked}
@@ -420,14 +446,36 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                         {item.text}
                       </span>
                       {mode === "admin" && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeItem.mutate(item.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderItem.mutate({ itemId: item.id, listId: list.id, direction: "up" })}
+                            disabled={itemIdx === 0 || reorderItem.isPending}
+                            title="Flytta upp"
+                          >
+                            <ArrowUp className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderItem.mutate({ itemId: item.id, listId: list.id, direction: "down" })}
+                            disabled={itemIdx === listItems.length - 1 || reorderItem.isPending}
+                            title="Flytta ner"
+                          >
+                            <ArrowDown className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                            onClick={() => removeItem.mutate(item.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   ))}
