@@ -92,9 +92,19 @@ const AdminChecklists = () => {
 
   const createTemplate = useMutation({
     mutationFn: async () => {
+      // Bump existing templates down so the new one appears first
+      const ids = templates.map((t) => t.id);
+      if (ids.length > 0) {
+        for (const t of templates) {
+          await supabase
+            .from("checklist_templates")
+            .update({ sort_order: (t.sort_order ?? 0) + 1 })
+            .eq("id", t.id);
+        }
+      }
       const { data, error } = await supabase
         .from("checklist_templates")
-        .insert({ name: "Ny mall" })
+        .insert({ name: "Ny mall", sort_order: 0 })
         .select()
         .single();
       if (error) throw error;
@@ -106,6 +116,43 @@ const AdminChecklists = () => {
     },
     onError: () => toast({ title: "Kunde inte skapa mall", variant: "destructive" }),
   });
+
+  const reorderTemplates = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_templates")
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
+    },
+    onMutate: async (orderedIds) => {
+      await queryClient.cancelQueries({ queryKey: ["checklist-templates"] });
+      const prev = queryClient.getQueryData<Template[]>(["checklist-templates"]);
+      queryClient.setQueryData<Template[]>(["checklist-templates"], (old) => {
+        if (!old) return old;
+        const map = new Map(old.map((t) => [t.id, t]));
+        return orderedIds.map((id, idx) => ({ ...(map.get(id) as Template), sort_order: idx }));
+      });
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(["checklist-templates"], ctx.prev);
+      toast({ title: "Kunde inte ändra ordning", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
+  });
+
+  const handleTemplateDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = templates.findIndex((t) => t.id === active.id);
+    const newIdx = templates.findIndex((t) => t.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const orderedIds = arrayMove(templates, oldIdx, newIdx).map((t) => t.id);
+    reorderTemplates.mutate(orderedIds);
+  };
 
   const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
     setEditing(tpl);
