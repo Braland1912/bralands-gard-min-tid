@@ -22,6 +22,7 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
+import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 
 type Template = { id: string; name: string };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
@@ -265,6 +266,8 @@ const AdminChecklists = () => {
             Ny mall
           </Button>
         </div>
+
+        <ShiftTypeChecklistOrder />
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
