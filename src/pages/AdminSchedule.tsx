@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -167,6 +168,19 @@ const AdminSchedule = () => {
     },
   });
 
+  const toggleCanSeeTeam = useMutation({
+    mutationFn: async ({ workerId, value }: { workerId: string; value: boolean }) => {
+      const { error } = await supabase.from("workers").update({ can_see_team: value }).eq("id", workerId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-workers-schedule"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera behörighet", variant: "destructive" });
+    },
+  });
+
   const isLoading = workersLoading || schedulesLoading;
 
   const renderChip = (shift: ShiftType, onClick: (e: React.MouseEvent) => void) => {
@@ -224,7 +238,7 @@ const AdminSchedule = () => {
           <div className="overflow-x-auto">
             <div className="min-w-[760px]">
               {/* Header row */}
-              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border bg-muted/30">
+              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))_200px] border-b border-border bg-muted/30">
                 <div className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   Medarbetare
                 </div>
@@ -269,6 +283,9 @@ const AdminSchedule = () => {
                     </div>
                   );
                 })}
+                <div className="px-3 py-3 border-l border-border text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center">
+                  Behörighet
+                </div>
               </div>
 
               {/* Body */}
@@ -286,7 +303,7 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))_200px] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
                   >
                     {/* Worker cell */}
                     <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
@@ -352,6 +369,17 @@ const AdminSchedule = () => {
                         </div>
                       );
                     })}
+                    {/* Permission toggle */}
+                    <div className="border-l border-border px-3 py-3 flex items-center gap-2">
+                      <Switch
+                        checked={w.can_see_team === true}
+                        disabled={toggleCanSeeTeam.isPending}
+                        onCheckedChange={(v) => toggleCanSeeTeam.mutate({ workerId: w.id, value: v })}
+                      />
+                      <span className="text-[11px] text-muted-foreground leading-tight">
+                        Kan se teamets schema
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
