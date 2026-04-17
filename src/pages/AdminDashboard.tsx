@@ -226,6 +226,16 @@ const AdminDashboard = () => {
                     {pendingCount > 99 ? "99+" : pendingCount}
                   </span>
                 )}
+                {tab.id === "rattelser" && earlyCount > 0 && (
+                  <span
+                    className={`absolute min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[9px] font-semibold flex items-center justify-center leading-none ${
+                      pendingCount > 0 ? "-top-1.5 -left-2.5" : "-top-1.5 -right-2"
+                    }`}
+                    title="Nya tidiga utstämplingar"
+                  >
+                    {earlyCount > 99 ? "99+" : earlyCount}
+                  </span>
+                )}
               </div>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
