@@ -288,43 +288,29 @@ const AdminChecklists = () => {
                 {editItems.length === 0 && (
                   <p className="text-xs text-muted-foreground italic">Inga punkter än.</p>
                 )}
-                {editItems.map((item, idx) => (
-                  <div key={item.id} className="flex items-center gap-1">
-                    <Input
-                      value={item.text}
-                      onChange={(e) => updateItemText(item.id, e.target.value)}
-                      placeholder="Punkt..."
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveItem(item.id, "up")}
-                      disabled={idx === 0}
-                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
-                      title="Flytta upp"
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveItem(item.id, "down")}
-                      disabled={idx === editItems.length - 1}
-                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
-                      title="Flytta ner"
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeItem(item.id)}
-                      className="text-destructive hover:text-destructive shrink-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={editItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {editItems.map((item) => (
+                        <SortableItem key={item.id} id={item.id}>
+                          <Input
+                            value={item.text}
+                            onChange={(e) => updateItemText(item.id, e.target.value)}
+                            placeholder="Punkt..."
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            className="text-destructive hover:text-destructive shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </SortableItem>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
