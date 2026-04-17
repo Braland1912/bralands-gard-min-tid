@@ -2,8 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -51,7 +50,7 @@ const AdminSchedule = () => {
   const { data: allWorkers = [], isLoading: workersLoading } = useQuery({
     queryKey: ["admin-workers-schedule"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("workers").select("*");
+      const { data, error } = await supabase.from("workers").select("*").order("name");
       if (error) throw error;
       return data;
     },
@@ -94,135 +93,144 @@ const AdminSchedule = () => {
     },
   });
 
-  const toggleVisibility = useMutation({
-    mutationFn: async ({ workerId, canSeeTeam }: { workerId: string; canSeeTeam: boolean }) => {
-      const { error } = await supabase
-        .from("workers")
-        .update({ can_see_team: canSeeTeam } as any)
-        .eq("id", workerId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-workers-schedule"] });
-    },
-  });
-
   const isLoading = workersLoading || schedulesLoading;
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
-      <div className="max-w-[480px] mx-auto px-4 py-6 space-y-5">
-        {/* Back to today */}
-        {!isCurrentWeek && (
-          <button
-            onClick={() => setWeekOffset(0)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Tillbaka till idag
-          </button>
-        )}
-
-        {/* Week navigator */}
-        <div className="flex items-center justify-between">
-          <button onClick={() => setWeekOffset((o) => o - 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
-            <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <div className="text-center">
-            <div className="text-lg font-bold text-foreground">Vecka {weekNumber}</div>
-            <div className="text-xs text-muted-foreground">
-              {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })} · {format(weekStart, "yyyy")}
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+        {/* Top bar: title + nav */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Schema</h1>
+            <p className="text-xs text-muted-foreground">Planera arbetspass per medarbetare</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {!isCurrentWeek && (
+              <button
+                onClick={() => setWeekOffset(0)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 transition-colors"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Idag
+              </button>
+            )}
+            <div className="flex items-center gap-1">
+              <button onClick={() => setWeekOffset((o) => o - 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+                <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <div className="text-center min-w-[140px]">
+                <div className="text-sm font-semibold text-foreground">Vecka {weekNumber}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })}
+                </div>
+              </div>
+              <button onClick={() => setWeekOffset((o) => o + 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
-          <button onClick={() => setWeekOffset((o) => o + 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </button>
         </div>
 
-        {/* Day strip */}
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {weekDays.map((d, i) => {
-            const today = isToday(d);
-            return (
-              <div key={i} className="flex flex-col items-center gap-0.5">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase">{DAY_NAMES[i]}</span>
-                <span className={`text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full ${today ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
-                  {format(d, "d")}
-                </span>
+        {/* Grid */}
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="min-w-[760px]">
+              {/* Header row */}
+              <div className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border bg-muted/30">
+                <div className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Medarbetare
+                </div>
+                {weekDays.map((d, i) => {
+                  const today = isToday(d);
+                  return (
+                    <div
+                      key={i}
+                      className={`px-2 py-3 text-center border-l border-border ${
+                        today ? "bg-primary/5" : ""
+                      }`}
+                    >
+                      <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                        {DAY_NAMES[i]}
+                      </div>
+                      <div className="mt-0.5 flex justify-center">
+                        <span
+                          className={`text-sm font-semibold w-7 h-7 inline-flex items-center justify-center rounded-full ${
+                            today ? "bg-primary text-primary-foreground" : "text-foreground"
+                          }`}
+                        >
+                          {format(d, "d")}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
 
-        {/* Worker cards */}
-        {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-36 w-full rounded-2xl" />)}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {allWorkers.map((w: any) => (
-              <Card key={w.id} className="p-4">
-                {/* Header */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                      {getInitials(w.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-semibold text-foreground">{w.name}</span>
+              {/* Body */}
+              {isLoading ? (
+                <div className="p-4 space-y-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-16 w-full rounded-xl" />
+                  ))}
                 </div>
-
-                {/* Shift grid */}
-                <div className="grid grid-cols-7 gap-1.5 mb-3">
-                  {weekDays.map((d, i) => {
-                    const shift = w.user_id ? getShift(w.user_id, d) : null;
-                    const today = isToday(d);
-                    const cfg = shift ? SHIFT_MAP[shift] : null;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => w.user_id && setSheet({ worker: w, date: d, dayIndex: i })}
-                        className={`flex flex-col items-center justify-center rounded-xl border py-2 px-1 min-h-[68px] transition-colors ${
-                          cfg
-                            ? `${cfg.border} ${cfg.bg} ${today ? "ring-2 ring-primary" : ""}`
-                            : `border-dashed border-gray-200 bg-gray-50/50 ${today ? "ring-2 ring-primary" : ""}`
-                        }`}
-                      >
-                        <span className="text-[9px] text-muted-foreground font-medium mb-0.5">{format(d, "d")}</span>
-                        {cfg ? (
-                          <>
-                            <span className="text-base leading-none">{cfg.emoji}</span>
-                            <span className={`text-[9px] font-semibold mt-0.5 ${cfg.text}`}>{cfg.label}</span>
-                            {cfg.time && <span className={`text-[8px] ${cfg.text} opacity-70`}>{cfg.time}</span>}
-                          </>
-                        ) : (
-                          <span className="text-xs text-gray-300">+</span>
-                        )}
-                      </button>
-                    );
-                  })}
+              ) : allWorkers.length === 0 ? (
+                <div className="p-10 text-center text-sm text-muted-foreground">
+                  Inga medarbetare att visa.
                 </div>
+              ) : (
+                allWorkers.map((w: any) => (
+                  <div
+                    key={w.id}
+                    className="grid grid-cols-[180px_repeat(7,minmax(0,1fr))] border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                  >
+                    {/* Worker cell */}
+                    <div className="px-4 py-3 flex items-center gap-2.5 sticky left-0 bg-card">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                          {getInitials(w.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-foreground truncate">{w.name}</span>
+                    </div>
 
-                {/* Visibility toggle */}
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <span className="text-xs text-muted-foreground">Kan se teamets schema</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-medium ${w.can_see_team ? "text-blue-600" : "text-gray-400"}`}>
-                      {w.can_see_team ? "Ja" : "Nej"}
-                    </span>
-                    <Switch
-                      checked={w.can_see_team ?? true}
-                      onCheckedChange={(checked) =>
-                        toggleVisibility.mutate({ workerId: w.id, canSeeTeam: checked })
-                      }
-                    />
+                    {/* Day cells */}
+                    {weekDays.map((d, i) => {
+                      const shift = w.user_id ? getShift(w.user_id, d) : null;
+                      const today = isToday(d);
+                      const cfg = shift ? SHIFT_MAP[shift] : null;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => w.user_id && setSheet({ worker: w, date: d, dayIndex: i })}
+                          disabled={!w.user_id}
+                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col items-center justify-center transition-colors ${
+                            today ? "bg-primary/[0.03]" : ""
+                          } ${w.user_id ? "hover:bg-primary/5 cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+                        >
+                          {cfg ? (
+                            <div
+                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1`}
+                            >
+                              <span className="text-base leading-none">{cfg.emoji}</span>
+                              <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
+                                {cfg.label}
+                              </span>
+                              {cfg.time && (
+                                <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground/40 text-lg">+</span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
-                </div>
-              </Card>
-            ))}
+                ))
+              )}
+            </div>
           </div>
-        )}
+        </Card>
       </div>
 
       {/* Bottom sheet */}
@@ -230,15 +238,13 @@ const AdminSchedule = () => {
         <div className="fixed inset-0 z-50" onClick={() => setSheet(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300"
+            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300 max-w-[480px] mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag handle */}
             <div className="flex justify-center mb-4">
               <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
             </div>
 
-            {/* Header */}
             <div className="text-center mb-5">
               <div className="text-base font-semibold text-foreground">{sheet.worker.name}</div>
               <div className="text-sm text-muted-foreground">
@@ -246,7 +252,6 @@ const AdminSchedule = () => {
               </div>
             </div>
 
-            {/* Shift options */}
             <div className="space-y-2 mb-5">
               {SHIFT_OPTIONS.map((opt) => {
                 const currentShift = sheet.worker.user_id ? getShift(sheet.worker.user_id, sheet.date) : null;
@@ -262,25 +267,24 @@ const AdminSchedule = () => {
                       })
                     }
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
-                      isSelected ? "bg-blue-50 border-blue-200" : "bg-card border-border hover:bg-muted/50"
+                      isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
                     }`}
                   >
                     <span className="text-xl">{opt.emoji}</span>
                     <div className="flex-1 text-left">
-                      <span className={`text-sm font-medium ${isSelected ? "text-blue-700" : "text-foreground"}`}>
+                      <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
                         {opt.label}
                       </span>
                       {opt.time && (
                         <span className="text-xs text-muted-foreground ml-2">{opt.time}</span>
                       )}
                     </div>
-                    {isSelected && <Check className="h-4 w-4 text-blue-600" />}
+                    {isSelected && <Check className="h-4 w-4 text-primary" />}
                   </button>
                 );
               })}
             </div>
 
-            {/* Cancel */}
             <Button variant="outline" className="w-full" onClick={() => setSheet(null)}>
               Avbryt
             </Button>
