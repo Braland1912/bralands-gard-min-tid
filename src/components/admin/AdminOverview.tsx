@@ -68,6 +68,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
   const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
   const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekStart = addWeeks(baseWeekStart, weekOffset);
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
