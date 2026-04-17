@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -33,7 +33,12 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [weekOffset, setWeekOffset] = useState(0);
-  const [sheet, setSheet] = useState<{ worker: any; date: Date; dayIndex: number } | null>(null);
+  const [sheet, setSheet] = useState<{
+    worker: any;
+    date: Date;
+    dayIndex: number;
+    shiftIndex: 0 | 1;
+  } | null>(null);
 
   const referenceDate = useMemo(() => {
     const now = new Date();
@@ -71,17 +76,32 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
-  const getShift = (userId: string, date: Date): ShiftType | null => {
+  const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
     const dateStr = format(date, "yyyy-MM-dd");
-    const entry = schedules.find((s: any) => s.user_id === userId && s.date === dateStr);
+    const entry = schedules.find(
+      (s: any) => s.user_id === userId && s.date === dateStr && (s.shift_index ?? 0) === idx,
+    );
     return entry ? (entry.shift_type as ShiftType) : null;
   };
 
   const upsertShift = useMutation({
-    mutationFn: async ({ userId, date, shiftType }: { userId: string; date: string; shiftType: ShiftType }) => {
+    mutationFn: async ({
+      userId,
+      date,
+      shiftType,
+      shiftIndex,
+    }: {
+      userId: string;
+      date: string;
+      shiftType: ShiftType;
+      shiftIndex: 0 | 1;
+    }) => {
       const { error } = await supabase
         .from("schedules")
-        .upsert({ user_id: userId, date, shift_type: shiftType }, { onConflict: "user_id,date" });
+        .upsert(
+          { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex },
+          { onConflict: "user_id,date,shift_index" },
+        );
       if (error) throw error;
     },
     onSuccess: () => {
@@ -93,12 +113,45 @@ const AdminSchedule = () => {
     },
   });
 
+  const deleteShift = useMutation({
+    mutationFn: async ({ userId, date, shiftIndex }: { userId: string; date: string; shiftIndex: 0 | 1 }) => {
+      const { error } = await supabase
+        .from("schedules")
+        .delete()
+        .eq("user_id", userId)
+        .eq("date", date)
+        .eq("shift_index", shiftIndex);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      setSheet(null);
+    },
+    onError: () => {
+      toast({ title: "Kunde inte ta bort", description: "Försök igen.", variant: "destructive" });
+    },
+  });
+
   const isLoading = workersLoading || schedulesLoading;
+
+  const renderChip = (shift: ShiftType, onClick: (e: React.MouseEvent) => void) => {
+    const cfg = SHIFT_MAP[shift];
+    return (
+      <div
+        role="button"
+        onClick={onClick}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
+      >
+        <span className="text-sm leading-none">{cfg.emoji}</span>
+        <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
-        {/* Top bar: title + nav */}
+        {/* Top bar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-foreground">Schema</h1>
@@ -145,9 +198,7 @@ const AdminSchedule = () => {
                   return (
                     <div
                       key={i}
-                      className={`px-2 py-3 text-center border-l border-border ${
-                        today ? "bg-primary/5" : ""
-                      }`}
+                      className={`px-2 py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
@@ -195,31 +246,56 @@ const AdminSchedule = () => {
 
                     {/* Day cells */}
                     {weekDays.map((d, i) => {
-                      const shift = w.user_id ? getShift(w.user_id, d) : null;
+                      const shift0 = w.user_id ? getShiftAt(w.user_id, d, 0) : null;
+                      const shift1 = w.user_id ? getShiftAt(w.user_id, d, 1) : null;
                       const today = isToday(d);
-                      const cfg = shift ? SHIFT_MAP[shift] : null;
+                      const hasAny = !!shift0 || !!shift1;
+
                       return (
-                        <button
+                        <div
                           key={i}
-                          onClick={() => w.user_id && setSheet({ worker: w, date: d, dayIndex: i })}
-                          disabled={!w.user_id}
-                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col items-center justify-center transition-colors ${
+                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col gap-1 ${
                             today ? "bg-primary/[0.03]" : ""
-                          } ${w.user_id ? "hover:bg-primary/5 cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+                          } ${!w.user_id ? "opacity-50" : ""}`}
                         >
-                          {cfg ? (
-                            <div
-                              className={`w-full h-full rounded-lg border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1`}
+                          {!hasAny ? (
+                            <button
+                              onClick={() =>
+                                w.user_id && setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 })
+                              }
+                              disabled={!w.user_id}
+                              className={`flex-1 w-full flex items-center justify-center rounded-md transition-colors ${
+                                w.user_id ? "hover:bg-primary/5 cursor-pointer" : "cursor-not-allowed"
+                              }`}
                             >
-                              <span className="text-base leading-none">{cfg.emoji}</span>
-                              <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
-                                {cfg.label}
-                              </span>
-                            </div>
+                              <span className="text-muted-foreground/40 text-lg">+</span>
+                            </button>
                           ) : (
-                            <span className="text-muted-foreground/40 text-lg">+</span>
+                            <>
+                              {shift0 &&
+                                renderChip(shift0, (e) => {
+                                  e.stopPropagation();
+                                  setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
+                                })}
+                              {shift1
+                                ? renderChip(shift1, (e) => {
+                                    e.stopPropagation();
+                                    setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
+                                  })
+                                : w.user_id && (
+                                    <button
+                                      onClick={() =>
+                                        setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 })
+                                      }
+                                      className="w-full flex items-center justify-center rounded-md border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 py-0.5 transition-colors"
+                                      aria-label="Lägg till andra pass"
+                                    >
+                                      <Plus className="h-3 w-3 text-muted-foreground/60" />
+                                    </button>
+                                  )}
+                            </>
                           )}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -247,11 +323,16 @@ const AdminSchedule = () => {
               <div className="text-sm text-muted-foreground">
                 {FULL_DAY_NAMES[sheet.dayIndex]} · {format(sheet.date, "d MMM yyyy", { locale: sv })}
               </div>
+              <div className="text-[11px] text-muted-foreground mt-1">
+                {sheet.shiftIndex === 0 ? "Pass 1" : "Pass 2"}
+              </div>
             </div>
 
             <div className="space-y-2 mb-5">
               {SHIFT_OPTIONS.map((opt) => {
-                const currentShift = sheet.worker.user_id ? getShift(sheet.worker.user_id, sheet.date) : null;
+                const currentShift = sheet.worker.user_id
+                  ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+                  : null;
                 const isSelected = currentShift === opt.type;
                 return (
                   <button
@@ -261,6 +342,7 @@ const AdminSchedule = () => {
                         userId: sheet.worker.user_id,
                         date: format(sheet.date, "yyyy-MM-dd"),
                         shiftType: opt.type,
+                        shiftIndex: sheet.shiftIndex,
                       })
                     }
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
@@ -279,9 +361,28 @@ const AdminSchedule = () => {
               })}
             </div>
 
-            <Button variant="outline" className="w-full" onClick={() => setSheet(null)}>
-              Avbryt
-            </Button>
+            <div className="flex gap-2">
+              {sheet.worker.user_id &&
+                getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-destructive hover:text-destructive"
+                    onClick={() =>
+                      deleteShift.mutate({
+                        userId: sheet.worker.user_id,
+                        date: format(sheet.date, "yyyy-MM-dd"),
+                        shiftIndex: sheet.shiftIndex,
+                      })
+                    }
+                  >
+                    <Trash2 className="h-4 w-4 mr-1.5" />
+                    Ta bort
+                  </Button>
+                )}
+              <Button variant="outline" className="flex-1" onClick={() => setSheet(null)}>
+                Avbryt
+              </Button>
+            </div>
           </div>
         </div>
       )}
