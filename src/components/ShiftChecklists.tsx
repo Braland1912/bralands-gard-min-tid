@@ -182,7 +182,29 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onError: () => toast({ title: "Kunde inte spara som mall", variant: "destructive" }),
   });
 
-  const deleteList = useMutation({
+  const reorderList = useMutation({
+    mutationFn: async ({ listId, direction }: { listId: string; direction: "up" | "down" }) => {
+      const sorted = [...lists].sort((a, b) => a.sort_order - b.sort_order);
+      const idx = sorted.findIndex((l) => l.id === listId);
+      if (idx === -1) return;
+      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= sorted.length) return;
+      const a = sorted[idx];
+      const b = sorted[swapIdx];
+      const { error: e1 } = await supabase
+        .from("shift_checklists")
+        .update({ sort_order: b.sort_order })
+        .eq("id", a.id);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase
+        .from("shift_checklists")
+        .update({ sort_order: a.sort_order })
+        .eq("id", b.id);
+      if (e2) throw e2;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
+    onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
+  });
     mutationFn: async (listId: string) => {
       const { error } = await supabase.from("shift_checklists").delete().eq("id", listId);
       if (error) throw error;
