@@ -19,7 +19,7 @@ const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; bg: string
   morning: { emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
   day: { emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
   evening: { emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
-  busy: { emoji: "🔒", label: "Upptagen", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  busy: { emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
   off: { emoji: "💤", label: "Ledigt", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 };
 
