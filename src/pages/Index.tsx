@@ -177,7 +177,7 @@ const Index = () => {
     }
   }, [worker, clockInState, isOnline, activeEntry, toast, queryClient]);
 
-  const handleClockOut = useCallback(async () => {
+  const performClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
     if (!activeEntry) {
       toast({ title: "Ingen aktiv stampling", description: "Du behover stampla in forst innan du kan stampla ut.", variant: "destructive" });
@@ -204,6 +204,18 @@ const Index = () => {
       setClockOutState("idle");
     }
   }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient]);
+
+  const handleClockOut = useCallback(() => {
+    if (!worker || clockOutState !== "idle" || !isOnline || !activeEntry) {
+      performClockOut();
+      return;
+    }
+    if ((checklistStatus?.unchecked ?? 0) > 0) {
+      setConfirmClockOutOpen(true);
+      return;
+    }
+    performClockOut();
+  }, [worker, clockOutState, isOnline, activeEntry, checklistStatus, performClockOut]);
 
   const handleForgottenCorrection = () => {
     navigate("/my-time");
