@@ -134,6 +134,21 @@ const MySchedule = () => {
     date: Date;
     today: boolean;
   }) => {
+    const published = isDayPublished(date);
+
+    if (!published) {
+      return (
+        <div
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
+            today ? "ring-2 ring-primary" : ""
+          }`}
+        >
+          <span className="text-base leading-none">🔒</span>
+          <span className="text-[10px] italic text-muted-foreground mt-1">Ej klar</span>
+        </div>
+      );
+    }
+
     const s0 = userId ? getShiftAt(userId, date, 0) : null;
     const s1 = userId ? getShiftAt(userId, date, 1) : null;
     const hasAny = !!s0 || !!s1;
