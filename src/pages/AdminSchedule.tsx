@@ -301,8 +301,8 @@ const AdminSchedule = () => {
                             published ? "bg-green-500" : "bg-yellow-400"
                           }`}
                         />
-                        <span className="text-[10px] text-muted-foreground">
-                          {published ? "Publicerad" : "Ej publicerad"}
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          {published ? "Klar" : "Ej klar"}
                         </span>
                       </div>
                       <button
