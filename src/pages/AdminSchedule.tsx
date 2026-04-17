@@ -230,6 +230,8 @@ const AdminSchedule = () => {
                 </div>
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
+                  const published = isDayPublished(d);
+                  const dateStr = format(d, "yyyy-MM-dd");
                   return (
                     <div
                       key={i}
@@ -247,6 +249,23 @@ const AdminSchedule = () => {
                           {format(d, "d")}
                         </span>
                       </div>
+                      <div className="mt-1.5 flex items-center justify-center gap-1">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            published ? "bg-green-500" : "bg-yellow-400"
+                          }`}
+                        />
+                        <span className="text-[10px] text-muted-foreground">
+                          {published ? "Publicerad" : "Ej publicerad"}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => togglePublish.mutate({ date: dateStr, publish: !published })}
+                        disabled={togglePublish.isPending}
+                        className="mt-1.5 inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-medium border border-border bg-background hover:bg-muted text-foreground transition-colors disabled:opacity-50"
+                      >
+                        {published ? "Avpublicera" : "Publicera"}
+                      </button>
                     </div>
                   );
                 })}
