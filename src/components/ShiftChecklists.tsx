@@ -98,9 +98,10 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         .order("sort_order", { ascending: true });
       if (tplItemsErr) throw tplItemsErr;
 
+      const nextSort = lists.length;
       const { data: newList, error: listErr } = await supabase
         .from("shift_checklists")
-        .insert({ shift_id: shiftId, name: tpl.name })
+        .insert({ shift_id: shiftId, name: tpl.name, sort_order: nextSort })
         .select()
         .single();
       if (listErr) throw listErr;
@@ -126,9 +127,10 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const createBlank = useMutation({
     mutationFn: async () => {
       if (!shiftId) throw new Error("Inget pass valt");
+      const nextSort = lists.length;
       const { error } = await supabase
         .from("shift_checklists")
-        .insert({ shift_id: shiftId, name: "Ny checklista" });
+        .insert({ shift_id: shiftId, name: "Ny checklista", sort_order: nextSort });
       if (error) throw error;
     },
     onSuccess: () => {
