@@ -10,6 +10,8 @@ import { sv } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
@@ -31,6 +33,7 @@ const MySchedule = () => {
   const navigate = useNavigate();
   const { data: worker } = useWorker(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -86,18 +89,40 @@ const MySchedule = () => {
     enabled: !!user,
   });
 
+  // Fetch checklist counts for MY shifts this week
+  const myShiftIds = useMemo(
+    () => schedules.filter((s: any) => s.user_id === user?.id).map((s: any) => s.id),
+    [schedules, user?.id]
+  );
+
+  const { data: checklistCounts = {} } = useQuery({
+    queryKey: ["my-shift-checklist-counts", myShiftIds.join(",")],
+    queryFn: async () => {
+      if (myShiftIds.length === 0) return {};
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("id, shift_id")
+        .in("shift_id", myShiftIds);
+      if (error) throw error;
+      return (data || []).reduce((acc: Record<string, number>, c) => {
+        acc[c.shift_id] = (acc[c.shift_id] || 0) + 1;
+        return acc;
+      }, {});
+    },
+    enabled: myShiftIds.length > 0,
+  });
+
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
     return row?.is_published === true;
   };
 
-  const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
+  const getShiftAt = (userId: string, date: Date, idx: 0 | 1) => {
     const dateStr = format(date, "yyyy-MM-dd");
-    const entry = schedules.find(
+    return schedules.find(
       (s: any) => s.user_id === userId && s.date === dateStr && (s.shift_index ?? 0) === idx,
     );
-    return entry ? (entry.shift_type as ShiftType) : null;
   };
 
   const myUserId = user?.id;
@@ -111,17 +136,34 @@ const MySchedule = () => {
     );
   }
 
-  const Chip = ({ shift, full }: { shift: ShiftType; full?: boolean }) => {
+  const Chip = ({
+    shift,
+    full,
+    hasChecklist,
+    onClick,
+  }: {
+    shift: ShiftType;
+    full?: boolean;
+    hasChecklist?: boolean;
+    onClick?: () => void;
+  }) => {
     const cfg = SHIFT_CONFIG[shift];
+    const interactive = !!onClick && !!hasChecklist;
     return (
-      <div
-        className={`w-full rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 ${
+      <button
+        type="button"
+        onClick={interactive ? onClick : undefined}
+        disabled={!interactive}
+        className={`relative w-full rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 ${
           full ? "flex-1 py-2" : "py-1"
-        }`}
+        } ${interactive ? "cursor-pointer hover:brightness-95 transition" : "cursor-default"}`}
       >
         <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
         <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
-      </div>
+        {hasChecklist && (
+          <span className="absolute top-0.5 right-0.5 text-[9px]">📋</span>
+        )}
+      </button>
     );
   };
 
@@ -129,10 +171,12 @@ const MySchedule = () => {
     userId,
     date,
     today,
+    isMine,
   }: {
     userId: string | null | undefined;
     date: Date;
     today: boolean;
+    isMine: boolean;
   }) => {
     const published = isDayPublished(date);
 
@@ -149,10 +193,10 @@ const MySchedule = () => {
       );
     }
 
-    const s0 = userId ? getShiftAt(userId, date, 0) : null;
-    const s1 = userId ? getShiftAt(userId, date, 1) : null;
-    const hasAny = !!s0 || !!s1;
-    const onlyOne = hasAny && !(s0 && s1);
+    const e0 = userId ? getShiftAt(userId, date, 0) : null;
+    const e1 = userId ? getShiftAt(userId, date, 1) : null;
+    const hasAny = !!e0 || !!e1;
+    const onlyOne = hasAny && !(e0 && e1);
 
     if (!hasAny) {
       return (
@@ -166,12 +210,31 @@ const MySchedule = () => {
       );
     }
 
+    const renderChip = (entry: any, full: boolean) => {
+      const has = isMine && (checklistCounts[entry.id] || 0) > 0;
+      return (
+        <Chip
+          shift={entry.shift_type as ShiftType}
+          full={full}
+          hasChecklist={has}
+          onClick={
+            has
+              ? () =>
+                  setOpenShift({
+                    id: entry.id,
+                    label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+                    date,
+                  })
+              : undefined
+          }
+        />
+      );
+    };
+
     return (
-      <div
-        className={`flex flex-col gap-1 min-h-[68px] rounded-xl ${today ? "ring-2 ring-primary" : ""}`}
-      >
-        {s0 && <Chip shift={s0} full={onlyOne} />}
-        {s1 && <Chip shift={s1} full={onlyOne} />}
+      <div className={`flex flex-col gap-1 min-h-[68px] rounded-xl ${today ? "ring-2 ring-primary" : ""}`}>
+        {e0 && renderChip(e0, onlyOne)}
+        {e1 && renderChip(e1, onlyOne)}
       </div>
     );
   };
@@ -228,7 +291,7 @@ const MySchedule = () => {
           ) : (
             <div className="grid grid-cols-7 gap-1.5">
               {weekDays.map((d, i) => (
-                <DayCell key={i} userId={myUserId} date={d} today={isToday(d)} />
+                <DayCell key={i} userId={myUserId} date={d} today={isToday(d)} isMine={true} />
               ))}
             </div>
           )}
@@ -239,37 +302,40 @@ const MySchedule = () => {
           <div>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Teamets vecka</h2>
             <div className="space-y-3">
-              {allWorkers.filter((w: any) => w.user_id && w.user_id !== myUserId).map((w: any) => {
-                const isMe = false;
-                return (
-                  <Card key={w.id} className={`p-4 ${isMe ? "ring-2 ring-primary" : ""}`}>
-                    <div className="flex items-center gap-2.5 mb-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                          {getInitials(w.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-foreground">{w.name}</span>
-                        {isMe && (
-                          <span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-medium">
-                            Du
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-7 gap-1.5">
-                      {weekDays.map((d, i) => (
-                        <DayCell key={i} userId={w.user_id} date={d} today={isToday(d)} />
-                      ))}
-                    </div>
-                  </Card>
-                );
-              })}
+              {allWorkers.filter((w: any) => w.user_id && w.user_id !== myUserId).map((w: any) => (
+                <Card key={w.id} className="p-4">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                        {getInitials(w.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-semibold text-foreground">{w.name}</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {weekDays.map((d, i) => (
+                      <DayCell key={i} userId={w.user_id} date={d} today={isToday(d)} isMine={false} />
+                    ))}
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
         )}
       </div>
+
+      <Sheet open={!!openShift} onOpenChange={(o) => !o && setOpenShift(null)}>
+        <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
+          <SheetHeader className="text-left">
+            <SheetTitle>
+              {openShift?.label} · {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            {openShift && <ShiftChecklistViewer shiftId={openShift.id} />}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
