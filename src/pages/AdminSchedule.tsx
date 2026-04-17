@@ -308,16 +308,14 @@ const AdminSchedule = () => {
                       <button
                         onClick={() => togglePublish.mutate({ date: dateStr, publish: !published })}
                         disabled={togglePublish.isPending}
-                        className={`mt-1.5 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50 ${
-                          published ? "text-yellow-600" : "text-green-600"
-                        }`}
+                        aria-label={published ? "Avpublicera" : "Publicera"}
+                        className="mt-1.5 inline-flex items-center justify-center p-1 rounded-md border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50"
                       >
                         {published ? (
-                          <X className="h-3 w-3 text-red-500" />
+                          <X className="h-3.5 w-3.5 text-red-500" />
                         ) : (
-                          <Check className="h-3 w-3 text-green-500" />
+                          <Check className="h-3.5 w-3.5 text-green-500" />
                         )}
-                        {published ? "Avpublicera" : "Publicera"}
                       </button>
                     </div>
                   );
