@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      checklist_template_items: {
+        Row: {
+          created_at: string
+          id: string
+          sort_order: number
+          template_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          template_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sort_order?: number
+          template_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_templates: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           created_at: string
