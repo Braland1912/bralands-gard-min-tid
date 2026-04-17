@@ -263,7 +263,18 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
               <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
+                    {mode === "admin" ? (
+                      <Input
+                        defaultValue={list.name}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
+                        }}
+                        className="h-7 text-sm font-semibold flex-1 min-w-0"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
+                    )}
                     <div className="flex items-center gap-2 shrink-0">
                       {totalCount > 0 && (
                         <span
