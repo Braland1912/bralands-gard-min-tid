@@ -21,6 +21,7 @@ const tabs = [
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
   { id: "schema", label: "Schema", icon: Calendar },
+  { id: "checklistor", label: "Checklistor", icon: ListChecks },
 ];
 
 const AdminDashboard = () => {
