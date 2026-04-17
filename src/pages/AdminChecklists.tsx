@@ -19,12 +19,12 @@ import {
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, rectSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 
-type Template = { id: string; name: string };
+type Template = { id: string; name: string; sort_order: number };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
 
@@ -53,6 +53,7 @@ const AdminChecklists = () => {
       const { data, error } = await supabase
         .from("checklist_templates")
         .select("*")
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Template[];
@@ -91,9 +92,19 @@ const AdminChecklists = () => {
 
   const createTemplate = useMutation({
     mutationFn: async () => {
+      // Bump existing templates down so the new one appears first
+      const ids = templates.map((t) => t.id);
+      if (ids.length > 0) {
+        for (const t of templates) {
+          await supabase
+            .from("checklist_templates")
+            .update({ sort_order: (t.sort_order ?? 0) + 1 })
+            .eq("id", t.id);
+        }
+      }
       const { data, error } = await supabase
         .from("checklist_templates")
-        .insert({ name: "Ny mall" })
+        .insert({ name: "Ny mall", sort_order: 0 })
         .select()
         .single();
       if (error) throw error;
@@ -105,6 +116,43 @@ const AdminChecklists = () => {
     },
     onError: () => toast({ title: "Kunde inte skapa mall", variant: "destructive" }),
   });
+
+  const reorderTemplates = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_templates")
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
+    },
+    onMutate: async (orderedIds) => {
+      await queryClient.cancelQueries({ queryKey: ["checklist-templates"] });
+      const prev = queryClient.getQueryData<Template[]>(["checklist-templates"]);
+      queryClient.setQueryData<Template[]>(["checklist-templates"], (old) => {
+        if (!old) return old;
+        const map = new Map(old.map((t) => [t.id, t]));
+        return orderedIds.map((id, idx) => ({ ...(map.get(id) as Template), sort_order: idx }));
+      });
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(["checklist-templates"], ctx.prev);
+      toast({ title: "Kunde inte ändra ordning", variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
+  });
+
+  const handleTemplateDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = templates.findIndex((t) => t.id === active.id);
+    const newIdx = templates.findIndex((t) => t.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const orderedIds = arrayMove(templates, oldIdx, newIdx).map((t) => t.id);
+    reorderTemplates.mutate(orderedIds);
+  };
 
   const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
     setEditing(tpl);
@@ -279,43 +327,53 @@ const AdminChecklists = () => {
             <p className="text-sm text-muted-foreground">Inga mallar ännu. Skapa din första mall.</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {templates.map((tpl) => (
-              <Card key={tpl.id} className="p-4 hover:bg-muted/30 transition-colors h-full relative">
-                <button
-                  onClick={() => handleOpenExisting(tpl)}
-                  className="text-left w-full"
-                >
-                  <div className="flex items-start justify-between gap-3 pr-8">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <ListChecks className="h-4 w-4 text-primary shrink-0" />
-                        <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
-                      </p>
-                    </div>
-                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                  </div>
-                </button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateTemplate.mutate(tpl);
-                  }}
-                  disabled={duplicateTemplate.isPending}
-                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-                  aria-label="Kopiera mall"
-                  title="Kopiera mall"
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-              </Card>
-            ))}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleTemplateDragEnd}
+          >
+            <SortableContext items={templates.map((t) => t.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {templates.map((tpl) => (
+                  <SortableItem key={tpl.id} id={tpl.id}>
+                    <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
+                      <button
+                        onClick={() => handleOpenExisting(tpl)}
+                        className="text-left w-full"
+                      >
+                        <div className="flex items-start justify-between gap-3 pr-8">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <ListChecks className="h-4 w-4 text-primary shrink-0" />
+                              <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1.5">
+                              {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
+                            </p>
+                          </div>
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                        </div>
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          duplicateTemplate.mutate(tpl);
+                        }}
+                        disabled={duplicateTemplate.isPending}
+                        className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                        aria-label="Kopiera mall"
+                        title="Kopiera mall"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </Card>
+                  </SortableItem>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
