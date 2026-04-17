@@ -208,16 +208,23 @@ const AdminSchedule = () => {
 
   const isLoading = workersLoading || schedulesLoading;
 
-  const renderChip = (shift: ShiftType, onClick: (e: React.MouseEvent) => void) => {
+  const renderChip = (
+    shift: ShiftType,
+    onClick: (e: React.MouseEvent) => void,
+    hasChecklists = false,
+  ) => {
     const cfg = SHIFT_MAP[shift];
     return (
       <div
         role="button"
         onClick={onClick}
-        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity relative`}
       >
         <span className="text-sm leading-none">{cfg.emoji}</span>
         <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
+        {hasChecklists && (
+          <span className="absolute -top-1 -right-1 text-[10px] leading-none" title="Har checklista">📋</span>
+        )}
       </div>
     );
   };
