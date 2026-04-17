@@ -205,6 +205,8 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
     onError: () => toast({ title: "Kunde inte ändra ordning", variant: "destructive" }),
   });
+
+  const deleteList = useMutation({
     mutationFn: async (listId: string) => {
       const { error } = await supabase.from("shift_checklists").delete().eq("id", listId);
       if (error) throw error;
