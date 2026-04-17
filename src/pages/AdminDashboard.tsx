@@ -163,7 +163,7 @@ const AdminDashboard = () => {
 
         {/* Mobile bottom nav */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-border flex justify-around py-2 safe-area-bottom">
-          {tabs.map((tab) => (
+          {mobileBottomTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
@@ -177,6 +177,59 @@ const AdminDashboard = () => {
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>
           ))}
+          <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+            <SheetTrigger asChild>
+              <button
+                className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl min-w-[52px] transition-colors ${
+                  mobileMoreTabs.some((t) => t.id === activeTab)
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <Menu className="h-4 w-4" />
+                <span className="text-[10px] font-medium">Mer</span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle>Mer</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4 space-y-1">
+                {mobileMoreTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setMoreOpen(false);
+                      handleTabChange(tab.id);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      activeTab === tab.id
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-accent"
+                    }`}
+                  >
+                    <tab.icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                ))}
+                <Separator className="my-2" />
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <ChangePasswordDialog />
+                  <span className="text-sm text-muted-foreground">Byt lösenord</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setMoreOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logga ut
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </nav>
       </div>
     </div>
