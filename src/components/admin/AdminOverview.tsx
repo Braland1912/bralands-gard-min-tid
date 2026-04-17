@@ -127,6 +127,33 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     refetchInterval: 60000,
   });
 
+  // Today's shift IDs for checklist lookup
+  const todayShiftIds = (todayShifts as any[])
+    .filter((s) => s.shift_type !== "off")
+    .map((s) => s.id);
+
+  const { data: todayChecklistData } = useQuery({
+    queryKey: ["overview-today-checklists", todayStr, todayShiftIds.sort().join(",")],
+    enabled: todayShiftIds.length > 0,
+    queryFn: async () => {
+      const { data: cls, error } = await supabase
+        .from("shift_checklists")
+        .select("id, name, shift_id, sort_order")
+        .in("shift_id", todayShiftIds)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      if (!cls || cls.length === 0) return { lists: [], items: [] };
+      const { data: items, error: e2 } = await supabase
+        .from("shift_checklist_items")
+        .select("id, shift_checklist_id, text, is_checked, sort_order")
+        .in("shift_checklist_id", cls.map((c) => c.id))
+        .order("sort_order", { ascending: true });
+      if (e2) throw e2;
+      return { lists: cls, items: items ?? [] };
+    },
+    refetchInterval: 60000,
+  });
+
   const { data: weekShifts = [], isLoading: loadingWeek } = useQuery({
     queryKey: ["overview-week-shifts", format(weekStart, "yyyy-MM-dd")],
     queryFn: async () => {
