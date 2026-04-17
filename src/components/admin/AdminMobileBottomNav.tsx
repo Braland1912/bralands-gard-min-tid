@@ -34,18 +34,28 @@ const AdminMobileBottomNav = ({ active }: Props) => {
   const queryClient = useQueryClient();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const { data: pendingCount = 0 } = useQuery({
-    queryKey: ["pending-corrections-count"],
+  const { data: pendingCounts = { normal: 0, early: 0 } } = useQuery({
+    queryKey: ["pending-corrections-counts"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from("time_correction_requests")
-        .select("*", { count: "exact", head: true })
+        .select("reason")
         .eq("status", "pending");
       if (error) throw error;
-      return count ?? 0;
+      const EARLY_PREFIX = "Tidig utstämpling med obockade punkter";
+      let early = 0;
+      let normal = 0;
+      (data ?? []).forEach((r: any) => {
+        if (typeof r.reason === "string" && r.reason.startsWith(EARLY_PREFIX)) early++;
+        else normal++;
+      });
+      return { normal, early };
     },
     refetchInterval: 30000,
   });
+
+  const pendingCount = pendingCounts.normal;
+  const earlyCount = pendingCounts.early;
 
   const goToDashboard = (tab: string) => {
     navigate("/admin/dashboard", { state: { tab } });
@@ -100,6 +110,16 @@ const AdminMobileBottomNav = ({ active }: Props) => {
             {tab.id === "rattelser" && pendingCount > 0 && (
               <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-semibold flex items-center justify-center leading-none">
                 {pendingCount > 99 ? "99+" : pendingCount}
+              </span>
+            )}
+            {tab.id === "rattelser" && earlyCount > 0 && (
+              <span
+                className={`absolute min-w-[16px] h-4 px-1 rounded-full bg-amber-500 text-white text-[9px] font-semibold flex items-center justify-center leading-none ${
+                  pendingCount > 0 ? "-top-1.5 -left-2.5" : "-top-1.5 -right-2"
+                }`}
+                title="Nya tidiga utstämplingar"
+              >
+                {earlyCount > 99 ? "99+" : earlyCount}
               </span>
             )}
           </div>
