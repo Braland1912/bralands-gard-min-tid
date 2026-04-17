@@ -224,32 +224,43 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
             const doneCount = listItems.filter((i) => i.is_checked).length;
             const totalCount = listItems.length;
             const allDone = totalCount > 0 && doneCount === totalCount;
+            const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
             return (
               <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
-                    {totalCount > 0 && (
-                      <span
-                        className={`text-[11px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
-                          allDone
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {doneCount}/{totalCount} klara
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {totalCount > 0 && (
+                        <span
+                          className={`text-[11px] font-medium tabular-nums ${
+                            allDone ? "text-emerald-700" : "text-muted-foreground"
+                          }`}
+                        >
+                          {doneCount}/{totalCount}
+                        </span>
+                      )}
+                      {mode === "admin" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          onClick={() => deleteList.mutate(list.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  {mode === "admin" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive hover:text-destructive"
-                      onClick={() => deleteList.mutate(list.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                  {totalCount > 0 && (
+                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          allDone ? "bg-emerald-500" : "bg-primary"
+                        }`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   )}
                 </div>
 
