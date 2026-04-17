@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,7 +33,6 @@ const AdminSchedule = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{ worker: any; date: Date; dayIndex: number } | null>(null);
 
@@ -114,14 +112,6 @@ const AdminSchedule = () => {
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-[480px] mx-auto px-4 py-6 space-y-5">
-        <button
-          onClick={() => navigate("/admin/dashboard")}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Tillbaka till dashboard
-        </button>
-
         {/* Back to today */}
         {!isCurrentWeek && (
           <button
