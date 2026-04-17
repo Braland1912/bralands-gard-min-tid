@@ -6,7 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Clock, Power, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { TimePicker } from "@/components/TimePicker";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -375,16 +379,48 @@ const MyTime = () => {
                 >
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium">Datum</label>
-                    <Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} required className="h-12" />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={cn(
+                            "h-12 w-full justify-start font-normal",
+                            !formDate && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 opacity-60" />
+                          {formDate
+                            ? format(new Date(formDate + "T00:00:00"), "EEEE d MMMM yyyy", { locale: sv })
+                            : "Välj datum"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                        <Calendar
+                          mode="single"
+                          locale={sv}
+                          weekStartsOn={1}
+                          selected={formDate ? new Date(formDate + "T00:00:00") : undefined}
+                          onSelect={(d) => {
+                            if (!d) return;
+                            const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                            setFormDate(iso);
+                          }}
+                          disabled={(d) => d > new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Stamplade in</label>
-                      <Input type="time" value={formClockIn} onChange={(e) => setFormClockIn(e.target.value)} className="h-12" />
+                      <label className="text-sm font-medium">Stämplade in</label>
+                      <TimePicker value={formClockIn} onChange={setFormClockIn} placeholder="--:--" />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Stamplade ut</label>
-                      <Input type="time" value={formClockOut} onChange={(e) => setFormClockOut(e.target.value)} className="h-12" />
+                      <label className="text-sm font-medium">Stämplade ut</label>
+                      <TimePicker value={formClockOut} onChange={setFormClockOut} placeholder="--:--" />
                     </div>
                   </div>
                   <div className="space-y-1.5">
