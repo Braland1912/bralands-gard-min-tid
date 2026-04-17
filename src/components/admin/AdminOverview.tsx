@@ -408,21 +408,47 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <p className="text-sm text-muted-foreground italic">Ingen är schemalagd idag.</p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.today.divide}`}>
-            {todayWorkers.map((row) => (
-              <li key={row.worker.id} className="py-2.5 flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
-                    {getInitials(row.worker.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-medium text-foreground truncate flex-1">
-                  {row.worker.name}
-                </p>
-                <span className="text-base leading-none tabular-nums" aria-label="Pass">
-                  {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
-                </span>
-              </li>
-            ))}
+            {todayWorkers.map((row) => {
+              const progress = checklistProgressByUser.get(row.worker.user_id);
+              const pct = progress ? (progress.done / progress.total) * 100 : 0;
+              const complete = progress && pct === 100;
+              return (
+                <li key={row.worker.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedWorker({ worker: row.worker, shiftIds: row.shiftIds })}
+                    className="w-full text-left py-2.5 flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
+                        {getInitials(row.worker.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-foreground truncate flex-1">
+                          {row.worker.name}
+                        </p>
+                        <span className="text-base leading-none tabular-nums shrink-0" aria-label="Pass">
+                          {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
+                        </span>
+                      </div>
+                      {progress && (
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <Progress
+                            value={pct}
+                            className={`h-1.5 flex-1 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
+                          />
+                          <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                            {progress.done}/{progress.total}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
