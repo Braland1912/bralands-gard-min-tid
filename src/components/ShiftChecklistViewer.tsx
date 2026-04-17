@@ -1,0 +1,96 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+
+interface Props {
+  shiftId: string;
+}
+
+const ShiftChecklistViewer = ({ shiftId }: Props) => {
+  const queryClient = useQueryClient();
+  const { data: lists, isLoading } = useQuery({
+    queryKey: ["shift-checklists-viewer", shiftId],
+    queryFn: async () => {
+      const { data: cls, error } = await supabase
+        .from("shift_checklists")
+        .select("id, name, sort_order")
+        .eq("shift_id", shiftId)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      if (!cls || cls.length === 0) return [];
+      const { data: items, error: e2 } = await supabase
+        .from("shift_checklist_items")
+        .select("id, shift_checklist_id, text, is_checked, sort_order")
+        .in("shift_checklist_id", cls.map((c) => c.id))
+        .order("sort_order", { ascending: true });
+      if (e2) throw e2;
+      return cls.map((c) => ({
+        ...c,
+        items: (items || []).filter((i) => i.shift_checklist_id === c.id),
+      }));
+    },
+  });
+
+  const toggle = useMutation({
+    mutationFn: async ({ id, checked }: { id: string; checked: boolean }) => {
+      const { error } = await supabase
+        .from("shift_checklist_items")
+        .update({ is_checked: checked })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-checklists-viewer", shiftId] });
+      queryClient.invalidateQueries({ queryKey: ["home-shift-checklists", shiftId] });
+    },
+  });
+
+  if (isLoading) return <Skeleton className="h-16 w-full rounded-lg" />;
+  if (!lists || lists.length === 0)
+    return <p className="text-sm text-muted-foreground italic">Inga checklistor</p>;
+
+  return (
+    <div className="space-y-4">
+      {lists.map((list) => {
+        const total = list.items.length;
+        const done = list.items.filter((i) => i.is_checked).length;
+        const pct = total > 0 ? (done / total) * 100 : 0;
+        return (
+          <div key={list.id} className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
+              <Progress value={pct} className="h-1.5 w-20" />
+              <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                {done}/{total}
+              </span>
+            </div>
+            <ul className="space-y-1.5">
+              {list.items.map((item) => (
+                <li key={item.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`vw-${item.id}`}
+                    checked={item.is_checked}
+                    onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true })}
+                  />
+                  <label
+                    htmlFor={`vw-${item.id}`}
+                    className={`text-sm cursor-pointer ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}
+                  >
+                    {item.text}
+                  </label>
+                </li>
+              ))}
+              {total === 0 && (
+                <li className="text-xs text-muted-foreground italic">Inga punkter</li>
+              )}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default ShiftChecklistViewer;
