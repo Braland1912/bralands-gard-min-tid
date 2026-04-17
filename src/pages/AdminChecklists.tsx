@@ -21,9 +21,20 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Template = { id: string; name: string };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
+type ShiftLink = { template_id: string; shift_type: string };
+
+const SHIFT_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: "morning", label: "Morgon" },
+  { value: "day", label: "Dag" },
+  { value: "evening", label: "Kväll" },
+  { value: "busy", label: "Ej tillg." },
+  { value: "fishing", label: "Fiske" },
+  { value: "clearing", label: "Röja" },
+];
 
 const AdminChecklists = () => {
   const { user } = useAuth();
