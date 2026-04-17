@@ -340,11 +340,6 @@ const Index = () => {
 
             <TodayScheduleChips userId={user.id} />
 
-            <Button
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              Min tid & korrigeringar
-            </Button>
           </div>
         )}
       </Card>
