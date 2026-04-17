@@ -109,15 +109,19 @@ const AdminChecklists = () => {
     setEditItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const moveItem = (id: string, direction: "up" | "down") => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
     setEditItems((prev) => {
-      const idx = prev.findIndex((i) => i.id === id);
-      if (idx === -1) return prev;
-      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= prev.length) return prev;
-      const next = [...prev];
-      [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
-      return next;
+      const oldIdx = prev.findIndex((i) => i.id === active.id);
+      const newIdx = prev.findIndex((i) => i.id === over.id);
+      if (oldIdx === -1 || newIdx === -1) return prev;
+      return arrayMove(prev, oldIdx, newIdx);
     });
   };
 
