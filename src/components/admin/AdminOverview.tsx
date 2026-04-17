@@ -153,18 +153,28 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
-  const weekByUser = new Map<string, Set<number>>();
+  // Week shifts grouped per user → map of dayIdx → shift_types[]
+  const weekByUser = new Map<string, Map<number, string[]>>();
   (weekShifts as any[]).forEach((s) => {
     if (s.shift_type === "off") return;
     const dayIdx = weekDays.findIndex((d) => format(d, "yyyy-MM-dd") === s.date);
     if (dayIdx === -1) return;
-    if (!weekByUser.has(s.user_id)) weekByUser.set(s.user_id, new Set());
-    weekByUser.get(s.user_id)!.add(dayIdx);
+    if (!weekByUser.has(s.user_id)) weekByUser.set(s.user_id, new Map());
+    const dayMap = weekByUser.get(s.user_id)!;
+    if (!dayMap.has(dayIdx)) dayMap.set(dayIdx, []);
+    dayMap.get(dayIdx)!.push(s.shift_type);
   });
+  weekByUser.forEach((dayMap) =>
+    dayMap.forEach((arr) =>
+      arr.sort((a, b) => (SHIFT_ORDER[a] ?? 99) - (SHIFT_ORDER[b] ?? 99)),
+    ),
+  );
   const weekRows = Array.from(weekByUser.entries())
-    .map(([uid, daySet]) => ({
+    .map(([uid, dayMap]) => ({
       worker: workerByUserId.get(uid),
-      days: Array.from(daySet).sort((a, b) => a - b),
+      days: Array.from(dayMap.entries())
+        .map(([dayIdx, shifts]) => ({ dayIdx, shifts }))
+        .sort((a, b) => a.dayIdx - b.dayIdx),
     }))
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
