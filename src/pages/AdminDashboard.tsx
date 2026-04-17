@@ -47,7 +47,17 @@ const AdminDashboard = () => {
   const [moreOpen, setMoreOpen] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const stateTab = (location.state as any)?.tab;
+    if (stateTab && typeof stateTab === "string") {
+      setActiveTab(stateTab);
+      // clear state so refresh doesn't re-trigger
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state]);
 
   const { data: pendingCount = 0 } = useQuery({
     queryKey: ["pending-corrections-count"],
