@@ -88,6 +88,9 @@ const ShiftTypeLinkedTemplates = ({ shiftType, shiftTypeLabel }: Props) => {
               <span className="text-sm text-foreground truncate flex-1">
                 {l.templates?.name ?? "Okänd mall"}
               </span>
+              <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                {itemCounts[l.template_id] ?? 0} punkter
+              </span>
               <Button
                 variant="ghost"
                 size="icon"
