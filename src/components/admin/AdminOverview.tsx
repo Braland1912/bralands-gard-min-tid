@@ -381,11 +381,19 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
             {weekRows.map((row) => (
               <li key={row.worker.id} className="py-2 flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-foreground truncate">
+                <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {row.days.map((d) => DAY_NAMES[d]).join(", ")}
+                <span className="text-xs text-muted-foreground text-right">
+                  {row.days.map((d, i) => (
+                    <span key={d.dayIdx}>
+                      {i > 0 && <span className="mx-1 opacity-50">·</span>}
+                      {DAY_NAMES[d.dayIdx]}{" "}
+                      <span className="text-sm leading-none">
+                        {d.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join("")}
+                      </span>
+                    </span>
+                  ))}
                 </span>
               </li>
             ))}
