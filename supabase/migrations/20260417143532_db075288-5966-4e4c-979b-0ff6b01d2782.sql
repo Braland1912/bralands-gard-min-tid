@@ -1,0 +1,2 @@
+ALTER TABLE public.schedules DROP CONSTRAINT IF EXISTS schedules_shift_type_check;
+ALTER TABLE public.schedules ADD CONSTRAINT schedules_shift_type_check CHECK (shift_type IN ('morning','day','evening','busy','off','fishing','clearing'));
