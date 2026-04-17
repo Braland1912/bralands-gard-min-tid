@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -308,8 +308,15 @@ const AdminSchedule = () => {
                       <button
                         onClick={() => togglePublish.mutate({ date: dateStr, publish: !published })}
                         disabled={togglePublish.isPending}
-                        className="mt-1.5 inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-medium border border-border bg-background hover:bg-muted text-foreground transition-colors disabled:opacity-50"
+                        className={`mt-1.5 inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50 ${
+                          published ? "text-yellow-600" : "text-green-600"
+                        }`}
                       >
+                        {published ? (
+                          <X className="h-3 w-3 text-red-500" />
+                        ) : (
+                          <Check className="h-3 w-3 text-green-500" />
+                        )}
                         {published ? "Avpublicera" : "Publicera"}
                       </button>
                     </div>
