@@ -76,6 +76,8 @@ const Index = () => {
   const [clockOutState, setClockOutState] = useState<ClockState>("idle");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [confirmClockOutOpen, setConfirmClockOutOpen] = useState(false);
+  const [earlyReason, setEarlyReason] = useState("");
+  const [submittingEarly, setSubmittingEarly] = useState(false);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
 
   // Track online status
