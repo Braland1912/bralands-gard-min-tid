@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar, ListChecks } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -21,6 +21,7 @@ const tabs = [
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
   { id: "schema", label: "Schema", icon: Calendar },
+  { id: "checklistor", label: "Checklistor", icon: ListChecks },
 ];
 
 const AdminDashboard = () => {
@@ -33,6 +34,10 @@ const AdminDashboard = () => {
   const handleTabChange = (tabId: string) => {
     if (tabId === "schema") {
       navigate("/admin/schedule");
+      return;
+    }
+    if (tabId === "checklistor") {
+      navigate("/admin/checklists");
       return;
     }
     setActiveTab(tabId);

@@ -13,6 +13,7 @@ import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
 import MySchedule from "./pages/MySchedule";
 import AdminSchedule from "./pages/AdminSchedule";
+import AdminChecklists from "./pages/AdminChecklists";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
@@ -43,6 +44,11 @@ const App = () => (
           <Route path="/admin/schedule" element={
             <ProtectedRoute>
               <AdminSchedule />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/checklists" element={
+            <ProtectedRoute>
+              <AdminChecklists />
             </ProtectedRoute>
           } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
