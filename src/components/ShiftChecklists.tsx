@@ -315,7 +315,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
         <p className="text-xs text-muted-foreground italic">Inga checklistor på detta pass.</p>
       ) : (
         <div className="space-y-3">
-          {lists.map((list) => {
+          {lists.map((list, listIdx) => {
             const listItems = items.filter((i) => i.shift_checklist_id === list.id);
             const doneCount = listItems.filter((i) => i.is_checked).length;
             const totalCount = listItems.length;
@@ -349,6 +349,26 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                       )}
                       {mode === "admin" && (
                         <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderList.mutate({ listId: list.id, direction: "up" })}
+                            disabled={listIdx === 0 || reorderList.isPending}
+                            title="Flytta upp"
+                          >
+                            <ArrowUp className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                            onClick={() => reorderList.mutate({ listId: list.id, direction: "down" })}
+                            disabled={listIdx === lists.length - 1 || reorderList.isPending}
+                            title="Flytta ner"
+                          >
+                            <ArrowDown className="h-3.5 w-3.5" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
