@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, Users, CalendarDays, Clock } from "lucide-react";
+import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 
 interface AdminOverviewProps {
@@ -63,9 +65,14 @@ const getShortName = (name: string) => {
 const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const [weekOffset, setWeekOffset] = useState(0);
+  const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const weekStart = addWeeks(baseWeekStart, weekOffset);
+  const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const isCurrentWeek = weekOffset === 0;
+  const weekNumber = getISOWeek(weekStart);
+
 
   const { data: pendingCorrections = [], isLoading: loadingCorrections } = useQuery({
     queryKey: ["pending-corrections-list"],
@@ -362,12 +369,47 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
 
       {/* Section: Working this week (sage) */}
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.week.tint}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.week.iconBg}`}>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${SECTION_STYLE.week.iconBg}`}>
               <CalendarDays className={`h-3.5 w-3.5 ${SECTION_STYLE.week.iconColor}`} />
             </div>
-            <h3 className="text-base font-semibold text-foreground">Jobbar denna vecka</h3>
+            <h3 className="text-base font-semibold text-foreground truncate">
+              {isCurrentWeek ? "Jobbar denna vecka" : `Vecka ${weekNumber}`}
+            </h3>
+            <span className="text-xs text-muted-foreground tabular-nums hidden sm:inline">
+              {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={() => setWeekOffset((o) => o - 1)}
+              aria-label="Föregående vecka"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {!isCurrentWeek && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 px-2 text-xs"
+                onClick={() => setWeekOffset(0)}
+              >
+                Denna vecka
+              </Button>
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={() => setWeekOffset((o) => o + 1)}
+              aria-label="Nästa vecka"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
