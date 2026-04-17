@@ -237,7 +237,7 @@ const MySchedule = () => {
         {/* HELA TEAMET */}
         {canSeeTeam && (
           <div>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Hela teamet</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Teamets vecka</h2>
             <div className="space-y-3">
               {allWorkers.map((w: any) => {
                 const isMe = w.user_id === myUserId;
