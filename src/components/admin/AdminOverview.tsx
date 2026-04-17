@@ -12,6 +12,45 @@ interface AdminOverviewProps {
 
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 
+const SHIFT_EMOJI: Record<string, string> = {
+  morning: "🌅",
+  day: "☀️",
+  evening: "🌙",
+  busy: "🔒",
+  off: "💤",
+};
+
+// Shared section palette (matches the four stat cards above)
+const SECTION_STYLE = {
+  active: {
+    tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
+    iconBg: "bg-[hsl(183_25%_90%)]",
+    iconColor: "text-[hsl(183_25%_35%)]",
+    avatarBg: "bg-[hsl(183_25%_88%)]",
+    avatarText: "text-[hsl(183_25%_28%)]",
+    divide: "divide-[hsl(183_25%_88%)]",
+    dot: "bg-[hsl(183_25%_38%)]",
+  },
+  today: {
+    tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
+    iconBg: "bg-[hsl(38_60%_90%)]",
+    iconColor: "text-[hsl(32_55%_38%)]",
+    avatarBg: "bg-[hsl(38_60%_88%)]",
+    avatarText: "text-[hsl(32_55%_30%)]",
+    divide: "divide-[hsl(38_60%_88%)]",
+    dot: "bg-[hsl(32_55%_45%)]",
+  },
+  week: {
+    tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
+    iconBg: "bg-[hsl(150_25%_90%)]",
+    iconColor: "text-[hsl(150_30%_32%)]",
+    avatarBg: "bg-[hsl(150_25%_88%)]",
+    avatarText: "text-[hsl(150_30%_25%)]",
+    divide: "divide-[hsl(150_25%_88%)]",
+    dot: "bg-[hsl(150_30%_38%)]",
+  },
+};
+
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
@@ -97,16 +136,22 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     if (w.user_id) workerByUserId.set(w.user_id, w);
   });
 
-  const todayWorkingUserIds = Array.from(
-    new Set(
-      (todayShifts as any[])
-        .filter((s) => s.shift_type !== "off")
-        .map((s) => s.user_id),
-    ),
+  // Today's shifts grouped per user_id (sorted, excluding "off")
+  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
+  const todayShiftsByUser = new Map<string, string[]>();
+  (todayShifts as any[])
+    .filter((s) => s.shift_type !== "off")
+    .forEach((s) => {
+      if (!todayShiftsByUser.has(s.user_id)) todayShiftsByUser.set(s.user_id, []);
+      todayShiftsByUser.get(s.user_id)!.push(s.shift_type);
+    });
+  todayShiftsByUser.forEach((arr) =>
+    arr.sort((a, b) => (SHIFT_ORDER[a] ?? 99) - (SHIFT_ORDER[b] ?? 99)),
   );
-  const todayWorkers = todayWorkingUserIds
-    .map((uid) => workerByUserId.get(uid))
-    .filter(Boolean);
+  const todayWorkers = Array.from(todayShiftsByUser.keys())
+    .map((uid) => ({ worker: workerByUserId.get(uid), shifts: todayShiftsByUser.get(uid)! }))
+    .filter((r) => r.worker)
+    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
   const weekByUser = new Map<string, Set<number>>();
   (weekShifts as any[]).forEach((s) => {
@@ -202,11 +247,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         })}
       </div>
 
-      {/* Section: Currently clocked in */}
-      <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
+      {/* Section: Currently clocked in (teal) */}
+      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.active.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />
+            <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.active.iconBg}`}>
+              <Clock className={`h-3.5 w-3.5 ${SECTION_STYLE.active.iconColor}`} />
+            </div>
             <h3 className="text-base font-semibold text-foreground">Instämplade nu</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
@@ -221,7 +268,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         ) : activeEntries.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">Ingen är instämplad just nu.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className={`divide-y ${SECTION_STYLE.active.divide}`}>
             {(activeEntries as any[]).map((entry) => {
               const since = entry.clock_in ? new Date(entry.clock_in) : null;
               const hoursSince = since ? (Date.now() - since.getTime()) / 3600000 : 0;
@@ -229,7 +276,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
               return (
                 <li key={entry.id} className="py-2.5 flex items-center gap-3">
                   <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                    <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.active.avatarBg} ${SECTION_STYLE.active.avatarText}`}>
                       {getInitials(entry.worker_name || "?")}
                     </AvatarFallback>
                   </Avatar>
@@ -252,8 +299,8 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                     )}
                   </div>
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${SECTION_STYLE.active.dot}`} />
+                    <span className={`relative inline-flex rounded-full h-2 w-2 ${SECTION_STYLE.active.dot}`} />
                   </span>
                 </li>
               );
@@ -262,11 +309,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         )}
       </section>
 
-      {/* Section: Working today */}
-      <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
+      {/* Section: Working today (amber) */}
+      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.today.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
+            <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.today.iconBg}`}>
+              <Users className={`h-3.5 w-3.5 ${SECTION_STYLE.today.iconColor}`} />
+            </div>
             <h3 className="text-base font-semibold text-foreground">Jobbar idag</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
@@ -281,26 +330,33 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         ) : todayWorkers.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">Ingen är schemalagd idag.</p>
         ) : (
-          <ul className="divide-y divide-border">
-            {todayWorkers.map((w: any) => (
-              <li key={w.id} className="py-2.5 flex items-center gap-3">
+          <ul className={`divide-y ${SECTION_STYLE.today.divide}`}>
+            {todayWorkers.map((row) => (
+              <li key={row.worker.id} className="py-2.5 flex items-center gap-3">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                    {getInitials(w.name)}
+                  <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
+                    {getInitials(row.worker.name)}
                   </AvatarFallback>
                 </Avatar>
-                <p className="text-sm font-medium text-foreground truncate flex-1">{w.name}</p>
+                <p className="text-sm font-medium text-foreground truncate flex-1">
+                  {row.worker.name}
+                </p>
+                <span className="text-base leading-none tabular-nums" aria-label="Pass">
+                  {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      {/* Section: Working this week */}
-      <section className="border border-border bg-card rounded-2xl p-5 space-y-4">
+      {/* Section: Working this week (sage) */}
+      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.week.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-primary" />
+            <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.week.iconBg}`}>
+              <CalendarDays className={`h-3.5 w-3.5 ${SECTION_STYLE.week.iconColor}`} />
+            </div>
             <h3 className="text-base font-semibold text-foreground">Jobbar denna vecka</h3>
           </div>
         </div>
@@ -312,7 +368,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         ) : weekRows.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">Ingen är schemalagd denna vecka.</p>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
             {weekRows.map((row) => (
               <li key={row.worker.id} className="py-2 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-foreground truncate">
