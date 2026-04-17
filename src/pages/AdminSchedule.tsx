@@ -215,9 +215,6 @@ const AdminSchedule = () => {
                               <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>
                                 {cfg.label}
                               </span>
-                              {cfg.time && (
-                                <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>
-                              )}
                             </div>
                           ) : (
                             <span className="text-muted-foreground/40 text-lg">+</span>
@@ -275,9 +272,6 @@ const AdminSchedule = () => {
                       <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
                         {opt.label}
                       </span>
-                      {opt.time && (
-                        <span className="text-xs text-muted-foreground ml-2">{opt.time}</span>
-                      )}
                     </div>
                     {isSelected && <Check className="h-4 w-4 text-primary" />}
                   </button>
