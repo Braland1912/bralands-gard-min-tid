@@ -49,6 +49,19 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const { data: pendingCount = 0 } = useQuery({
+    queryKey: ["pending-corrections-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("time_correction_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      if (error) throw error;
+      return count ?? 0;
+    },
+    refetchInterval: 30000,
+  });
+
   const handleTabChange = (tabId: string) => {
     if (tabId === "schema") {
       navigate("/admin/schedule");
