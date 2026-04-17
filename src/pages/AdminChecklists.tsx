@@ -3,13 +3,24 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, ListChecks, Pencil, Copy, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Trash2, ListChecks, Pencil, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableItem } from "@/components/SortableItem";
 
 type Template = { id: string; name: string };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
@@ -98,15 +109,19 @@ const AdminChecklists = () => {
     setEditItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const moveItem = (id: string, direction: "up" | "down") => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
     setEditItems((prev) => {
-      const idx = prev.findIndex((i) => i.id === id);
-      if (idx === -1) return prev;
-      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= prev.length) return prev;
-      const next = [...prev];
-      [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
-      return next;
+      const oldIdx = prev.findIndex((i) => i.id === active.id);
+      const newIdx = prev.findIndex((i) => i.id === over.id);
+      if (oldIdx === -1 || newIdx === -1) return prev;
+      return arrayMove(prev, oldIdx, newIdx);
     });
   };
 
@@ -273,43 +288,29 @@ const AdminChecklists = () => {
                 {editItems.length === 0 && (
                   <p className="text-xs text-muted-foreground italic">Inga punkter än.</p>
                 )}
-                {editItems.map((item, idx) => (
-                  <div key={item.id} className="flex items-center gap-1">
-                    <Input
-                      value={item.text}
-                      onChange={(e) => updateItemText(item.id, e.target.value)}
-                      placeholder="Punkt..."
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveItem(item.id, "up")}
-                      disabled={idx === 0}
-                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
-                      title="Flytta upp"
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => moveItem(item.id, "down")}
-                      disabled={idx === editItems.length - 1}
-                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
-                      title="Flytta ner"
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeItem(item.id)}
-                      className="text-destructive hover:text-destructive shrink-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={editItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-2">
+                      {editItems.map((item) => (
+                        <SortableItem key={item.id} id={item.id}>
+                          <Input
+                            value={item.text}
+                            onChange={(e) => updateItemText(item.id, e.target.value)}
+                            placeholder="Punkt..."
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeItem(item.id)}
+                            className="text-destructive hover:text-destructive shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </SortableItem>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
