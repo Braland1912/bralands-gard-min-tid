@@ -65,9 +65,14 @@ const getShortName = (name: string) => {
 const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const today = new Date();
   const todayStr = format(today, "yyyy-MM-dd");
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
+  const [weekOffset, setWeekOffset] = useState(0);
+  const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const weekStart = addWeeks(baseWeekStart, weekOffset);
+  const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const isCurrentWeek = weekOffset === 0;
+  const weekNumber = getISOWeek(weekStart);
+
 
   const { data: pendingCorrections = [], isLoading: loadingCorrections } = useQuery({
     queryKey: ["pending-corrections-list"],
