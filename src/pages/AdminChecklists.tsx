@@ -98,6 +98,18 @@ const AdminChecklists = () => {
     setEditItems((prev) => prev.filter((i) => i.id !== id));
   };
 
+  const moveItem = (id: string, direction: "up" | "down") => {
+    setEditItems((prev) => {
+      const idx = prev.findIndex((i) => i.id === id);
+      if (idx === -1) return prev;
+      const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
+      return next;
+    });
+  };
+
   const saveTemplate = useMutation({
     mutationFn: async () => {
       if (!editing) return;
