@@ -181,7 +181,6 @@ const AdminSchedule = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
-      setSheet(null);
     },
     onError: () => {
       toast({ title: "Kunde inte spara", description: "Försök igen eller kontrollera din behörighet.", variant: "destructive" });
