@@ -76,6 +76,41 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
+  const { data: scheduleDays = [] } = useQuery({
+    queryKey: ["admin-schedule-days", format(weekStart, "yyyy-MM-dd"), format(weekEnd, "yyyy-MM-dd")],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("schedule_days")
+        .select("*")
+        .gte("date", format(weekStart, "yyyy-MM-dd"))
+        .lte("date", format(weekEnd, "yyyy-MM-dd"));
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isDayPublished = (date: Date) => {
+    const dateStr = format(date, "yyyy-MM-dd");
+    const row = scheduleDays.find((d: any) => d.date === dateStr);
+    return row?.is_published === true;
+  };
+
+  const togglePublish = useMutation({
+    mutationFn: async ({ date, publish }: { date: string; publish: boolean }) => {
+      const { error } = await supabase
+        .from("schedule_days")
+        .upsert({ date, is_published: publish, updated_at: new Date().toISOString() }, { onConflict: "date" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedule-days"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera publicering", variant: "destructive" });
+    },
+  });
+
   const getShiftAt = (userId: string, date: Date, idx: 0 | 1): ShiftType | null => {
     const dateStr = format(date, "yyyy-MM-dd");
     const entry = schedules.find(
