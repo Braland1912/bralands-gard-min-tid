@@ -519,6 +519,7 @@ const AdminSchedule = () => {
           </div>
         </div>
       )}
+      <AdminMobileBottomNav active="schema" />
     </div>
   );
 };

@@ -272,6 +272,7 @@ const AdminChecklists = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AdminMobileBottomNav active="mer" />
     </div>
   );
 };
