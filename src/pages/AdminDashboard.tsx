@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar, ListChecks } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar, ListChecks, Menu } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -11,6 +11,8 @@ import AdminTeam from "@/components/admin/AdminTeam";
 import InvitationManager from "@/components/InvitationManager";
 import SalaryReport from "@/components/SalaryReport";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo-braland.svg";
 
 const tabs = [
@@ -22,6 +24,20 @@ const tabs = [
   { id: "lon", label: "Löner", icon: DollarSign },
   { id: "schema", label: "Schema", icon: Calendar },
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
+];
+
+const mobileBottomTabs = [
+  { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
+  { id: "schema", label: "Schema", icon: Calendar },
+  { id: "tidslogg", label: "Tidslogg", icon: Clock },
+  { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
+];
+
+const mobileMoreTabs = [
+  { id: "team", label: "Team", icon: Users },
+  { id: "checklistor", label: "Checklistor", icon: ListChecks },
+  { id: "bjudin", label: "Bjud in", icon: Link2 },
+  { id: "lon", label: "Löner", icon: DollarSign },
 ];
 
 const AdminDashboard = () => {
