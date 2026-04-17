@@ -11,6 +11,7 @@ import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import TodayScheduleChips from "@/components/TodayScheduleChips";
 
 type ClockState = "idle" | "loading" | "confirmed";
 
@@ -337,10 +338,9 @@ const Index = () => {
               </Button>
             </div>
 
+            <TodayScheduleChips userId={user.id} />
+
             <Button
-              variant="ghost"
-              className="w-full text-muted-foreground"
-              onClick={() => navigate("/my-time")}
             >
               <FileText className="mr-2 h-4 w-4" />
               Min tid & korrigeringar
