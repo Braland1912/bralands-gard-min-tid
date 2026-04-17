@@ -29,6 +29,25 @@ const ShiftTypeLinkedTemplates = ({ shiftType, shiftTypeLabel }: Props) => {
     },
   });
 
+  const templateIds = links.map((l) => l.template_id);
+
+  const { data: itemCounts = {} } = useQuery({
+    queryKey: ["checklist-template-item-counts", templateIds.sort().join(",")],
+    enabled: templateIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("template_id")
+        .in("template_id", templateIds);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        counts[r.template_id] = (counts[r.template_id] ?? 0) + 1;
+      });
+      return counts;
+    },
+  });
+
   const removeLink = useMutation({
     mutationFn: async (linkId: string) => {
       const { error } = await supabase
@@ -68,6 +87,9 @@ const ShiftTypeLinkedTemplates = ({ shiftType, shiftTypeLabel }: Props) => {
               <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
               <span className="text-sm text-foreground truncate flex-1">
                 {l.templates?.name ?? "Okänd mall"}
+              </span>
+              <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                {itemCounts[l.template_id] ?? 0} punkter
               </span>
               <Button
                 variant="ghost"
