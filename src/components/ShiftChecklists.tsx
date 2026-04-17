@@ -121,6 +121,29 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     onError: () => toast({ title: "Kunde inte lägga till checklista", variant: "destructive" }),
   });
 
+  const createBlank = useMutation({
+    mutationFn: async () => {
+      if (!shiftId) throw new Error("Inget pass valt");
+      const { error } = await supabase
+        .from("shift_checklists")
+        .insert({ shift_id: shiftId, name: "Ny checklista" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+    },
+    onError: () => toast({ title: "Kunde inte skapa checklista", variant: "destructive" }),
+  });
+
+  const renameList = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { error } = await supabase.from("shift_checklists").update({ name }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["shift-checklists", shiftId] }),
+  });
+
   const deleteList = useMutation({
     mutationFn: async (listId: string) => {
       const { error } = await supabase.from("shift_checklists").delete().eq("id", listId);
@@ -186,32 +209,43 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-semibold text-foreground">Checklistor</span>
         </div>
         {mode === "admin" && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={addFromTemplate.isPending}>
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                Lägg till checklista
-                <ChevronDown className="h-3 w-3 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {templates.length === 0 ? (
-                <DropdownMenuItem disabled>Inga mallar än</DropdownMenuItem>
-              ) : (
-                templates.map((t: any) => (
-                  <DropdownMenuItem key={t.id} onClick={() => addFromTemplate.mutate(t.id)}>
-                    {t.name}
-                  </DropdownMenuItem>
-                ))
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-1.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={addFromTemplate.isPending}>
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Från mall
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {templates.length === 0 ? (
+                  <DropdownMenuItem disabled>Inga mallar än</DropdownMenuItem>
+                ) : (
+                  templates.map((t: any) => (
+                    <DropdownMenuItem key={t.id} onClick={() => addFromTemplate.mutate(t.id)}>
+                      {t.name}
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createBlank.mutate()}
+              disabled={createBlank.isPending}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              Skapa ny
+            </Button>
+          </div>
         )}
       </div>
 
@@ -229,7 +263,18 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
               <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
+                    {mode === "admin" ? (
+                      <Input
+                        defaultValue={list.name}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
+                        }}
+                        className="h-7 text-sm font-semibold flex-1 min-w-0"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
+                    )}
                     <div className="flex items-center gap-2 shrink-0">
                       {totalCount > 0 && (
                         <span
