@@ -101,9 +101,7 @@ const MySchedule = () => {
     const cfg = SHIFT_CONFIG[shift];
     return (
       <div className={`flex flex-col items-center justify-center rounded-xl border ${cfg.border} ${cfg.bg} py-2 px-1 min-h-[68px] ${today ? "ring-2 ring-primary" : ""}`}>
-        <span className="text-base leading-none">{cfg.emoji}</span>
-        <span className={`text-[10px] font-semibold mt-1 ${cfg.text}`}>{cfg.label}</span>
-        {cfg.time && <span className={`text-[9px] ${cfg.text} opacity-70`}>{cfg.time}</span>}
+        <span className={`text-lg font-bold ${cfg.text}`}>{cfg.start}</span>
       </div>
     );
   };
