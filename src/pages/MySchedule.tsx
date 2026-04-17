@@ -165,8 +165,6 @@ const MySchedule = () => {
       </button>
     );
   };
-  // (checklist-ikon dold för medarbetare — admin ser till att checklistor finns)
-  void 0;
 
   const DayCell = ({
     userId,
