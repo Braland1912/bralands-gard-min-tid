@@ -90,6 +90,7 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          shift_index: number
           shift_type: string
           user_id: string
         }
@@ -97,6 +98,7 @@ export type Database = {
           created_at?: string
           date: string
           id?: string
+          shift_index?: number
           shift_type: string
           user_id: string
         }
@@ -104,6 +106,7 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          shift_index?: number
           shift_type?: string
           user_id?: string
         }
