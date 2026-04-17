@@ -168,6 +168,19 @@ const AdminSchedule = () => {
     },
   });
 
+  const toggleCanSeeTeam = useMutation({
+    mutationFn: async ({ workerId, value }: { workerId: string; value: boolean }) => {
+      const { error } = await supabase.from("workers").update({ can_see_team: value }).eq("id", workerId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-workers-schedule"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera behörighet", variant: "destructive" });
+    },
+  });
+
   const isLoading = workersLoading || schedulesLoading;
 
   const renderChip = (shift: ShiftType, onClick: (e: React.MouseEvent) => void) => {
