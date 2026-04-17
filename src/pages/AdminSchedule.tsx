@@ -369,6 +369,17 @@ const AdminSchedule = () => {
                         </div>
                       );
                     })}
+                    {/* Permission toggle */}
+                    <div className="border-l border-border px-3 py-3 flex items-center gap-2">
+                      <Switch
+                        checked={w.can_see_team === true}
+                        disabled={toggleCanSeeTeam.isPending}
+                        onCheckedChange={(v) => toggleCanSeeTeam.mutate({ workerId: w.id, value: v })}
+                      />
+                      <span className="text-[11px] text-muted-foreground leading-tight">
+                        Kan se teamets schema
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
