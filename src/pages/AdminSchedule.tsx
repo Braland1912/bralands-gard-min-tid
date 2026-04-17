@@ -315,7 +315,7 @@ const AdminSchedule = () => {
                         className="mt-1.5 inline-flex items-center justify-center p-1 rounded-md border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50"
                       >
                         {published ? (
-                          <X className="h-3.5 w-3.5 text-red-500" />
+                          <Undo2 className="h-3.5 w-3.5 text-yellow-400" />
                         ) : (
                           <Check className="h-3.5 w-3.5 text-green-500" />
                         )}
