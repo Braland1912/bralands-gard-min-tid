@@ -273,13 +273,33 @@ const AdminChecklists = () => {
                 {editItems.length === 0 && (
                   <p className="text-xs text-muted-foreground italic">Inga punkter än.</p>
                 )}
-                {editItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-2">
+                {editItems.map((item, idx) => (
+                  <div key={item.id} className="flex items-center gap-1">
                     <Input
                       value={item.text}
                       onChange={(e) => updateItemText(item.id, e.target.value)}
                       placeholder="Punkt..."
                     />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveItem(item.id, "up")}
+                      disabled={idx === 0}
+                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
+                      title="Flytta upp"
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => moveItem(item.id, "down")}
+                      disabled={idx === editItems.length - 1}
+                      className="text-muted-foreground hover:text-foreground shrink-0 disabled:opacity-30"
+                      title="Flytta ner"
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
