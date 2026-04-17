@@ -29,6 +29,25 @@ const ShiftTypeLinkedTemplates = ({ shiftType, shiftTypeLabel }: Props) => {
     },
   });
 
+  const templateIds = links.map((l) => l.template_id);
+
+  const { data: itemCounts = {} } = useQuery({
+    queryKey: ["checklist-template-item-counts", templateIds.sort().join(",")],
+    enabled: templateIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("template_id")
+        .in("template_id", templateIds);
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        counts[r.template_id] = (counts[r.template_id] ?? 0) + 1;
+      });
+      return counts;
+    },
+  });
+
   const removeLink = useMutation({
     mutationFn: async (linkId: string) => {
       const { error } = await supabase
