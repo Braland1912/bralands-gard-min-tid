@@ -10,6 +10,7 @@ import { sv } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off";
 
