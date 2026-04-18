@@ -183,9 +183,6 @@ const TodayScheduleChips = ({ userId }: Props) => {
             >
               <span className="text-sm leading-none">{cfg.emoji}</span>
               <span className={`font-semibold mt-0.5 ${cfg.text} text-xs whitespace-nowrap`}>{cfg.label}</span>
-              {hasLists && (
-                <span className="absolute top-1 right-1.5 text-[10px]">📋</span>
-              )}
             </button>
           );
         })}
