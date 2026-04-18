@@ -52,6 +52,7 @@ const AppHeader = () => {
   const showUserInfo = !!user && !!worker && !isAdmin;
 
   const navItems = [
+    { label: "Idag", icon: Home, path: "/" },
     { label: "Tid", icon: Clock, path: "/my-time" },
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
   ];
