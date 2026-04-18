@@ -277,6 +277,113 @@ const MyTime = () => {
           </div>
         )}
 
+        {/* Correction requests */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-foreground">Rattelser</h2>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-1.5 rounded-xl">
+                  <Plus className="h-4 w-4" />
+                  Ny rattelse
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-2xl sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Rapportera saknad tid</DialogTitle>
+                  <DialogDescription>Fyll i vilken tid du jobbade sa fixar din arbetsledare det</DialogDescription>
+                </DialogHeader>
+                <form
+                  className="space-y-4"
+                  onSubmit={(e) => { e.preventDefault(); submitMutation.mutate(); }}
+                >
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Datum</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={cn(
+                            "h-12 w-full justify-start font-normal",
+                            !formDate && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 opacity-60" />
+                          {formDate
+                            ? format(new Date(formDate + "T00:00:00"), "EEEE d MMMM yyyy", { locale: sv })
+                            : "Välj datum"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                        <Calendar
+                          mode="single"
+                          locale={sv}
+                          weekStartsOn={1}
+                          selected={formDate ? new Date(formDate + "T00:00:00") : undefined}
+                          onSelect={(d) => {
+                            if (!d) return;
+                            const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                            setFormDate(iso);
+                          }}
+                          disabled={(d) => d > new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">Stämplade in</label>
+                      <TimePicker value={formClockIn} onChange={setFormClockIn} placeholder="--:--" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium">Stämplade ut</label>
+                      <TimePicker value={formClockOut} onChange={setFormClockOut} placeholder="--:--" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium">Vad hande?</label>
+                    <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} required placeholder="T.ex. glomde stampla in nar jag borjade" className="rounded-xl" />
+                  </div>
+                  <Button type="submit" disabled={submitMutation.isPending} size="lg" className="w-full">
+                    {submitMutation.isPending ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Skickar...</>
+                    ) : "Skicka"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {corrections.length === 0 ? (
+            <div className="flex flex-col items-center py-8 text-center">
+              <FileText className="h-8 w-8 text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground">Inga rattelser an</p>
+              <p className="text-xs text-muted-foreground mt-1">Om du glomt stampla kan du skicka en rattelse har</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {corrections.map((c: any) => (
+                <div key={c.id} className="border border-border rounded-xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-foreground">{c.date}</p>
+                    {statusBadge(c.status)}
+                  </div>
+                  <p className="text-sm text-muted-foreground tabular-nums">
+                    {c.clock_in ? format(new Date(c.clock_in), "HH:mm") : "–"} – {c.clock_out ? format(new Date(c.clock_out), "HH:mm") : "–"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{c.reason}</p>
+                  {c.admin_note && (
+                    <p className="text-sm text-foreground border-t border-border pt-2 mt-2">Svar: {c.admin_note}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Time entries grouped by week → day */}
         <div className="space-y-6">
           <h2 className="text-base font-semibold text-foreground">
