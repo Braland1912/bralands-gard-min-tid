@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 
 const AppHeader = () => {
@@ -52,6 +52,7 @@ const AppHeader = () => {
   const showUserInfo = !!user && !!worker && !isAdmin;
 
   const navItems = [
+    { label: "Idag", icon: Home, path: "/" },
     { label: "Tid", icon: Clock, path: "/my-time" },
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
   ];
