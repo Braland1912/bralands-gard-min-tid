@@ -272,40 +272,41 @@ const MySchedule = () => {
           )
         )}
 
-        {/* Week navigator */}
-        <div className="flex items-center justify-between">
-          <button onClick={() => setWeekOffset((o) => o - 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
-            <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <div className="text-center">
-            <div className="text-lg font-bold text-foreground">Vecka {weekNumber}</div>
-            <div className="text-xs text-muted-foreground">
-              {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })} · {format(weekStart, "yyyy")}
-            </div>
-          </div>
-          <button onClick={() => setWeekOffset((o) => o + 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
-
-        {/* Day strip */}
-        <div className="grid grid-cols-7 gap-1 text-center">
-          {weekDays.map((d, i) => {
-            const today = isToday(d);
-            return (
-              <div key={i} className="flex flex-col items-center gap-0.5">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase">{DAY_NAMES[i]}</span>
-                <span className={`text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full ${today ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
-                  {format(d, "d")}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
         {/* DIN VECKA */}
-        <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Din vecka</h2>
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Din vecka</h2>
+
+          {/* Week navigator */}
+          <div className="flex items-center justify-between">
+            <button onClick={() => setWeekOffset((o) => o - 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+              <ChevronLeft className="h-5 w-5 text-muted-foreground" />
+            </button>
+            <div className="text-center">
+              <div className="text-lg font-bold text-foreground">Vecka {weekNumber}</div>
+              <div className="text-xs text-muted-foreground">
+                {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })} · {format(weekStart, "yyyy")}
+              </div>
+            </div>
+            <button onClick={() => setWeekOffset((o) => o + 1)} className="p-2 rounded-xl hover:bg-muted transition-colors">
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          </div>
+
+          {/* Day strip */}
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {weekDays.map((d, i) => {
+              const today = isToday(d);
+              return (
+                <div key={i} className="flex flex-col items-center gap-0.5">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">{DAY_NAMES[i]}</span>
+                  <span className={`text-xs font-semibold w-7 h-7 flex items-center justify-center rounded-full ${today ? "bg-primary text-primary-foreground" : "text-foreground"}`}>
+                    {format(d, "d")}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
           {schedulesLoading ? (
             <Skeleton className="h-24 w-full rounded-2xl" />
           ) : (
