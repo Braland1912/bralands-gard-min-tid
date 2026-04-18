@@ -244,16 +244,6 @@ const MySchedule = () => {
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-[480px] mx-auto px-4 py-6 space-y-5">
-        {!isCurrentWeek && (
-          <button
-            onClick={() => setWeekOffset(0)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Tillbaka till idag
-          </button>
-        )}
-
         {checklistStatus?.hasShifts && checklistStatus.total > 0 && (
           checklistStatus.unchecked > 0 ? (
             <div className="flex items-start gap-2.5 rounded-xl border border-yellow-300 bg-yellow-50 px-3 py-2.5">
@@ -272,9 +262,20 @@ const MySchedule = () => {
           )
         )}
 
-        {/* DIN VECKA */}
+        {/* MIN VECKA */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Din vecka</h2>
+          <div className="flex items-center justify-between gap-2 min-h-[28px]">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Min vecka</h2>
+            {!isCurrentWeek && (
+              <button
+                onClick={() => setWeekOffset(0)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors shrink-0"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Tillbaka till idag
+              </button>
+            )}
+          </div>
 
           {/* Week navigator */}
           <div className="flex items-center justify-between">
