@@ -277,86 +277,6 @@ const MyTime = () => {
           </div>
         )}
 
-        {/* Time entries grouped by week → day */}
-        <div className="space-y-6">
-          <h2 className="text-base font-semibold text-foreground">
-            Tidrapport – {format(now, "MMMM yyyy", { locale: sv })}
-          </h2>
-
-          {entriesLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
-            </div>
-          ) : groupedByWeek.length === 0 ? (
-            <div className="flex flex-col items-center py-12 text-center">
-              <Clock className="h-10 w-10 text-muted-foreground/30 mb-3" />
-              <p className="text-muted-foreground font-medium">Inga pass registrerade an</p>
-              <p className="text-sm text-muted-foreground mt-1">Har dyker dina arbetade pass upp nar du borjat stampla</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {groupedByWeek.map(([weekNum, weekData]) => (
-                <div key={weekNum} className="space-y-3">
-                  {weekData.days.map(([day, dayEntries]) => {
-                    const dayTotal = dayEntries.reduce((sum, e) => {
-                      if (e.clock_in && e.clock_out) {
-                        return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
-                      }
-                      return sum;
-                    }, 0);
-                    const hasActive = dayEntries.some(e => !e.clock_out);
-
-                    return (
-                      <div key={day} className="border border-border rounded-xl overflow-hidden">
-                        {/* Day header */}
-                        <div className="px-4 py-3 bg-muted/30 flex items-center justify-between">
-                          <p className="text-sm font-semibold text-foreground capitalize">
-                            {format(new Date(day), "EEEE d MMMM", { locale: sv })}
-                          </p>
-                          <p className="text-sm font-semibold text-foreground tabular-nums">
-                            {hasActive ? (
-                              <span className="text-primary">Pagar</span>
-                            ) : (
-                              `${dayTotal.toFixed(1)} h`
-                            )}
-                          </p>
-                        </div>
-                        {/* Entries */}
-                        <div className="divide-y divide-border">
-                          {dayEntries.map((e) => {
-                            const hours = e.clock_in && e.clock_out
-                              ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
-                              : null;
-                            return (
-                              <div key={e.id} className="px-4 py-3 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
-                                    <span>{e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"}</span>
-                                    <span>–</span>
-                                    <span>{e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary font-medium">nu</span>}</span>
-                                  </div>
-                                </div>
-                                <p className="text-sm font-medium text-foreground tabular-nums">
-                                  {hours ? `${hours.toFixed(1)} h` : ""}
-                                </p>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {/* Week total */}
-                  <div className="flex items-center justify-between px-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Vecka {weekNum}</p>
-                    <p className="text-sm font-semibold text-foreground tabular-nums">{weekData.totalHours.toFixed(1)} h</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Correction requests */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -458,6 +378,86 @@ const MyTime = () => {
                   {c.admin_note && (
                     <p className="text-sm text-foreground border-t border-border pt-2 mt-2">Svar: {c.admin_note}</p>
                   )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Time entries grouped by week → day */}
+        <div className="space-y-6">
+          <h2 className="text-base font-semibold text-foreground">
+            Tidrapport – {format(now, "MMMM yyyy", { locale: sv })}
+          </h2>
+
+          {entriesLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+            </div>
+          ) : groupedByWeek.length === 0 ? (
+            <div className="flex flex-col items-center py-12 text-center">
+              <Clock className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-muted-foreground font-medium">Inga pass registrerade an</p>
+              <p className="text-sm text-muted-foreground mt-1">Har dyker dina arbetade pass upp nar du borjat stampla</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {groupedByWeek.map(([weekNum, weekData]) => (
+                <div key={weekNum} className="space-y-3">
+                  {weekData.days.map(([day, dayEntries]) => {
+                    const dayTotal = dayEntries.reduce((sum, e) => {
+                      if (e.clock_in && e.clock_out) {
+                        return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
+                      }
+                      return sum;
+                    }, 0);
+                    const hasActive = dayEntries.some(e => !e.clock_out);
+
+                    return (
+                      <div key={day} className="border border-border rounded-xl overflow-hidden">
+                        {/* Day header */}
+                        <div className="px-4 py-3 bg-muted/30 flex items-center justify-between">
+                          <p className="text-sm font-semibold text-foreground capitalize">
+                            {format(new Date(day), "EEEE d MMMM", { locale: sv })}
+                          </p>
+                          <p className="text-sm font-semibold text-foreground tabular-nums">
+                            {hasActive ? (
+                              <span className="text-primary">Pagar</span>
+                            ) : (
+                              `${dayTotal.toFixed(1)} h`
+                            )}
+                          </p>
+                        </div>
+                        {/* Entries */}
+                        <div className="divide-y divide-border">
+                          {dayEntries.map((e) => {
+                            const hours = e.clock_in && e.clock_out
+                              ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
+                              : null;
+                            return (
+                              <div key={e.id} className="px-4 py-3 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
+                                    <span>{e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"}</span>
+                                    <span>–</span>
+                                    <span>{e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary font-medium">nu</span>}</span>
+                                  </div>
+                                </div>
+                                <p className="text-sm font-medium text-foreground tabular-nums">
+                                  {hours ? `${hours.toFixed(1)} h` : ""}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* Week total */}
+                  <div className="flex items-center justify-between px-1">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Vecka {weekNum}</p>
+                    <p className="text-sm font-semibold text-foreground tabular-nums">{weekData.totalHours.toFixed(1)} h</p>
+                  </div>
                 </div>
               ))}
             </div>
