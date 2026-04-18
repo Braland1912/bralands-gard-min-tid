@@ -159,7 +159,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
-        Ditt schema idag
+        Mitt schema idag
       </p>
       <div className="grid grid-cols-2 gap-2">
         {data.shifts.map((s: any) => {
