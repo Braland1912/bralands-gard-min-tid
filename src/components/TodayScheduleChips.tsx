@@ -159,7 +159,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
   return (
     <div className="space-y-2">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
-        Ditt schema idag
+        Mitt schema idag
       </p>
       <div className="grid grid-cols-2 gap-2">
         {data.shifts.map((s: any) => {
@@ -183,9 +183,6 @@ const TodayScheduleChips = ({ userId }: Props) => {
             >
               <span className="text-sm leading-none">{cfg.emoji}</span>
               <span className={`font-semibold mt-0.5 ${cfg.text} text-xs whitespace-nowrap`}>{cfg.label}</span>
-              {hasLists && (
-                <span className="absolute top-1 right-1.5 text-[10px]">📋</span>
-              )}
             </button>
           );
         })}
