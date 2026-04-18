@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 
 const AppHeader = () => {
