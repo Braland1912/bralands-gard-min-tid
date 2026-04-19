@@ -96,6 +96,27 @@ const AdminChecklists = () => {
     trimmedEditName.length > 0 &&
     templates.some((t) => t.id !== editing.id && t.name.trim().toLowerCase() === trimmedEditName);
 
+  const currentItemsSig = editItems
+    .map((i) => i.text.trim())
+    .filter((t) => t.length > 0)
+    .map((t) => t.toLowerCase())
+    .sort()
+    .join("|");
+  const isIdenticalDuplicate =
+    !!editing &&
+    templates.some((t) => {
+      if (t.id === editing.id) return false;
+      if (t.name.trim().toLowerCase() !== trimmedEditName) return false;
+      const otherSig = allItems
+        .filter((i) => i.template_id === t.id)
+        .map((i) => i.text.trim())
+        .filter((x) => x.length > 0)
+        .map((x) => x.toLowerCase())
+        .sort()
+        .join("|");
+      return otherSig === currentItemsSig;
+    });
+
   const createTemplate = useMutation({
     mutationFn: async () => {
       // Bump existing templates down so the new one appears first
