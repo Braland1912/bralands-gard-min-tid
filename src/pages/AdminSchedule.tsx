@@ -283,13 +283,10 @@ const AdminSchedule = () => {
       <div
         role="button"
         onClick={onClick}
-        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-1 px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity relative`}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
       >
         <span className="text-sm leading-none">{cfg.emoji}</span>
-        <span className={`text-[10px] font-semibold ${cfg.text}`}>{cfg.label}</span>
-        {hasChecklists && (
-          <span className="absolute -top-1 -right-1 text-[10px] leading-none" title="Har checklista">📋</span>
-        )}
+        <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>{cfg.label}</span>
       </div>
     );
   };
