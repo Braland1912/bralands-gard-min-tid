@@ -456,16 +456,18 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 {doneCount}/{totalCount}
                               </span>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-muted-foreground hover:text-primary"
-                              onClick={() => saveAsTemplate.mutate(list.id)}
-                              disabled={saveAsTemplate.isPending}
-                              title="Spara som mall"
-                            >
-                              <BookmarkPlus className="h-3.5 w-3.5" />
-                            </Button>
+                            {!isDuplicateOfTemplate(list.id) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-primary"
+                                onClick={() => saveAsTemplate.mutate(list.id)}
+                                disabled={saveAsTemplate.isPending}
+                                title="Spara som mall"
+                              >
+                                <BookmarkPlus className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
