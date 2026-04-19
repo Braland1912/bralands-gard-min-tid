@@ -401,15 +401,8 @@ const AdminSchedule = () => {
                     className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-2 gap-1.5" : "px-4 gap-2.5"} py-3 flex items-center sticky left-0 bg-card`}>
-                      {!isMobile && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                            {getInitials(w.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
+                    <div className={`${isMobile ? "px-2" : "px-3"} py-3 flex items-center sticky left-0 bg-card`}>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground whitespace-nowrap`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
                     </div>
