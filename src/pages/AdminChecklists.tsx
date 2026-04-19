@@ -423,7 +423,16 @@ const AdminChecklists = () => {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Namn</label>
-              <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Mallnamn" />
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Mallnamn"
+                maxLength={100}
+                className={nameTaken ? "border-destructive focus-visible:ring-destructive" : undefined}
+              />
+              {nameTaken && (
+                <p className="text-xs text-destructive">Namnet används redan av en annan mall.</p>
+              )}
             </div>
 
             <div className="space-y-2">
