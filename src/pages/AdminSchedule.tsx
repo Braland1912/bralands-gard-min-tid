@@ -45,8 +45,8 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
-  const workerColClass = isMobile ? "grid-cols-[88px_repeat(7,minmax(0,1fr))]" : "grid-cols-[180px_repeat(7,minmax(0,1fr))]";
-  const minWidthClass = isMobile ? "min-w-[600px]" : "min-w-[760px]";
+  const workerColClass = "grid-cols-[auto_repeat(7,minmax(0,1fr))]";
+  const minWidthClass = isMobile ? "min-w-[560px]" : "min-w-[760px]";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
@@ -333,9 +333,8 @@ const AdminSchedule = () => {
             <div className={minWidthClass}>
               {/* Header row */}
               <div className={`grid ${workerColClass} border-b border-border bg-muted/30`}>
-                <div className={`${isMobile ? "px-2" : "px-4"} py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide`}>
-                  Medarbetare
-                </div>
+                <div className={`${isMobile ? "px-2" : "px-3"} py-3`} aria-hidden="true" />
+
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
                   const published = isDayPublished(d);
@@ -402,15 +401,8 @@ const AdminSchedule = () => {
                     className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-2 gap-1.5" : "px-4 gap-2.5"} py-3 flex items-center sticky left-0 bg-card`}>
-                      {!isMobile && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                            {getInitials(w.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
+                    <div className={`${isMobile ? "px-2" : "px-3"} py-3 flex items-center sticky left-0 bg-card`}>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground whitespace-nowrap`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
                     </div>
