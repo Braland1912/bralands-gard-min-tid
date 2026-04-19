@@ -205,6 +205,27 @@ const AdminChecklists = () => {
     mutationFn: async () => {
       if (!editing) return;
       const name = editName.trim() || "Namnlös mall";
+
+      // Dubblettkontroll: jämför namn + punkter mot andra mallar
+      const currentItems = editItems
+        .map((i) => i.text.trim())
+        .filter((t) => t.length > 0);
+      const currentSig = currentItems.slice().sort().join("|").toLowerCase();
+      const currentName = name.toLowerCase();
+
+      const otherTemplates = templates.filter((t) => t.id !== editing.id);
+      for (const t of otherTemplates) {
+        if (t.name.trim().toLowerCase() !== currentName) continue;
+        const otherItems = allItems
+          .filter((i) => i.template_id === t.id)
+          .map((i) => i.text.trim())
+          .filter((x) => x.length > 0);
+        const otherSig = otherItems.slice().sort().join("|").toLowerCase();
+        if (otherSig === currentSig) {
+          throw new Error("DUPLICATE");
+        }
+      }
+
       const { error: nameErr } = await supabase
         .from("checklist_templates")
         .update({ name, updated_at: new Date().toISOString() })
@@ -246,7 +267,15 @@ const AdminChecklists = () => {
       setEditing(null);
       toast({ title: "Mall sparad" });
     },
-    onError: () => toast({ title: "Kunde inte spara", variant: "destructive" }),
+    onError: (err: Error) =>
+      toast({
+        title: err?.message === "DUPLICATE" ? "Dubblett av befintlig mall" : "Kunde inte spara",
+        description:
+          err?.message === "DUPLICATE"
+            ? "En annan mall har redan samma namn och samma punkter. Ändra namn eller någon punkt."
+            : undefined,
+        variant: "destructive",
+      }),
   });
 
   const deleteTemplate = useMutation({
