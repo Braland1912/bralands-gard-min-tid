@@ -96,6 +96,42 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
     enabled: mode === "admin" && !!shiftId,
   });
 
+  const templateIds = (templates as any[]).map((t) => t.id);
+  const { data: allTemplateItems = [] } = useQuery({
+    queryKey: ["checklist-template-items-all", templateIds.join(",")],
+    queryFn: async () => {
+      if (templateIds.length === 0) return [] as any[];
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("template_id, text, sort_order")
+        .in("template_id", templateIds);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: mode === "admin" && templateIds.length > 0,
+  });
+
+  const sigOf = (texts: string[]) =>
+    texts.map((t) => t.trim().toLowerCase()).sort().join("|");
+
+  const isDuplicateOfTemplate = (listId: string) => {
+    const list = lists.find((l) => l.id === listId);
+    if (!list) return false;
+    const listSig = sigOf(
+      items.filter((i) => i.shift_checklist_id === listId).map((i) => i.text),
+    );
+    const listName = list.name.trim().toLowerCase();
+    return (templates as any[]).some((t: any) => {
+      if (t.name.trim().toLowerCase() !== listName) return false;
+      const tplSig = sigOf(
+        (allTemplateItems as any[])
+          .filter((it: any) => it.template_id === t.id)
+          .map((it: any) => it.text),
+      );
+      return tplSig === listSig;
+    });
+  };
+
   const addFromTemplate = useMutation({
     mutationFn: async (templateId: string) => {
       if (!shiftId) throw new Error("Inget pass valt");
@@ -420,16 +456,18 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 {doneCount}/{totalCount}
                               </span>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-muted-foreground hover:text-primary"
-                              onClick={() => saveAsTemplate.mutate(list.id)}
-                              disabled={saveAsTemplate.isPending}
-                              title="Spara som mall"
-                            >
-                              <BookmarkPlus className="h-3.5 w-3.5" />
-                            </Button>
+                            {!isDuplicateOfTemplate(list.id) && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-primary"
+                                onClick={() => saveAsTemplate.mutate(list.id)}
+                                disabled={saveAsTemplate.isPending}
+                                title="Spara som mall"
+                              >
+                                <BookmarkPlus className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="icon"
