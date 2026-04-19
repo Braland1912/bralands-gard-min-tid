@@ -512,14 +512,22 @@ const AdminSchedule = () => {
                 return (
                   <button
                     key={opt.type}
-                    onClick={() =>
-                      upsertShift.mutate({
-                        userId: sheet.worker.user_id,
-                        date: format(sheet.date, "yyyy-MM-dd"),
-                        shiftType: opt.type,
-                        shiftIndex: sheet.shiftIndex,
-                      })
-                    }
+                    onClick={() => {
+                      const wasEmpty = !currentShift;
+                      upsertShift.mutate(
+                        {
+                          userId: sheet.worker.user_id,
+                          date: format(sheet.date, "yyyy-MM-dd"),
+                          shiftType: opt.type,
+                          shiftIndex: sheet.shiftIndex,
+                        },
+                        {
+                          onSuccess: () => {
+                            if (wasEmpty) setSheet(null);
+                          },
+                        },
+                      );
+                    }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
                       isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
                     }`}
@@ -564,7 +572,7 @@ const AdminSchedule = () => {
                   </Button>
                 )}
               <Button variant="outline" className="flex-1" onClick={() => setSheet(null)}>
-                Avbryt
+                Stäng
               </Button>
             </div>
           </div>
