@@ -90,6 +90,12 @@ const AdminChecklists = () => {
   const shiftTypesFor = (id: string) =>
     allShiftLinks.filter((l) => l.template_id === id).map((l) => l.shift_type);
 
+  const trimmedEditName = editName.trim().toLowerCase();
+  const nameTaken =
+    !!editing &&
+    trimmedEditName.length > 0 &&
+    templates.some((t) => t.id !== editing.id && t.name.trim().toLowerCase() === trimmedEditName);
+
   const createTemplate = useMutation({
     mutationFn: async () => {
       // Bump existing templates down so the new one appears first
