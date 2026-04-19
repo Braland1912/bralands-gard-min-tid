@@ -267,7 +267,15 @@ const AdminChecklists = () => {
       setEditing(null);
       toast({ title: "Mall sparad" });
     },
-    onError: () => toast({ title: "Kunde inte spara", variant: "destructive" }),
+    onError: (err: Error) =>
+      toast({
+        title: err?.message === "DUPLICATE" ? "Dubblett av befintlig mall" : "Kunde inte spara",
+        description:
+          err?.message === "DUPLICATE"
+            ? "En annan mall har redan samma namn och samma punkter. Ändra namn eller någon punkt."
+            : undefined,
+        variant: "destructive",
+      }),
   });
 
   const deleteTemplate = useMutation({
