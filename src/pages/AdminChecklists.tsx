@@ -267,15 +267,23 @@ const AdminChecklists = () => {
       setEditing(null);
       toast({ title: "Mall sparad" });
     },
-    onError: (err: Error) =>
+    onError: (err: any) => {
+      const isItemDup = err?.message === "DUPLICATE";
+      const isNameDup = err?.code === "23505";
       toast({
-        title: err?.message === "DUPLICATE" ? "Dubblett av befintlig mall" : "Kunde inte spara",
-        description:
-          err?.message === "DUPLICATE"
+        title: isNameDup
+          ? "Namnet används redan"
+          : isItemDup
+            ? "Dubblett av befintlig mall"
+            : "Kunde inte spara",
+        description: isNameDup
+          ? "En annan mall har redan detta namn. Välj ett unikt namn."
+          : isItemDup
             ? "En annan mall har redan samma namn och samma punkter. Ändra namn eller någon punkt."
             : undefined,
         variant: "destructive",
-      }),
+      });
+    },
   });
 
   const deleteTemplate = useMutation({
