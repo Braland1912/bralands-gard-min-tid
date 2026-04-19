@@ -531,7 +531,7 @@ const AdminChecklists = () => {
               Ta bort mall
             </Button>
             <Button variant="outline" onClick={() => setEditing(null)}>Avbryt</Button>
-            <Button onClick={() => saveTemplate.mutate()} disabled={saveTemplate.isPending}>
+            <Button onClick={() => saveTemplate.mutate()} disabled={saveTemplate.isPending || nameTaken}>
               {saveTemplate.isPending ? "Sparar..." : "Spara"}
             </Button>
           </DialogFooter>
