@@ -45,8 +45,8 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
-  const workerColClass = isMobile ? "grid-cols-[88px_repeat(7,minmax(0,1fr))]" : "grid-cols-[180px_repeat(7,minmax(0,1fr))]";
-  const minWidthClass = isMobile ? "min-w-[600px]" : "min-w-[760px]";
+  const workerColClass = "grid-cols-[auto_repeat(7,minmax(0,1fr))]";
+  const minWidthClass = isMobile ? "min-w-[560px]" : "min-w-[760px]";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
