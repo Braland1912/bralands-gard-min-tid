@@ -333,9 +333,8 @@ const AdminSchedule = () => {
             <div className={minWidthClass}>
               {/* Header row */}
               <div className={`grid ${workerColClass} border-b border-border bg-muted/30`}>
-                <div className={`${isMobile ? "px-2" : "px-4"} py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide`}>
-                  Medarbetare
-                </div>
+                <div className={`${isMobile ? "px-2" : "px-3"} py-3`} aria-hidden="true" />
+
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
                   const published = isDayPublished(d);
