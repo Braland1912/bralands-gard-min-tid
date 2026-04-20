@@ -34,12 +34,12 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 
-const SHIFT_TYPES: { value: string; label: string }[] = [
-  { value: "morning", label: "Morgon" },
-  { value: "day", label: "Dag" },
-  { value: "evening", label: "Kväll" },
-  { value: "fishing", label: "Fiske" },
-  { value: "clearing", label: "Röja" },
+const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; border: string; text: string }[] = [
+  { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { value: "evening", label: "Kväll", emoji: "🌙", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { value: "fishing", label: "Fiske", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  { value: "clearing", label: "Röja", emoji: "🌲", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
 ];
 
 type Link = { id: string; template_id: string; shift_type: string; sort_order: number };
@@ -245,8 +245,11 @@ const ShiftTypeChecklistOrder = () => {
         {SHIFT_TYPES.map((st) => {
           const list = orders[st.value] ?? [];
           return (
-            <div key={st.value} className="rounded-lg border border-border bg-muted/20 p-3">
-              <p className="text-xs font-semibold text-foreground mb-2">{st.label}</p>
+            <div key={st.value} className={`rounded-lg border ${st.border} ${st.bg} p-3`}>
+              <p className={`text-xs font-semibold mb-2 flex items-center gap-1.5 ${st.text}`}>
+                <span className="text-sm leading-none">{st.emoji}</span>
+                {st.label}
+              </p>
               {list.length === 0 ? (
                 <p className="text-[11px] text-muted-foreground italic">Inga kopplade mallar</p>
               ) : (

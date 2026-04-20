@@ -28,12 +28,12 @@ type Template = { id: string; name: string; sort_order: number };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
 
-const SHIFT_TYPE_OPTIONS: { value: string; label: string }[] = [
-  { value: "morning", label: "Morgon" },
-  { value: "day", label: "Dag" },
-  { value: "evening", label: "Kväll" },
-  { value: "fishing", label: "Fiske" },
-  { value: "clearing", label: "Röja" },
+const SHIFT_TYPE_OPTIONS: { value: string; label: string; emoji: string; bg: string; border: string; text: string }[] = [
+  { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { value: "evening", label: "Kväll", emoji: "🌙", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { value: "fishing", label: "Fiske", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  { value: "clearing", label: "Röja", emoji: "🌲", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
 ];
 
 const AdminChecklists = () => {
@@ -451,7 +451,9 @@ const AdminChecklists = () => {
                   return (
                     <label
                       key={opt.value}
-                      className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-2 cursor-pointer hover:bg-muted/50"
+                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
+                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
                     >
                       <Checkbox
                         checked={checked}
@@ -461,7 +463,8 @@ const AdminChecklists = () => {
                           );
                         }}
                       />
-                      <span className="text-sm text-foreground">{opt.label}</span>
+                      <span className="text-base leading-none">{opt.emoji}</span>
+                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
                     </label>
                   );
                 })}
