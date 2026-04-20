@@ -440,20 +440,22 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                         <p className="text-sm font-medium text-foreground truncate flex-1">
                           {row.worker.name}
                         </p>
-                        {(() => {
-                          const first = row.shifts[0];
-                          const chip = first ? SHIFT_CHIP[first] : null;
-                          if (!chip) return null;
-                          return (
-                            <span
-                              className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium shrink-0 ${chip.bg} ${chip.border} ${chip.text}`}
-                              aria-label={`Pass: ${chip.label}`}
-                            >
-                              <span className="leading-none">{chip.emoji}</span>
-                              <span className="leading-none">{chip.label}</span>
-                            </span>
-                          );
-                        })()}
+                        <span className="flex flex-wrap gap-1 justify-end shrink-0">
+                          {row.shifts.map((t, idx) => {
+                            const chip = SHIFT_CHIP[t];
+                            if (!chip) return null;
+                            return (
+                              <span
+                                key={`${t}-${idx}`}
+                                className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${chip.bg} ${chip.border} ${chip.text}`}
+                                aria-label={`Pass: ${chip.label}`}
+                              >
+                                <span className="leading-none">{chip.emoji}</span>
+                                <span className="leading-none">{chip.label}</span>
+                              </span>
+                            );
+                          })}
+                        </span>
                       </div>
                       {progress && (
                         <div className="mt-1.5 flex items-center gap-2">
