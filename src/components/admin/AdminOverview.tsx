@@ -440,9 +440,20 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                         <p className="text-sm font-medium text-foreground truncate flex-1">
                           {row.worker.name}
                         </p>
-                        <span className="text-base leading-none tabular-nums shrink-0" aria-label="Pass">
-                          {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
-                        </span>
+                        {(() => {
+                          const first = row.shifts[0];
+                          const chip = first ? SHIFT_CHIP[first] : null;
+                          if (!chip) return null;
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium shrink-0 ${chip.bg} ${chip.border} ${chip.text}`}
+                              aria-label={`Pass: ${chip.label}`}
+                            >
+                              <span className="leading-none">{chip.emoji}</span>
+                              <span className="leading-none">{chip.label}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                       {progress && (
                         <div className="mt-1.5 flex items-center gap-2">
