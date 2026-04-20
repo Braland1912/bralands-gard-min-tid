@@ -451,7 +451,9 @@ const AdminChecklists = () => {
                   return (
                     <label
                       key={opt.value}
-                      className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-2 cursor-pointer hover:bg-muted/50"
+                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
+                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
                     >
                       <Checkbox
                         checked={checked}
@@ -461,7 +463,8 @@ const AdminChecklists = () => {
                           );
                         }}
                       />
-                      <span className="text-sm text-foreground">{opt.label}</span>
+                      <span className="text-base leading-none">{opt.emoji}</span>
+                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
                     </label>
                   );
                 })}
