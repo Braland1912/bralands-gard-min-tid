@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronDown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -152,6 +153,22 @@ const TodayScheduleChips = ({ userId }: Props) => {
     enabled: !!userId,
   });
 
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const multipleShifts = (data?.shifts.length ?? 0) > 1;
+
+  // Default: collapse all but the last shift when there are 2+
+  useEffect(() => {
+    if (!data || data.shifts.length < 2) return;
+    setCollapsed((prev) => {
+      if (Object.keys(prev).length > 0) return prev;
+      const next: Record<string, boolean> = {};
+      data.shifts.slice(0, -1).forEach((s: any) => {
+        next[s.id] = true;
+      });
+      return next;
+    });
+  }, [data]);
+
   if (isLoading) return <Skeleton className="h-14 w-full rounded-xl" />;
   if (!data || !data.published || data.shifts.length === 0) return null;
 
@@ -165,15 +182,34 @@ const TodayScheduleChips = ({ userId }: Props) => {
           const cfg = SHIFT_CONFIG[s.shift_type as ShiftType];
           if (!cfg) return null;
           const hasLists = (data.counts?.[s.id] || 0) > 0;
+          const isCollapsed = !!collapsed[s.id];
+          const canToggle = multipleShifts && hasLists;
           return (
             <div key={s.id} className="space-y-2">
-              <div
-                className={`rounded-xl border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-2 py-2 px-3`}
-              >
-                <span className="text-sm leading-none">{cfg.emoji}</span>
-                <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
-              </div>
-              {hasLists && <ShiftChecklistsView shiftId={s.id} />}
+              {canToggle ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCollapsed((p) => ({ ...p, [s.id]: !p[s.id] }))
+                  }
+                  className={`w-full rounded-xl border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-2 py-2 px-3 transition-opacity hover:opacity-90`}
+                  aria-expanded={!isCollapsed}
+                >
+                  <span className="text-sm leading-none">{cfg.emoji}</span>
+                  <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 ${cfg.text} transition-transform ${isCollapsed ? "" : "rotate-180"}`}
+                  />
+                </button>
+              ) : (
+                <div
+                  className={`rounded-xl border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-2 py-2 px-3`}
+                >
+                  <span className="text-sm leading-none">{cfg.emoji}</span>
+                  <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
+                </div>
+              )}
+              {hasLists && !isCollapsed && <ShiftChecklistsView shiftId={s.id} />}
             </div>
           );
         })}
