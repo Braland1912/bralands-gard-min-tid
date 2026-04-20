@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { CalendarDays } from "lucide-react";
-import { useState } from "react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -112,7 +112,6 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
 
 const TodayScheduleChips = ({ userId }: Props) => {
   const today = format(new Date(), "yyyy-MM-dd");
-  const [openShiftId, setOpenShiftId] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["today-schedule", userId, today],
@@ -157,37 +156,28 @@ const TodayScheduleChips = ({ userId }: Props) => {
   if (!data || !data.published || data.shifts.length === 0) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
         Mitt schema idag
       </p>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="space-y-3">
         {data.shifts.map((s: any) => {
           const cfg = SHIFT_CONFIG[s.shift_type as ShiftType];
           if (!cfg) return null;
           const hasLists = (data.counts?.[s.id] || 0) > 0;
-          const isOpen = openShiftId === s.id;
           return (
-            <button
-              type="button"
-              key={s.id}
-              onClick={() => {
-                if (!hasLists) return;
-                setOpenShiftId(isOpen ? null : s.id);
-              }}
-              className={`rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center py-2 px-1 relative transition ${
-                data.shifts.length === 1 ? "col-span-2" : ""
-              } ${hasLists ? "cursor-pointer hover:brightness-95" : "cursor-default"} ${
-                isOpen ? "ring-2 ring-primary/40" : ""
-              }`}
-            >
-              <span className="text-sm leading-none">{cfg.emoji}</span>
-              <span className={`font-semibold mt-0.5 ${cfg.text} text-xs whitespace-nowrap`}>{cfg.label}</span>
-            </button>
+            <div key={s.id} className="space-y-2">
+              <div
+                className={`rounded-xl border ${cfg.border} ${cfg.bg} flex items-center justify-center gap-2 py-2 px-3`}
+              >
+                <span className="text-sm leading-none">{cfg.emoji}</span>
+                <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
+              </div>
+              {hasLists && <ShiftChecklistsView shiftId={s.id} />}
+            </div>
           );
         })}
       </div>
-      {openShiftId && <ShiftChecklistsView shiftId={openShiftId} />}
       <Link
         to="/my-schedule"
         className="flex items-center justify-center gap-1.5 text-xs font-medium text-primary hover:underline pt-1"
