@@ -28,12 +28,12 @@ type Template = { id: string; name: string; sort_order: number };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
 
-const SHIFT_TYPE_OPTIONS: { value: string; label: string }[] = [
-  { value: "morning", label: "Morgon" },
-  { value: "day", label: "Dag" },
-  { value: "evening", label: "Kväll" },
-  { value: "fishing", label: "Fiske" },
-  { value: "clearing", label: "Röja" },
+const SHIFT_TYPE_OPTIONS: { value: string; label: string; emoji: string; bg: string; border: string; text: string }[] = [
+  { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { value: "evening", label: "Kväll", emoji: "🌙", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { value: "fishing", label: "Fiske", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  { value: "clearing", label: "Röja", emoji: "🌲", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
 ];
 
 const AdminChecklists = () => {
