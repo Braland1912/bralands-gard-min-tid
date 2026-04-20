@@ -38,7 +38,6 @@ const SHIFT_TYPES: { value: string; label: string }[] = [
   { value: "morning", label: "Morgon" },
   { value: "day", label: "Dag" },
   { value: "evening", label: "Kväll" },
-  { value: "busy", label: "Ej tillg." },
   { value: "fishing", label: "Fiske" },
   { value: "clearing", label: "Röja" },
 ];
