@@ -21,7 +21,18 @@ const SHIFT_EMOJI: Record<string, string> = {
   day: "☀️",
   evening: "🌙",
   busy: "🚫",
+  fishing: "🎣",
+  clearing: "🌲",
   off: "💤",
+};
+
+const SHIFT_CHIP: Record<string, { emoji: string; label: string; bg: string; border: string; text: string }> = {
+  morning: { emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
+  day: { emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  evening: { emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  busy: { emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
+  fishing: { emoji: "🎣", label: "Fiske", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  clearing: { emoji: "🌲", label: "Röja", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
 };
 
 // Shared section palette (matches the four stat cards above)
@@ -429,9 +440,20 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                         <p className="text-sm font-medium text-foreground truncate flex-1">
                           {row.worker.name}
                         </p>
-                        <span className="text-base leading-none tabular-nums shrink-0" aria-label="Pass">
-                          {row.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join(" ")}
-                        </span>
+                        {(() => {
+                          const first = row.shifts[0];
+                          const chip = first ? SHIFT_CHIP[first] : null;
+                          if (!chip) return null;
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium shrink-0 ${chip.bg} ${chip.border} ${chip.text}`}
+                              aria-label={`Pass: ${chip.label}`}
+                            >
+                              <span className="leading-none">{chip.emoji}</span>
+                              <span className="leading-none">{chip.label}</span>
+                            </span>
+                          );
+                        })()}
                       </div>
                       {progress && (
                         <div className="mt-1.5 flex items-center gap-2">
