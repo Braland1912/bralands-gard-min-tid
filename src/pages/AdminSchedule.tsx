@@ -45,8 +45,10 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
-  const workerColClass = "grid-cols-[auto_repeat(7,minmax(0,1fr))]";
-  const minWidthClass = isMobile ? "min-w-[560px]" : "min-w-[760px]";
+  const gridStyle = {
+    gridTemplateColumns: `${isMobile ? "88px" : "140px"} repeat(7, minmax(0, 1fr))`,
+  };
+  const minWidthClass = isMobile ? "min-w-[520px]" : "min-w-[780px]";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
@@ -332,8 +334,8 @@ const AdminSchedule = () => {
           <div className="overflow-x-auto">
             <div className={minWidthClass}>
               {/* Header row */}
-              <div className={`grid ${workerColClass} border-b border-border bg-muted/30`}>
-                <div className={`${isMobile ? "px-2" : "px-3"} py-3`} aria-hidden="true" />
+              <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
+                <div className={`${isMobile ? "px-1.5" : "px-3"} py-3`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
@@ -342,7 +344,7 @@ const AdminSchedule = () => {
                   return (
                     <div
                       key={i}
-                      className={`px-2 py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
+                      className={`${isMobile ? "px-1" : "px-2"} py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
@@ -398,11 +400,12 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
+                    className="grid border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-2" : "px-3"} py-3 flex items-center sticky left-0 bg-card`}>
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground whitespace-nowrap`}>
+                    <div className={`${isMobile ? "px-1.5" : "px-3"} py-3 flex items-center sticky left-0 bg-card overflow-hidden`}>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
                     </div>
