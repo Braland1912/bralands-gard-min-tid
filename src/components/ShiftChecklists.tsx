@@ -440,17 +440,43 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                   <SortableItem key={list.id} id={list.id}>
                     <div className="border border-border rounded-xl p-3 space-y-2 bg-background flex-1 min-w-0">
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <Input
-                            defaultValue={list.name}
-                            onBlur={(e) => {
-                              const v = e.target.value.trim();
-                              if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
-                            }}
-                            className="h-7 text-sm font-semibold flex-1 min-w-0"
-                          />
-                          <div className="flex items-center gap-2 shrink-0">
-                            {totalCount > 0 && (
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => toggleCollapsed(list.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleCollapsed(list.id);
+                            }
+                          }}
+                          className="flex items-center justify-between gap-2 cursor-pointer rounded-md -m-1 p-1 hover:bg-muted/50 transition-colors"
+                          aria-expanded={!isCollapsed}
+                        >
+                          {isCollapsed ? (
+                            <span className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
+                              {list.name}{" "}
+                              <span className="text-muted-foreground font-normal">
+                                ({totalCount} items)
+                              </span>
+                            </span>
+                          ) : (
+                            <Input
+                              defaultValue={list.name}
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                              onBlur={(e) => {
+                                const v = e.target.value.trim();
+                                if (v && v !== list.name) renameList.mutate({ id: list.id, name: v });
+                              }}
+                              className="h-7 text-sm font-semibold flex-1 min-w-0"
+                            />
+                          )}
+                          <div
+                            className="flex items-center gap-2 shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {!isCollapsed && totalCount > 0 && (
                               <span
                                 className={`text-[11px] font-medium tabular-nums ${
                                   allDone ? "text-emerald-700" : "text-muted-foreground"
@@ -459,6 +485,22 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 {doneCount}/{totalCount}
                               </span>
                             )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCollapsed(list.id);
+                              }}
+                              title={isCollapsed ? "Expandera" : "Fäll ihop"}
+                            >
+                              {isCollapsed ? (
+                                <Plus className="h-4 w-4" />
+                              ) : (
+                                <Minus className="h-4 w-4" />
+                              )}
+                            </Button>
                             {!isDuplicateOfTemplate(list.id) && (
                               <Button
                                 variant="ghost"
@@ -481,7 +523,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                             </Button>
                           </div>
                         </div>
-                        {totalCount > 0 && (
+                        {!isCollapsed && totalCount > 0 && (
                           <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                             <div
                               className={`h-full rounded-full transition-all duration-300 ${
@@ -493,85 +535,89 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                         )}
                       </div>
 
-                      <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleItemDragEnd(list.id, listItems)}
-                      >
-                        <SortableContext items={listItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                          <div className="space-y-1.5">
-                            {listItems.map((item) => (
-                              <SortableItem key={item.id} id={item.id}>
-                                <Checkbox
-                                  checked={item.is_checked}
-                                  onCheckedChange={(v) =>
-                                    toggleItem.mutate({ id: item.id, checked: v === true })
-                                  }
-                                />
-                                <span
-                                  className={`flex-1 text-sm ${
-                                    item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
-                                  }`}
-                                >
-                                  {item.text}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
-                                  onClick={() => removeItem.mutate(item.id)}
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </SortableItem>
-                            ))}
-                          </div>
-                        </SortableContext>
-                      </DndContext>
+                      {!isCollapsed && (
+                        <>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleItemDragEnd(list.id, listItems)}
+                          >
+                            <SortableContext items={listItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                              <div className="space-y-1.5">
+                                {listItems.map((item) => (
+                                  <SortableItem key={item.id} id={item.id}>
+                                    <Checkbox
+                                      checked={item.is_checked}
+                                      onCheckedChange={(v) =>
+                                        toggleItem.mutate({ id: item.id, checked: v === true })
+                                      }
+                                    />
+                                    <span
+                                      className={`flex-1 text-sm ${
+                                        item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
+                                      }`}
+                                    >
+                                      {item.text}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                                      onClick={() => removeItem.mutate(item.id)}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </SortableItem>
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
 
-                      <div className="flex items-center gap-2 pt-1">
-                        <Input
-                          value={newItemFor[list.id] ?? ""}
-                          onChange={(e) =>
-                            setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              const text = (newItemFor[list.id] ?? "").trim();
-                              if (text) {
-                                addItem.mutate(
-                                  { listId: list.id, text },
-                                  {
-                                    onSuccess: () =>
-                                      setNewItemFor((p) => ({ ...p, [list.id]: "" })),
-                                  },
-                                );
+                          <div className="flex items-center gap-2 pt-1">
+                            <Input
+                              value={newItemFor[list.id] ?? ""}
+                              onChange={(e) =>
+                                setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
                               }
-                            }
-                          }}
-                          placeholder="Lägg till punkt..."
-                          className="h-8 text-sm"
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const text = (newItemFor[list.id] ?? "").trim();
-                            if (text) {
-                              addItem.mutate(
-                                { listId: list.id, text },
-                                {
-                                  onSuccess: () =>
-                                    setNewItemFor((p) => ({ ...p, [list.id]: "" })),
-                                },
-                              );
-                            }
-                          }}
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  const text = (newItemFor[list.id] ?? "").trim();
+                                  if (text) {
+                                    addItem.mutate(
+                                      { listId: list.id, text },
+                                      {
+                                        onSuccess: () =>
+                                          setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                      },
+                                    );
+                                  }
+                                }
+                              }}
+                              placeholder="Lägg till punkt..."
+                              className="h-8 text-sm"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const text = (newItemFor[list.id] ?? "").trim();
+                                if (text) {
+                                  addItem.mutate(
+                                    { listId: list.id, text },
+                                    {
+                                      onSuccess: () =>
+                                        setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                    },
+                                  );
+                                }
+                              }}
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </SortableItem>
                 );
