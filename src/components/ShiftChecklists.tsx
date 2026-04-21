@@ -49,6 +49,9 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newItemFor, setNewItemFor] = useState<Record<string, string>>({});
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const toggleCollapsed = (id: string) =>
+    setCollapsed((p) => ({ ...p, [id]: !p[id] }));
 
   const { data: lists = [] } = useQuery({
     queryKey: ["shift-checklists", shiftId],
