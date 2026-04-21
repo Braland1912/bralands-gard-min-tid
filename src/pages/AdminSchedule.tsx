@@ -400,11 +400,12 @@ const AdminSchedule = () => {
                 allWorkers.map((w: any) => (
                   <div
                     key={w.id}
-                    className={`grid ${workerColClass} border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors`}
+                    className="grid border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                    style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-2" : "px-3"} py-3 flex items-center sticky left-0 bg-card`}>
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground whitespace-nowrap`}>
+                    <div className={`${isMobile ? "px-1.5" : "px-3"} py-3 flex items-center sticky left-0 bg-card overflow-hidden`}>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
                     </div>
