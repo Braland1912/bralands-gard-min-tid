@@ -197,9 +197,11 @@ const TodayScheduleChips = ({ userId }: Props) => {
                 >
                   <span className="text-sm leading-none">{cfg.emoji}</span>
                   <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
-                  <ChevronDown
-                    className={`h-4 w-4 ${cfg.text} transition-transform ${isCollapsed ? "" : "rotate-180"}`}
-                  />
+                  {isCollapsed ? (
+                    <Plus className={`h-4 w-4 ${cfg.text}`} />
+                  ) : (
+                    <Minus className={`h-4 w-4 ${cfg.text}`} />
+                  )}
                 </button>
               ) : (
                 <div
