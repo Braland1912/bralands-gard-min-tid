@@ -334,8 +334,8 @@ const AdminSchedule = () => {
           <div className="overflow-x-auto">
             <div className={minWidthClass}>
               {/* Header row */}
-              <div className={`grid ${workerColClass} border-b border-border bg-muted/30`}>
-                <div className={`${isMobile ? "px-2" : "px-3"} py-3`} aria-hidden="true" />
+              <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
+                <div className={`${isMobile ? "px-1.5" : "px-3"} py-3`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
@@ -344,7 +344,7 @@ const AdminSchedule = () => {
                   return (
                     <div
                       key={i}
-                      className={`px-2 py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
+                      className={`${isMobile ? "px-1" : "px-2"} py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
