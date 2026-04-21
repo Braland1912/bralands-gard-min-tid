@@ -574,61 +574,105 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 </div>
               </SheetHeader>
 
-              <div className="mt-5 space-y-5">
+              <div className="mt-5 space-y-6">
                 {(() => {
                   if (!todayChecklistData) return <Skeleton className="h-24 w-full rounded-xl" />;
                   const { lists, items } = todayChecklistData;
-                  const userLists = (lists as any[]).filter((l) =>
+
+                  // Worker's shifts today, in sorted order (matches chip order)
+                  const workerShifts = (todayShifts as any[])
+                    .filter((s) => selectedWorker.shiftIds.includes(s.id) && s.shift_type !== "off")
+                    .sort(
+                      (a, b) =>
+                        (SHIFT_ORDER[a.shift_type] ?? 99) - (SHIFT_ORDER[b.shift_type] ?? 99),
+                    );
+
+                  const totalLists = (lists as any[]).filter((l) =>
                     selectedWorker.shiftIds.includes(l.shift_id),
-                  );
-                  if (userLists.length === 0) {
+                  ).length;
+
+                  if (totalLists === 0) {
                     return (
                       <p className="text-sm text-muted-foreground italic">
                         Inga checklistor för dagen.
                       </p>
                     );
                   }
-                  return userLists.map((list) => {
-                    const listItems = (items as any[])
-                      .filter((i) => i.shift_checklist_id === list.id)
+
+                  return workerShifts.map((shift) => {
+                    const chip = SHIFT_CHIP[shift.shift_type];
+                    const shiftLists = (lists as any[])
+                      .filter((l) => l.shift_id === shift.id)
                       .sort((a, b) => a.sort_order - b.sort_order);
-                    const done = listItems.filter((i) => i.is_checked).length;
-                    const total = listItems.length;
-                    const pct = total > 0 ? (done / total) * 100 : 0;
-                    const complete = total > 0 && done === total;
+
                     return (
-                      <div key={list.id} className="border rounded-xl p-4 bg-background/50">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-semibold text-foreground">{list.name}</h4>
-                          <span className="text-xs text-muted-foreground tabular-nums">
-                            {done}/{total}
-                          </span>
-                        </div>
-                        <Progress
-                          value={pct}
-                          className={`h-1.5 mb-3 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
-                        />
-                        {listItems.length === 0 ? (
-                          <p className="text-xs text-muted-foreground italic">Inga punkter</p>
-                        ) : (
-                          <ul className="space-y-2">
-                            {listItems.map((it) => (
-                              <li key={it.id} className="flex items-center gap-2.5 text-sm">
-                                {it.is_checked ? (
-                                  <span className="h-5 w-5 rounded-full bg-[hsl(150_45%_45%)] flex items-center justify-center shrink-0">
-                                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                                  </span>
-                                ) : (
-                                  <Circle className="h-5 w-5 text-muted-foreground shrink-0" strokeWidth={1.5} />
-                                )}
-                                <span className={it.is_checked ? "text-muted-foreground line-through" : "text-foreground"}>
-                                  {it.text}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
+                      <section key={shift.id} className="space-y-3">
+                        {chip && (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold ${chip.bg} ${chip.border} ${chip.text}`}
+                            >
+                              <span className="leading-none">{chip.emoji}</span>
+                              <span className="leading-none">{chip.label}</span>
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {shiftLists.length} {shiftLists.length === 1 ? "checklista" : "checklistor"}
+                            </span>
+                          </div>
                         )}
-                      </div>
+
+                        {shiftLists.length === 0 ? (
+                          <p className="text-xs text-muted-foreground italic pl-1">
+                            Inga checklistor för detta pass.
+                          </p>
+                        ) : (
+                          <div className="space-y-3">
+                            {shiftLists.map((list) => {
+                              const listItems = (items as any[])
+                                .filter((i) => i.shift_checklist_id === list.id)
+                                .sort((a, b) => a.sort_order - b.sort_order);
+                              const done = listItems.filter((i) => i.is_checked).length;
+                              const total = listItems.length;
+                              const pct = total > 0 ? (done / total) * 100 : 0;
+                              const complete = total > 0 && done === total;
+                              return (
+                                <div key={list.id} className="border rounded-xl p-4 bg-background/50">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className="text-sm font-semibold text-foreground">{list.name}</h4>
+                                    <span className="text-xs text-muted-foreground tabular-nums">
+                                      {done}/{total}
+                                    </span>
+                                  </div>
+                                  <Progress
+                                    value={pct}
+                                    className={`h-1.5 mb-3 ${complete ? "[&>div]:bg-[hsl(150_45%_45%)]" : "[&>div]:bg-[hsl(183_30%_45%)]"}`}
+                                  />
+                                  {listItems.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground italic">Inga punkter</p>
+                                  ) : (
+                                    <ul className="space-y-2">
+                                      {listItems.map((it) => (
+                                        <li key={it.id} className="flex items-center gap-2.5 text-sm">
+                                          {it.is_checked ? (
+                                            <span className="h-5 w-5 rounded-full bg-[hsl(150_45%_45%)] flex items-center justify-center shrink-0">
+                                              <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                                            </span>
+                                          ) : (
+                                            <Circle className="h-5 w-5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+                                          )}
+                                          <span className={it.is_checked ? "text-muted-foreground line-through" : "text-foreground"}>
+                                            {it.text}
+                                          </span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </section>
                     );
                   });
                 })()}
