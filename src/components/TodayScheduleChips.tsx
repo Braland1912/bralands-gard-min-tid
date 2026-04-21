@@ -162,7 +162,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
     setCollapsed((prev) => {
       if (Object.keys(prev).length > 0) return prev;
       const next: Record<string, boolean> = {};
-      data.shifts.slice(0, -1).forEach((s: any) => {
+      data.shifts.forEach((s: any) => {
         next[s.id] = true;
       });
       return next;
