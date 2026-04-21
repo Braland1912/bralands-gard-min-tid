@@ -436,6 +436,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                 const totalCount = listItems.length;
                 const allDone = totalCount > 0 && doneCount === totalCount;
                 const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+                const isCollapsed = !!collapsed[list.id];
                 return (
                   <SortableItem key={list.id} id={list.id}>
                     <div className="border border-border rounded-xl p-3 space-y-2 bg-background flex-1 min-w-0">
