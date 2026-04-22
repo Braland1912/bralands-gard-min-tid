@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -45,6 +45,20 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    if (typeof window === "undefined") return "comfortable";
+    return (localStorage.getItem("admin-schedule-density") as "compact" | "comfortable") || "comfortable";
+  });
+  useEffect(() => {
+    localStorage.setItem("admin-schedule-density", density);
+  }, [density]);
+  const isCompact = density === "compact";
+  const cellPadX = isCompact ? (isMobile ? "px-1" : "px-2") : isMobile ? "px-1.5" : "px-3";
+  const cellPadY = isCompact ? "py-1.5" : "py-3";
+  const dayCellPad = isCompact ? "p-1" : "p-1.5";
+  const dayCellMinH = isCompact ? "min-h-[48px]" : "min-h-[64px]";
+  const dayCellGap = isCompact ? "gap-0.5" : "gap-1";
+  const headerPadY = isCompact ? "py-2" : "py-3";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
@@ -317,6 +331,15 @@ const AdminSchedule = () => {
             <p className="text-xs text-muted-foreground">Planera arbetspass per medarbetare</p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setDensity(isCompact ? "comfortable" : "compact")}
+              aria-label={isCompact ? "Byt till bekväm vy" : "Byt till kompakt vy"}
+              title={isCompact ? "Bekväm vy" : "Kompakt vy"}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium bg-muted text-foreground border border-border hover:bg-muted/70 transition-colors"
+            >
+              {isCompact ? <Rows2 className="h-3.5 w-3.5" /> : <Rows3 className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">{isCompact ? "Kompakt" : "Bekväm"}</span>
+            </button>
             {!isCurrentWeek && (
               <button
                 onClick={() => setWeekOffset(0)}
@@ -349,7 +372,7 @@ const AdminSchedule = () => {
             <div style={minWidthStyle}>
               {/* Header row */}
               <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
-                <div className={`${isMobile ? "px-1.5" : "px-3"} py-3`} aria-hidden="true" />
+                <div className={`${cellPadX} ${headerPadY}`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
@@ -358,7 +381,7 @@ const AdminSchedule = () => {
                   return (
                     <div
                       key={i}
-                      className={`${isMobile ? "px-1" : "px-2"} py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
+                      className={`${isMobile ? "px-1" : "px-2"} ${headerPadY} text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
@@ -422,7 +445,7 @@ const AdminSchedule = () => {
                     style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-1.5" : "px-3"} py-3 flex items-center sticky left-0 ${rowBg} overflow-hidden`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden`}>
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
@@ -442,7 +465,7 @@ const AdminSchedule = () => {
                       return (
                         <div
                           key={i}
-                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col gap-1 ${
+                          className={`border-l border-border ${dayCellMinH} ${dayCellPad} flex flex-col ${dayCellGap} ${
                             today ? "bg-primary/[0.03]" : ""
                           } ${!w.user_id ? "opacity-50" : ""}`}
                         >
