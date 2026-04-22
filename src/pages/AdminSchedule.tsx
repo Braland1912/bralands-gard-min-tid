@@ -45,6 +45,20 @@ const AdminSchedule = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const [density, setDensity] = useState<"compact" | "comfortable">(() => {
+    if (typeof window === "undefined") return "comfortable";
+    return (localStorage.getItem("admin-schedule-density") as "compact" | "comfortable") || "comfortable";
+  });
+  useEffect(() => {
+    localStorage.setItem("admin-schedule-density", density);
+  }, [density]);
+  const isCompact = density === "compact";
+  const cellPadX = isCompact ? (isMobile ? "px-1" : "px-2") : isMobile ? "px-1.5" : "px-3";
+  const cellPadY = isCompact ? "py-1.5" : "py-3";
+  const dayCellPad = isCompact ? "p-1" : "p-1.5";
+  const dayCellMinH = isCompact ? "min-h-[48px]" : "min-h-[64px]";
+  const dayCellGap = isCompact ? "gap-0.5" : "gap-1";
+  const headerPadY = isCompact ? "py-2" : "py-3";
   const [weekOffset, setWeekOffset] = useState(0);
   const [sheet, setSheet] = useState<{
     worker: any;
