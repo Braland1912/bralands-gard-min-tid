@@ -37,6 +37,10 @@
 
     --radius: 0.75rem;
 
+    /* Zebra striping — tuned for AA contrast against --card */
+    --row-zebra: 48 18% 90%;
+    --row-zebra-hover: 48 20% 86%;
+
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 200 10% 20%;
     --sidebar-primary: 181 26% 41%;
