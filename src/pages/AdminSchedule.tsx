@@ -413,7 +413,7 @@ const AdminSchedule = () => {
               ) : (
                 allWorkers.map((w: any, rowIdx: number) => {
                   const zebra = rowIdx % 2 === 1;
-                  const rowBg = zebra ? "bg-muted/30" : "bg-card";
+                  const rowBg = zebra ? "bg-muted/70" : "bg-card";
                   return (
                   <div
                     key={w.id}
