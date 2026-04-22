@@ -372,7 +372,7 @@ const AdminSchedule = () => {
             <div style={minWidthStyle}>
               {/* Header row */}
               <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
-                <div className={`${isMobile ? "px-1.5" : "px-3"} py-3`} aria-hidden="true" />
+                <div className={`${cellPadX} ${headerPadY}`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
