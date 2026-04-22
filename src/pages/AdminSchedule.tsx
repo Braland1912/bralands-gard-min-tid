@@ -465,7 +465,7 @@ const AdminSchedule = () => {
                       return (
                         <div
                           key={i}
-                          className={`border-l border-border min-h-[64px] p-1.5 flex flex-col gap-1 ${
+                          className={`border-l border-border ${dayCellMinH} ${dayCellPad} flex flex-col ${dayCellGap} ${
                             today ? "bg-primary/[0.03]" : ""
                           } ${!w.user_id ? "opacity-50" : ""}`}
                         >
