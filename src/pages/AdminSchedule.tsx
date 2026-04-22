@@ -436,17 +436,29 @@ const AdminSchedule = () => {
               ) : (
                 allWorkers.map((w: any, rowIdx: number) => {
                   const zebra = rowIdx % 2 === 1;
-                  const rowBg = zebra ? "bg-row-zebra" : "bg-card";
-                  const rowHover = zebra ? "hover:bg-row-zebra-hover" : "hover:bg-muted/40";
+                  const isSelected = sheet?.worker?.id === w.id;
+                  const rowBg = isSelected
+                    ? "bg-primary/10"
+                    : zebra
+                      ? "bg-row-zebra"
+                      : "bg-card";
+                  const rowHover = isSelected
+                    ? "hover:bg-primary/15"
+                    : zebra
+                      ? "hover:bg-row-zebra-hover"
+                      : "hover:bg-muted/40";
+                  const selectedRing = isSelected
+                    ? "ring-2 ring-inset ring-primary/60 relative z-10"
+                    : "";
                   return (
                   <div
                     key={w.id}
-                    className={`grid border-b border-border last:border-b-0 transition-colors ${rowBg} ${rowHover}`}
+                    className={`grid border-b border-border last:border-b-0 transition-colors ${rowBg} ${rowHover} ${selectedRing}`}
                     style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden`}>
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
                     </div>
