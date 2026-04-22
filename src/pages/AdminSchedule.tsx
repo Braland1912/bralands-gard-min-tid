@@ -413,11 +413,12 @@ const AdminSchedule = () => {
               ) : (
                 allWorkers.map((w: any, rowIdx: number) => {
                   const zebra = rowIdx % 2 === 1;
-                  const rowBg = zebra ? "bg-muted/70" : "bg-card";
+                  const rowBg = zebra ? "bg-row-zebra" : "bg-card";
+                  const rowHover = zebra ? "hover:bg-row-zebra-hover" : "hover:bg-muted/40";
                   return (
                   <div
                     key={w.id}
-                    className={`grid border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors ${rowBg}`}
+                    className={`grid border-b border-border last:border-b-0 transition-colors ${rowBg} ${rowHover}`}
                     style={gridStyle}
                   >
                     {/* Worker cell */}
