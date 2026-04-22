@@ -187,6 +187,36 @@ const AdminTimeLog = () => {
         </div>
       </div>
 
+      {/* Quick filter chips */}
+      <div className="flex flex-wrap gap-2">
+        {([
+          { id: "all", label: "Alla", icon: null },
+          { id: "today", label: "Idag", icon: Calendar },
+          { id: "week", label: "Denna vecka", icon: CalendarRange },
+          { id: "custom", label: "Anpassat datum", icon: CalendarDays },
+        ] as { id: FilterMode; label: string; icon: any }[]).map((chip) => {
+          const active = filterMode === chip.id;
+          const Icon = chip.icon;
+          return (
+            <button
+              key={chip.id}
+              onClick={() => {
+                setFilterMode(chip.id);
+                if (chip.id !== "custom") setSelectedDate("");
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-muted text-foreground border-border hover:bg-muted/70"
+              }`}
+            >
+              {Icon && <Icon className="h-3.5 w-3.5" />}
+              {chip.label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <Select value={selectedWorker} onValueChange={setSelectedWorker}>
           <SelectTrigger className="h-12 text-base rounded-xl border-border">
@@ -202,7 +232,11 @@ const AdminTimeLog = () => {
         <Input
           type="date"
           value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+          onChange={(e) => {
+            setSelectedDate(e.target.value);
+            if (e.target.value) setFilterMode("custom");
+            else if (filterMode === "custom") setFilterMode("all");
+          }}
           className="h-12 text-base rounded-xl border-border"
         />
       </div>
