@@ -445,7 +445,7 @@ const AdminSchedule = () => {
                     style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${isMobile ? "px-1.5" : "px-3"} py-3 flex items-center sticky left-0 ${rowBg} overflow-hidden`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden`}>
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-medium text-foreground truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
