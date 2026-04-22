@@ -381,7 +381,7 @@ const AdminSchedule = () => {
                   return (
                     <div
                       key={i}
-                      className={`${isMobile ? "px-1" : "px-2"} py-3 text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
+                      className={`${isMobile ? "px-1" : "px-2"} ${headerPadY} text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
