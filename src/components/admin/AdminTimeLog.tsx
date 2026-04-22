@@ -39,14 +39,26 @@ const AdminTimeLog = () => {
   });
 
   const { data: entries = [], isLoading } = useQuery({
-    queryKey: ["time_entries", selectedWorker, selectedDate],
+    queryKey: ["time_entries", selectedWorker, filterMode, selectedDate],
     queryFn: async () => {
       let query = supabase.from("time_entries").select("*").order("clock_in", { ascending: false });
       if (selectedWorker !== "all") query = query.eq("worker_id", selectedWorker);
-      if (selectedDate) {
-        const start = new Date(selectedDate);
+
+      let start: Date | null = null;
+      let end: Date | null = null;
+      if (filterMode === "today") {
+        start = new Date();
+        end = new Date();
+      } else if (filterMode === "week") {
+        const now = new Date();
+        start = startOfWeek(now, { weekStartsOn: 1 });
+        end = endOfWeek(now, { weekStartsOn: 1 });
+      } else if ((filterMode === "custom" || filterMode === "all") && selectedDate) {
+        start = new Date(selectedDate);
+        end = new Date(selectedDate);
+      }
+      if (start && end) {
         start.setHours(0, 0, 0, 0);
-        const end = new Date(selectedDate);
         end.setHours(23, 59, 59, 999);
         query = query.gte("clock_in", start.toISOString()).lte("clock_in", end.toISOString());
       }
