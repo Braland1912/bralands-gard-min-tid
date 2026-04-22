@@ -271,6 +271,24 @@ const AdminSchedule = () => {
 
   const isLoading = workersLoading || schedulesLoading;
 
+  // Compute name column width based on longest displayed name
+  const nameColPx = useMemo(() => {
+    const names = (allWorkers as any[]).map((w) => (isMobile ? getShortName(w.name) : w.name));
+    const longest = names.reduce((a, b) => (b.length > a.length ? b : a), "");
+    const charPx = isMobile ? 7 : 8.5; // approx char width for text-xs / text-sm medium
+    const padding = isMobile ? 14 : 26;
+    const min = isMobile ? 72 : 110;
+    const max = isMobile ? 140 : 220;
+    return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
+  }, [allWorkers, isMobile]);
+
+  const gridStyle = {
+    gridTemplateColumns: `${nameColPx}px repeat(7, minmax(0, 1fr))`,
+  };
+  const dayMinPx = isMobile ? 62 : 92;
+  const minWidthClass = "";
+  const minWidthStyle = { minWidth: `${nameColPx + dayMinPx * 7}px` };
+
   const renderChip = (
     shift: ShiftType,
     onClick: (e: React.MouseEvent) => void,
