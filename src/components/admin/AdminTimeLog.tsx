@@ -5,16 +5,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Download, Calendar, Clock, Pencil, Trash2, Plus, Loader2, Save } from "lucide-react";
+import { Download, Calendar, Clock, Pencil, Trash2, Plus, Loader2, Save, CalendarDays, CalendarRange } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+
+type FilterMode = "all" | "today" | "week" | "custom";
 
 const AdminTimeLog = () => {
   const [selectedWorker, setSelectedWorker] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [editEntry, setEditEntry] = useState<any | null>(null);
   const [editClockIn, setEditClockIn] = useState("");
   const [editClockOut, setEditClockOut] = useState("");
@@ -36,14 +39,26 @@ const AdminTimeLog = () => {
   });
 
   const { data: entries = [], isLoading } = useQuery({
-    queryKey: ["time_entries", selectedWorker, selectedDate],
+    queryKey: ["time_entries", selectedWorker, filterMode, selectedDate],
     queryFn: async () => {
       let query = supabase.from("time_entries").select("*").order("clock_in", { ascending: false });
       if (selectedWorker !== "all") query = query.eq("worker_id", selectedWorker);
-      if (selectedDate) {
-        const start = new Date(selectedDate);
+
+      let start: Date | null = null;
+      let end: Date | null = null;
+      if (filterMode === "today") {
+        start = new Date();
+        end = new Date();
+      } else if (filterMode === "week") {
+        const now = new Date();
+        start = startOfWeek(now, { weekStartsOn: 1 });
+        end = endOfWeek(now, { weekStartsOn: 1 });
+      } else if ((filterMode === "custom" || filterMode === "all") && selectedDate) {
+        start = new Date(selectedDate);
+        end = new Date(selectedDate);
+      }
+      if (start && end) {
         start.setHours(0, 0, 0, 0);
-        const end = new Date(selectedDate);
         end.setHours(23, 59, 59, 999);
         query = query.gte("clock_in", start.toISOString()).lte("clock_in", end.toISOString());
       }
@@ -172,6 +187,36 @@ const AdminTimeLog = () => {
         </div>
       </div>
 
+      {/* Quick filter chips */}
+      <div className="flex flex-wrap gap-2">
+        {([
+          { id: "all", label: "Alla", icon: null },
+          { id: "today", label: "Idag", icon: Calendar },
+          { id: "week", label: "Denna vecka", icon: CalendarRange },
+          { id: "custom", label: "Anpassat datum", icon: CalendarDays },
+        ] as { id: FilterMode; label: string; icon: any }[]).map((chip) => {
+          const active = filterMode === chip.id;
+          const Icon = chip.icon;
+          return (
+            <button
+              key={chip.id}
+              onClick={() => {
+                setFilterMode(chip.id);
+                if (chip.id !== "custom") setSelectedDate("");
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-muted text-foreground border-border hover:bg-muted/70"
+              }`}
+            >
+              {Icon && <Icon className="h-3.5 w-3.5" />}
+              {chip.label}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <Select value={selectedWorker} onValueChange={setSelectedWorker}>
           <SelectTrigger className="h-12 text-base rounded-xl border-border">
@@ -187,7 +232,11 @@ const AdminTimeLog = () => {
         <Input
           type="date"
           value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+          onChange={(e) => {
+            setSelectedDate(e.target.value);
+            if (e.target.value) setFilterMode("custom");
+            else if (filterMode === "custom") setFilterMode("all");
+          }}
           className="h-12 text-base rounded-xl border-border"
         />
       </div>
