@@ -494,7 +494,8 @@ const AdminSchedule = () => {
                       );
                     })}
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
