@@ -186,7 +186,7 @@ const MySchedule = () => {
     if (!published) {
       return (
         <div
-          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1] ${
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
             today ? "ring-2 ring-primary" : ""
           }`}
         >
