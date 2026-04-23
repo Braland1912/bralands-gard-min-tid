@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getISOWeek } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
@@ -38,6 +39,9 @@ const LiveClock = () => {
       </p>
       <p className="text-xs text-muted-foreground capitalize">
         {now.toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Vecka {getISOWeek(now)}
       </p>
     </div>
   );
