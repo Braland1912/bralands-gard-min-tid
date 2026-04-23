@@ -186,12 +186,11 @@ const MySchedule = () => {
     if (!published) {
       return (
         <div
-          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1] ${
             today ? "ring-2 ring-primary" : ""
           }`}
         >
-          <span className="text-base leading-none">🔒</span>
-          <span className="text-[10px] italic text-muted-foreground mt-1">Ej klar</span>
+          <span className="text-[10px] text-muted-foreground">Ej publicerat</span>
         </div>
       );
     }
