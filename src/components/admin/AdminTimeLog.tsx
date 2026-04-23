@@ -172,7 +172,7 @@ const AdminTimeLog = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24 md:pb-6">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">Tidslogg</h2>
         <div className="flex gap-2">

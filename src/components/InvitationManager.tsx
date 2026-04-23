@@ -68,7 +68,7 @@ const InvitationManager = () => {
   const isExpired = (expiresAt: string) => new Date(expiresAt) < new Date();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24 md:pb-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-foreground">Inbjudningslänkar</h2>
         <Button onClick={generateInvite} disabled={generating} className="gap-2 w-full sm:w-auto">
