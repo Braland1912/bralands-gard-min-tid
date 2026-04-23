@@ -227,13 +227,15 @@ const MyTime = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto px-5 py-6 space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-semibold text-foreground">Min tid</h1>
-          </div>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Min tid</h2>
+        </div>
+
+        {/* Logout */}
+        <div className="flex justify-end">
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground rounded-xl">
             <Power className="h-4 w-4 mr-1.5" />
             Logga ut
