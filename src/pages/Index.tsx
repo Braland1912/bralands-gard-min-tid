@@ -34,7 +34,7 @@ const LiveClock = () => {
   return (
     <div className="text-center space-y-0.5">
       <p className="text-2xl font-semibold text-foreground tabular-nums tracking-tight">
-        {now.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+        {now.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
       </p>
       <p className="text-xs text-muted-foreground capitalize">
         {now.toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
