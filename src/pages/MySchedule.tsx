@@ -190,7 +190,7 @@ const MySchedule = () => {
             today ? "ring-2 ring-primary" : ""
           }`}
         >
-          <span className="text-[10px] text-muted-foreground">Ej publicerat</span>
+          <span className="text-[10px] font-semibold text-muted-foreground">Ej publicerat</span>
         </div>
       );
     }
