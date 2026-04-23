@@ -39,6 +39,9 @@ const LiveClock = () => {
       <p className="text-xs text-muted-foreground capitalize">
         {now.toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" })}
       </p>
+      <p className="text-xs text-muted-foreground">
+        Vecka {getISOWeek(now)}
+      </p>
     </div>
   );
 };
