@@ -394,6 +394,62 @@ const MySchedule = () => {
               ))}
             </div>
           )}
+
+          {/* KOMMANDE PASS */}
+          <div className="space-y-2 pt-2">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Kommande pass
+            </h3>
+            {upcomingLoading ? (
+              <Skeleton className="h-24 w-full rounded-2xl" />
+            ) : upcoming.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-4 py-6 text-center">
+                <span className="text-xs text-muted-foreground">Inga kommande pass schemalagda</span>
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
+                {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }) => {
+                  const dateObj = new Date(date + "T00:00:00");
+                  return (
+                    <div key={date} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-foreground capitalize truncate">
+                          {format(dateObj, "EEEE", { locale: sv })}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(dateObj, "d MMMM", { locale: sv })}
+                        </span>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 w-[160px]">
+                        {shifts.map((entry) => {
+                          const has = (upcomingChecklistCounts[entry.id] || 0) > 0;
+                          return (
+                            <div key={entry.id} className="flex-1">
+                              <Chip
+                                shift={entry.shift_type as ShiftType}
+                                full
+                                hasChecklist={has}
+                                onClick={
+                                  has
+                                    ? () =>
+                                        setOpenShift({
+                                          id: entry.id,
+                                          label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+                                          date: dateObj,
+                                        })
+                                    : undefined
+                                }
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* HELA TEAMET */}
