@@ -203,7 +203,6 @@ const MySchedule = () => {
     );
   };
 
-  const myUserId = user?.id;
   const canSeeTeam = worker?.can_see_team === true;
 
   if (loading || !user) {
