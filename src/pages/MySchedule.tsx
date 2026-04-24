@@ -406,41 +406,56 @@ const MySchedule = () => {
               </div>
             ) : (
               <div className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
-                {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }) => {
+                {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }, idx: number) => {
                   const dateObj = new Date(date + "T00:00:00");
+                  const wk = getISOWeek(dateObj);
+                  const prevWk =
+                    idx > 0 ? getISOWeek(new Date(upcoming[idx - 1].date + "T00:00:00")) : null;
+                  const showWeekDivider = prevWk !== null && wk !== prevWk;
                   return (
-                    <div key={date} className="flex items-center justify-between gap-3 px-3 py-2.5">
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold text-foreground capitalize truncate">
-                          {format(dateObj, "EEEE", { locale: sv })}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(dateObj, "d MMMM", { locale: sv })}
-                        </span>
-                      </div>
-                      <div className="flex gap-1.5 shrink-0 w-[160px]">
-                        {shifts.map((entry) => {
-                          const has = (upcomingChecklistCounts[entry.id] || 0) > 0;
-                          return (
-                            <div key={entry.id} className="flex-1">
-                              <Chip
-                                shift={entry.shift_type as ShiftType}
-                                full
-                                hasChecklist={has}
-                                onClick={
-                                  has
-                                    ? () =>
-                                        setOpenShift({
-                                          id: entry.id,
-                                          label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
-                                          date: dateObj,
-                                        })
-                                    : undefined
-                                }
-                              />
-                            </div>
-                          );
-                        })}
+                    <div key={date}>
+                      {showWeekDivider && (
+                        <div className="flex items-center gap-2 px-3 py-1 bg-muted/30">
+                          <div className="h-px flex-1 bg-border" />
+                          <span className="text-[10px] font-medium text-muted-foreground tracking-wide">
+                            v {wk}
+                          </span>
+                          <div className="h-px flex-1 bg-border" />
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-semibold text-foreground capitalize truncate">
+                            {format(dateObj, "EEEE", { locale: sv })}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(dateObj, "d MMMM", { locale: sv })}
+                          </span>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0 w-[160px]">
+                          {shifts.map((entry) => {
+                            const has = (upcomingChecklistCounts[entry.id] || 0) > 0;
+                            return (
+                              <div key={entry.id} className="flex-1">
+                                <Chip
+                                  shift={entry.shift_type as ShiftType}
+                                  full
+                                  hasChecklist={has}
+                                  onClick={
+                                    has
+                                      ? () =>
+                                          setOpenShift({
+                                            id: entry.id,
+                                            label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+                                            date: dateObj,
+                                          })
+                                      : undefined
+                                  }
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   );
