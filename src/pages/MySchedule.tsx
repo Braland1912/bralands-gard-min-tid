@@ -118,6 +118,76 @@ const MySchedule = () => {
     enabled: myShiftIds.length > 0,
   });
 
+  // Upcoming shifts (next 60 days, independent of weekOffset)
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+  const upcomingEnd = useMemo(() => addDays(today, 60), [today]);
+
+  const { data: upcoming = [], isLoading: upcomingLoading } = useQuery({
+    queryKey: ["upcoming-shifts", myUserId, format(today, "yyyy-MM-dd")],
+    queryFn: async () => {
+      if (!myUserId) return [];
+      const fromStr = format(today, "yyyy-MM-dd");
+      const toStr = format(upcomingEnd, "yyyy-MM-dd");
+      const [shiftsRes, daysRes] = await Promise.all([
+        supabase
+          .from("schedules")
+          .select("*")
+          .eq("user_id", myUserId)
+          .gte("date", fromStr)
+          .lte("date", toStr)
+          .order("date", { ascending: true })
+          .order("shift_index", { ascending: true }),
+        supabase
+          .from("schedule_days")
+          .select("date,is_published")
+          .gte("date", fromStr)
+          .lte("date", toStr),
+      ]);
+      if (shiftsRes.error) throw shiftsRes.error;
+      if (daysRes.error) throw daysRes.error;
+      const publishedDates = new Set(
+        (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date)
+      );
+      const filtered = (shiftsRes.data || []).filter((s: any) => publishedDates.has(s.date));
+      // Group by date
+      const byDate: Record<string, any[]> = {};
+      filtered.forEach((s: any) => {
+        if (!byDate[s.date]) byDate[s.date] = [];
+        byDate[s.date].push(s);
+      });
+      return Object.entries(byDate)
+        .sort(([a], [b]) => (a < b ? -1 : 1))
+        .map(([date, shifts]) => ({ date, shifts }));
+    },
+    enabled: !!myUserId,
+  });
+
+  const upcomingShiftIds = useMemo(
+    () => upcoming.flatMap((d: any) => d.shifts.map((s: any) => s.id)),
+    [upcoming]
+  );
+
+  const { data: upcomingChecklistCounts = {} } = useQuery({
+    queryKey: ["upcoming-shift-checklist-counts", upcomingShiftIds.join(",")],
+    queryFn: async () => {
+      if (upcomingShiftIds.length === 0) return {};
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("id, shift_id")
+        .in("shift_id", upcomingShiftIds);
+      if (error) throw error;
+      return (data || []).reduce((acc: Record<string, number>, c) => {
+        acc[c.shift_id] = (acc[c.shift_id] || 0) + 1;
+        return acc;
+      }, {});
+    },
+    enabled: upcomingShiftIds.length > 0,
+  });
+
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
