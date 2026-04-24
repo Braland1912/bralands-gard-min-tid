@@ -428,7 +428,6 @@ const MySchedule = () => {
                       <div key={date}>
                         {showWeekDivider && (
                           <div className="flex items-center gap-2 px-3 py-1 bg-muted/30">
-                            <div className="h-px flex-1 bg-border" />
                             <span className="text-[10px] font-medium text-muted-foreground tracking-wide">
                               v {wk}
                             </span>
