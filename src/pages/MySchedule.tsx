@@ -118,6 +118,8 @@ const MySchedule = () => {
     enabled: myShiftIds.length > 0,
   });
 
+  const myUserId = user?.id;
+
   // Upcoming shifts (next 60 days, independent of weekOffset)
   const today = useMemo(() => {
     const d = new Date();
