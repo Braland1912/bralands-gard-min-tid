@@ -118,6 +118,78 @@ const MySchedule = () => {
     enabled: myShiftIds.length > 0,
   });
 
+  const myUserId = user?.id;
+
+  // Upcoming shifts (next 60 days, independent of weekOffset)
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+  const upcomingEnd = useMemo(() => addDays(today, 60), [today]);
+
+  const { data: upcoming = [], isLoading: upcomingLoading } = useQuery({
+    queryKey: ["upcoming-shifts", myUserId, format(today, "yyyy-MM-dd")],
+    queryFn: async () => {
+      if (!myUserId) return [];
+      const fromStr = format(today, "yyyy-MM-dd");
+      const toStr = format(upcomingEnd, "yyyy-MM-dd");
+      const [shiftsRes, daysRes] = await Promise.all([
+        supabase
+          .from("schedules")
+          .select("*")
+          .eq("user_id", myUserId)
+          .gte("date", fromStr)
+          .lte("date", toStr)
+          .order("date", { ascending: true })
+          .order("shift_index", { ascending: true }),
+        supabase
+          .from("schedule_days")
+          .select("date,is_published")
+          .gte("date", fromStr)
+          .lte("date", toStr),
+      ]);
+      if (shiftsRes.error) throw shiftsRes.error;
+      if (daysRes.error) throw daysRes.error;
+      const publishedDates = new Set(
+        (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date)
+      );
+      const filtered = (shiftsRes.data || []).filter((s: any) => publishedDates.has(s.date));
+      // Group by date
+      const byDate: Record<string, any[]> = {};
+      filtered.forEach((s: any) => {
+        if (!byDate[s.date]) byDate[s.date] = [];
+        byDate[s.date].push(s);
+      });
+      return Object.entries(byDate)
+        .sort(([a], [b]) => (a < b ? -1 : 1))
+        .map(([date, shifts]) => ({ date, shifts }));
+    },
+    enabled: !!myUserId,
+  });
+
+  const upcomingShiftIds = useMemo(
+    () => upcoming.flatMap((d: any) => d.shifts.map((s: any) => s.id)),
+    [upcoming]
+  );
+
+  const { data: upcomingChecklistCounts = {} } = useQuery({
+    queryKey: ["upcoming-shift-checklist-counts", upcomingShiftIds.join(",")],
+    queryFn: async () => {
+      if (upcomingShiftIds.length === 0) return {};
+      const { data, error } = await supabase
+        .from("shift_checklists")
+        .select("id, shift_id")
+        .in("shift_id", upcomingShiftIds);
+      if (error) throw error;
+      return (data || []).reduce((acc: Record<string, number>, c) => {
+        acc[c.shift_id] = (acc[c.shift_id] || 0) + 1;
+        return acc;
+      }, {});
+    },
+    enabled: upcomingShiftIds.length > 0,
+  });
+
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
@@ -131,7 +203,6 @@ const MySchedule = () => {
     );
   };
 
-  const myUserId = user?.id;
   const canSeeTeam = worker?.can_see_team === true;
 
   if (loading || !user) {
@@ -323,6 +394,62 @@ const MySchedule = () => {
               ))}
             </div>
           )}
+
+          {/* KOMMANDE PASS */}
+          <div className="space-y-2 pt-2">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Kommande pass
+            </h3>
+            {upcomingLoading ? (
+              <Skeleton className="h-24 w-full rounded-2xl" />
+            ) : upcoming.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/50 px-4 py-6 text-center">
+                <span className="text-xs text-muted-foreground">Inga kommande pass schemalagda</span>
+              </div>
+            ) : (
+              <div className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
+                {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }) => {
+                  const dateObj = new Date(date + "T00:00:00");
+                  return (
+                    <div key={date} className="flex items-center justify-between gap-3 px-3 py-2.5">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-foreground capitalize truncate">
+                          {format(dateObj, "EEEE", { locale: sv })}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(dateObj, "d MMMM", { locale: sv })}
+                        </span>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0 w-[160px]">
+                        {shifts.map((entry) => {
+                          const has = (upcomingChecklistCounts[entry.id] || 0) > 0;
+                          return (
+                            <div key={entry.id} className="flex-1">
+                              <Chip
+                                shift={entry.shift_type as ShiftType}
+                                full
+                                hasChecklist={has}
+                                onClick={
+                                  has
+                                    ? () =>
+                                        setOpenShift({
+                                          id: entry.id,
+                                          label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+                                          date: dateObj,
+                                        })
+                                    : undefined
+                                }
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* HELA TEAMET */}
