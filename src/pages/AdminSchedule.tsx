@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
+import { Separator } from "@/components/ui/separator";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
