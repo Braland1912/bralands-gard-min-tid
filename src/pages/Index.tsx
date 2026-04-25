@@ -192,10 +192,11 @@ const Index = () => {
     }
 
     setClockOutState("loading");
+    const ts = new Date().toISOString();
     try {
       const { error } = await supabase
         .from("time_entries")
-        .update({ clock_out: new Date().toISOString() })
+        .update({ clock_out: ts })
         .eq("id", activeEntry.id);
       if (error) throw error;
 
@@ -204,13 +205,14 @@ const Index = () => {
       await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-entries"] });
 
+      navigate(`/confirmation?type=out&name=${encodeURIComponent(worker.name)}&ts=${encodeURIComponent(ts)}`);
       setTimeout(() => setClockOutState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock out failed:", err);
       toast({ title: "Utstampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockOutState("idle");
     }
-  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient]);
+  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient, navigate]);
 
   const handleClockOut = useCallback(() => {
     if (!worker || clockOutState !== "idle" || !isOnline || !activeEntry) {
