@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,6 +41,8 @@ const MySchedule = () => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
+  const upcomingListRef = useRef<HTMLDivElement | null>(null);
+  const savedScrollRef = useRef<{ window: number; list: number } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -417,7 +419,7 @@ const MySchedule = () => {
                   <span className="text-xs text-muted-foreground">Inga kommande pass schemalagda</span>
                 </div>
               ) : (
-                <div className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
+                <div ref={upcomingListRef} className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
                   {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }, idx: number) => {
                     const dateObj = new Date(date + "T00:00:00");
                     const wk = getISOWeek(dateObj);
@@ -538,7 +540,28 @@ const MySchedule = () => {
         )}
       </div>
 
-      <Sheet open={!!openShift} onOpenChange={(o) => !o && setOpenShift(null)}>
+      <Sheet
+        open={!!openShift}
+        onOpenChange={(o) => {
+          if (o) {
+            savedScrollRef.current = {
+              window: window.scrollY,
+              list: upcomingListRef.current?.scrollTop ?? 0,
+            };
+          } else {
+            setOpenShift(null);
+            const saved = savedScrollRef.current;
+            if (saved) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: saved.window, behavior: "smooth" });
+                if (upcomingListRef.current) {
+                  upcomingListRef.current.scrollTo({ top: saved.list, behavior: "smooth" });
+                }
+              });
+            }
+          }
+        }}
+      >
         <SheetContent
           side="bottom"
           className="rounded-t-2xl max-h-[85vh] overflow-y-auto data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)]"
