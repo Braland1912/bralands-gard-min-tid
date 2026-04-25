@@ -159,17 +159,17 @@ const Index = () => {
     }
 
     setClockInState("loading");
+    const ts = new Date().toISOString();
     try {
       const { error } = await supabase
         .from("time_entries")
         .insert({
           worker_id: worker.id,
           worker_name: worker.name,
-          clock_in: new Date().toISOString(),
+          clock_in: ts,
         });
       if (error) throw error;
 
-      const ts = new Date().toISOString();
       setClockInState("confirmed");
       await queryClient.invalidateQueries({ queryKey: ["active-entry"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
@@ -182,7 +182,7 @@ const Index = () => {
       toast({ title: "Instampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockInState("idle");
     }
-  }, [worker, clockInState, isOnline, activeEntry, toast, queryClient]);
+  }, [worker, clockInState, isOnline, activeEntry, toast, queryClient, navigate]);
 
   const performClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
