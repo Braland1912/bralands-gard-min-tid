@@ -561,82 +561,96 @@ const AdminSchedule = () => {
               </div>
             </div>
 
-            <div className="space-y-2 mb-5">
-              {SHIFT_OPTIONS.map((opt) => {
-                const currentShift = sheet.worker.user_id
-                  ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
-                  : null;
-                const isSelected = currentShift === opt.type;
-                return (
-                  <button
-                    key={opt.type}
-                    onClick={() => {
-                      const wasEmpty = !currentShift;
-                      upsertShift.mutate(
-                        {
-                          userId: sheet.worker.user_id,
-                          date: format(sheet.date, "yyyy-MM-dd"),
-                          shiftType: opt.type,
-                          shiftIndex: sheet.shiftIndex,
-                        },
-                        {
-                          onSuccess: () => {
-                            if (wasEmpty) setSheet(null);
-                          },
-                        },
-                      );
-                    }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
-                      isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
-                    }`}
-                  >
-                    <span className="text-xl">{opt.emoji}</span>
-                    <div className="flex-1 text-left">
-                      <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
-                        {opt.label}
-                      </span>
-                    </div>
-                    {isSelected && <Check className="h-4 w-4 text-primary" />}
-                  </button>
-                );
-              })}
-            </div>
+            {(() => {
+              const currentShiftRow = sheet.worker.user_id
+                ? getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+                : null;
+              const currentShiftType = sheet.worker.user_id
+                ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+                : null;
+              const hasShift = Boolean(currentShiftType);
 
-            {sheet.worker.user_id && getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
-              <div className="mb-5 pt-4 border-t border-border">
-                <ShiftChecklists
-                  shiftId={getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)!.id}
-                  mode="admin"
-                />
-              </div>
-            )}
+              const ShiftTypePicker = (
+                <div className="space-y-2">
+                  {SHIFT_OPTIONS.map((opt) => {
+                    const isSelected = currentShiftType === opt.type;
+                    return (
+                      <button
+                        key={opt.type}
+                        onClick={() => {
+                          upsertShift.mutate({
+                            userId: sheet.worker.user_id,
+                            date: format(sheet.date, "yyyy-MM-dd"),
+                            shiftType: opt.type,
+                            shiftIndex: sheet.shiftIndex,
+                          });
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
+                          isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
+                        }`}
+                      >
+                        <span className="text-xl">{opt.emoji}</span>
+                        <div className="flex-1 text-left">
+                          <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
+                            {opt.label}
+                          </span>
+                        </div>
+                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
 
-            <div className="flex gap-2">
-              {sheet.worker.user_id &&
-                getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex) && (
-                  <Button
-                    variant="outline"
-                    className="flex-1 text-destructive hover:text-destructive"
-                    onClick={() =>
-                      deleteShift.mutate({
-                        userId: sheet.worker.user_id,
-                        date: format(sheet.date, "yyyy-MM-dd"),
-                        shiftIndex: sheet.shiftIndex,
-                      })
-                    }
-                  >
-                    <Trash2 className="h-4 w-4 mr-1.5" />
-                    Ta bort
-                  </Button>
-                )}
-              <Button variant="outline" className="flex-1" onClick={() => setSheet(null)}>
-                Stäng
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      <AdminMobileBottomNav active="schema" />
+              return (
+                <>
+                  {hasShift ? (
+                    <>
+                      {/* Checklistor överst */}
+                      {currentShiftRow && (
+                        <div className="mb-2">
+                          <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
+                        </div>
+                      )}
+
+                      <Separator className="my-4" />
+
+                      {/* Pass-sektion under */}
+                      <div className="space-y-3 mb-5">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Passtyp
+                        </div>
+                        {ShiftTypePicker}
+                        {sheet.worker.user_id && currentShiftType && (
+                          <Button
+                            variant="outline"
+                            className="w-full text-destructive hover:text-destructive"
+                            onClick={() =>
+                              deleteShift.mutate({
+                                userId: sheet.worker.user_id,
+                                date: format(sheet.date, "yyyy-MM-dd"),
+                                shiftIndex: sheet.shiftIndex,
+                              })
+                            }
+                          >
+                            <Trash2 className="h-4 w-4 mr-1.5" />
+                            Ta bort pass
+                          </Button>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mb-5">{ShiftTypePicker}</div>
+                  )}
+
+                  <div className="flex">
+                    <Button className="flex-1" onClick={() => setSheet(null)}>
+                      Klar
+                    </Button>
+                  </div>
+                </>
+              );
+            })()}
     </div>
   );
 };
