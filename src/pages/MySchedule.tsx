@@ -544,19 +544,33 @@ const MySchedule = () => {
         open={!!openShift}
         onOpenChange={(o) => {
           if (o) {
-            savedScrollRef.current = {
-              window: window.scrollY,
-              list: upcomingListRef.current?.scrollTop ?? 0,
-            };
+            // Spara endast första gången (skydda mot race vid snabba öppna/stäng)
+            if (!savedScrollRef.current) {
+              savedScrollRef.current = {
+                window: window.scrollY,
+                list: upcomingListRef.current?.scrollTop ?? 0,
+              };
+            }
           } else {
             setOpenShift(null);
             const saved = savedScrollRef.current;
             if (saved) {
-              requestAnimationFrame(() => {
-                window.scrollTo({ top: saved.window, behavior: "smooth" });
+              const restore = () => {
+                window.scrollTo({ top: saved.window, behavior: "auto" });
                 if (upcomingListRef.current) {
-                  upcomingListRef.current.scrollTo({ top: saved.list, behavior: "smooth" });
+                  upcomingListRef.current.scrollTo({ top: saved.list, behavior: "auto" });
                 }
+              };
+              // Kör efter Radix släppt body-scroll-låset och close-animationen är klar
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  restore();
+                  // Säkra mot sen layout-shift (t.ex. focus-restore)
+                  setTimeout(() => {
+                    restore();
+                    savedScrollRef.current = null;
+                  }, 220);
+                });
               });
             }
           }
