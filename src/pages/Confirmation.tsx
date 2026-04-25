@@ -35,7 +35,7 @@ const Confirmation = () => {
             {name}
           </p>
           <p className="text-sm text-muted-foreground">
-            {new Date().toLocaleString("sv-SE")}
+            {tsDate.toLocaleString("sv-SE")}
           </p>
         </div>
 
