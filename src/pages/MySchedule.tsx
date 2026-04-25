@@ -540,7 +540,28 @@ const MySchedule = () => {
         )}
       </div>
 
-      <Sheet open={!!openShift} onOpenChange={(o) => !o && setOpenShift(null)}>
+      <Sheet
+        open={!!openShift}
+        onOpenChange={(o) => {
+          if (o) {
+            savedScrollRef.current = {
+              window: window.scrollY,
+              list: upcomingListRef.current?.scrollTop ?? 0,
+            };
+          } else {
+            setOpenShift(null);
+            const saved = savedScrollRef.current;
+            if (saved) {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: saved.window, behavior: "smooth" });
+                if (upcomingListRef.current) {
+                  upcomingListRef.current.scrollTo({ top: saved.list, behavior: "smooth" });
+                }
+              });
+            }
+          }
+        }}
+      >
         <SheetContent
           side="bottom"
           className="rounded-t-2xl max-h-[85vh] overflow-y-auto data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)]"
