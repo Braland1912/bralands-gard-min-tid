@@ -424,6 +424,19 @@ const MySchedule = () => {
                     const prevWk =
                       idx > 0 ? getISOWeek(new Date(upcoming[idx - 1].date + "T00:00:00")) : null;
                     const showWeekDivider = prevWk !== null && wk !== prevWk;
+                    const shiftsWithChecklist = shifts.filter(
+                      (s: any) => (upcomingChecklistCounts[s.id] || 0) > 0
+                    );
+                    const rowClickable = shiftsWithChecklist.length === 1;
+                    const rowOpen = rowClickable
+                      ? () =>
+                          setOpenShift({
+                            id: shiftsWithChecklist[0].id,
+                            label:
+                              SHIFT_CONFIG[shiftsWithChecklist[0].shift_type as ShiftType].label,
+                            date: dateObj,
+                          })
+                      : undefined;
                     return (
                       <div key={date}>
                         {showWeekDivider && (
@@ -434,7 +447,26 @@ const MySchedule = () => {
                             <div className="h-px flex-1 bg-border" />
                           </div>
                         )}
-                        <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+                        <div
+                          className={`flex items-center justify-between gap-3 px-3 py-2.5 ${
+                            rowClickable
+                              ? "cursor-pointer hover:bg-muted/40 transition-colors"
+                              : ""
+                          }`}
+                          onClick={rowOpen}
+                          role={rowClickable ? "button" : undefined}
+                          tabIndex={rowClickable ? 0 : undefined}
+                          onKeyDown={
+                            rowClickable
+                              ? (e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    rowOpen?.();
+                                  }
+                                }
+                              : undefined
+                          }
+                        >
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-semibold text-foreground capitalize truncate">
                               {format(dateObj, "EEEE", { locale: sv })}
@@ -454,12 +486,14 @@ const MySchedule = () => {
                                     hasChecklist={has}
                                     onClick={
                                       has
-                                        ? () =>
+                                        ? (e?: any) => {
+                                            e?.stopPropagation?.();
                                             setOpenShift({
                                               id: entry.id,
                                               label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
                                               date: dateObj,
-                                            })
+                                            });
+                                          }
                                         : undefined
                                     }
                                   />
