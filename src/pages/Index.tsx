@@ -169,11 +169,13 @@ const Index = () => {
         });
       if (error) throw error;
 
+      const ts = new Date().toISOString();
       setClockInState("confirmed");
       await queryClient.invalidateQueries({ queryKey: ["active-entry"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-entries"] });
 
+      navigate(`/confirmation?type=in&name=${encodeURIComponent(worker.name)}&ts=${encodeURIComponent(ts)}`);
       setTimeout(() => setClockInState("idle"), 1500);
     } catch (err: any) {
       console.error("Clock in failed:", err);
