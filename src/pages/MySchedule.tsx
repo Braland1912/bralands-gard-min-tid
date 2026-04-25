@@ -539,7 +539,18 @@ const MySchedule = () => {
       </div>
 
       <Sheet open={!!openShift} onOpenChange={(o) => !o && setOpenShift(null)}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
+        <SheetContent
+          side="bottom"
+          className="rounded-t-2xl max-h-[85vh] overflow-y-auto"
+          onOpenAutoFocus={(e) => {
+            e.preventDefault();
+            requestAnimationFrame(() => {
+              const el = e.currentTarget as HTMLElement | null;
+              el?.scrollIntoView({ behavior: "smooth", block: "end" });
+              el?.scrollTo?.({ top: 0, behavior: "smooth" });
+            });
+          }}
+        >
           <SheetHeader className="text-left">
             <SheetTitle>
               {openShift?.label} · {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
