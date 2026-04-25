@@ -541,7 +541,7 @@ const MySchedule = () => {
       <Sheet open={!!openShift} onOpenChange={(o) => !o && setOpenShift(null)}>
         <SheetContent
           side="bottom"
-          className="rounded-t-2xl max-h-[85vh] overflow-y-auto"
+          className="rounded-t-2xl max-h-[85vh] overflow-y-auto data-[state=open]:duration-300 data-[state=closed]:duration-200 data-[state=open]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)]"
           onOpenAutoFocus={(e) => {
             e.preventDefault();
             requestAnimationFrame(() => {
