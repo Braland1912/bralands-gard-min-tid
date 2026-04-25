@@ -41,6 +41,8 @@ const MySchedule = () => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
+  const upcomingListRef = React.useRef<HTMLDivElement | null>(null);
+  const savedScrollRef = React.useRef<{ window: number; list: number } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
