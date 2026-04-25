@@ -9,6 +9,8 @@ const Confirmation = () => {
   const navigate = useNavigate();
   const type = searchParams.get("type");
   const name = searchParams.get("name");
+  const ts = searchParams.get("ts");
+  const tsDate = ts ? new Date(ts) : new Date();
 
   useEffect(() => {
     const timer = setTimeout(() => {
