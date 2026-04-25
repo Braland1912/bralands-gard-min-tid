@@ -419,7 +419,7 @@ const MySchedule = () => {
                   <span className="text-xs text-muted-foreground">Inga kommande pass schemalagda</span>
                 </div>
               ) : (
-                <div className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
+                <div ref={upcomingListRef} className="max-h-80 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
                   {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }, idx: number) => {
                     const dateObj = new Date(date + "T00:00:00");
                     const wk = getISOWeek(dateObj);
