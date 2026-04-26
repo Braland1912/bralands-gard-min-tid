@@ -320,6 +320,7 @@ const ShiftTypeChecklistOrder = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        </div>
       </div>
       <div className="space-y-3">
         {SHIFT_TYPES.map((st) => {
