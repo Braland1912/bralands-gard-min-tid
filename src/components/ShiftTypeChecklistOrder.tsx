@@ -50,7 +50,7 @@ const ShiftTypeChecklistOrder = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: links = [], isLoading: linksLoading } = useQuery({
+  const { data: links = [], isLoading: linksLoading, isFetching: linksFetching } = useQuery({
     queryKey: ["checklist-template-shift-types-full"],
     queryFn: async () => {
       const { data, error } = await supabase
