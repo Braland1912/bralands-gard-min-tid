@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ListChecks, Wand2, X, Plus } from "lucide-react";
+import { ListChecks, Wand2, X, Plus, RefreshCw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AlertDialog,
@@ -50,7 +50,7 @@ const ShiftTypeChecklistOrder = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: links = [], isLoading: linksLoading } = useQuery({
+  const { data: links = [], isLoading: linksLoading, isFetching: linksFetching } = useQuery({
     queryKey: ["checklist-template-shift-types-full"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -281,7 +281,26 @@ const ShiftTypeChecklistOrder = () => {
             Dra för att ändra ordningen som checklistorna läggs till på nya pass.
           </p>
         </div>
-        <AlertDialog>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+            onClick={async () => {
+              await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] }),
+                queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] }),
+                queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
+              ]);
+              toast({ title: "Listan uppdaterad" });
+            }}
+            disabled={linksFetching}
+            aria-label="Uppdatera listan"
+            title="Uppdatera listan"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${linksFetching ? "animate-spin" : ""}`} />
+          </Button>
+          <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button size="sm" variant="outline" className="shrink-0" disabled={applyRetroactive.isPending}>
               <Wand2 className="h-3.5 w-3.5 mr-1.5" />
@@ -301,6 +320,7 @@ const ShiftTypeChecklistOrder = () => {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        </div>
       </div>
       <div className="space-y-3">
         {SHIFT_TYPES.map((st) => {
