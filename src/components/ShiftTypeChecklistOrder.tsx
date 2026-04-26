@@ -355,17 +355,25 @@ const ShiftTypeChecklistOrder = () => {
                         <p className="text-[10px] uppercase tracking-wide text-muted-foreground px-2 py-1">
                           Välj mall
                         </p>
-                        {available.map((t) => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => addLink.mutate({ shiftType: st.value, templateId: t.id })}
-                            className="w-full text-left flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                          >
-                            <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="truncate">{t.name}</span>
-                          </button>
-                        ))}
+                        {available.map((t) => {
+                          const isAdding =
+                            addLink.isPending &&
+                            addLink.variables?.shiftType === st.value &&
+                            addLink.variables?.templateId === t.id;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => addLink.mutate({ shiftType: st.value, templateId: t.id })}
+                              disabled={addLink.isPending}
+                              className="w-full text-left flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                            >
+                              <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span className="truncate flex-1">{t.name}</span>
+                              {isAdding && <RefreshCw className="h-3 w-3 animate-spin text-muted-foreground shrink-0" />}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </PopoverContent>
@@ -384,31 +392,38 @@ const ShiftTypeChecklistOrder = () => {
                     strategy={verticalListSortingStrategy}
                   >
                     <div className="space-y-1.5">
-                      {list.map((l) => (
-                        <SortableItem key={l.id} id={l.id}>
-                          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 flex-1 min-w-0">
-                            <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="text-sm text-foreground truncate flex-1">
-                              {nameOf(l.template_id)}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeLink.mutate(l.id);
-                              }}
-                              onPointerDown={(e) => e.stopPropagation()}
-                              disabled={removeLink.isPending}
-                              className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
-                              aria-label="Ta bort koppling"
-                              title="Ta bort koppling"
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </SortableItem>
-                      ))}
+                      {list.map((l) => {
+                        const isRemoving = removeLink.isPending && removeLink.variables === l.id;
+                        return (
+                          <SortableItem key={l.id} id={l.id}>
+                            <div className="flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 flex-1 min-w-0">
+                              <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span className="text-sm text-foreground truncate flex-1">
+                                {nameOf(l.template_id)}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeLink.mutate(l.id);
+                                }}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                disabled={isRemoving}
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                                aria-label="Ta bort koppling"
+                                title="Ta bort koppling"
+                              >
+                                {isRemoving ? (
+                                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <X className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </div>
+                          </SortableItem>
+                        );
+                      })}
                     </div>
                   </SortableContext>
                 </DndContext>
