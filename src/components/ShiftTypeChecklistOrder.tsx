@@ -150,8 +150,7 @@ const ShiftTypeChecklistOrder = () => {
     },
     onError: () => toast({ title: "Kunde inte koppla", variant: "destructive" }),
   });
-
-
+  const applyRetroactive = useMutation({
     mutationFn: async () => {
       const usedShiftTypes = Array.from(new Set(links.map((l) => l.shift_type)));
       if (usedShiftTypes.length === 0) return { added: 0, scanned: 0 };
