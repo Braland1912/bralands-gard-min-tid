@@ -357,7 +357,7 @@ const AdminChecklists = () => {
           </Button>
         </div>
 
-        <ShiftTypeChecklistOrder />
+        
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -417,6 +417,8 @@ const AdminChecklists = () => {
             </SortableContext>
           </DndContext>
         )}
+
+        <ShiftTypeChecklistOrder />
       </div>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
