@@ -136,8 +136,16 @@ const ShiftTypeChecklistOrder = () => {
 
   const addLink = useMutation({
     mutationFn: async ({ shiftType, templateId }: { shiftType: string; templateId: string }) => {
-      const existing = orders[shiftType] ?? [];
-      const nextSort = existing.length;
+      // Refetch live state to avoid race with other admins
+      const { data: fresh, error: fetchErr } = await supabase
+        .from("checklist_template_shift_types")
+        .select("id, template_id, sort_order")
+        .eq("shift_type", shiftType);
+      if (fetchErr) throw fetchErr;
+      if ((fresh ?? []).some((l) => l.template_id === templateId)) {
+        throw new Error("ALREADY_LINKED");
+      }
+      const nextSort = (fresh ?? []).length;
       const { error } = await supabase
         .from("checklist_template_shift_types")
         .insert({ shift_type: shiftType, template_id: templateId, sort_order: nextSort });
@@ -148,7 +156,21 @@ const ShiftTypeChecklistOrder = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       toast({ title: "Mall kopplad" });
     },
-    onError: () => toast({ title: "Kunde inte koppla", variant: "destructive" }),
+    onError: (err: any) => {
+      const isDup = err?.message === "ALREADY_LINKED" || err?.code === "23505";
+      if (isDup) {
+        // Make sure UI reflects the actual server state
+        queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+        queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
+      }
+      toast({
+        title: isDup ? "Redan kopplad" : "Kunde inte koppla",
+        description: isDup
+          ? "Den här mallen är redan kopplad till passtypen."
+          : undefined,
+        variant: "destructive",
+      });
+    },
   });
   const applyRetroactive = useMutation({
     mutationFn: async () => {
