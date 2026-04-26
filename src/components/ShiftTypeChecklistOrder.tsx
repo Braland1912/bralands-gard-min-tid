@@ -131,7 +131,15 @@ const ShiftTypeChecklistOrder = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       toast({ title: "Koppling borttagen" });
     },
-    onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
+      toast({
+        title: "Kunde inte ta bort",
+        description: "Listan har uppdaterats med senaste tillståndet.",
+        variant: "destructive",
+      });
+    },
   });
 
   const addLink = useMutation({
