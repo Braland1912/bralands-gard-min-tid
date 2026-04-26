@@ -131,7 +131,15 @@ const ShiftTypeChecklistOrder = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       toast({ title: "Koppling borttagen" });
     },
-    onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
+      toast({
+        title: "Kunde inte ta bort",
+        description: "Listan har uppdaterats med senaste tillståndet.",
+        variant: "destructive",
+      });
+    },
   });
 
   const addLink = useMutation({
@@ -157,17 +165,15 @@ const ShiftTypeChecklistOrder = () => {
       toast({ title: "Mall kopplad" });
     },
     onError: (err: any) => {
+      // Always refetch on failure so the UI immediately reflects server state
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       const isDup = err?.message === "ALREADY_LINKED" || err?.code === "23505";
-      if (isDup) {
-        // Make sure UI reflects the actual server state
-        queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
-        queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
-      }
       toast({
         title: isDup ? "Redan kopplad" : "Kunde inte koppla",
         description: isDup
           ? "Den här mallen är redan kopplad till passtypen."
-          : undefined,
+          : "Listan har uppdaterats med senaste tillståndet.",
         variant: "destructive",
       });
     },
