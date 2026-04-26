@@ -277,12 +277,52 @@ const ShiftTypeChecklistOrder = () => {
       <div className="space-y-3">
         {SHIFT_TYPES.map((st) => {
           const list = orders[st.value] ?? [];
+          const linkedTemplateIds = new Set(list.map((l) => l.template_id));
+          const available = templates.filter((t) => !linkedTemplateIds.has(t.id));
           return (
             <div key={st.value} className={`rounded-lg border ${st.border} ${st.bg} p-3`}>
-              <p className={`text-xs font-semibold mb-2 flex items-center gap-1.5 ${st.text}`}>
-                <span className="text-sm leading-none">{st.emoji}</span>
-                {st.label}
-              </p>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className={`text-xs font-semibold flex items-center gap-1.5 ${st.text}`}>
+                  <span className="text-sm leading-none">{st.emoji}</span>
+                  {st.label}
+                </p>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-xs text-foreground/80 hover:bg-background/70"
+                      disabled={available.length === 0 || addLink.isPending}
+                      title={available.length === 0 ? "Alla mallar är redan kopplade" : "Lägg till mall"}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Lägg till
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-64 p-2">
+                    {available.length === 0 ? (
+                      <p className="text-xs text-muted-foreground p-2">Alla mallar är redan kopplade.</p>
+                    ) : (
+                      <div className="space-y-0.5 max-h-64 overflow-y-auto">
+                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground px-2 py-1">
+                          Välj mall
+                        </p>
+                        {available.map((t) => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => addLink.mutate({ shiftType: st.value, templateId: t.id })}
+                            className="w-full text-left flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
+                            <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="truncate">{t.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </div>
               {list.length === 0 ? (
                 <p className="text-[11px] text-muted-foreground italic">Inga kopplade mallar</p>
               ) : (
@@ -300,9 +340,24 @@ const ShiftTypeChecklistOrder = () => {
                         <SortableItem key={l.id} id={l.id}>
                           <div className="flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 flex-1 min-w-0">
                             <ListChecks className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="text-sm text-foreground truncate">
+                            <span className="text-sm text-foreground truncate flex-1">
                               {nameOf(l.template_id)}
                             </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeLink.mutate(l.id);
+                              }}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              disabled={removeLink.isPending}
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                              aria-label="Ta bort koppling"
+                              title="Ta bort koppling"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
                           </div>
                         </SortableItem>
                       ))}
