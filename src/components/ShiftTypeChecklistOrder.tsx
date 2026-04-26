@@ -118,7 +118,40 @@ const ShiftTypeChecklistOrder = () => {
     reorder.mutate({ shiftType, orderedIds: next.map((l) => l.id) });
   };
 
-  const applyRetroactive = useMutation({
+  const removeLink = useMutation({
+    mutationFn: async (linkId: string) => {
+      const { error } = await supabase
+        .from("checklist_template_shift_types")
+        .delete()
+        .eq("id", linkId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
+      toast({ title: "Koppling borttagen" });
+    },
+    onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
+  });
+
+  const addLink = useMutation({
+    mutationFn: async ({ shiftType, templateId }: { shiftType: string; templateId: string }) => {
+      const existing = orders[shiftType] ?? [];
+      const nextSort = existing.length;
+      const { error } = await supabase
+        .from("checklist_template_shift_types")
+        .insert({ shift_type: shiftType, template_id: templateId, sort_order: nextSort });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] });
+      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
+      toast({ title: "Mall kopplad" });
+    },
+    onError: () => toast({ title: "Kunde inte koppla", variant: "destructive" }),
+  });
+
+
     mutationFn: async () => {
       const usedShiftTypes = Array.from(new Set(links.map((l) => l.shift_type)));
       if (usedShiftTypes.length === 0) return { added: 0, scanned: 0 };
