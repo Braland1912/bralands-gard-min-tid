@@ -281,7 +281,26 @@ const ShiftTypeChecklistOrder = () => {
             Dra för att ändra ordningen som checklistorna läggs till på nya pass.
           </p>
         </div>
-        <AlertDialog>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+            onClick={async () => {
+              await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types-full"] }),
+                queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] }),
+                queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
+              ]);
+              toast({ title: "Listan uppdaterad" });
+            }}
+            disabled={linksFetching}
+            aria-label="Uppdatera listan"
+            title="Uppdatera listan"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${linksFetching ? "animate-spin" : ""}`} />
+          </Button>
+          <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button size="sm" variant="outline" className="shrink-0" disabled={applyRetroactive.isPending}>
               <Wand2 className="h-3.5 w-3.5 mr-1.5" />
