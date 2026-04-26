@@ -390,30 +390,46 @@ const Index = () => {
               </button>
             )}
 
-            {/* Clock in/out buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={handleClockIn}
-                size="lg"
-                disabled={clockInState !== "idle" || !!activeEntry || !isOnline}
-                className={`h-24 text-lg font-semibold gap-2 transition-all duration-200 ${
-                  clockInState === "confirmed" ? "bg-emerald-500 hover:bg-emerald-500" : ""
-                }`}
-              >
-                {renderButtonContent(clockInState, "Stämpla in", <LogIn className="h-6 w-6" />)}
-              </Button>
-              <Button
-                onClick={handleClockOut}
-                size="lg"
-                variant="outline"
-                disabled={clockOutState !== "idle" || !activeEntry || !!forgottenEntry || !isOnline}
-                className={`h-24 text-lg font-semibold gap-2 transition-all duration-200 ${
-                  clockOutState === "confirmed" ? "border-emerald-500 text-emerald-500" : ""
-                }`}
-              >
-                {renderButtonContent(clockOutState, "Stämpla ut", <LogOut className="h-6 w-6" />)}
-              </Button>
-            </div>
+            {/* Clock in/out buttons — premiate the relevant action based on state */}
+            {(() => {
+              const isClockedIn = !!activeEntry && !forgottenEntry;
+              const clockInPrimary = !isClockedIn;
+              const clockOutPrimary = isClockedIn;
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    onClick={handleClockIn}
+                    size="lg"
+                    variant={clockInPrimary ? "default" : "ghost"}
+                    disabled={clockInState !== "idle" || !!activeEntry || !isOnline}
+                    className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
+                      clockInState === "confirmed"
+                        ? "bg-emerald-500 hover:bg-emerald-500 text-white"
+                        : clockInPrimary
+                          ? "shadow-md"
+                          : "text-muted-foreground opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    {renderButtonContent(clockInState, "Stämpla in", <LogIn className="h-6 w-6" />)}
+                  </Button>
+                  <Button
+                    onClick={handleClockOut}
+                    size="lg"
+                    variant={clockOutPrimary ? "default" : "ghost"}
+                    disabled={clockOutState !== "idle" || !activeEntry || !!forgottenEntry || !isOnline}
+                    className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
+                      clockOutState === "confirmed"
+                        ? "bg-emerald-500 hover:bg-emerald-500 text-white"
+                        : clockOutPrimary
+                          ? "shadow-md"
+                          : "text-muted-foreground opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    {renderButtonContent(clockOutState, "Stämpla ut", <LogOut className="h-6 w-6" />)}
+                  </Button>
+                </div>
+              );
+            })()}
 
             <TodayScheduleChips userId={user.id} />
 
