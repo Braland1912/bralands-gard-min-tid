@@ -55,21 +55,56 @@ const TimeCorrectionRequests = () => {
         .eq("id", id);
       if (updateError) throw updateError;
 
-      // Only insert a time entry for normal corrections (not early clock-out notes,
+      // Only touch time_entries for normal corrections (not early clock-out notes,
       // which carry no clock_in/clock_out — the entry already exists).
       if (action === "approved" && !isEarlyClockout(request) && (request.clock_in || request.clock_out)) {
-        const { error: insertError } = await supabase.from("time_entries").insert({
-          worker_id: request.worker_id,
-          worker_name: request.worker_name,
-          clock_in: request.clock_in,
-          clock_out: request.clock_out,
-        });
-        if (insertError) throw insertError;
+        // Look for an existing OPEN entry (clock_out IS NULL) on the same date — typically a
+        // forgotten clock-out. If found, update it instead of inserting a duplicate row.
+        const dayStart = new Date(`${request.date}T00:00:00`).toISOString();
+        const dayEnd = new Date(`${request.date}T23:59:59.999`).toISOString();
+
+        const { data: openEntries, error: fetchError } = await supabase
+          .from("time_entries")
+          .select("id, clock_in")
+          .eq("worker_id", request.worker_id)
+          .is("clock_out", null)
+          .gte("clock_in", dayStart)
+          .lte("clock_in", dayEnd)
+          .order("clock_in", { ascending: true })
+          .limit(1);
+        if (fetchError) throw fetchError;
+
+        const openEntry = openEntries?.[0];
+
+        if (openEntry && (request.clock_in || request.clock_out)) {
+          // Update the existing open entry — fixes the "forgotten clock-out" case.
+          const updates: { clock_in?: string; clock_out?: string } = {};
+          if (request.clock_in) updates.clock_in = request.clock_in;
+          if (request.clock_out) updates.clock_out = request.clock_out;
+
+          const { error: updErr } = await supabase
+            .from("time_entries")
+            .update(updates)
+            .eq("id", openEntry.id);
+          if (updErr) throw updErr;
+        } else if (request.clock_in) {
+          // No open entry to fix — fall back to inserting a new row (existing behaviour).
+          const { error: insertError } = await supabase.from("time_entries").insert({
+            worker_id: request.worker_id,
+            worker_name: request.worker_name,
+            clock_in: request.clock_in,
+            clock_out: request.clock_out,
+          });
+          if (insertError) throw insertError;
+        }
       }
     },
     onSuccess: (_, { action, request }) => {
       queryClient.invalidateQueries({ queryKey: ["correction-requests"] });
       queryClient.invalidateQueries({ queryKey: ["time_entries"] });
+      queryClient.invalidateQueries({ queryKey: ["active-entry"] });
+      queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
+      queryClient.invalidateQueries({ queryKey: ["my-today-entries"] });
       const isEarly = isEarlyClockout(request);
       toast({
         title: action === "approved" ? (isEarly ? "Kvitterad" : "Godkänd") : "Nekad",
