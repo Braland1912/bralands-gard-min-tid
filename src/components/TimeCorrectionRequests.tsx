@@ -148,11 +148,13 @@ const TimeCorrectionRequests = () => {
         </ToggleGroupItem>
         <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
           <ListChecks className="h-3.5 w-3.5 mr-1" />
-          Tidiga utstämplingar
+          <span className="md:hidden">Tidiga</span>
+          <span className="hidden md:inline">Tidiga utstämplingar</span>
           <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalEarly}</Badge>
         </ToggleGroupItem>
         <ToggleGroupItem value="normal" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
-          Korrigeringar
+          <span className="md:hidden">Rättelser</span>
+          <span className="hidden md:inline">Korrigeringar</span>
           <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalNormal}</Badge>
         </ToggleGroupItem>
       </ToggleGroup>
@@ -309,7 +311,35 @@ const TimeCorrectionRequests = () => {
       {filteredHandled.length > 0 && (
         <div className="space-y-2 pt-2">
           <h3 className="text-sm font-medium text-muted-foreground">Hanterade</h3>
-          <div className="rounded-md border overflow-auto">
+
+          {/* Mobilkort */}
+          <div className="md:hidden space-y-2">
+            {filteredHandled.map((r: any) => {
+              const early = isEarlyClockout(r);
+              const typeLabel = early ? "Tidig utstämpling" : "Korrigering";
+              return (
+                <Card key={r.id} className="p-3 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-foreground">{r.worker_name}</p>
+                    {r.status === "approved" ? (
+                      <Badge className="bg-green-600 shrink-0">{early ? "Hanterad" : "Godkänd"}</Badge>
+                    ) : (
+                      <Badge variant="destructive" className="shrink-0">{early ? "Avfärdad" : "Nekad"}</Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className="whitespace-nowrap">{r.date}</span> · {typeLabel}
+                  </p>
+                  {r.admin_note && (
+                    <p className="text-sm text-foreground">{r.admin_note}</p>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop-tabell */}
+          <div className="hidden md:block rounded-md border overflow-auto">
             <Table>
               <TableHeader>
                 <TableRow>
