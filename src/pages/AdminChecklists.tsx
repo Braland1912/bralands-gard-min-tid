@@ -443,37 +443,6 @@ const AdminChecklists = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
-              <p className="text-[11px] text-muted-foreground">
-                Mallen läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
-              </p>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                {SHIFT_TYPE_OPTIONS.map((opt) => {
-                  const checked = editShiftTypes.includes(opt.value);
-                  return (
-                    <label
-                      key={opt.value}
-                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
-                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(v) => {
-                          setEditShiftTypes((prev) =>
-                            v === true ? [...prev, opt.value] : prev.filter((s) => s !== opt.value),
-                          );
-                        }}
-                      />
-                      <span className="text-base leading-none">{opt.emoji}</span>
-                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Punkter</label>
               <div className="space-y-2">
                 {editItems.length === 0 && (
@@ -520,6 +489,37 @@ const AdminChecklists = () => {
                   <Plus className="h-4 w-4 mr-1" />
                   Lägg till
                 </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
+              <p className="text-[11px] text-muted-foreground">
+                Mallen läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {SHIFT_TYPE_OPTIONS.map((opt) => {
+                  const checked = editShiftTypes.includes(opt.value);
+                  return (
+                    <label
+                      key={opt.value}
+                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
+                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          setEditShiftTypes((prev) =>
+                            v === true ? [...prev, opt.value] : prev.filter((s) => s !== opt.value),
+                          );
+                        }}
+                      />
+                      <span className="text-base leading-none">{opt.emoji}</span>
+                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>
