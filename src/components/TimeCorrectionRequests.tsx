@@ -113,11 +113,13 @@ const TimeCorrectionRequests = () => {
         </ToggleGroupItem>
         <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
           <ListChecks className="h-3.5 w-3.5 mr-1" />
-          Tidiga utstämplingar
+          <span className="md:hidden">Tidiga</span>
+          <span className="hidden md:inline">Tidiga utstämplingar</span>
           <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalEarly}</Badge>
         </ToggleGroupItem>
         <ToggleGroupItem value="normal" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
-          Korrigeringar
+          <span className="md:hidden">Rättelser</span>
+          <span className="hidden md:inline">Korrigeringar</span>
           <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalNormal}</Badge>
         </ToggleGroupItem>
       </ToggleGroup>
