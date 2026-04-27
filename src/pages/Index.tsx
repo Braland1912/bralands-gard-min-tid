@@ -417,7 +417,7 @@ const Index = () => {
                     onClick={handleClockOut}
                     size="lg"
                     variant={clockOutPrimary ? "default" : "ghost"}
-                    disabled={clockOutState !== "idle" || !activeEntry || !!forgottenEntry || !isOnline}
+                    disabled={clockOutState !== "idle" || !activeEntry || !isOnline}
                     className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
                       clockOutState === "confirmed"
                         ? "bg-emerald-500 hover:bg-emerald-500 text-white"
