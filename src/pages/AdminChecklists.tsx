@@ -270,7 +270,10 @@ const AdminChecklists = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
       setEditing(null);
-      toast({ title: "Mall sparad" });
+      toast({
+        title: "Mall sparad",
+        description: "Namn, punkter och passtyper är uppdaterade.",
+      });
     },
     onError: (err: any) => {
       const isItemDup = err?.message === "DUPLICATE";
