@@ -153,7 +153,8 @@ const Index = () => {
 
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
-    if (activeEntry) {
+    // Only block when there's an active entry from TODAY (not a forgotten one from a previous day)
+    if (activeEntry && !forgottenEntry) {
       toast({ title: "Du ar redan instamplad", description: "Du har redan en aktiv stampling. Stampla ut forst.", variant: "destructive" });
       return;
     }
