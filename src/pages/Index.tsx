@@ -183,7 +183,7 @@ const Index = () => {
       toast({ title: "Instampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockInState("idle");
     }
-  }, [worker, clockInState, isOnline, activeEntry, toast, queryClient, navigate]);
+  }, [worker, clockInState, isOnline, activeEntry, forgottenEntry, toast, queryClient, navigate]);
 
   const performClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
