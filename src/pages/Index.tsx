@@ -153,7 +153,8 @@ const Index = () => {
 
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
-    if (activeEntry) {
+    // Only block when there's an active entry from TODAY (not a forgotten one from a previous day)
+    if (activeEntry && !forgottenEntry) {
       toast({ title: "Du ar redan instamplad", description: "Du har redan en aktiv stampling. Stampla ut forst.", variant: "destructive" });
       return;
     }
@@ -182,7 +183,7 @@ const Index = () => {
       toast({ title: "Instampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockInState("idle");
     }
-  }, [worker, clockInState, isOnline, activeEntry, toast, queryClient, navigate]);
+  }, [worker, clockInState, isOnline, activeEntry, forgottenEntry, toast, queryClient, navigate]);
 
   const performClockOut = useCallback(async () => {
     if (!worker || clockOutState !== "idle" || !isOnline) return;
@@ -401,7 +402,7 @@ const Index = () => {
                     onClick={handleClockIn}
                     size="lg"
                     variant={clockInPrimary ? "default" : "ghost"}
-                    disabled={clockInState !== "idle" || !!activeEntry || !isOnline}
+                    disabled={clockInState !== "idle" || (!!activeEntry && !forgottenEntry) || !isOnline}
                     className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
                       clockInState === "confirmed"
                         ? "bg-emerald-500 hover:bg-emerald-500 text-white"
@@ -416,7 +417,7 @@ const Index = () => {
                     onClick={handleClockOut}
                     size="lg"
                     variant={clockOutPrimary ? "default" : "ghost"}
-                    disabled={clockOutState !== "idle" || !activeEntry || !!forgottenEntry || !isOnline}
+                    disabled={clockOutState !== "idle" || !activeEntry || !isOnline}
                     className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
                       clockOutState === "confirmed"
                         ? "bg-emerald-500 hover:bg-emerald-500 text-white"
