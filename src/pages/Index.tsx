@@ -402,7 +402,7 @@ const Index = () => {
                     onClick={handleClockIn}
                     size="lg"
                     variant={clockInPrimary ? "default" : "ghost"}
-                    disabled={clockInState !== "idle" || !!activeEntry || !isOnline}
+                    disabled={clockInState !== "idle" || (!!activeEntry && !forgottenEntry) || !isOnline}
                     className={`h-24 text-lg font-semibold gap-2 transition-all duration-300 ${
                       clockInState === "confirmed"
                         ? "bg-emerald-500 hover:bg-emerald-500 text-white"
