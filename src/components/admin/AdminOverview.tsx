@@ -271,7 +271,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     {
       key: "active",
       label: "Instämplade nu",
-      value: loadingActive ? "…" : activeEntries.length,
+      value: loadingActive ? "…" : filteredActiveEntries.length,
       icon: Clock,
       // teal
       tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
@@ -282,7 +282,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     {
       key: "today",
       label: "Jobbar idag",
-      value: loadingToday || loadingWorkers ? "…" : todayWorkers.length,
+      value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
       icon: Users,
       // soft amber
       tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
@@ -293,7 +293,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     {
       key: "week",
       label: "Jobbar i veckan",
-      value: loadingWeek || loadingWorkers ? "…" : weekRows.length,
+      value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
       icon: CalendarDays,
       // soft sage
       tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
