@@ -32,6 +32,9 @@ const AppIconPreview = () => {
 
   return (
     <img
+      // Tvinga ny <img>-instans per stage så onError säkert fyrar
+      // även om föregående src misslyckats (browsern cacheable failed state).
+      key={stage}
       src={src}
       alt="Brålandsklockan"
       width={80}
