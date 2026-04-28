@@ -159,7 +159,19 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
-  const isDayPublished = (date: Date) => {
+  // Sync noteDraft when sheet opens or underlying schedules change
+  useEffect(() => {
+    if (!sheet || !sheet.worker.user_id) {
+      setNoteDraft("");
+      return;
+    }
+    const dateStr = format(sheet.date, "yyyy-MM-dd");
+    const row = (schedules as any[]).find(
+      (s) => s.user_id === sheet.worker.user_id && s.date === dateStr && (s.shift_index ?? 0) === sheet.shiftIndex,
+    );
+    setNoteDraft(row?.note ?? "");
+  }, [sheet, schedules]);
+
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
     return row?.is_published === true;
