@@ -82,6 +82,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
   const [search, setSearch] = useState("");
+  const [scope, setScope] = useState<"today" | "week" | "all">("all");
   const normalizedSearch = search.trim().toLocaleLowerCase("sv");
   const matchesSearch = (name: string | undefined | null) =>
     !normalizedSearch || (name ?? "").toLocaleLowerCase("sv").includes(normalizedSearch);
