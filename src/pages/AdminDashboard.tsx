@@ -82,7 +82,12 @@ const AdminDashboard = () => {
       return;
     }
     setActiveTab(tabId);
+    // Sync URL state so the desktop sidebar reflects the change
+    navigate("/admin/dashboard", { replace: true, state: { tab: tabId } });
   };
+
+  const handleOverviewNavigate = (tabId: string) => handleTabChange(tabId);
+
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -99,7 +104,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "oversikt":
-        return <AdminOverview onNavigate={setActiveTab} />;
+        return <AdminOverview onNavigate={handleOverviewNavigate} />;
       case "tidslogg":
         return <AdminTimeLog />;
       case "rattelser":
@@ -111,7 +116,7 @@ const AdminDashboard = () => {
       case "lon":
         return <SalaryReport />;
       default:
-        return <AdminOverview onNavigate={setActiveTab} />;
+        return <AdminOverview onNavigate={handleOverviewNavigate} />;
     }
   };
 
