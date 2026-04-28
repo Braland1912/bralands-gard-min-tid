@@ -653,7 +653,14 @@ const AdminSchedule = () => {
                 {sheet && `${FULL_DAY_NAMES[sheet.dayIndex]} · ${format(sheet.date, "d MMM yyyy", { locale: sv })}`}
               </div>
               <div className="text-[11px] text-muted-foreground mt-0.5">
-                {sheet?.shiftIndex === 0 ? "Pass 1" : "Pass 2"}
+                {(() => {
+                  const passLabel = sheet?.shiftIndex === 0 ? "Pass 1" : "Pass 2";
+                  const currentType = sheet?.worker?.user_id
+                    ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+                    : null;
+                  const cfg = currentType ? SHIFT_MAP[currentType] : null;
+                  return cfg ? `${passLabel} · ${cfg.emoji} ${cfg.label}` : passLabel;
+                })()}
               </div>
             </div>
             <button
