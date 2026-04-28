@@ -82,6 +82,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
   const [search, setSearch] = useState("");
+  const [scope, setScope] = useState<"today" | "week" | "all">("all");
   const normalizedSearch = search.trim().toLocaleLowerCase("sv");
   const matchesSearch = (name: string | undefined | null) =>
     !normalizedSearch || (name ?? "").toLocaleLowerCase("sv").includes(normalizedSearch);
@@ -267,6 +268,9 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const filteredTodayWorkers = todayWorkers.filter((r) => matchesSearch(r.worker?.name));
   const filteredWeekRows = weekRows.filter((r) => matchesSearch(r.worker?.name));
 
+  const showToday = scope === "today" || scope === "all";
+  const showWeek = scope === "week" || scope === "all";
+
   const stats = [
     {
       key: "active",
@@ -279,7 +283,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(183_25%_35%)]",
       valueColor: "text-[hsl(183_25%_28%)]",
     },
-    {
+    showToday && {
       key: "today",
       label: "Jobbar idag",
       value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
@@ -290,7 +294,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(32_55%_38%)]",
       valueColor: "text-[hsl(32_55%_30%)]",
     },
-    {
+    showWeek && {
       key: "week",
       label: "Jobbar i veckan",
       value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
@@ -313,7 +317,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(8_55%_42%)]",
       valueColor: "text-[hsl(8_55%_35%)]",
     },
-  ];
+  ].filter(Boolean) as any[];
 
   return (
     <div className="space-y-6 pb-24 md:pb-6">
@@ -341,6 +345,33 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <X className="h-3.5 w-3.5" />
           </button>
         )}
+      </div>
+
+      {/* Date scope chips */}
+      <div className="flex items-center gap-2" role="tablist" aria-label="Tidsperiod">
+        {[
+          { key: "today", label: "Idag" },
+          { key: "week", label: "Denna vecka" },
+          { key: "all", label: "Alla" },
+        ].map((c) => {
+          const active = scope === (c.key as typeof scope);
+          return (
+            <button
+              key={c.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setScope(c.key as typeof scope)}
+              className={`px-3 h-8 rounded-full text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Stat grid */}
@@ -434,6 +465,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       </section>
 
       {/* Section: Working today (amber) */}
+      {showToday && (
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.today.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -514,8 +546,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+      )}
 
       {/* Section: Working this week (sage) */}
+      {showWeek && (
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.week.tint}`}>
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
@@ -592,6 +626,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+      )}
 
       {/* Read-only checklist viewer for selected worker */}
       <Sheet open={!!selectedWorker} onOpenChange={(o) => !o && setSelectedWorker(null)}>
