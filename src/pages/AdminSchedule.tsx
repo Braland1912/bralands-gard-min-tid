@@ -689,6 +689,7 @@ const AdminSchedule = () => {
                             date: format(sheet.date, "yyyy-MM-dd"),
                             shiftType: opt.type,
                             shiftIndex: sheet.shiftIndex,
+                            note: opt.type === "busy" ? noteDraft : null,
                           });
                         }}
                         className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
@@ -708,14 +709,37 @@ const AdminSchedule = () => {
                 </div>
               );
 
+              const BusyNoteEditor = currentShiftType === "busy" && currentShiftRow ? (
+                <div className="space-y-2">
+                  <Label htmlFor="busy-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Skäl (valfritt)
+                  </Label>
+                  <Textarea
+                    id="busy-note"
+                    value={noteDraft}
+                    onChange={(e) => setNoteDraft(e.target.value)}
+                    onBlur={() => {
+                      const original = currentShiftRow.note ?? "";
+                      const next = noteDraft.trim();
+                      if ((original ?? "") !== next) {
+                        updateNote.mutate({ id: currentShiftRow.id, note: next });
+                      }
+                    }}
+                    placeholder="T.ex. Läkarbesök, ledig, semester..."
+                    className="min-h-[88px] text-base"
+                  />
+                </div>
+              ) : null;
+
               return hasShift ? (
                 <>
-                  {currentShiftRow && (
+                  {BusyNoteEditor}
+                  {currentShiftRow && currentShiftType !== "busy" && (
                     <div>
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
                     </div>
                   )}
-                  <Separator />
+                  {currentShiftRow && currentShiftType !== "busy" && <Separator />}
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Passtyp
