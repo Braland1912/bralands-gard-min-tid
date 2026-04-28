@@ -674,30 +674,99 @@ const MySchedule = () => {
         </div>
 
         {/* HELA TEAMET */}
-        {canSeeTeam && (
-          <div>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Teamets vecka</h2>
-            <div className="space-y-3">
-              {allWorkers.filter((w: any) => w.user_id && w.user_id !== myUserId).map((w: any) => (
-                <Card key={w.id} className="p-4">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                        {getInitials(w.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-semibold text-foreground">{w.name}</span>
-                  </div>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {weekDays.map((d, i) => (
-                      <DayCell key={i} userId={w.user_id} date={d} today={isToday(d)} isMine={false} />
-                    ))}
-                  </div>
-                </Card>
-              ))}
+        {canSeeTeam && (() => {
+          // Bygg rader: workers med minst ett pass, sorterat alfabetiskt på förnamn
+          const rows = (allWorkers as any[])
+            .filter((w) => !!w.user_id)
+            .map((w) => {
+              const days = weekDays
+                .map((d, dayIdx) => {
+                  const dateStr = format(d, "yyyy-MM-dd");
+                  const shifts = (schedules as any[])
+                    .filter((s) => s.user_id === w.user_id && s.date === dateStr)
+                    .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0))
+                    .map((s) => s.shift_type as string);
+                  return { dayIdx, shifts };
+                })
+                .filter((d) => d.shifts.length > 0);
+              return { worker: w, days };
+            })
+            .filter((r) => r.days.length > 0)
+            .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+
+          return (
+            <div>
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                    {isCurrentWeek ? "Teamets vecka" : `Vecka ${weekNumber}`}
+                  </h2>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => setWeekOffset((o) => o - 1)}
+                    aria-label="Föregående vecka"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  {!isCurrentWeek && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-xs"
+                      onClick={() => setWeekOffset(0)}
+                    >
+                      Denna vecka
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8"
+                    onClick={() => setWeekOffset((o) => o + 1)}
+                    aria-label="Nästa vecka"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {rows.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">Ingen är schemalagd denna vecka.</p>
+              ) : (
+                <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+                  {rows.map((row) => (
+                    <li
+                      key={row.worker.id}
+                      className="py-2 px-3 flex items-center justify-between gap-3"
+                    >
+                      <span className="text-sm font-medium text-foreground truncate shrink-0">
+                        {getShortName(row.worker.name)}
+                      </span>
+                      <span className="text-xs text-muted-foreground text-right">
+                        {row.days.map((d, i) => (
+                          <span key={d.dayIdx}>
+                            {i > 0 && <span className="mx-1 opacity-50">·</span>}
+                            {DAY_NAMES[d.dayIdx]}{" "}
+                            <span className="text-sm leading-none">
+                              {d.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join("")}
+                            </span>
+                          </span>
+                        ))}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <Sheet
