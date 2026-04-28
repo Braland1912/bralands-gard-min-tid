@@ -99,7 +99,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       if (error) throw error;
       return data ?? [];
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   const { data: activeEntries = [], isLoading: loadingActive } = useQuery({
@@ -113,7 +113,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       if (error) throw error;
       return data ?? [];
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   const { data: workers = [], isLoading: loadingWorkers } = useQuery({

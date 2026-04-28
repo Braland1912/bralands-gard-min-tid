@@ -67,7 +67,7 @@ const AdminDashboard = () => {
       });
       return { normal, early };
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
   const pendingCount = pendingCounts.normal;
   const earlyCount = pendingCounts.early;

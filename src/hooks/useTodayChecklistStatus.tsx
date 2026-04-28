@@ -10,7 +10,7 @@ export const useTodayChecklistStatus = (userId: string | undefined) => {
   return useQuery({
     queryKey: ["today-checklist-status", userId],
     enabled: !!userId,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
     queryFn: async () => {
       if (!userId) return { unchecked: 0, total: 0, hasShifts: false };
       const today = new Date();
