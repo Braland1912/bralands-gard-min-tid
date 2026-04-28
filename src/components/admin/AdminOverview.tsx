@@ -262,6 +262,11 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
+  // Apply name search filter (counters reflect filtered results)
+  const filteredActiveEntries = (activeEntries as any[]).filter((e) => matchesSearch(e.worker_name));
+  const filteredTodayWorkers = todayWorkers.filter((r) => matchesSearch(r.worker?.name));
+  const filteredWeekRows = weekRows.filter((r) => matchesSearch(r.worker?.name));
+
   const stats = [
     {
       key: "active",
