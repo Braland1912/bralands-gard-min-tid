@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TimePicker } from "@/components/TimePicker";
@@ -328,22 +328,32 @@ const MyTime = () => {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+                className="w-full max-w-full p-0 flex flex-col gap-0 overflow-x-hidden sm:max-w-none md:max-w-2xl md:rounded-l-2xl [&>button.absolute]:hidden"
               >
-                {/* Header */}
-                <div className="flex-shrink-0 p-4 border-b border-border bg-card pr-12">
-                  <SheetTitle className="text-base font-semibold">Rapportera saknad tid</SheetTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Fyll i vilken tid du jobbade så fixar din arbetsledare det
-                  </p>
-                </div>
-
                 <form
                   className="flex-1 flex flex-col min-h-0"
                   onSubmit={(e) => { e.preventDefault(); submitMutation.mutate(); }}
                 >
+                  {/* Header — sticky top */}
+                  <div className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
+                    <div className="min-w-0 flex-1">
+                      <SheetTitle className="text-base font-semibold">Rapportera saknad tid</SheetTitle>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Fyll i vilken tid du jobbade så fixar din arbetsledare det
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      aria-label="Stäng"
+                      className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <X className="h-5 w-5 text-muted-foreground" />
+                    </button>
+                  </div>
+
                   {/* Scrollable body */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-w-0">
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium">Datum</label>
                       <Popover>
@@ -396,8 +406,8 @@ const MyTime = () => {
                     </div>
                   </div>
 
-                  {/* Footer — sticky */}
-                  <div className="flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+                  {/* Footer — sticky bottom */}
+                  <div className="sticky bottom-0 z-10 flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
                     <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
                       Avbryt
                     </Button>
