@@ -734,9 +734,13 @@ const MySchedule = () => {
             <SheetTitle>
               {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
             </SheetTitle>
-            {openShift?.shiftType && (
+            {openShift && (
               <div className="text-sm text-muted-foreground">
-                {`Pass ${(openShift.shiftIndex ?? 0) + 1} · ${SHIFT_CONFIG[openShift.shiftType].emoji} ${SHIFT_CONFIG[openShift.shiftType].label}`}
+                {(() => {
+                  const passLabel = `Pass ${(openShift.shiftIndex ?? 0) + 1}`;
+                  const cfg = openShift.shiftType ? SHIFT_CONFIG[openShift.shiftType] : null;
+                  return cfg ? `${passLabel} · ${cfg.emoji} ${cfg.label}` : passLabel;
+                })()}
               </div>
             )}
           </SheetHeader>
