@@ -307,10 +307,12 @@ const MyTime = () => {
 
         {/* Tabs: Tidrapport + Rättelser */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tidrapport">Tidrapport</TabsTrigger>
-            <TabsTrigger value="rattelser">Rättelser</TabsTrigger>
-          </TabsList>
+          <div className="sticky top-0 z-20 -mx-5 px-5 py-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border md:static md:mx-0 md:px-0 md:py-0 md:bg-transparent md:backdrop-blur-none md:border-0">
+            <TabsList className="grid w-full grid-cols-2 h-11">
+              <TabsTrigger value="tidrapport" className="text-sm">Tidrapport</TabsTrigger>
+              <TabsTrigger value="rattelser" className="text-sm">Rättelser</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="rattelser" className="space-y-4 mt-4">
         {/* Correction requests */}
