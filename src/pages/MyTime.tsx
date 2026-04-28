@@ -34,12 +34,25 @@ const MyTime = () => {
   const initialTab = (location.state as { tab?: string } | null)?.tab === "rattelser" ? "rattelser" : "tidrapport";
   const [activeTab, setActiveTab] = useState<"tidrapport" | "rattelser">(initialTab);
 
+  // Synka aktiv tab vid varje navigation (inkl. back/forward via popstate).
+  // location.key ändras vid varje history-entry, så detta fångar även när användaren
+  // går framåt/bakåt mellan /my-time-besök med olika state.tab.
   useEffect(() => {
     const stateTab = (location.state as { tab?: string } | null)?.tab;
     if (stateTab === "rattelser" || stateTab === "tidrapport") {
       setActiveTab(stateTab);
+    } else {
+      // Default till "tidrapport" när state saknas (t.ex. direktnavigation till /my-time)
+      setActiveTab("tidrapport");
     }
-  }, [location.state]);
+  }, [location.key, location.state]);
+
+  // När användaren byter tab via fliken — uppdatera history så back-knappen fungerar
+  const handleTabChange = (v: string) => {
+    const next = v as "tidrapport" | "rattelser";
+    setActiveTab(next);
+    navigate("/my-time", { state: { tab: next }, replace: false });
+  };
 
   const [open, setOpen] = useState(false);
   const [formDate, setFormDate] = useState("");
