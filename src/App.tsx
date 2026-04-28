@@ -19,7 +19,15 @@ import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 10000,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

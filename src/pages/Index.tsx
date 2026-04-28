@@ -121,7 +121,7 @@ const Index = () => {
       return data;
     },
     enabled: !!worker,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   // Today's completed hours

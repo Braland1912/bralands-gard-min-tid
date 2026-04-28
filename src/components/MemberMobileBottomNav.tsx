@@ -38,7 +38,7 @@ const MemberMobileBottomNav = ({ active }: Props) => {
       return count ?? 0;
     },
     enabled: !!worker?.id,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   // Visa bara för inloggade icke-admins

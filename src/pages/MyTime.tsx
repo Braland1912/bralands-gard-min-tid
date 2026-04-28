@@ -100,7 +100,7 @@ const MyTime = () => {
       return data || [];
     },
     enabled: !!worker,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   const todayDateStr = format(now, "yyyy-MM-dd");

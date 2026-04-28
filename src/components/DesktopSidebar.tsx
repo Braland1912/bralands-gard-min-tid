@@ -71,7 +71,7 @@ const DesktopSidebar = () => {
       return count ?? 0;
     },
     enabled: !!worker?.id && !isAdmin,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   // Admin pending counts
@@ -93,7 +93,7 @@ const DesktopSidebar = () => {
       return { normal, early };
     },
     enabled: !!isAdmin,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 
   if (!user || adminLoading) return null;

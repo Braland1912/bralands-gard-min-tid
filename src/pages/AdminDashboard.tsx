@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, RefreshCw, Calendar, ListChecks, Menu } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -35,7 +35,7 @@ const mobileMoreTabs = [
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("oversikt");
-  const [refreshing, setRefreshing] = useState(false);
+  
   const [moreOpen, setMoreOpen] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
       });
       return { normal, early };
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
   const pendingCount = pendingCounts.normal;
   const earlyCount = pendingCounts.early;
@@ -88,12 +88,6 @@ const AdminDashboard = () => {
 
   const handleOverviewNavigate = (tabId: string) => handleTabChange(tabId);
 
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setRefreshing(false), 500);
-  };
 
   const handleLogout = async () => {
     queryClient.clear();
@@ -130,12 +124,6 @@ const AdminDashboard = () => {
             <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain cursor-pointer" />
           </button>
           <div className="flex items-center gap-1">
-            <button
-              onClick={handleRefresh}
-              className="p-2 rounded-xl text-muted-foreground hover:bg-accent transition-colors"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            </button>
             <ChangePasswordDialog />
             <button
               onClick={handleLogout}
