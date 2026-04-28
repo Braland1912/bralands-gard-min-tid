@@ -634,6 +634,8 @@ const MySchedule = () => {
                                               id: entry.id,
                                               label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
                                               date: dateObj,
+                                              shiftType: entry.shift_type as ShiftType,
+                                              shiftIndex: entry.shift_index ?? 0,
                                             });
                                           }
                                         : undefined
