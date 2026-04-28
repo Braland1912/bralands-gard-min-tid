@@ -367,16 +367,27 @@ const AdminSchedule = () => {
     shift: ShiftType,
     onClick: (e: React.MouseEvent) => void,
     hasChecklists = false,
+    note?: string | null,
   ) => {
     const cfg = SHIFT_MAP[shift];
+    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
     return (
       <div
         role="button"
         onClick={onClick}
-        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
+        title={hasNote ? note! : undefined}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity relative`}
       >
         <span className="text-sm leading-none">{cfg.emoji}</span>
         <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>{cfg.label}</span>
+        {hasNote && (
+          <>
+            <span className={`hidden md:block text-[9px] mt-0.5 ${cfg.text} opacity-80 truncate max-w-full px-0.5`}>
+              {note}
+            </span>
+            <span className="md:hidden absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
+          </>
+        )}
       </div>
     );
   };
