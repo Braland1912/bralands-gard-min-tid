@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prebuild": "node scripts/verify-pwa-icons.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

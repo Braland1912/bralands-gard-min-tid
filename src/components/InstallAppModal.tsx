@@ -3,6 +3,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Share, Plus } from "lucide-react";
+import logoFallback from "@/assets/logo-braland.svg";
 
 const STORAGE_KEY = "install-prompt-shown";
 
@@ -122,7 +123,12 @@ const InstallAppModal = () => {
           <img
             src="/icons/icon-192.png"
             alt="Brålandsklockan"
-            className="w-20 h-20 mx-auto rounded-2xl border border-border"
+            className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] object-contain p-2"
+            onError={(e) => {
+              const el = e.currentTarget;
+              if (el.src.endsWith(logoFallback)) return;
+              el.src = logoFallback;
+            }}
           />
           <div className="space-y-2">
             <h2 className="text-lg font-semibold text-foreground">
