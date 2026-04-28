@@ -347,6 +347,33 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         )}
       </div>
 
+      {/* Date scope chips */}
+      <div className="flex items-center gap-2" role="tablist" aria-label="Tidsperiod">
+        {[
+          { key: "today", label: "Idag" },
+          { key: "week", label: "Denna vecka" },
+          { key: "all", label: "Alla" },
+        ].map((c) => {
+          const active = scope === (c.key as typeof scope);
+          return (
+            <button
+              key={c.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setScope(c.key as typeof scope)}
+              className={`px-3 h-8 rounded-full text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => {
