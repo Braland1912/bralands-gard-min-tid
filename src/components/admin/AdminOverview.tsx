@@ -379,7 +379,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <h3 className="text-base font-semibold text-foreground">Instämplade nu</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
-            {loadingActive ? "" : `${activeEntries.length} st`}
+            {loadingActive ? "" : `${filteredActiveEntries.length} st`}
           </span>
         </div>
 
@@ -387,11 +387,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
           </div>
-        ) : activeEntries.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är instämplad just nu.</p>
+        ) : filteredActiveEntries.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är instämplad just nu."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.active.divide}`}>
-            {(activeEntries as any[]).map((entry) => {
+            {filteredActiveEntries.map((entry) => {
               const since = entry.clock_in ? new Date(entry.clock_in) : null;
               const hoursSince = since ? (Date.now() - since.getTime()) / 3600000 : 0;
               const warning = hoursSince > 5;
@@ -441,7 +443,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <h3 className="text-base font-semibold text-foreground">Jobbar idag</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
-            {loadingToday || loadingWorkers ? "" : `${todayWorkers.length} st`}
+            {loadingToday || loadingWorkers ? "" : `${filteredTodayWorkers.length} st`}
           </span>
         </div>
 
@@ -449,11 +451,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
           </div>
-        ) : todayWorkers.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är schemalagd idag.</p>
+        ) : filteredTodayWorkers.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är schemalagd idag."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.today.divide}`}>
-            {todayWorkers.map((row) => {
+            {filteredTodayWorkers.map((row) => {
               const progress = checklistProgressByUser.get(row.worker.user_id);
               const pct = progress ? (progress.done / progress.total) * 100 : 0;
               const complete = progress && pct === 100;
@@ -561,11 +565,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2, 3].map((i) => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}
           </div>
-        ) : weekRows.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är schemalagd denna vecka.</p>
+        ) : filteredWeekRows.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är schemalagd denna vecka."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
-            {weekRows.map((row) => (
+            {filteredWeekRows.map((row) => (
               <li key={row.worker.id} className="py-2 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
