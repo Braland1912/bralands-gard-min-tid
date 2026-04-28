@@ -7,6 +7,40 @@ import logoFallback from "@/assets/logo-braland.svg";
 
 const STORAGE_KEY = "install-prompt-shown";
 
+/**
+ * Visar ikonen i modalen med tre fallback-nivåer:
+ *   1. /icons/icon-192.png (riktiga PWA-ikonen)
+ *   2. SVG-loggan (importerad asset, alltid bundlad)
+ *   3. Centrerad textinitial "B" på beige bakgrund — om även SVG misslyckas
+ *      ser användaren fortfarande en snygg, igenkännbar ruta.
+ */
+const AppIconPreview = () => {
+  const [stage, setStage] = useState<"png" | "svg" | "text">("png");
+  const src = stage === "png" ? "/icons/icon-192.png" : logoFallback;
+
+  if (stage === "text") {
+    return (
+      <div
+        role="img"
+        aria-label="Brålandsklockan"
+        className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] flex items-center justify-center"
+      >
+        <span className="text-3xl font-semibold text-primary tracking-tight">B</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt="Brålandsklockan"
+      className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] object-contain p-2"
+      onError={() => setStage((s) => (s === "png" ? "svg" : "text"))}
+    />
+  );
+};
+
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
@@ -120,16 +154,7 @@ const InstallAppModal = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-5 text-center">
-          <img
-            src="/icons/icon-192.png"
-            alt="Brålandsklockan"
-            className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] object-contain p-2"
-            onError={(e) => {
-              const el = e.currentTarget;
-              if (el.src.endsWith(logoFallback)) return;
-              el.src = logoFallback;
-            }}
-          />
+          <AppIconPreview />
           <div className="space-y-2">
             <h2 className="text-lg font-semibold text-foreground">
               Snabbare åtkomst varje dag
