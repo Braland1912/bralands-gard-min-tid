@@ -222,10 +222,21 @@ const AdminTimeLog = () => {
           <SelectTrigger className="h-12 text-base rounded-xl border-border">
             <SelectValue placeholder="Alla medarbetare" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alla medarbetare</SelectItem>
+          <SelectContent className="max-h-[60vh] p-2 rounded-xl">
+            <SelectItem
+              value="all"
+              className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+            >
+              Alla medarbetare
+            </SelectItem>
             {workers.map((w) => (
-              <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+              <SelectItem
+                key={w.id}
+                value={w.id}
+                className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+              >
+                {w.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
