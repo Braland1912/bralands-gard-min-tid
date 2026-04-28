@@ -189,7 +189,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const todayShiftsByUser = new Map<string, string[]>();
   const todayShiftIdsByUser = new Map<string, string[]>();
   (todayShifts as any[])
-    .filter((s) => s.shift_type !== "off")
+    .filter((s) => s.shift_type !== "off" && s.shift_type !== "busy")
     .forEach((s) => {
       if (!todayShiftsByUser.has(s.user_id)) todayShiftsByUser.set(s.user_id, []);
       todayShiftsByUser.get(s.user_id)!.push(s.shift_type);
@@ -234,7 +234,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   // Week shifts grouped per user → map of dayIdx → shift_types[]
   const weekByUser = new Map<string, Map<number, string[]>>();
   (weekShifts as any[]).forEach((s) => {
-    if (s.shift_type === "off") return;
+    if (s.shift_type === "off" || s.shift_type === "busy") return;
     const dayIdx = weekDays.findIndex((d) => format(d, "yyyy-MM-dd") === s.date);
     if (dayIdx === -1) return;
     if (!weekByUser.has(s.user_id)) weekByUser.set(s.user_id, new Map());

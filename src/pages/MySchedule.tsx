@@ -677,7 +677,7 @@ const MySchedule = () => {
         {canSeeTeam && (() => {
           // Bygg rader: workers med minst ett pass, sorterat alfabetiskt på förnamn
           const rows = (allWorkers as any[])
-            .filter((w) => !!w.user_id)
+            .filter((w) => !!w.user_id && w.id !== worker?.id)
             .map((w) => {
               const days = weekDays
                 .map((d, dayIdx) => {
@@ -738,7 +738,7 @@ const MySchedule = () => {
               </div>
 
               {rows.length === 0 ? (
-                <p className="text-sm text-muted-foreground italic">Ingen är schemalagd denna vecka.</p>
+                <p className="text-sm text-muted-foreground italic">Inga andra är schemalagda denna vecka.</p>
               ) : (
                 <ul className="divide-y divide-border rounded-xl border border-border bg-card">
                   {rows.map((row) => (
