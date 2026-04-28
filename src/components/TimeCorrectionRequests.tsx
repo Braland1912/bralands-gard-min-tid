@@ -316,7 +316,13 @@ const TimeCorrectionRequests = () => {
           <div className="md:hidden space-y-2">
             {filteredHandled.map((r: any) => {
               const early = isEarlyClockout(r);
-              const typeLabel = early ? "Tidig utstämpling" : "Korrigering";
+              const typeBadge = early ? (
+                <Badge variant="outline" className="border-amber-400 text-amber-800 shrink-0">
+                  Tidig utstämpling
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="shrink-0">Korrigering</Badge>
+              );
               return (
                 <Card key={r.id} className="p-3 space-y-2 overflow-hidden">
                   <div className="flex items-start justify-between gap-2">
@@ -327,9 +333,10 @@ const TimeCorrectionRequests = () => {
                       <Badge variant="destructive" className="shrink-0">{early ? "Avfärdad" : "Nekad"}</Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground break-words">
-                    <span className="whitespace-nowrap">{r.date}</span> · {typeLabel}
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{r.date}</span>
+                    {typeBadge}
+                  </div>
                   {r.admin_note && (
                     <p className="text-sm text-foreground break-words">{r.admin_note}</p>
                   )}
