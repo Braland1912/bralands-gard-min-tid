@@ -81,6 +81,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const todayStr = format(today, "yyyy-MM-dd");
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
+  const [search, setSearch] = useState("");
+  const normalizedSearch = search.trim().toLocaleLowerCase("sv");
+  const matchesSearch = (name: string | undefined | null) =>
+    !normalizedSearch || (name ?? "").toLocaleLowerCase("sv").includes(normalizedSearch);
   const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekStart = addWeeks(baseWeekStart, weekOffset);
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
