@@ -18,6 +18,7 @@ import AdminChecklists from "./pages/AdminChecklists";
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
+import InstallAppModal from "./components/InstallAppModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <InstallAppModal />
         <DesktopSidebar />
         <AppHeader />
         <div className="md:pl-64">
