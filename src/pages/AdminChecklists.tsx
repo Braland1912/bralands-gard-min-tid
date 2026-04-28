@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Plus, Trash2, ListChecks, Pencil, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -424,13 +424,18 @@ const AdminChecklists = () => {
         <ShiftTypeChecklistOrder />
       </div>
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Redigera mall</DialogTitle>
-          </DialogHeader>
+      <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <SheetContent
+          side="right"
+          className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+        >
+          {/* Header */}
+          <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border bg-card">
+            <SheetTitle className="text-base font-semibold pr-8">Redigera mall</SheetTitle>
+          </div>
 
-          <div className="space-y-4">
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Namn</label>
               <Input
@@ -527,26 +532,31 @@ const AdminChecklists = () => {
             </div>
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+          {/* Footer — sticky */}
+          <div className="flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
             <Button
               variant="outline"
-              className="text-destructive hover:text-destructive sm:mr-auto"
+              className="flex-1 text-destructive hover:text-destructive"
               onClick={() => deleteTemplate.mutate()}
               disabled={deleteTemplate.isPending}
             >
-              <Trash2 className="h-4 w-4 mr-1.5" />
+              <Trash2 className="h-4 w-4 mr-2" />
               Ta bort mall
             </Button>
-            <Button variant="outline" onClick={() => setEditing(null)}>Avbryt</Button>
-            <Button onClick={() => saveTemplate.mutate()} disabled={saveTemplate.isPending || nameTaken}>
-              {saveTemplate.isPending ? "Sparar..." : "Spara"}
+            <Button
+              className="flex-1"
+              onClick={() => saveTemplate.mutate()}
+              disabled={saveTemplate.isPending || nameTaken}
+            >
+              {saveTemplate.isPending ? "Sparar..." : "Klar"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </SheetContent>
+      </Sheet>
       <AdminMobileBottomNav active="mer" />
     </div>
   );
 };
 
 export default AdminChecklists;
+
