@@ -130,3 +130,14 @@
     transform: scale(0.98);
   }
 }
+
+@layer utilities {
+  /* Safe-area insets for iOS notches/home indicator */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* Mobil sidpadding som tar hänsyn till bottom-nav (~60px) + safe area */
+  .pb-nav-safe {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
