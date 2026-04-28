@@ -306,7 +306,7 @@ const MyTime = () => {
         )}
 
         {/* Tabs: Tidrapport + Rättelser */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "tidrapport" | "rattelser")} className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="tidrapport">Tidrapport</TabsTrigger>
             <TabsTrigger value="rattelser">Rättelser</TabsTrigger>
