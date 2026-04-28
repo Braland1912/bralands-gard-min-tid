@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -598,6 +599,7 @@ const MySchedule = () => {
           </div>
         </SheetContent>
       </Sheet>
+      <MemberMobileBottomNav active="schema" />
     </div>
   );
 };
