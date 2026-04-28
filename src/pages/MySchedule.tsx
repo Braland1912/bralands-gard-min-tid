@@ -734,6 +734,93 @@ const MySchedule = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Self-mark Upptagen sheet */}
+      <Sheet open={!!busySheet} onOpenChange={(o) => { if (!o) setBusySheet(null); }}>
+        <SheetContent
+          side="right"
+          className="w-full max-w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-md md:rounded-l-2xl"
+        >
+          <div className="sticky top-0 z-10 flex-shrink-0 p-4 border-b border-border bg-card">
+            <SheetTitle className="text-base font-semibold text-foreground">
+              Markera dig som Upptagen
+            </SheetTitle>
+            <div className="text-sm text-muted-foreground mt-0.5">
+              {busySheet && format(busySheet.date, "EEEE d MMM yyyy", { locale: sv })}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <Label htmlFor="self-busy-note" className="text-sm font-medium">
+              Skäl (obligatoriskt)
+            </Label>
+            <Textarea
+              id="self-busy-note"
+              value={busyNote}
+              onChange={(e) => setBusyNote(e.target.value)}
+              placeholder="T.ex. Läkarbesök, ledig, semester..."
+              className="min-h-[120px] text-base"
+              autoFocus
+            />
+            <p className="text-xs text-muted-foreground">
+              Kommentaren syns för admin på schema.
+            </p>
+          </div>
+
+          <div className="sticky bottom-0 z-10 flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+            {busySheet?.existingId && (
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setConfirmDelete(true)}
+                disabled={deleteBusy.isPending || saveBusy.isPending}
+              >
+                Ta bort
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              className="ml-auto"
+              onClick={() => setBusySheet(null)}
+              disabled={saveBusy.isPending || deleteBusy.isPending}
+            >
+              Avbryt
+            </Button>
+            <Button
+              onClick={() =>
+                busySheet &&
+                saveBusy.mutate({ date: busySheet.date, existingId: busySheet.existingId, note: busyNote })
+              }
+              disabled={busyNote.trim().length === 0 || saveBusy.isPending || deleteBusy.isPending}
+            >
+              Spara
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort markeringen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Din "Upptagen"-markering tas bort. Du kan markera dig själv igen senare.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (busySheet?.existingId) deleteBusy.mutate(busySheet.existingId);
+                setConfirmDelete(false);
+              }}
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <MemberMobileBottomNav active="schema" />
     </div>
   );
