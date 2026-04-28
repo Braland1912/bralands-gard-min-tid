@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight, Check, Circle } from "lucide-react";
+import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight, Check, Circle, Search, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
@@ -80,6 +81,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const todayStr = format(today, "yyyy-MM-dd");
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedWorker, setSelectedWorker] = useState<{ worker: any; shiftIds: string[] } | null>(null);
+  const [search, setSearch] = useState("");
+  const normalizedSearch = search.trim().toLocaleLowerCase("sv");
+  const matchesSearch = (name: string | undefined | null) =>
+    !normalizedSearch || (name ?? "").toLocaleLowerCase("sv").includes(normalizedSearch);
   const baseWeekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekStart = addWeeks(baseWeekStart, weekOffset);
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
@@ -257,11 +262,16 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     .filter((r) => r.worker)
     .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
+  // Apply name search filter (counters reflect filtered results)
+  const filteredActiveEntries = (activeEntries as any[]).filter((e) => matchesSearch(e.worker_name));
+  const filteredTodayWorkers = todayWorkers.filter((r) => matchesSearch(r.worker?.name));
+  const filteredWeekRows = weekRows.filter((r) => matchesSearch(r.worker?.name));
+
   const stats = [
     {
       key: "active",
       label: "Instämplade nu",
-      value: loadingActive ? "…" : activeEntries.length,
+      value: loadingActive ? "…" : filteredActiveEntries.length,
       icon: Clock,
       // teal
       tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
@@ -272,7 +282,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     {
       key: "today",
       label: "Jobbar idag",
-      value: loadingToday || loadingWorkers ? "…" : todayWorkers.length,
+      value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
       icon: Users,
       // soft amber
       tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
@@ -283,7 +293,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     {
       key: "week",
       label: "Jobbar i veckan",
-      value: loadingWeek || loadingWorkers ? "…" : weekRows.length,
+      value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
       icon: CalendarDays,
       // soft sage
       tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
@@ -308,6 +318,30 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   return (
     <div className="space-y-6 pb-24 md:pb-6">
       <h2 className="text-xl font-semibold text-foreground">Översikt</h2>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          type="search"
+          inputMode="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Sök medarbetare…"
+          aria-label="Sök medarbetare"
+          className="pl-9 pr-9 h-10 rounded-xl bg-card"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Rensa sökning"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
 
       {/* Stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -345,7 +379,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <h3 className="text-base font-semibold text-foreground">Instämplade nu</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
-            {loadingActive ? "" : `${activeEntries.length} st`}
+            {loadingActive ? "" : `${filteredActiveEntries.length} st`}
           </span>
         </div>
 
@@ -353,11 +387,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
           </div>
-        ) : activeEntries.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är instämplad just nu.</p>
+        ) : filteredActiveEntries.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är instämplad just nu."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.active.divide}`}>
-            {(activeEntries as any[]).map((entry) => {
+            {filteredActiveEntries.map((entry) => {
               const since = entry.clock_in ? new Date(entry.clock_in) : null;
               const hoursSince = since ? (Date.now() - since.getTime()) / 3600000 : 0;
               const warning = hoursSince > 5;
@@ -407,7 +443,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <h3 className="text-base font-semibold text-foreground">Jobbar idag</h3>
           </div>
           <span className="text-xs text-muted-foreground tabular-nums">
-            {loadingToday || loadingWorkers ? "" : `${todayWorkers.length} st`}
+            {loadingToday || loadingWorkers ? "" : `${filteredTodayWorkers.length} st`}
           </span>
         </div>
 
@@ -415,11 +451,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
           </div>
-        ) : todayWorkers.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är schemalagd idag.</p>
+        ) : filteredTodayWorkers.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är schemalagd idag."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.today.divide}`}>
-            {todayWorkers.map((row) => {
+            {filteredTodayWorkers.map((row) => {
               const progress = checklistProgressByUser.get(row.worker.user_id);
               const pct = progress ? (progress.done / progress.total) * 100 : 0;
               const complete = progress && pct === 100;
@@ -527,11 +565,13 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           <div className="space-y-2">
             {[1, 2, 3].map((i) => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}
           </div>
-        ) : weekRows.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Ingen är schemalagd denna vecka.</p>
+        ) : filteredWeekRows.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är schemalagd denna vecka."}
+          </p>
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
-            {weekRows.map((row) => (
+            {filteredWeekRows.map((row) => (
               <li key={row.worker.id} className="py-2 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
