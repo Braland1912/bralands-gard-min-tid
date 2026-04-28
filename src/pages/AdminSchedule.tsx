@@ -544,7 +544,7 @@ const AdminSchedule = () => {
       <Sheet open={!!sheet} onOpenChange={(o) => !o && setSheet(null)}>
         <SheetContent
           side="right"
-          className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+          className="w-full max-w-full p-0 flex flex-col gap-0 overflow-x-hidden sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
         >
           {/* Header — sticky top */}
           <div className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
