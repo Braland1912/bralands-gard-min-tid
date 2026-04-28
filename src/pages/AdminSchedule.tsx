@@ -574,6 +574,7 @@ const AdminSchedule = () => {
                                     setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
                                   },
                                   has0,
+                                  row0?.note,
                                 )}
                               {shift1
                                 ? renderChip(
@@ -583,6 +584,7 @@ const AdminSchedule = () => {
                                       setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
                                     },
                                     has1,
+                                    row1?.note,
                                   )
                                 : w.user_id && (
                                     <button
