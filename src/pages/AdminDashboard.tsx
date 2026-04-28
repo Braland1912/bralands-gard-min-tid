@@ -46,10 +46,9 @@ const AdminDashboard = () => {
     const stateTab = (location.state as any)?.tab;
     if (stateTab && typeof stateTab === "string") {
       setActiveTab(stateTab);
-      // clear state so refresh doesn't re-trigger
-      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, location.key]);
+
 
   const { data: pendingCounts = { normal: 0, early: 0 } } = useQuery({
     queryKey: ["pending-corrections-counts"],
