@@ -34,6 +34,10 @@ const AppIconPreview = () => {
     <img
       src={src}
       alt="Brålandsklockan"
+      width={80}
+      height={80}
+      loading="eager"
+      decoding="async"
       className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] object-contain p-2"
       onError={() => setStage((s) => (s === "png" ? "svg" : "text"))}
     />
