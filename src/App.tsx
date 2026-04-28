@@ -17,6 +17,7 @@ import AdminChecklists from "./pages/AdminChecklists";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
+import DesktopSidebar from "./components/DesktopSidebar";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <DesktopSidebar />
         <AppHeader />
+        <div className="md:pl-64">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/confirmation" element={<Confirmation />} />
