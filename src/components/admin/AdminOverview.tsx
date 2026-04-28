@@ -546,8 +546,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+      )}
 
       {/* Section: Working this week (sage) */}
+      {showWeek && (
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.week.tint}`}>
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
