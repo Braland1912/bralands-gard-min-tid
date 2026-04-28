@@ -120,16 +120,7 @@ const InstallAppModal = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-5 text-center">
-          <img
-            src="/icons/icon-192.png"
-            alt="Brålandsklockan"
-            className="w-20 h-20 mx-auto rounded-2xl border border-border bg-[#FAFAF8] object-contain p-2"
-            onError={(e) => {
-              const el = e.currentTarget;
-              if (el.src.endsWith(logoFallback)) return;
-              el.src = logoFallback;
-            }}
-          />
+          <AppIconPreview />
           <div className="space-y-2">
             <h2 className="text-lg font-semibold text-foreground">
               Snabbare åtkomst varje dag
