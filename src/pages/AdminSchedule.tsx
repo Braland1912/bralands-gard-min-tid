@@ -14,6 +14,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
@@ -69,6 +71,7 @@ const AdminSchedule = () => {
     shiftIndex: 0 | 1;
   } | null>(null);
   const [dragX, setDragX] = useState(0);
+  const [noteDraft, setNoteDraft] = useState("");
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const dragActive = useRef(false);
 
@@ -156,6 +159,19 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
+  // Sync noteDraft when sheet opens or underlying schedules change
+  useEffect(() => {
+    if (!sheet || !sheet.worker.user_id) {
+      setNoteDraft("");
+      return;
+    }
+    const dateStr = format(sheet.date, "yyyy-MM-dd");
+    const row = (schedules as any[]).find(
+      (s) => s.user_id === sheet.worker.user_id && s.date === dateStr && (s.shift_index ?? 0) === sheet.shiftIndex,
+    );
+    setNoteDraft(row?.note ?? "");
+  }, [sheet, schedules]);
+
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
@@ -220,11 +236,13 @@ const AdminSchedule = () => {
       date,
       shiftType,
       shiftIndex,
+      note,
     }: {
       userId: string;
       date: string;
       shiftType: ShiftType;
       shiftIndex: 0 | 1;
+      note?: string | null;
     }) => {
       // Check if this shift already exists (so we know if it's newly created)
       const { data: existing } = await supabase
@@ -235,12 +253,13 @@ const AdminSchedule = () => {
         .eq("shift_index", shiftIndex)
         .maybeSingle();
 
+      const payload: any = { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex };
+      // Only persist note for busy entries; clear it for other types
+      payload.note = shiftType === "busy" ? (note && note.trim().length > 0 ? note.trim() : null) : null;
+
       const { error } = await supabase
         .from("schedules")
-        .upsert(
-          { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex },
-          { onConflict: "user_id,date,shift_index" },
-        );
+        .upsert(payload, { onConflict: "user_id,date,shift_index" });
       if (error) throw error;
 
       // Auto-attach templates only when shift is newly created
@@ -303,6 +322,22 @@ const AdminSchedule = () => {
     },
   });
 
+  const updateNote = useMutation({
+    mutationFn: async ({ id, note }: { id: string; note: string | null }) => {
+      const { error } = await supabase
+        .from("schedules")
+        .update({ note: note && note.trim().length > 0 ? note.trim() : null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera anteckning", variant: "destructive" });
+    },
+  });
+
   const deleteShift = useMutation({
     mutationFn: async ({ userId, date, shiftIndex }: { userId: string; date: string; shiftIndex: 0 | 1 }) => {
       const { error } = await supabase
@@ -346,16 +381,27 @@ const AdminSchedule = () => {
     shift: ShiftType,
     onClick: (e: React.MouseEvent) => void,
     hasChecklists = false,
+    note?: string | null,
   ) => {
     const cfg = SHIFT_MAP[shift];
+    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
     return (
       <div
         role="button"
         onClick={onClick}
-        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity`}
+        title={hasNote ? note! : undefined}
+        className={`w-full rounded-md border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 py-1 cursor-pointer hover:opacity-80 transition-opacity relative`}
       >
         <span className="text-sm leading-none">{cfg.emoji}</span>
         <span className={`text-[10px] font-semibold mt-0.5 ${cfg.text}`}>{cfg.label}</span>
+        {hasNote && (
+          <>
+            <span className={`hidden md:block text-[9px] mt-0.5 ${cfg.text} opacity-80 truncate max-w-full px-0.5`}>
+              {note}
+            </span>
+            <span className="md:hidden absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
+          </>
+        )}
       </div>
     );
   };
@@ -542,6 +588,7 @@ const AdminSchedule = () => {
                                     setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 0 });
                                   },
                                   has0,
+                                  row0?.note,
                                 )}
                               {shift1
                                 ? renderChip(
@@ -551,6 +598,7 @@ const AdminSchedule = () => {
                                       setSheet({ worker: w, date: d, dayIndex: i, shiftIndex: 1 });
                                     },
                                     has1,
+                                    row1?.note,
                                   )
                                 : w.user_id && (
                                     <button
@@ -641,6 +689,7 @@ const AdminSchedule = () => {
                             date: format(sheet.date, "yyyy-MM-dd"),
                             shiftType: opt.type,
                             shiftIndex: sheet.shiftIndex,
+                            note: opt.type === "busy" ? noteDraft : null,
                           });
                         }}
                         className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
@@ -660,14 +709,37 @@ const AdminSchedule = () => {
                 </div>
               );
 
+              const BusyNoteEditor = currentShiftType === "busy" && currentShiftRow ? (
+                <div className="space-y-2">
+                  <Label htmlFor="busy-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Skäl (valfritt)
+                  </Label>
+                  <Textarea
+                    id="busy-note"
+                    value={noteDraft}
+                    onChange={(e) => setNoteDraft(e.target.value)}
+                    onBlur={() => {
+                      const original = currentShiftRow.note ?? "";
+                      const next = noteDraft.trim();
+                      if ((original ?? "") !== next) {
+                        updateNote.mutate({ id: currentShiftRow.id, note: next });
+                      }
+                    }}
+                    placeholder="T.ex. Läkarbesök, ledig, semester..."
+                    className="min-h-[88px] text-base"
+                  />
+                </div>
+              ) : null;
+
               return hasShift ? (
                 <>
-                  {currentShiftRow && (
+                  {BusyNoteEditor}
+                  {currentShiftRow && currentShiftType !== "busy" && (
                     <div>
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
                     </div>
                   )}
-                  <Separator />
+                  {currentShiftRow && currentShiftType !== "busy" && <Separator />}
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Passtyp

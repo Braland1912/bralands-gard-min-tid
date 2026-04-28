@@ -12,6 +12,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
@@ -37,13 +42,27 @@ const getInitials = (name: string) =>
 const MySchedule = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: worker } = useWorker(user?.id);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
   const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
+  const [busySheet, setBusySheet] = useState<{ date: Date; existingId: string | null; existingNote: string } | null>(null);
+  const [busyNote, setBusyNote] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
   const upcomingListRef = useRef<HTMLDivElement | null>(null);
   const savedScrollRef = useRef<{ window: number; list: number } | null>(null);
+
+  useEffect(() => {
+    if (busySheet) {
+      setBusyNote(busySheet.existingNote || "");
+    } else {
+      setBusyNote("");
+      setConfirmDelete(false);
+    }
+  }, [busySheet]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -99,7 +118,65 @@ const MySchedule = () => {
     enabled: !!user,
   });
 
-  // Fetch checklist counts for MY shifts this week
+  const invalidateSchedules = () => {
+    queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    queryClient.invalidateQueries({ queryKey: ["upcoming-shifts"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+  };
+
+  const saveBusy = useMutation({
+    mutationFn: async ({ date, existingId, note }: { date: Date; existingId: string | null; note: string }) => {
+      if (!user?.id) throw new Error("not authenticated");
+      const trimmed = note.trim();
+      if (trimmed.length === 0) throw new Error("Skäl är obligatoriskt");
+      const dateStr = format(date, "yyyy-MM-dd");
+      if (existingId) {
+        const { error } = await supabase
+          .from("schedules")
+          .update({ note: trimmed })
+          .eq("id", existingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("schedules")
+          .insert({ user_id: user.id, date: dateStr, shift_type: "busy", shift_index: 0, note: trimmed });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      invalidateSchedules();
+      setBusySheet(null);
+      toast({ title: "Sparat", description: "Du är markerad som upptagen." });
+    },
+    onError: (err: any) => {
+      const msg = String(err?.message || "");
+      if (msg.includes("row-level security") || msg.includes("violates")) {
+        toast({
+          title: "Kunde inte spara",
+          description: "Du har redan ett pass denna dag — kontakta admin för att avboka.",
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Kunde inte spara", description: msg, variant: "destructive" });
+      }
+    },
+  });
+
+  const deleteBusy = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("schedules").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateSchedules();
+      setBusySheet(null);
+      toast({ title: "Borttagen", description: "Markeringen är borttagen." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Kunde inte ta bort", description: String(err?.message || ""), variant: "destructive" });
+    },
+  });
+
   const myShiftIds = useMemo(
     () => schedules.filter((s: any) => s.user_id === user?.id).map((s: any) => s.id),
     [schedules, user?.id]
@@ -221,26 +298,35 @@ const MySchedule = () => {
     shift,
     full,
     hasChecklist,
+    note,
     onClick,
   }: {
     shift: ShiftType;
     full?: boolean;
     hasChecklist?: boolean;
+    note?: string | null;
     onClick?: () => void;
   }) => {
     const cfg = SHIFT_CONFIG[shift];
-    const interactive = !!onClick && !!hasChecklist;
+    const interactive = !!onClick && (!!hasChecklist || shift === "busy");
+    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
     return (
       <button
         type="button"
         onClick={interactive ? onClick : undefined}
         disabled={!interactive}
+        title={hasNote ? note! : undefined}
         className={`relative w-full rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 ${
           full ? "flex-1 py-2" : "py-1"
         } ${interactive ? "cursor-pointer hover:brightness-95 transition" : "cursor-default"}`}
       >
         <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
         <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
+        {hasNote && (
+          <span className={`mt-0.5 ${cfg.text} text-[9px] opacity-80 truncate max-w-full px-0.5`}>
+            {note}
+          </span>
+        )}
       </button>
     );
   };
@@ -257,8 +343,28 @@ const MySchedule = () => {
     isMine: boolean;
   }) => {
     const published = isDayPublished(date);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const dateStart = new Date(date);
+    dateStart.setHours(0, 0, 0, 0);
+    const isFutureOrToday = dateStart.getTime() >= todayStart.getTime();
+    const canSelfMark = isMine && isFutureOrToday;
 
-    if (!published) {
+    const e0 = userId ? getShiftAt(userId, date, 0) : null;
+    const e1 = userId ? getShiftAt(userId, date, 1) : null;
+    const hasAny = !!e0 || !!e1;
+    const onlyOne = hasAny && !(e0 && e1);
+    const ownBusy = isMine ? [e0, e1].find((e: any) => e?.shift_type === "busy") : null;
+
+    const openSelfBusySheet = () => {
+      setBusySheet({
+        date,
+        existingId: ownBusy?.id ?? null,
+        existingNote: ownBusy?.note ?? "",
+      });
+    };
+
+    if (!published && !canSelfMark) {
       return (
         <div
           className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
@@ -270,12 +376,38 @@ const MySchedule = () => {
       );
     }
 
-    const e0 = userId ? getShiftAt(userId, date, 0) : null;
-    const e1 = userId ? getShiftAt(userId, date, 1) : null;
-    const hasAny = !!e0 || !!e1;
-    const onlyOne = hasAny && !(e0 && e1);
+    if (!published && canSelfMark && !hasAny) {
+      return (
+        <button
+          type="button"
+          onClick={openSelfBusySheet}
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50/50 hover:bg-gray-100 transition-colors min-h-[68px] px-1 ${
+            today ? "ring-2 ring-primary" : ""
+          }`}
+          aria-label="Markera dig som upptagen"
+        >
+          <span className="text-[10px] font-semibold text-muted-foreground">Ej publicerat</span>
+          <span className="text-[9px] text-muted-foreground/80 mt-0.5">+ Upptagen</span>
+        </button>
+      );
+    }
 
     if (!hasAny) {
+      if (canSelfMark) {
+        return (
+          <button
+            type="button"
+            onClick={openSelfBusySheet}
+            className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50/50 hover:bg-gray-100 transition-colors min-h-[68px] ${
+              today ? "ring-2 ring-primary" : ""
+            }`}
+            aria-label="Markera dig som upptagen"
+          >
+            <span className="text-lg leading-none text-muted-foreground/60">+</span>
+            <span className="text-[9px] text-muted-foreground/80 mt-0.5">Upptagen</span>
+          </button>
+        );
+      }
       return (
         <div
           className={`flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] ${
@@ -289,21 +421,24 @@ const MySchedule = () => {
 
     const renderChip = (entry: any, full: boolean) => {
       const has = isMine && (checklistCounts[entry.id] || 0) > 0;
+      const isOwnBusy = isMine && entry.shift_type === "busy" && isFutureOrToday;
+      const onClick = isOwnBusy
+        ? openSelfBusySheet
+        : has
+        ? () =>
+            setOpenShift({
+              id: entry.id,
+              label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+              date,
+            })
+        : undefined;
       return (
         <Chip
           shift={entry.shift_type as ShiftType}
           full={full}
           hasChecklist={has}
-          onClick={
-            has
-              ? () =>
-                  setOpenShift({
-                    id: entry.id,
-                    label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
-                    date,
-                  })
-              : undefined
-          }
+          note={entry.note}
+          onClick={onClick}
         />
       );
     };
@@ -599,6 +734,93 @@ const MySchedule = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Self-mark Upptagen sheet */}
+      <Sheet open={!!busySheet} onOpenChange={(o) => { if (!o) setBusySheet(null); }}>
+        <SheetContent
+          side="right"
+          className="w-full max-w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-md md:rounded-l-2xl"
+        >
+          <div className="sticky top-0 z-10 flex-shrink-0 p-4 border-b border-border bg-card">
+            <SheetTitle className="text-base font-semibold text-foreground">
+              Markera dig som Upptagen
+            </SheetTitle>
+            <div className="text-sm text-muted-foreground mt-0.5">
+              {busySheet && format(busySheet.date, "EEEE d MMM yyyy", { locale: sv })}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <Label htmlFor="self-busy-note" className="text-sm font-medium">
+              Skäl (obligatoriskt)
+            </Label>
+            <Textarea
+              id="self-busy-note"
+              value={busyNote}
+              onChange={(e) => setBusyNote(e.target.value)}
+              placeholder="T.ex. Läkarbesök, ledig, semester..."
+              className="min-h-[120px] text-base"
+              autoFocus
+            />
+            <p className="text-xs text-muted-foreground">
+              Kommentaren syns för admin på schema.
+            </p>
+          </div>
+
+          <div className="sticky bottom-0 z-10 flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+            {busySheet?.existingId && (
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setConfirmDelete(true)}
+                disabled={deleteBusy.isPending || saveBusy.isPending}
+              >
+                Ta bort
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              className="ml-auto"
+              onClick={() => setBusySheet(null)}
+              disabled={saveBusy.isPending || deleteBusy.isPending}
+            >
+              Avbryt
+            </Button>
+            <Button
+              onClick={() =>
+                busySheet &&
+                saveBusy.mutate({ date: busySheet.date, existingId: busySheet.existingId, note: busyNote })
+              }
+              disabled={busyNote.trim().length === 0 || saveBusy.isPending || deleteBusy.isPending}
+            >
+              Spara
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ta bort markeringen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Din "Upptagen"-markering tas bort. Du kan markera dig själv igen senare.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (busySheet?.existingId) deleteBusy.mutate(busySheet.existingId);
+                setConfirmDelete(false);
+              }}
+            >
+              Ta bort
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <MemberMobileBottomNav active="schema" />
     </div>
   );
