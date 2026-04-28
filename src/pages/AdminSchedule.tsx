@@ -544,7 +544,7 @@ const AdminSchedule = () => {
       <Sheet open={!!sheet} onOpenChange={(o) => !o && setSheet(null)}>
         <SheetContent
           side="right"
-          className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+          className="w-full max-w-full p-0 flex flex-col gap-0 overflow-x-hidden sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
         >
           {/* Header — sticky top */}
           <div className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
@@ -569,7 +569,7 @@ const AdminSchedule = () => {
           </div>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-w-0">
             {sheet && (() => {
               const currentShiftRow = sheet.worker.user_id
                 ? getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
