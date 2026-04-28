@@ -16,16 +16,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo-braland.svg";
 
-const tabs = [
-  { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
-  { id: "tidslogg", label: "Tidslogg", icon: Clock },
-  { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
-  { id: "team", label: "Team", icon: Users },
-  { id: "bjudin", label: "Bjud in", icon: Link2 },
-  { id: "lon", label: "Löner", icon: DollarSign },
-  { id: "schema", label: "Schema", icon: Calendar },
-  { id: "checklistor", label: "Checklistor", icon: ListChecks },
-];
+// Sidebar items live in src/components/DesktopSidebar.tsx — keep mobile bottom-tabs here.
+
 
 const mobileBottomTabs = [
   { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
@@ -54,10 +46,9 @@ const AdminDashboard = () => {
     const stateTab = (location.state as any)?.tab;
     if (stateTab && typeof stateTab === "string") {
       setActiveTab(stateTab);
-      // clear state so refresh doesn't re-trigger
-      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, location.key]);
+
 
   const { data: pendingCounts = { normal: 0, early: 0 } } = useQuery({
     queryKey: ["pending-corrections-counts"],
@@ -91,7 +82,12 @@ const AdminDashboard = () => {
       return;
     }
     setActiveTab(tabId);
+    // Sync URL state so the desktop sidebar reflects the change
+    navigate("/admin/dashboard", { replace: true, state: { tab: tabId } });
   };
+
+  const handleOverviewNavigate = (tabId: string) => handleTabChange(tabId);
+
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -108,7 +104,7 @@ const AdminDashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "oversikt":
-        return <AdminOverview onNavigate={setActiveTab} />;
+        return <AdminOverview onNavigate={handleOverviewNavigate} />;
       case "tidslogg":
         return <AdminTimeLog />;
       case "rattelser":
@@ -120,64 +116,12 @@ const AdminDashboard = () => {
       case "lon":
         return <SalaryReport />;
       default:
-        return <AdminOverview onNavigate={setActiveTab} />;
+        return <AdminOverview onNavigate={handleOverviewNavigate} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card min-h-screen">
-        <div className="p-5 border-b border-border flex items-center gap-3">
-          <button onClick={() => setActiveTab("oversikt")} className="focus:outline-none">
-            <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain cursor-pointer" />
-          </button>
-          <div>
-            <h1 className="text-base font-semibold text-foreground">Brålands Gård</h1>
-            <p className="text-xs text-muted-foreground">Administration</p>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                activeTab === tab.id
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              <span className="flex-1 text-left">{tab.label}</span>
-              {tab.id === "rattelser" && earlyCount > 0 && (
-                <span
-                  className="min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-semibold flex items-center justify-center leading-none"
-                  title="Nya tidiga utstämplingar"
-                >
-                  {earlyCount > 99 ? "99+" : earlyCount}
-                </span>
-              )}
-              {tab.id === "rattelser" && pendingCount > 0 && (
-                <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center leading-none">
-                  {pendingCount > 99 ? "99+" : pendingCount}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-border space-y-1">
-          <ChangePasswordDialog />
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-150"
-          >
-            <LogOut className="h-4 w-4" />
-            Logga ut
-          </button>
-        </div>
-      </aside>
-
+    <div className="min-h-screen bg-background">
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
@@ -203,7 +147,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-5 pb-24 md:pb-6 max-w-4xl mx-auto w-full">
+        <main className="flex-1 p-5 pb-nav-safe md:pb-6 max-w-4xl mx-auto w-full">
           {renderContent()}
         </main>
 

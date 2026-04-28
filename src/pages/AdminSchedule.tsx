@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ShiftChecklists from "@/components/ShiftChecklists";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
@@ -539,29 +540,30 @@ const AdminSchedule = () => {
         </Card>
       </div>
 
-      {/* Bottom sheet */}
-      {sheet && (
-        <div className="fixed inset-0 z-50" onClick={() => setSheet(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="absolute bottom-0 left-0 right-0 bg-card rounded-t-[20px] border-t border-border p-5 pb-8 animate-in slide-in-from-bottom duration-300 max-w-[480px] mx-auto max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-center mb-4">
-              <div className="w-10 h-1 rounded-full bg-muted-foreground/20" />
-            </div>
-
-            <div className="text-center mb-5">
-              <div className="text-base font-semibold text-foreground">{sheet.worker.name}</div>
+      {/* Shift edit sheet */}
+      <Sheet open={!!sheet} onOpenChange={(o) => !o && setSheet(null)}>
+        <SheetContent
+          side="right"
+          className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+        >
+          {/* Header — sticky top */}
+          <div className="flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
+            <div className="min-w-0 pr-8">
+              <SheetTitle className="text-base font-semibold text-foreground truncate">
+                {sheet?.worker.name}
+              </SheetTitle>
               <div className="text-sm text-muted-foreground">
-                {FULL_DAY_NAMES[sheet.dayIndex]} · {format(sheet.date, "d MMM yyyy", { locale: sv })}
+                {sheet && `${FULL_DAY_NAMES[sheet.dayIndex]} · ${format(sheet.date, "d MMM yyyy", { locale: sv })}`}
               </div>
-              <div className="text-[11px] text-muted-foreground mt-1">
-                {sheet.shiftIndex === 0 ? "Pass 1" : "Pass 2"}
+              <div className="text-[11px] text-muted-foreground mt-0.5">
+                {sheet?.shiftIndex === 0 ? "Pass 1" : "Pass 2"}
               </div>
             </div>
+          </div>
 
-            {(() => {
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {sheet && (() => {
               const currentShiftRow = sheet.worker.user_id
                 ? getShiftRow(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
                 : null;
@@ -602,61 +604,63 @@ const AdminSchedule = () => {
                 </div>
               );
 
-              return (
+              return hasShift ? (
                 <>
-                  {hasShift ? (
-                    <>
-                      {/* Checklistor överst */}
-                      {currentShiftRow && (
-                        <div className="mb-2">
-                          <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
-                        </div>
-                      )}
-
-                      <Separator className="my-4" />
-
-                      {/* Pass-sektion under */}
-                      <div className="space-y-3 mb-5">
-                        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          Passtyp
-                        </div>
-                        {ShiftTypePicker}
-                        {sheet.worker.user_id && currentShiftType && (
-                          <Button
-                            variant="outline"
-                            className="w-full text-destructive hover:text-destructive"
-                            onClick={() =>
-                              deleteShift.mutate({
-                                userId: sheet.worker.user_id,
-                                date: format(sheet.date, "yyyy-MM-dd"),
-                                shiftIndex: sheet.shiftIndex,
-                              })
-                            }
-                          >
-                            <Trash2 className="h-4 w-4 mr-1.5" />
-                            Ta bort pass
-                          </Button>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="mb-5">{ShiftTypePicker}</div>
+                  {currentShiftRow && (
+                    <div>
+                      <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
+                    </div>
                   )}
-
-                  <div className="flex">
-                    <Button className="flex-1" onClick={() => setSheet(null)}>
-                      Klar
-                    </Button>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Passtyp
+                    </div>
+                    {ShiftTypePicker}
                   </div>
                 </>
+              ) : (
+                <div>{ShiftTypePicker}</div>
               );
             })()}
           </div>
-        </div>
-      )}
+
+          {/* Footer — sticky bottom */}
+          {sheet && (() => {
+            const currentShiftType = sheet.worker.user_id
+              ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+              : null;
+            const canDelete = !!sheet.worker.user_id && !!currentShiftType;
+            return (
+              <div className="flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+                {canDelete && (
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-destructive hover:text-destructive"
+                    onClick={() =>
+                      deleteShift.mutate({
+                        userId: sheet.worker.user_id,
+                        date: format(sheet.date, "yyyy-MM-dd"),
+                        shiftIndex: sheet.shiftIndex,
+                      })
+                    }
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Ta bort pass
+                  </Button>
+                )}
+                <Button className="flex-1" onClick={() => setSheet(null)}>
+                  Klar
+                </Button>
+              </div>
+            );
+          })()}
+        </SheetContent>
+      </Sheet>
       <AdminMobileBottomNav active="schema" />
     </div>
   );
 };
 
 export default AdminSchedule;
+

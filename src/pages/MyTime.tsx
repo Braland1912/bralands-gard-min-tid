@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -319,80 +319,98 @@ const MyTime = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-foreground">Rattelser</h2>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
                 <Button size="sm" className="gap-1.5 rounded-xl">
                   <Plus className="h-4 w-4" />
                   Ny rattelse
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="rounded-2xl sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Rapportera saknad tid</DialogTitle>
-                  <DialogDescription>Fyll i vilken tid du jobbade sa fixar din arbetsledare det</DialogDescription>
-                </DialogHeader>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+              >
+                {/* Header */}
+                <div className="flex-shrink-0 p-4 border-b border-border bg-card pr-12">
+                  <SheetTitle className="text-base font-semibold">Rapportera saknad tid</SheetTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Fyll i vilken tid du jobbade så fixar din arbetsledare det
+                  </p>
+                </div>
+
                 <form
-                  className="space-y-4"
+                  className="flex-1 flex flex-col min-h-0"
                   onSubmit={(e) => { e.preventDefault(); submitMutation.mutate(); }}
                 >
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Datum</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className={cn(
-                            "h-12 w-full justify-start font-normal",
-                            !formDate && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 opacity-60" />
-                          {formDate
-                            ? format(new Date(formDate + "T00:00:00"), "EEEE d MMMM yyyy", { locale: sv })
-                            : "Välj datum"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-                        <Calendar
-                          mode="single"
-                          locale={sv}
-                          weekStartsOn={1}
-                          selected={formDate ? new Date(formDate + "T00:00:00") : undefined}
-                          onSelect={(d) => {
-                            if (!d) return;
-                            const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                            setFormDate(iso);
-                          }}
-                          disabled={(d) => d > new Date()}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  {/* Scrollable body */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Stämplade in</label>
-                      <TimePicker value={formClockIn} onChange={setFormClockIn} placeholder="--:--" />
+                      <label className="text-sm font-medium">Datum</label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={cn(
+                              "h-12 w-full justify-start font-normal",
+                              !formDate && "text-muted-foreground",
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4 opacity-60" />
+                            {formDate
+                              ? format(new Date(formDate + "T00:00:00"), "EEEE d MMMM yyyy", { locale: sv })
+                              : "Välj datum"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                          <Calendar
+                            mode="single"
+                            locale={sv}
+                            weekStartsOn={1}
+                            selected={formDate ? new Date(formDate + "T00:00:00") : undefined}
+                            onSelect={(d) => {
+                              if (!d) return;
+                              const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                              setFormDate(iso);
+                            }}
+                            disabled={(d) => d > new Date()}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium">Stämplade in</label>
+                        <TimePicker value={formClockIn} onChange={setFormClockIn} placeholder="--:--" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium">Stämplade ut</label>
+                        <TimePicker value={formClockOut} onChange={setFormClockOut} placeholder="--:--" />
+                      </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Stämplade ut</label>
-                      <TimePicker value={formClockOut} onChange={setFormClockOut} placeholder="--:--" />
+                      <label className="text-sm font-medium">Vad hände?</label>
+                      <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} required placeholder="T.ex. glömde stämpla in när jag började" className="rounded-xl" />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium">Vad hande?</label>
-                    <Textarea value={formReason} onChange={(e) => setFormReason(e.target.value)} required placeholder="T.ex. glomde stampla in nar jag borjade" className="rounded-xl" />
+
+                  {/* Footer — sticky */}
+                  <div className="flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+                    <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
+                      Avbryt
+                    </Button>
+                    <Button type="submit" disabled={submitMutation.isPending} className="flex-1">
+                      {submitMutation.isPending ? (
+                        <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Skickar...</>
+                      ) : "Klar"}
+                    </Button>
                   </div>
-                  <Button type="submit" disabled={submitMutation.isPending} size="lg" className="w-full">
-                    {submitMutation.isPending ? (
-                      <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Skickar...</>
-                    ) : "Skicka"}
-                  </Button>
                 </form>
-              </DialogContent>
-            </Dialog>
+              </SheetContent>
+            </Sheet>
+
           </div>
 
           {corrections.length === 0 ? (

@@ -58,7 +58,7 @@ const AppHeader = () => {
   ];
 
   return (
-    <header className="w-full border-b border-border bg-card px-5 py-3 flex items-center justify-between">
+    <header className="md:hidden w-full border-b border-border bg-card px-5 py-3 flex items-center justify-between">
       <button
         onClick={() => navigate("/")}
         className="flex items-center focus:outline-none"
