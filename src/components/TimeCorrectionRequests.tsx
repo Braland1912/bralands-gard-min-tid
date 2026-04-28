@@ -317,11 +317,11 @@ const TimeCorrectionRequests = () => {
             {filteredHandled.map((r: any) => {
               const early = isEarlyClockout(r);
               const typeBadge = early ? (
-                <Badge variant="outline" className="border-amber-400 text-amber-800 shrink-0">
+                <Badge variant="outline" className="border-amber-400 text-amber-800">
                   Tidig utstämpling
                 </Badge>
               ) : (
-                <Badge variant="outline" className="shrink-0">Korrigering</Badge>
+                <Badge variant="outline">Korrigering</Badge>
               );
               return (
                 <Card key={r.id} className="p-3 space-y-2 overflow-hidden">
