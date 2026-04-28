@@ -16,6 +16,7 @@ const STORAGE_KEY = "install-prompt-shown";
  */
 const AppIconPreview = () => {
   const [stage, setStage] = useState<"png" | "svg" | "text">("png");
+  const [loaded, setLoaded] = useState(false);
   const src = stage === "png" ? "/icons/icon-192.png" : logoFallback;
 
   if (stage === "text") {
@@ -30,20 +31,36 @@ const AppIconPreview = () => {
     );
   }
 
+  // Skeleton-rutan ligger alltid bakom <img>. När bilden är klar
+  // tonas den in ovanpå skeletonen — ingen flicker, ingen layoutshift.
   return (
-    <img
-      // Tvinga ny <img>-instans per stage så onError säkert fyrar
-      // även om föregående src misslyckats (browsern cacheable failed state).
-      key={stage}
-      src={src}
-      alt="Brålandsklockan"
-      width={80}
-      height={80}
-      loading="eager"
-      decoding="async"
-      className="w-20 h-20 mx-auto rounded-xl border border-accent bg-primary object-contain p-2"
-      onError={() => setStage((s) => (s === "png" ? "svg" : "text"))}
-    />
+    <div className="relative w-20 h-20 mx-auto">
+      <div
+        aria-hidden="true"
+        className={`absolute inset-0 rounded-xl border border-accent bg-muted animate-pulse transition-opacity duration-200 ${
+          loaded ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      <img
+        // Tvinga ny <img>-instans per stage så onError säkert fyrar
+        // även om föregående src misslyckats (browsern cacheable failed state).
+        key={stage}
+        src={src}
+        alt="Brålandsklockan"
+        width={80}
+        height={80}
+        loading="eager"
+        decoding="async"
+        className={`relative w-20 h-20 rounded-xl border border-accent bg-primary object-contain p-2 transition-opacity duration-200 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        onLoad={() => setLoaded(true)}
+        onError={() => {
+          setLoaded(false);
+          setStage((s) => (s === "png" ? "svg" : "text"));
+        }}
+      />
+    </div>
   );
 };
 
