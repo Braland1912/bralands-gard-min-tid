@@ -269,7 +269,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 pb-nav-safe md:pb-6">
       <Card className="w-full max-w-sm p-8 space-y-6">
         {/* Logo & greeting */}
         <div className="text-center space-y-3">
