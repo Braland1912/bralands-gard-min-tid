@@ -134,7 +134,7 @@ const TimeCorrectionRequests = () => {
   const totalNormal = requests.filter((r: any) => !isEarlyClockout(r)).length;
 
   return (
-    <div className="space-y-6 pb-24 md:pb-6">
+    <div className="space-y-6 pb-24 md:pb-6 max-w-full overflow-x-hidden">
       {/* Filter */}
       <ToggleGroup
         type="single"
@@ -318,20 +318,20 @@ const TimeCorrectionRequests = () => {
               const early = isEarlyClockout(r);
               const typeLabel = early ? "Tidig utstämpling" : "Korrigering";
               return (
-                <Card key={r.id} className="p-3 space-y-2">
+                <Card key={r.id} className="p-3 space-y-2 overflow-hidden">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-medium text-foreground">{r.worker_name}</p>
+                    <p className="font-medium text-foreground break-words min-w-0 flex-1">{r.worker_name}</p>
                     {r.status === "approved" ? (
                       <Badge className="bg-green-600 shrink-0">{early ? "Hanterad" : "Godkänd"}</Badge>
                     ) : (
                       <Badge variant="destructive" className="shrink-0">{early ? "Avfärdad" : "Nekad"}</Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground break-words">
                     <span className="whitespace-nowrap">{r.date}</span> · {typeLabel}
                   </p>
                   {r.admin_note && (
-                    <p className="text-sm text-foreground">{r.admin_note}</p>
+                    <p className="text-sm text-foreground break-words">{r.admin_note}</p>
                   )}
                 </Card>
               );
