@@ -319,6 +319,30 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
     <div className="space-y-6 pb-24 md:pb-6">
       <h2 className="text-xl font-semibold text-foreground">Översikt</h2>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          type="search"
+          inputMode="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Sök medarbetare…"
+          aria-label="Sök medarbetare"
+          className="pl-9 pr-9 h-10 rounded-xl bg-card"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Rensa sökning"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       {/* Stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => {
