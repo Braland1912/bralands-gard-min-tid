@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { Check, X, ListChecks } from "lucide-react";
+import { Check, X, ListChecks, Trash2 } from "lucide-react";
 
 type FilterMode = "all" | "early" | "normal";
 
@@ -19,7 +30,6 @@ const isEarlyClockout = (r: any) =>
   typeof r?.reason === "string" && r.reason.startsWith(EARLY_PREFIX);
 
 const parseEarlyReason = (reason: string) => {
-  // Format: "Tidig utstämpling med obockade punkter (3 st): faktisk text"
   const match = reason.match(/^Tidig utstämpling med obockade punkter \((\d+) st\):\s*(.*)$/s);
   if (match) {
     return { uncheckedCount: Number(match[1]), text: match[2].trim() };
@@ -32,6 +42,17 @@ const TimeCorrectionRequests = () => {
   const queryClient = useQueryClient();
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<FilterMode>("all");
+  const [selectedWorker, setSelectedWorker] = useState<string>("all");
+  const [cleanupOpen, setCleanupOpen] = useState(false);
+
+  const { data: workers = [] } = useQuery({
+    queryKey: ["workers"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("workers").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: requests = [] } = useQuery({
     queryKey: ["correction-requests"],
@@ -45,6 +66,12 @@ const TimeCorrectionRequests = () => {
     },
   });
 
+  // Filter by selected worker
+  const workerFiltered = useMemo(
+    () => (selectedWorker === "all" ? requests : requests.filter((r: any) => r.worker_id === selectedWorker)),
+    [requests, selectedWorker]
+  );
+
   const handleAction = useMutation({
     mutationFn: async ({ id, action, request }: { id: string; action: "approved" | "denied"; request: any }) => {
       const note = adminNotes[id] || null;
@@ -55,11 +82,7 @@ const TimeCorrectionRequests = () => {
         .eq("id", id);
       if (updateError) throw updateError;
 
-      // Only touch time_entries for normal corrections (not early clock-out notes,
-      // which carry no clock_in/clock_out — the entry already exists).
       if (action === "approved" && !isEarlyClockout(request) && (request.clock_in || request.clock_out)) {
-        // Look for an existing OPEN entry (clock_out IS NULL) on the same date — typically a
-        // forgotten clock-out. If found, update it instead of inserting a duplicate row.
         const dayStart = new Date(`${request.date}T00:00:00`).toISOString();
         const dayEnd = new Date(`${request.date}T23:59:59.999`).toISOString();
 
@@ -77,7 +100,6 @@ const TimeCorrectionRequests = () => {
         const openEntry = openEntries?.[0];
 
         if (openEntry && (request.clock_in || request.clock_out)) {
-          // Update the existing open entry — fixes the "forgotten clock-out" case.
           const updates: { clock_in?: string; clock_out?: string } = {};
           if (request.clock_in) updates.clock_in = request.clock_in;
           if (request.clock_out) updates.clock_out = request.clock_out;
@@ -88,7 +110,6 @@ const TimeCorrectionRequests = () => {
             .eq("id", openEntry.id);
           if (updErr) throw updErr;
         } else if (request.clock_in) {
-          // No open entry to fix — fall back to inserting a new row (existing behaviour).
           const { error: insertError } = await supabase.from("time_entries").insert({
             worker_id: request.worker_id,
             worker_name: request.worker_name,
@@ -118,9 +139,49 @@ const TimeCorrectionRequests = () => {
     },
   });
 
-  const earlyPending = requests.filter((r: any) => r.status === "pending" && isEarlyClockout(r));
-  const normalPending = requests.filter((r: any) => r.status === "pending" && !isEarlyClockout(r));
-  const handledRequests = requests.filter((r: any) => r.status !== "pending");
+  // Cleanup old requests (>30 days, all statuses)
+  const cutoffIso = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString();
+  }, [cleanupOpen]); // recompute when dialog opens
+
+  const oldCount = useMemo(
+    () => requests.filter((r: any) => r.created_at && r.created_at < cutoffIso).length,
+    [requests, cutoffIso]
+  );
+
+  const cleanupMutation = useMutation({
+    mutationFn: async () => {
+      const { error, count } = await supabase
+        .from("time_correction_requests")
+        .delete({ count: "exact" })
+        .lt("created_at", cutoffIso);
+      if (error) throw error;
+      return count ?? 0;
+    },
+    onSuccess: (count) => {
+      queryClient.invalidateQueries({ queryKey: ["correction-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-corrections-counts"] });
+      setCleanupOpen(false);
+      toast({ title: `Rensade ${count} gamla rättelser` });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Fel", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const handleCleanupClick = () => {
+    if (oldCount === 0) {
+      toast({ title: "Inga gamla rättelser att rensa" });
+      return;
+    }
+    setCleanupOpen(true);
+  };
+
+  const earlyPending = workerFiltered.filter((r: any) => r.status === "pending" && isEarlyClockout(r));
+  const normalPending = workerFiltered.filter((r: any) => r.status === "pending" && !isEarlyClockout(r));
+  const handledRequests = workerFiltered.filter((r: any) => r.status !== "pending");
 
   const showEarly = filter === "all" || filter === "early";
   const showNormal = filter === "all" || filter === "normal";
@@ -130,34 +191,72 @@ const TimeCorrectionRequests = () => {
     return true;
   });
 
-  const totalEarly = requests.filter((r: any) => isEarlyClockout(r)).length;
-  const totalNormal = requests.filter((r: any) => !isEarlyClockout(r)).length;
+  const totalEarly = workerFiltered.filter((r: any) => isEarlyClockout(r)).length;
+  const totalNormal = workerFiltered.filter((r: any) => !isEarlyClockout(r)).length;
 
   return (
-    <div className="space-y-6 pb-24 md:pb-6 max-w-full overflow-x-hidden">
-      {/* Filter */}
-      <ToggleGroup
-        type="single"
-        value={filter}
-        onValueChange={(v) => v && setFilter(v as FilterMode)}
-        className="justify-start gap-2 flex-wrap"
-      >
-        <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
-          Alla
-          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{requests.length}</Badge>
-        </ToggleGroupItem>
-        <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
-          <ListChecks className="h-3.5 w-3.5 mr-1" />
-          <span className="md:hidden">Tidiga</span>
-          <span className="hidden md:inline">Tidiga utstämplingar</span>
-          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalEarly}</Badge>
-        </ToggleGroupItem>
-        <ToggleGroupItem value="normal" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
-          <span className="md:hidden">Rättelser</span>
-          <span className="hidden md:inline">Korrigeringar</span>
-          <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalNormal}</Badge>
-        </ToggleGroupItem>
-      </ToggleGroup>
+    <div className="space-y-4 pb-24 md:pb-6 max-w-full overflow-x-hidden">
+      {/* Filter chips + cleanup button */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ToggleGroup
+          type="single"
+          value={filter}
+          onValueChange={(v) => v && setFilter(v as FilterMode)}
+          className="justify-start gap-2 flex-wrap"
+        >
+          <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
+            Alla
+            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{workerFiltered.length}</Badge>
+          </ToggleGroupItem>
+          <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
+            <ListChecks className="h-3.5 w-3.5 mr-1" />
+            <span className="md:hidden">Tidiga</span>
+            <span className="hidden md:inline">Tidiga utstämplingar</span>
+            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalEarly}</Badge>
+          </ToggleGroupItem>
+          <ToggleGroupItem value="normal" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
+            <span className="md:hidden">Rättelser</span>
+            <span className="hidden md:inline">Korrigeringar</span>
+            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalNormal}</Badge>
+          </ToggleGroupItem>
+        </ToggleGroup>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCleanupClick}
+          disabled={oldCount === 0}
+          className="gap-1.5"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          <span>Rensa gamla</span>
+        </Button>
+      </div>
+
+      {/* Worker filter */}
+      <div className="w-full sm:max-w-xs">
+        <Select value={selectedWorker} onValueChange={setSelectedWorker}>
+          <SelectTrigger className="h-12 text-base rounded-xl border-border">
+            <SelectValue placeholder="Alla medarbetare" />
+          </SelectTrigger>
+          <SelectContent className="max-h-[60vh] p-2 rounded-xl">
+            <SelectItem
+              value="all"
+              className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+            >
+              Alla medarbetare
+            </SelectItem>
+            {workers.map((w: any) => (
+              <SelectItem
+                key={w.id}
+                value={w.id}
+                className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+              >
+                {w.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* Tidig utstämpling — egen sektion */}
       {showEarly && (
@@ -386,6 +485,31 @@ const TimeCorrectionRequests = () => {
           </div>
         </div>
       )}
+
+      {/* Cleanup confirmation */}
+      <AlertDialog open={cleanupOpen} onOpenChange={setCleanupOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rensa gamla rättelser</AlertDialogTitle>
+            <AlertDialogDescription>
+              Detta tar bort alla rättelser äldre än 30 dagar (oavsett status). Antalet rättelser som kommer raderas: <strong>{oldCount} st</strong>. Detta kan inte ångras.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                cleanupMutation.mutate();
+              }}
+              disabled={cleanupMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ta bort {oldCount} rättelser
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
