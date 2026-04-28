@@ -285,7 +285,8 @@ const MySchedule = () => {
     );
   };
 
-  const canSeeTeam = worker?.can_see_team === true;
+  const { isAdmin } = useAdmin();
+  const canSeeTeam = isAdmin || worker?.can_see_team === true;
 
   if (loading || !user) {
     return (
