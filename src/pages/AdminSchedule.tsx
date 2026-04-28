@@ -222,11 +222,13 @@ const AdminSchedule = () => {
       date,
       shiftType,
       shiftIndex,
+      note,
     }: {
       userId: string;
       date: string;
       shiftType: ShiftType;
       shiftIndex: 0 | 1;
+      note?: string | null;
     }) => {
       // Check if this shift already exists (so we know if it's newly created)
       const { data: existing } = await supabase
@@ -237,12 +239,13 @@ const AdminSchedule = () => {
         .eq("shift_index", shiftIndex)
         .maybeSingle();
 
+      const payload: any = { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex };
+      // Only persist note for busy entries; clear it for other types
+      payload.note = shiftType === "busy" ? (note && note.trim().length > 0 ? note.trim() : null) : null;
+
       const { error } = await supabase
         .from("schedules")
-        .upsert(
-          { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex },
-          { onConflict: "user_id,date,shift_index" },
-        );
+        .upsert(payload, { onConflict: "user_id,date,shift_index" });
       if (error) throw error;
 
       // Auto-attach templates only when shift is newly created
@@ -302,6 +305,22 @@ const AdminSchedule = () => {
     },
     onError: () => {
       toast({ title: "Kunde inte spara", description: "Försök igen eller kontrollera din behörighet.", variant: "destructive" });
+    },
+  });
+
+  const updateNote = useMutation({
+    mutationFn: async ({ id, note }: { id: string; note: string | null }) => {
+      const { error } = await supabase
+        .from("schedules")
+        .update({ note: note && note.trim().length > 0 ? note.trim() : null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera anteckning", variant: "destructive" });
     },
   });
 
