@@ -343,8 +343,28 @@ const MySchedule = () => {
     isMine: boolean;
   }) => {
     const published = isDayPublished(date);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const dateStart = new Date(date);
+    dateStart.setHours(0, 0, 0, 0);
+    const isFutureOrToday = dateStart.getTime() >= todayStart.getTime();
+    const canSelfMark = isMine && isFutureOrToday;
 
-    if (!published) {
+    const e0 = userId ? getShiftAt(userId, date, 0) : null;
+    const e1 = userId ? getShiftAt(userId, date, 1) : null;
+    const hasAny = !!e0 || !!e1;
+    const onlyOne = hasAny && !(e0 && e1);
+    const ownBusy = isMine ? [e0, e1].find((e: any) => e?.shift_type === "busy") : null;
+
+    const openSelfBusySheet = () => {
+      setBusySheet({
+        date,
+        existingId: ownBusy?.id ?? null,
+        existingNote: ownBusy?.note ?? "",
+      });
+    };
+
+    if (!published && !canSelfMark) {
       return (
         <div
           className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] px-1 ${
@@ -356,12 +376,38 @@ const MySchedule = () => {
       );
     }
 
-    const e0 = userId ? getShiftAt(userId, date, 0) : null;
-    const e1 = userId ? getShiftAt(userId, date, 1) : null;
-    const hasAny = !!e0 || !!e1;
-    const onlyOne = hasAny && !(e0 && e1);
+    if (!published && canSelfMark && !hasAny) {
+      return (
+        <button
+          type="button"
+          onClick={openSelfBusySheet}
+          className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50/50 hover:bg-gray-100 transition-colors min-h-[68px] px-1 ${
+            today ? "ring-2 ring-primary" : ""
+          }`}
+          aria-label="Markera dig som upptagen"
+        >
+          <span className="text-[10px] font-semibold text-muted-foreground">Ej publicerat</span>
+          <span className="text-[9px] text-muted-foreground/80 mt-0.5">+ Upptagen</span>
+        </button>
+      );
+    }
 
     if (!hasAny) {
+      if (canSelfMark) {
+        return (
+          <button
+            type="button"
+            onClick={openSelfBusySheet}
+            className={`flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50/50 hover:bg-gray-100 transition-colors min-h-[68px] ${
+              today ? "ring-2 ring-primary" : ""
+            }`}
+            aria-label="Markera dig som upptagen"
+          >
+            <span className="text-lg leading-none text-muted-foreground/60">+</span>
+            <span className="text-[9px] text-muted-foreground/80 mt-0.5">Upptagen</span>
+          </button>
+        );
+      }
       return (
         <div
           className={`flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 min-h-[68px] ${
@@ -375,21 +421,24 @@ const MySchedule = () => {
 
     const renderChip = (entry: any, full: boolean) => {
       const has = isMine && (checklistCounts[entry.id] || 0) > 0;
+      const isOwnBusy = isMine && entry.shift_type === "busy" && isFutureOrToday;
+      const onClick = isOwnBusy
+        ? openSelfBusySheet
+        : has
+        ? () =>
+            setOpenShift({
+              id: entry.id,
+              label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+              date,
+            })
+        : undefined;
       return (
         <Chip
           shift={entry.shift_type as ShiftType}
           full={full}
           hasChecklist={has}
-          onClick={
-            has
-              ? () =>
-                  setOpenShift({
-                    id: entry.id,
-                    label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
-                    date,
-                  })
-              : undefined
-          }
+          note={entry.note}
+          onClick={onClick}
         />
       );
     };
