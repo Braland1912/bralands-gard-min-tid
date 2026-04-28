@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,13 +20,26 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
 import ShiftChecklists from "@/components/ShiftChecklists";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: worker } = useWorker(user?.id);
+
+  const initialTab = (location.state as { tab?: string } | null)?.tab === "rattelser" ? "rattelser" : "tidrapport";
+  const [activeTab, setActiveTab] = useState<"tidrapport" | "rattelser">(initialTab);
+
+  useEffect(() => {
+    const stateTab = (location.state as { tab?: string } | null)?.tab;
+    if (stateTab === "rattelser" || stateTab === "tidrapport") {
+      setActiveTab(stateTab);
+    }
+  }, [location.state]);
 
   const [open, setOpen] = useState(false);
   const [formDate, setFormDate] = useState("");
