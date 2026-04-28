@@ -16,16 +16,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo-braland.svg";
 
-const tabs = [
-  { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
-  { id: "tidslogg", label: "Tidslogg", icon: Clock },
-  { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
-  { id: "team", label: "Team", icon: Users },
-  { id: "bjudin", label: "Bjud in", icon: Link2 },
-  { id: "lon", label: "Löner", icon: DollarSign },
-  { id: "schema", label: "Schema", icon: Calendar },
-  { id: "checklistor", label: "Checklistor", icon: ListChecks },
-];
+// Sidebar items live in src/components/DesktopSidebar.tsx — keep mobile bottom-tabs here.
+
 
 const mobileBottomTabs = [
   { id: "oversikt", label: "Översikt", icon: LayoutDashboard },
