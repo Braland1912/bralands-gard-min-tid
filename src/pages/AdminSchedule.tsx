@@ -172,6 +172,7 @@ const AdminSchedule = () => {
     setNoteDraft(row?.note ?? "");
   }, [sheet, schedules]);
 
+  const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
     return row?.is_published === true;
