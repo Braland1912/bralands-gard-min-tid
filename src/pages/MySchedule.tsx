@@ -42,13 +42,27 @@ const getInitials = (name: string) =>
 const MySchedule = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { data: worker } = useWorker(user?.id);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
   const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
+  const [busySheet, setBusySheet] = useState<{ date: Date; existingId: string | null; existingNote: string } | null>(null);
+  const [busyNote, setBusyNote] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
   const upcomingListRef = useRef<HTMLDivElement | null>(null);
   const savedScrollRef = useRef<{ window: number; list: number } | null>(null);
+
+  useEffect(() => {
+    if (busySheet) {
+      setBusyNote(busySheet.existingNote || "");
+    } else {
+      setBusyNote("");
+      setConfirmDelete(false);
+    }
+  }, [busySheet]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
