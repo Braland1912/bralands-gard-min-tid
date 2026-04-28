@@ -47,7 +47,7 @@ const MySchedule = () => {
   const { data: worker } = useWorker(user?.id);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
+  const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date; shiftType?: ShiftType; shiftIndex?: number } | null>(null);
   const [busySheet, setBusySheet] = useState<{ date: Date; existingId: string | null; existingNote: string } | null>(null);
   const [busyNote, setBusyNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
