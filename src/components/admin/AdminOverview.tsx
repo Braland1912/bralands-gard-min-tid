@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight, Check, Circle } from "lucide-react";
+import { AlertTriangle, Users, CalendarDays, Clock, ChevronLeft, ChevronRight, Check, Circle, Search, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
