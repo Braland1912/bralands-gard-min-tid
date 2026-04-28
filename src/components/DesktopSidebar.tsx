@@ -178,13 +178,36 @@ const DesktopSidebar = () => {
     return null;
   };
 
+  const handleNavKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, idx: number) => {
+    const focusables = Array.from(
+      document.querySelectorAll<HTMLButtonElement>("[data-sidebar-nav-item]"),
+    );
+    if (focusables.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      focusables[(idx + 1) % focusables.length]?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      focusables[(idx - 1 + focusables.length) % focusables.length]?.focus();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      focusables[0]?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      focusables[focusables.length - 1]?.focus();
+    }
+  };
+
   return (
-    <aside className="hidden md:flex fixed top-0 left-0 z-40 flex-col w-64 h-screen border-r border-border bg-card">
+    <aside
+      className="hidden md:flex fixed top-0 left-0 z-40 flex-col w-64 h-screen border-r border-border bg-card"
+      aria-label="Huvudnavigering"
+    >
       {/* Brand + user */}
       <div className="p-6 border-b border-border space-y-3">
         <button
           onClick={() => navigate(isAdmin ? "/admin/dashboard" : "/")}
-          className="flex items-center gap-3 focus:outline-none"
+          className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
         >
           <img src={logo} alt="Brålands Gård" className="h-8 w-auto object-contain" />
           <div className="text-left">
@@ -203,20 +226,23 @@ const DesktopSidebar = () => {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {items.map((item) => {
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1" aria-label="Sidnavigering">
+        {items.map((item, idx) => {
           const active = isActive(item);
           return (
             <button
               key={item.id}
+              data-sidebar-nav-item
               onClick={() => handleClick(item)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              onKeyDown={(e) => handleNavKeyDown(e, idx)}
+              aria-current={active ? "page" : undefined}
+              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
                 active
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-primary/10 text-primary before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:rounded-r-full before:bg-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-primary" : ""}`} />
               <span className="flex-1 text-left truncate">{item.label}</span>
               {renderBadge(item)}
             </button>
@@ -232,7 +258,7 @@ const DesktopSidebar = () => {
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
         >
           <LogOut className="h-4 w-4" />
           Logga ut
