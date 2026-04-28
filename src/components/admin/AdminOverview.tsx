@@ -268,6 +268,9 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const filteredTodayWorkers = todayWorkers.filter((r) => matchesSearch(r.worker?.name));
   const filteredWeekRows = weekRows.filter((r) => matchesSearch(r.worker?.name));
 
+  const showToday = scope === "today" || scope === "all";
+  const showWeek = scope === "week" || scope === "all";
+
   const stats = [
     {
       key: "active",
@@ -280,7 +283,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(183_25%_35%)]",
       valueColor: "text-[hsl(183_25%_28%)]",
     },
-    {
+    showToday && {
       key: "today",
       label: "Jobbar idag",
       value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
@@ -291,7 +294,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(32_55%_38%)]",
       valueColor: "text-[hsl(32_55%_30%)]",
     },
-    {
+    showWeek && {
       key: "week",
       label: "Jobbar i veckan",
       value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
@@ -314,7 +317,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       iconColor: "text-[hsl(8_55%_42%)]",
       valueColor: "text-[hsl(8_55%_35%)]",
     },
-  ];
+  ].filter(Boolean) as any[];
 
   return (
     <div className="space-y-6 pb-24 md:pb-6">
