@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -317,7 +318,7 @@ const MySchedule = () => {
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
-      <div className="max-w-[480px] mx-auto px-4 py-6 space-y-5">
+      <div className="max-w-[480px] mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
         {checklistStatus?.hasShifts && checklistStatus.total > 0 && (
           checklistStatus.unchecked > 0 ? (
             <div className="rounded-xl border border-yellow-300 bg-yellow-50 px-3 py-2.5">
@@ -338,7 +339,7 @@ const MySchedule = () => {
         <div className="space-y-4">
           {/* Back button */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl hidden md:inline-flex">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Min vecka</h2>
@@ -598,6 +599,7 @@ const MySchedule = () => {
           </div>
         </SheetContent>
       </Sheet>
+      <MemberMobileBottomNav active="schema" />
     </div>
   );
 };

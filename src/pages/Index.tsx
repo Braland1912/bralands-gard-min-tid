@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getISOWeek } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -268,7 +269,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 pb-24 md:pb-6">
       <Card className="w-full max-w-sm p-8 space-y-6">
         {/* Logo & greeting */}
         <div className="text-center space-y-3">
@@ -565,6 +566,7 @@ const Index = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <MemberMobileBottomNav active="hem" />
     </div>
   );
 };

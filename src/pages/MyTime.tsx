@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,13 +20,26 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { Skeleton } from "@/components/ui/skeleton";
 import ShiftChecklists from "@/components/ShiftChecklists";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: worker } = useWorker(user?.id);
+
+  const initialTab = (location.state as { tab?: string } | null)?.tab === "rattelser" ? "rattelser" : "tidrapport";
+  const [activeTab, setActiveTab] = useState<"tidrapport" | "rattelser">(initialTab);
+
+  useEffect(() => {
+    const stateTab = (location.state as { tab?: string } | null)?.tab;
+    if (stateTab === "rattelser" || stateTab === "tidrapport") {
+      setActiveTab(stateTab);
+    }
+  }, [location.state]);
 
   const [open, setOpen] = useState(false);
   const [formDate, setFormDate] = useState("");
@@ -225,10 +238,10 @@ const MyTime = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-5 py-6 space-y-8">
+      <div className="max-w-2xl mx-auto px-5 py-6 pb-24 md:pb-6 space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-xl hidden md:inline-flex">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Min tid</h2>
@@ -279,6 +292,14 @@ const MyTime = () => {
           </div>
         )}
 
+        {/* Tabs: Tidrapport + Rättelser */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "tidrapport" | "rattelser")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="tidrapport">Tidrapport</TabsTrigger>
+            <TabsTrigger value="rattelser">Rättelser</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="rattelser" className="space-y-4 mt-4">
         {/* Correction requests */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -385,7 +406,9 @@ const MyTime = () => {
             </div>
           )}
         </div>
+          </TabsContent>
 
+          <TabsContent value="tidrapport" className="space-y-6 mt-4">
         {/* Time entries grouped by week → day */}
         <div className="space-y-6">
           <h2 className="text-base font-semibold text-foreground">
@@ -465,7 +488,10 @@ const MyTime = () => {
             </div>
           )}
         </div>
+          </TabsContent>
+        </Tabs>
       </div>
+      <MemberMobileBottomNav active={activeTab} />
     </div>
   );
 };
