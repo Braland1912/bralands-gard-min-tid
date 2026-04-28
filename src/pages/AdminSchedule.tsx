@@ -580,7 +580,7 @@ const AdminSchedule = () => {
               const hasShift = Boolean(currentShiftType);
 
               const ShiftTypePicker = (
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {SHIFT_OPTIONS.map((opt) => {
                     const isSelected = currentShiftType === opt.type;
                     return (
@@ -594,17 +594,17 @@ const AdminSchedule = () => {
                             shiftIndex: sheet.shiftIndex,
                           });
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors ${
-                          isSelected ? "bg-primary/10 border-primary/30" : "bg-card border-border hover:bg-muted/50"
+                        className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
+                          isSelected ? "bg-primary/10 border-primary" : "bg-card border-border hover:bg-muted/50"
                         }`}
                       >
-                        <span className="text-xl">{opt.emoji}</span>
+                        <span className="text-3xl leading-none">{opt.emoji}</span>
                         <div className="flex-1 text-left">
-                          <span className={`text-sm font-medium ${isSelected ? "text-primary" : "text-foreground"}`}>
+                          <span className={`text-base font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
                             {opt.label}
                           </span>
                         </div>
-                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                        {isSelected && <Check className="h-6 w-6 text-primary" />}
                       </button>
                     );
                   })}
