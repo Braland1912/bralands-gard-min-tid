@@ -547,8 +547,8 @@ const AdminSchedule = () => {
           className="w-full p-0 flex flex-col gap-0 sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
         >
           {/* Header — sticky top */}
-          <div className="flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
-            <div className="min-w-0 pr-8">
+          <div className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
+            <div className="min-w-0 flex-1">
               <SheetTitle className="text-base font-semibold text-foreground truncate">
                 {sheet?.worker.name}
               </SheetTitle>
@@ -559,6 +559,13 @@ const AdminSchedule = () => {
                 {sheet?.shiftIndex === 0 ? "Pass 1" : "Pass 2"}
               </div>
             </div>
+            <button
+              onClick={() => setSheet(null)}
+              aria-label="Stäng"
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors"
+            >
+              <X className="h-5 w-5 text-muted-foreground" />
+            </button>
           </div>
 
           {/* Scrollable body */}
