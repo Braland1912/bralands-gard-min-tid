@@ -626,6 +626,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           </ul>
         )}
       </section>
+      )}
 
       {/* Read-only checklist viewer for selected worker */}
       <Sheet open={!!selectedWorker} onOpenChange={(o) => !o && setSelectedWorker(null)}>
