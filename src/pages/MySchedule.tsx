@@ -732,8 +732,13 @@ const MySchedule = () => {
         >
           <SheetHeader className="text-left">
             <SheetTitle>
-              {openShift?.label} · {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
+              {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
             </SheetTitle>
+            {openShift?.shiftType && (
+              <div className="text-sm text-muted-foreground">
+                {`Pass ${(openShift.shiftIndex ?? 0) + 1} · ${SHIFT_CONFIG[openShift.shiftType].emoji} ${SHIFT_CONFIG[openShift.shiftType].label}`}
+              </div>
+            )}
           </SheetHeader>
           <div className="mt-4">
             {openShift && <ShiftChecklistViewer shiftId={openShift.id} />}
