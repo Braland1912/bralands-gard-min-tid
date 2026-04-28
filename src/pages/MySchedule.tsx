@@ -118,7 +118,65 @@ const MySchedule = () => {
     enabled: !!user,
   });
 
-  // Fetch checklist counts for MY shifts this week
+  const invalidateSchedules = () => {
+    queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    queryClient.invalidateQueries({ queryKey: ["upcoming-shifts"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+  };
+
+  const saveBusy = useMutation({
+    mutationFn: async ({ date, existingId, note }: { date: Date; existingId: string | null; note: string }) => {
+      if (!user?.id) throw new Error("not authenticated");
+      const trimmed = note.trim();
+      if (trimmed.length === 0) throw new Error("Skäl är obligatoriskt");
+      const dateStr = format(date, "yyyy-MM-dd");
+      if (existingId) {
+        const { error } = await supabase
+          .from("schedules")
+          .update({ note: trimmed })
+          .eq("id", existingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("schedules")
+          .insert({ user_id: user.id, date: dateStr, shift_type: "busy", shift_index: 0, note: trimmed });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      invalidateSchedules();
+      setBusySheet(null);
+      toast({ title: "Sparat", description: "Du är markerad som upptagen." });
+    },
+    onError: (err: any) => {
+      const msg = String(err?.message || "");
+      if (msg.includes("row-level security") || msg.includes("violates")) {
+        toast({
+          title: "Kunde inte spara",
+          description: "Du har redan ett pass denna dag — kontakta admin för att avboka.",
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Kunde inte spara", description: msg, variant: "destructive" });
+      }
+    },
+  });
+
+  const deleteBusy = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("schedules").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidateSchedules();
+      setBusySheet(null);
+      toast({ title: "Borttagen", description: "Markeringen är borttagen." });
+    },
+    onError: (err: any) => {
+      toast({ title: "Kunde inte ta bort", description: String(err?.message || ""), variant: "destructive" });
+    },
+  });
+
   const myShiftIds = useMemo(
     () => schedules.filter((s: any) => s.user_id === user?.id).map((s: any) => s.id),
     [schedules, user?.id]
