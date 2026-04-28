@@ -578,14 +578,26 @@ const AdminSchedule = () => {
       </div>
 
       {/* Shift edit sheet */}
-      <Sheet open={!!sheet} onOpenChange={(o) => !o && setSheet(null)}>
+      <Sheet open={!!sheet} onOpenChange={(o) => { if (!o) { setSheet(null); setDragX(0); } }}>
         <SheetContent
           side="right"
           className="w-full max-w-full p-0 flex flex-col gap-0 overflow-x-hidden sm:max-w-none md:max-w-2xl md:rounded-l-2xl"
+          style={{
+            transform: dragX > 0 ? `translateX(${dragX}px)` : undefined,
+            transition: dragX > 0 ? "none" : undefined,
+          }}
         >
-          {/* Header — sticky top */}
-          <div className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card">
-            <div className="min-w-0 flex-1">
+          {/* Header — sticky top + swipe-to-close handle on mobile */}
+          <div
+            className="sticky top-0 z-10 flex-shrink-0 flex items-start justify-between gap-3 p-4 border-b border-border bg-card touch-pan-y"
+            onTouchStart={onSwipeStart}
+            onTouchMove={onSwipeMove}
+            onTouchEnd={onSwipeEnd}
+            onTouchCancel={onSwipeEnd}
+          >
+            {/* Drag indicator on mobile */}
+            <div className="md:hidden absolute left-1/2 -translate-x-1/2 top-1.5 w-10 h-1 rounded-full bg-border" aria-hidden="true" />
+            <div className="min-w-0 flex-1 pt-1.5 md:pt-0">
               <SheetTitle className="text-base font-semibold text-foreground truncate">
                 {sheet?.worker.name}
               </SheetTitle>
@@ -599,7 +611,7 @@ const AdminSchedule = () => {
             <button
               onClick={() => setSheet(null)}
               aria-label="Stäng"
-              className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors"
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors mt-1.5 md:mt-0"
             >
               <X className="h-5 w-5 text-muted-foreground" />
             </button>
