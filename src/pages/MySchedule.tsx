@@ -298,26 +298,35 @@ const MySchedule = () => {
     shift,
     full,
     hasChecklist,
+    note,
     onClick,
   }: {
     shift: ShiftType;
     full?: boolean;
     hasChecklist?: boolean;
+    note?: string | null;
     onClick?: () => void;
   }) => {
     const cfg = SHIFT_CONFIG[shift];
-    const interactive = !!onClick && !!hasChecklist;
+    const interactive = !!onClick && (!!hasChecklist || shift === "busy");
+    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
     return (
       <button
         type="button"
         onClick={interactive ? onClick : undefined}
         disabled={!interactive}
+        title={hasNote ? note! : undefined}
         className={`relative w-full rounded-xl border ${cfg.border} ${cfg.bg} flex flex-col items-center justify-center px-1 ${
           full ? "flex-1 py-2" : "py-1"
         } ${interactive ? "cursor-pointer hover:brightness-95 transition" : "cursor-default"}`}
       >
         <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
         <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
+        {hasNote && (
+          <span className={`mt-0.5 ${cfg.text} text-[9px] opacity-80 truncate max-w-full px-0.5`}>
+            {note}
+          </span>
+        )}
       </button>
     );
   };
