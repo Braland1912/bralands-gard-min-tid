@@ -89,12 +89,6 @@ const AdminDashboard = () => {
   const handleOverviewNavigate = (tabId: string) => handleTabChange(tabId);
 
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await queryClient.invalidateQueries();
-    setTimeout(() => setRefreshing(false), 500);
-  };
-
   const handleLogout = async () => {
     queryClient.clear();
     await signOut();
