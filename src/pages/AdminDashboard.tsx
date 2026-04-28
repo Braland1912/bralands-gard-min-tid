@@ -35,7 +35,7 @@ const mobileMoreTabs = [
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("oversikt");
-  const [refreshing, setRefreshing] = useState(false);
+  
   const [moreOpen, setMoreOpen] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
