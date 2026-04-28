@@ -465,6 +465,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       </section>
 
       {/* Section: Working today (amber) */}
+      {showToday && (
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.today.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
