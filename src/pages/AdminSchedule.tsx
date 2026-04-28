@@ -68,6 +68,43 @@ const AdminSchedule = () => {
     dayIndex: number;
     shiftIndex: 0 | 1;
   } | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const dragActive = useRef(false);
+
+  const onSwipeStart = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    const t = e.touches[0];
+    dragStart.current = { x: t.clientX, y: t.clientY };
+    dragActive.current = false;
+  };
+  const onSwipeMove = (e: React.TouchEvent) => {
+    if (!isMobile || !dragStart.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - dragStart.current.x;
+    const dy = t.clientY - dragStart.current.y;
+    if (!dragActive.current) {
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+        dragActive.current = true;
+      } else if (Math.abs(dy) > 8) {
+        dragStart.current = null;
+        return;
+      } else {
+        return;
+      }
+    }
+    setDragX(Math.max(0, dx));
+  };
+  const onSwipeEnd = () => {
+    if (!isMobile) return;
+    const threshold = window.innerWidth * 0.3;
+    if (dragX > threshold) {
+      setSheet(null);
+    }
+    setDragX(0);
+    dragStart.current = null;
+    dragActive.current = false;
+  };
 
   const referenceDate = useMemo(() => {
     const now = new Date();
