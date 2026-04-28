@@ -47,7 +47,7 @@ const MySchedule = () => {
   const { data: worker } = useWorker(user?.id);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date } | null>(null);
+  const [openShift, setOpenShift] = useState<{ id: string; label: string; date: Date; shiftType?: ShiftType; shiftIndex?: number } | null>(null);
   const [busySheet, setBusySheet] = useState<{ date: Date; existingId: string | null; existingNote: string } | null>(null);
   const [busyNote, setBusyNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -430,6 +430,8 @@ const MySchedule = () => {
               id: entry.id,
               label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
               date,
+              shiftType: entry.shift_type as ShiftType,
+              shiftIndex: entry.shift_index ?? 0,
             })
         : undefined;
       return (
@@ -573,6 +575,8 @@ const MySchedule = () => {
                             label:
                               SHIFT_CONFIG[shiftsWithChecklist[0].shift_type as ShiftType].label,
                             date: dateObj,
+                            shiftType: shiftsWithChecklist[0].shift_type as ShiftType,
+                            shiftIndex: shiftsWithChecklist[0].shift_index ?? 0,
                           })
                       : undefined;
                     return (
@@ -630,6 +634,8 @@ const MySchedule = () => {
                                               id: entry.id,
                                               label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
                                               date: dateObj,
+                                              shiftType: entry.shift_type as ShiftType,
+                                              shiftIndex: entry.shift_index ?? 0,
                                             });
                                           }
                                         : undefined
@@ -726,8 +732,13 @@ const MySchedule = () => {
         >
           <SheetHeader className="text-left">
             <SheetTitle>
-              {openShift?.label} · {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
+              {openShift && format(openShift.date, "EEEE d MMM", { locale: sv })}
             </SheetTitle>
+            {openShift?.shiftType && (
+              <div className="text-sm text-muted-foreground">
+                {`Pass ${(openShift.shiftIndex ?? 0) + 1} · ${SHIFT_CONFIG[openShift.shiftType].emoji} ${SHIFT_CONFIG[openShift.shiftType].label}`}
+              </div>
+            )}
           </SheetHeader>
           <div className="mt-4">
             {openShift && <ShiftChecklistViewer shiftId={openShift.id} />}
