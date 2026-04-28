@@ -575,6 +575,8 @@ const MySchedule = () => {
                             label:
                               SHIFT_CONFIG[shiftsWithChecklist[0].shift_type as ShiftType].label,
                             date: dateObj,
+                            shiftType: shiftsWithChecklist[0].shift_type as ShiftType,
+                            shiftIndex: shiftsWithChecklist[0].shift_index ?? 0,
                           })
                       : undefined;
                     return (
