@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getISOWeek } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -565,6 +566,7 @@ const Index = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <MemberMobileBottomNav active="hem" />
     </div>
   );
 };
