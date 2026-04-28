@@ -130,12 +130,6 @@ const AdminDashboard = () => {
             <img src={logo} alt="Brålands Gård" className="h-7 w-auto object-contain cursor-pointer" />
           </button>
           <div className="flex items-center gap-1">
-            <button
-              onClick={handleRefresh}
-              className="p-2 rounded-xl text-muted-foreground hover:bg-accent transition-colors"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            </button>
             <ChangePasswordDialog />
             <button
               onClick={handleLogout}
