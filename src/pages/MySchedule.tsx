@@ -37,8 +37,24 @@ const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; bg: string
 
 const DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 
+const SHIFT_EMOJI: Record<string, string> = {
+  morning: "🌅",
+  day: "☀️",
+  evening: "🌙",
+  busy: "🚫",
+  fishing: "🎣",
+  clearing: "🌲",
+  off: "💤",
+};
+
 const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+
+const getShortName = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0]}`;
+};
 
 const MySchedule = () => {
   const { user, loading } = useAuth();
