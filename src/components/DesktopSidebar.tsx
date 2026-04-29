@@ -34,9 +34,8 @@ type NavItem = {
 
 const memberItems: NavItem[] = [
   { id: "hem", label: "Hem", icon: Home, path: "/", matchPath: "/" },
-  { id: "schema", label: "Mitt schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
+  { id: "schema", label: "Schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
-  { id: "rattelser", label: "Rättelser", icon: AlertTriangle, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
 ];
 
