@@ -543,7 +543,7 @@ const MyTime = () => {
           </TabsContent>
         </Tabs>
       </div>
-      <MemberMobileBottomNav active={activeTab} />
+      <MemberMobileBottomNav active="tidrapport" />
     </div>
   );
 };

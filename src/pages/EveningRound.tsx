@@ -313,7 +313,7 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
       />
 
-      <MemberMobileBottomNav active="mer" />
+      <MemberMobileBottomNav active="kvallsrundan" />
     </div>
   );
 };
