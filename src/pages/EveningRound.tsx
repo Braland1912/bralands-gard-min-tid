@@ -21,7 +21,7 @@ import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
-type Filter = "alla" | "bokade" | "lediga";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
 
 const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
 
