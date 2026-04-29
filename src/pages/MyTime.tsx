@@ -261,13 +261,6 @@ const MyTime = () => {
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Min tid</h2>
         </div>
 
-        {/* Logout */}
-        <div className="flex justify-end">
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground rounded-xl">
-            <Power className="h-4 w-4 mr-1.5" />
-            Logga ut
-          </Button>
-        </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 gap-3">
