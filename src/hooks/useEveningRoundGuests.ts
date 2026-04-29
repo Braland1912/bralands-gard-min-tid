@@ -98,8 +98,10 @@ export const useEveningRoundGuests = (
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      toast.success("Gäst tillagd");
+    onSuccess: (data) => {
+      toast.success("Gäst tillagd", {
+        description: `Plats ${data.place_number} • ${data.guest_name}`,
+      });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till gäst"),
