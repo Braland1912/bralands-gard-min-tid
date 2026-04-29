@@ -127,6 +127,9 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
               <dt className="text-muted-foreground">Arbetsdagar</dt>
               <dd className="text-right font-medium">{m.days} st</dd>
 
+              <dt className="text-muted-foreground">Registrerade pass</dt>
+              <dd className="text-right font-medium">{m.entries} st</dd>
+
               {showPay && hourlyRate > 0 && (
                 <>
                   <dt className="text-muted-foreground">Beräknad lön</dt>
