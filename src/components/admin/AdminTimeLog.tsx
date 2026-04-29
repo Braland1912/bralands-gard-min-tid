@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import MonthlySummary from "@/components/MonthlySummary";
 
 type FilterMode = "all" | "today" | "week" | "custom";
 
@@ -251,6 +252,24 @@ const AdminTimeLog = () => {
           className="h-12 text-base rounded-xl border-border"
         />
       </div>
+
+      {/* Månadssammanställning för vald medarbetare */}
+      {selectedWorker !== "all" && (() => {
+        const w = workers.find((x: any) => x.id === selectedWorker);
+        if (!w) return null;
+        return (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Sammanställning per månad — {w.name}
+            </p>
+            <MonthlySummary
+              workerId={w.id}
+              showPay
+              hourlyRate={Number(w.hourly_rate ?? 0)}
+            />
+          </div>
+        );
+      })()}
 
       {isLoading ? (
         <div className="flex justify-center py-12">
