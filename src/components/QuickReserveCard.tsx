@@ -5,7 +5,7 @@ import type { GuestInput } from "@/hooks/useEveningRoundGuests";
 interface Props {
   placeNumber: number;
   date: string;
-  onQuickReserve: (input: GuestInput) => Promise<void> | void;
+  onQuickReserve: (input: GuestInput) => Promise<unknown> | unknown;
   onOpenFull: (place: number) => void;
 }
 
