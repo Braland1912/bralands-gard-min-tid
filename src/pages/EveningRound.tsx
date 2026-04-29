@@ -247,7 +247,7 @@ const EveningRound = () => {
 
         <div className="hidden md:grid grid-cols-4 gap-3">
           <SummaryCard label="Här" value={counts.here} className="text-emerald-600" />
-          <SummaryCard label="Utcheckade" value={counts.out} className="text-amber-600" />
+          <SummaryCard label="Utcheckad" value={counts.out} className="text-amber-600" />
           <SummaryCard label="Inte här" value={counts.not} className="text-destructive" />
           <SummaryCard label="Lediga" value={counts.free} className="text-muted-foreground" />
         </div>
