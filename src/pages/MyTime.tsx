@@ -453,6 +453,14 @@ const MyTime = () => {
           </TabsContent>
 
           <TabsContent value="tidrapport" className="space-y-6 mt-4">
+        {/* Månadssammanställning (alla månader) */}
+        {worker?.id && (
+          <div className="space-y-3">
+            <h2 className="text-base font-semibold text-foreground">Sammanställning per månad</h2>
+            <MonthlySummary workerId={worker.id} />
+          </div>
+        )}
+
         {/* Time entries grouped by week → day */}
         <div className="space-y-6">
           <h2 className="text-base font-semibold text-foreground">
