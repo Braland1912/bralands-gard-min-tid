@@ -30,6 +30,34 @@ export interface GuestInput {
   status?: GuestStatus;
 }
 
+const todayLocalIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const shiftIso = (iso: string, days: number) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+};
+
+/** Returnerar t.ex. "Idag (29/4)", "Igår (28/4)", "Imorgon (30/4)" eller "12/5". */
+export const formatDateLabel = (iso: string): string => {
+  if (!iso) return "";
+  const today = todayLocalIso();
+  const [, m, d] = iso.split("-");
+  const short = `${parseInt(d, 10)}/${parseInt(m, 10)}`;
+  if (iso === today) return `Idag (${short})`;
+  if (iso === shiftIso(today, -1)) return `Igår (${short})`;
+  if (iso === shiftIso(today, 1)) return `Imorgon (${short})`;
+  return short;
+};
+
+const buildDescription = (parts: Array<string | undefined | null>) =>
+  parts.filter((p) => p && p.length > 0).join(" • ");
+
+
 /**
  * Hämtar alla gäster vars [arrival, departure) inkluderar dagens datum,
  * för aktuell rundas plats. Admin ser alla rundor (RLS sköter resten).
