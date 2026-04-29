@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import MonthlySummary from "@/components/MonthlySummary";
 
 type FilterMode = "all" | "today" | "week" | "custom";
 
