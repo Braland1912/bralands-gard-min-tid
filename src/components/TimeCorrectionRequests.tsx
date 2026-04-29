@@ -236,7 +236,7 @@ const TimeCorrectionRequests = () => {
         >
           <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
             Alla
-            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{workerFiltered.length}</Badge>
+            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalAll}</Badge>
           </ToggleGroupItem>
           <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
             <ListChecks className="h-3.5 w-3.5 mr-1" />
