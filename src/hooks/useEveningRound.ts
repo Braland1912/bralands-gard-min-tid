@@ -38,7 +38,9 @@ export const useEveningRound = (
       if (selErr) throw selErr;
       if (existing) return existing;
 
-      // Skapa om saknas (RLS tillåter både medarbetare för egen och admin)
+      // Auto-skapa endast för dagens datum för att undvika oavsiktliga rundor
+      if (date !== todayLocal()) return null;
+
       const { data: created, error: insErr } = await supabase
         .from("evening_rounds")
         .insert({ assigned_worker_id: workerId, round_date: date })
