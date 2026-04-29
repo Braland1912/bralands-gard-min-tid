@@ -218,8 +218,11 @@ const TimeCorrectionRequests = () => {
     return true;
   });
 
+  // Chip counts == exactly what the list shows when that chip is active
+  // (vald medarbetare via workerFiltered, plus typ-filter för respektive chip)
   const totalEarly = workerFiltered.filter((r: any) => isEarlyClockout(r)).length;
   const totalNormal = workerFiltered.filter((r: any) => !isEarlyClockout(r)).length;
+  const totalAll = totalEarly + totalNormal;
 
   return (
     <div className="space-y-4 pb-24 md:pb-6 max-w-full overflow-x-hidden">
@@ -233,7 +236,7 @@ const TimeCorrectionRequests = () => {
         >
           <ToggleGroupItem value="all" className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-full px-4 h-9 text-sm border">
             Alla
-            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{workerFiltered.length}</Badge>
+            <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-[10px]">{totalAll}</Badge>
           </ToggleGroupItem>
           <ToggleGroupItem value="early" className="data-[state=on]:bg-amber-500 data-[state=on]:text-white rounded-full px-4 h-9 text-sm border">
             <ListChecks className="h-3.5 w-3.5 mr-1" />
