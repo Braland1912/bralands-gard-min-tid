@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Shield, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,6 @@ import {
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
-import { useEffect } from "react";
 
 type Filter = "alla" | "bokade" | "lediga";
 
