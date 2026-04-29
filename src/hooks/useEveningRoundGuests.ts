@@ -30,6 +30,34 @@ export interface GuestInput {
   status?: GuestStatus;
 }
 
+const todayLocalIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const shiftIso = (iso: string, days: number) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+};
+
+/** Returnerar t.ex. "Idag (29/4)", "Igår (28/4)", "Imorgon (30/4)" eller "12/5". */
+export const formatDateLabel = (iso: string): string => {
+  if (!iso) return "";
+  const today = todayLocalIso();
+  const [, m, d] = iso.split("-");
+  const short = `${parseInt(d, 10)}/${parseInt(m, 10)}`;
+  if (iso === today) return `Idag (${short})`;
+  if (iso === shiftIso(today, -1)) return `Igår (${short})`;
+  if (iso === shiftIso(today, 1)) return `Imorgon (${short})`;
+  return short;
+};
+
+const buildDescription = (parts: Array<string | undefined | null>) =>
+  parts.filter((p) => p && p.length > 0).join(" • ");
+
+
 /**
  * Hämtar alla gäster vars [arrival, departure) inkluderar dagens datum,
  * för aktuell rundas plats. Admin ser alla rundor (RLS sköter resten).
@@ -100,7 +128,11 @@ export const useEveningRoundGuests = (
     },
     onSuccess: (data) => {
       toast.success("Gäst tillagd", {
-        description: `Plats ${data.place_number} • ${data.guest_name}`,
+        description: buildDescription([
+          `Plats ${data.place_number}`,
+          data.guest_name,
+          formatDateLabel(date),
+        ]),
       });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
@@ -120,8 +152,9 @@ export const useEveningRoundGuests = (
     },
     onSuccess: ({ data, patch }) => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
-      // Tydlig feedback beroende på vad som ändrades
       const keys = Object.keys(patch);
+      const guestPart = data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined;
+      const datePart = formatDateLabel(date);
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
           here: "Markerad som Här",
@@ -129,11 +162,11 @@ export const useEveningRoundGuests = (
           not_here: "Markerad som Inte här",
         };
         toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
-          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+          description: buildDescription([guestPart, datePart]),
         });
       } else {
         toast.success("Ändringar sparade", {
-          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+          description: buildDescription([guestPart, datePart]),
         });
       }
     },
@@ -142,7 +175,6 @@ export const useEveningRoundGuests = (
 
   const deleteGuest = useMutation({
     mutationFn: async (id: string) => {
-      // Hämta gäst-info först för bättre toast-text
       const { data: existing } = await supabase
         .from("evening_round_guests")
         .select("place_number, guest_name")
@@ -154,14 +186,17 @@ export const useEveningRoundGuests = (
     },
     onSuccess: (existing) => {
       toast.success("Gäst borttagen", {
-        description: existing
-          ? `Plats ${existing.place_number} • ${existing.guest_name} – platsen är nu ledig`
-          : undefined,
+        description: buildDescription([
+          existing ? `Plats ${existing.place_number} • ${existing.guest_name}` : undefined,
+          formatDateLabel(date),
+          existing ? "platsen är nu ledig" : undefined,
+        ]),
       });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort gäst"),
   });
+
 
   return { ...query, addGuest, updateGuest, deleteGuest };
 };
