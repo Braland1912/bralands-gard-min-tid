@@ -102,6 +102,94 @@ export type Database = {
         }
         Relationships: []
       }
+      evening_round_guests: {
+        Row: {
+          arrival_date: string
+          created_at: string
+          departure_date: string
+          evening_round_id: string
+          guest_name: string
+          id: string
+          payment_amount: number | null
+          payment_method: string | null
+          place_number: number
+          registration_number: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          arrival_date: string
+          created_at?: string
+          departure_date: string
+          evening_round_id: string
+          guest_name: string
+          id?: string
+          payment_amount?: number | null
+          payment_method?: string | null
+          place_number: number
+          registration_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          arrival_date?: string
+          created_at?: string
+          departure_date?: string
+          evening_round_id?: string
+          guest_name?: string
+          id?: string
+          payment_amount?: number | null
+          payment_method?: string | null
+          place_number?: number
+          registration_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evening_round_guests_evening_round_id_fkey"
+            columns: ["evening_round_id"]
+            isOneToOne: false
+            referencedRelation: "evening_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evening_rounds: {
+        Row: {
+          assigned_worker_id: string
+          created_at: string
+          id: string
+          round_date: string
+          round_time: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_worker_id: string
+          created_at?: string
+          id?: string
+          round_date: string
+          round_time?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_worker_id?: string
+          created_at?: string
+          id?: string
+          round_date?: string
+          round_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evening_rounds_assigned_worker_id_fkey"
+            columns: ["assigned_worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           created_at: string
@@ -433,6 +521,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_my_worker: { Args: { _worker_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

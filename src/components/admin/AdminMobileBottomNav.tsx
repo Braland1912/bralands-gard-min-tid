@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Calendar, Clock, AlertTriangle, Menu, Users, ListChecks, Link2, DollarSign, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, Clock, AlertTriangle, Menu, Users, ListChecks, Link2, DollarSign, LogOut, Moon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ const bottomTabs: { id: ActiveKey; label: string; icon: any }[] = [
 const moreTabs = [
   { id: "team", label: "Team", icon: Users },
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
+  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
 ];
@@ -84,6 +85,10 @@ const AdminMobileBottomNav = ({ active }: Props) => {
     setMoreOpen(false);
     if (id === "checklistor") {
       navigate("/admin/checklists");
+      return;
+    }
+    if (id === "kvallsrundan") {
+      navigate("/evening-round");
       return;
     }
     goToDashboard(id);

@@ -14,6 +14,7 @@ import MyTime from "./pages/MyTime";
 import MySchedule from "./pages/MySchedule";
 import AdminSchedule from "./pages/AdminSchedule";
 import AdminChecklists from "./pages/AdminChecklists";
+import EveningRound from "./pages/EveningRound";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
@@ -59,6 +60,7 @@ const App = () => (
               <AdminSchedule />
             </ProtectedRoute>
           } />
+          <Route path="/evening-round" element={<EveningRound />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />
