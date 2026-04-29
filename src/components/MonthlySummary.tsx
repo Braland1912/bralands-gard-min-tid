@@ -48,7 +48,7 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
   });
 
   const months = useMemo(() => {
-    const map = new Map<string, { hours: number; days: Set<string> }>();
+    const map = new Map<string, { hours: number; days: Set<string>; entries: number }>();
     entries.forEach((e) => {
       if (!e.clock_in || !e.clock_out) return;
       const start = new Date(e.clock_in);
@@ -56,9 +56,10 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
       const monthKey = format(start, "yyyy-MM"); // local time
       const dayKey = format(start, "yyyy-MM-dd");
       const hours = (end.getTime() - start.getTime()) / 3600000;
-      const cur = map.get(monthKey) ?? { hours: 0, days: new Set<string>() };
+      const cur = map.get(monthKey) ?? { hours: 0, days: new Set<string>(), entries: 0 };
       cur.hours += hours;
       cur.days.add(dayKey);
+      cur.entries += 1;
       map.set(monthKey, cur);
     });
 
@@ -72,6 +73,7 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
           label: format(date, "LLLL yyyy", { locale: sv }),
           hours: v.hours,
           days: v.days.size,
+          entries: v.entries,
           pay: v.hours * (hourlyRate || 0),
         };
       });
@@ -124,6 +126,9 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
 
               <dt className="text-muted-foreground">Arbetsdagar</dt>
               <dd className="text-right font-medium">{m.days} st</dd>
+
+              <dt className="text-muted-foreground">Registrerade pass</dt>
+              <dd className="text-right font-medium">{m.entries} st</dd>
 
               {showPay && hourlyRate > 0 && (
                 <>
