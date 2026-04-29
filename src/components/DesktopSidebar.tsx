@@ -141,8 +141,8 @@ const DesktopSidebar = () => {
   };
 
   const renderBadge = (item: NavItem) => {
-    if (item.id !== "rattelser") return null;
-    if (isAdmin) {
+    // Admin behåller egen Rättelser-flik med badge
+    if (isAdmin && item.id === "rattelser") {
       return (
         <div className="flex items-center gap-1">
           {adminPending.early > 0 && (
@@ -161,7 +161,8 @@ const DesktopSidebar = () => {
         </div>
       );
     }
-    if (memberPending > 0) {
+    // Medlemmar: badge på Tidrapport (Rättelser nås via flik där)
+    if (!isAdmin && item.id === "tidrapport" && memberPending > 0) {
       return (
         <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center leading-none">
           {memberPending > 99 ? "99+" : memberPending}
