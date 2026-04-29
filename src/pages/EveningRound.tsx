@@ -21,7 +21,7 @@ import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
-type Filter = "alla" | "bokade" | "lediga";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
 
 const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
 
@@ -93,6 +93,9 @@ const EveningRound = () => {
       const g = guestsByPlace.get(p);
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
+      if (filter === "har" && g?.status !== "here") return false;
+      if (filter === "utcheckad" && g?.status !== "checked_out") return false;
+      if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (s) {
         const matchesPlace = String(p).includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
@@ -229,6 +232,9 @@ const EveningRound = () => {
               { id: "alla", label: `Alla (${counts.booked + counts.free})` },
               { id: "bokade", label: `Upptagen (${counts.booked})` },
               { id: "lediga", label: `Ledig (${counts.free})` },
+              { id: "har", label: `Här (${counts.here})` },
+              { id: "utcheckad", label: `Utcheckad (${counts.out})` },
+              { id: "inte_har", label: `Inte här (${counts.not})` },
             ] as { id: Filter; label: string }[]
           ).map((c) => (
             <button
