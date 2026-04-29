@@ -34,9 +34,8 @@ type NavItem = {
 
 const memberItems: NavItem[] = [
   { id: "hem", label: "Hem", icon: Home, path: "/", matchPath: "/" },
-  { id: "schema", label: "Mitt schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
+  { id: "schema", label: "Schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
-  { id: "rattelser", label: "Rättelser", icon: AlertTriangle, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
 ];
 
@@ -116,24 +115,15 @@ const DesktopSidebar = () => {
     // Member
     if (item.id === "hem") return location.pathname === "/";
     if (item.id === "schema") return location.pathname === "/my-schedule";
-    if (item.id === "tidrapport") {
-      return location.pathname === "/my-time" && (currentTab ?? "tidrapport") === "tidrapport";
-    }
-    if (item.id === "rattelser") {
-      return location.pathname === "/my-time" && currentTab === "rattelser";
-    }
+    if (item.id === "tidrapport") return location.pathname === "/my-time";
+    if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
     return false;
   };
 
   const handleClick = (item: NavItem) => {
     if (item.path && !item.dashboardTab) {
-      // Member tab differentiation via state
       if (!isAdmin && item.id === "tidrapport") {
         navigate("/my-time", { state: { tab: "tidrapport" } });
-        return;
-      }
-      if (!isAdmin && item.id === "rattelser") {
-        navigate("/my-time", { state: { tab: "rattelser" } });
         return;
       }
       navigate(item.path);
@@ -151,8 +141,8 @@ const DesktopSidebar = () => {
   };
 
   const renderBadge = (item: NavItem) => {
-    if (item.id !== "rattelser") return null;
-    if (isAdmin) {
+    // Admin behåller egen Rättelser-flik med badge
+    if (isAdmin && item.id === "rattelser") {
       return (
         <div className="flex items-center gap-1">
           {adminPending.early > 0 && (
@@ -171,7 +161,8 @@ const DesktopSidebar = () => {
         </div>
       );
     }
-    if (memberPending > 0) {
+    // Medlemmar: badge på Tidrapport (Rättelser nås via flik där)
+    if (!isAdmin && item.id === "tidrapport" && memberPending > 0) {
       return (
         <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center leading-none">
           {memberPending > 99 ? "99+" : memberPending}
