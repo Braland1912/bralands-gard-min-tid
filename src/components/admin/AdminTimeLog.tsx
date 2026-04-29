@@ -252,6 +252,24 @@ const AdminTimeLog = () => {
         />
       </div>
 
+      {/* Månadssammanställning för vald medarbetare */}
+      {selectedWorker !== "all" && (() => {
+        const w = workers.find((x: any) => x.id === selectedWorker);
+        if (!w) return null;
+        return (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              Sammanställning per månad — {w.name}
+            </p>
+            <MonthlySummary
+              workerId={w.id}
+              showPay
+              hourlyRate={Number(w.hourly_rate ?? 0)}
+            />
+          </div>
+        );
+      })()}
+
       {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
