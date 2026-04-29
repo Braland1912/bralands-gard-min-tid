@@ -529,7 +529,7 @@ const TimeCorrectionRequests = () => {
                 e.preventDefault();
                 cleanupMutation.mutate();
               }}
-              disabled={cleanupMutation.isPending}
+              disabled={cleanupMutation.isPending || countLoading || oldCount === 0}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Ta bort {oldCount} rättelser
