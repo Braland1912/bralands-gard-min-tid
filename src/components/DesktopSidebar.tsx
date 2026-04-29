@@ -122,13 +122,8 @@ const DesktopSidebar = () => {
 
   const handleClick = (item: NavItem) => {
     if (item.path && !item.dashboardTab) {
-      // Member tab differentiation via state
       if (!isAdmin && item.id === "tidrapport") {
         navigate("/my-time", { state: { tab: "tidrapport" } });
-        return;
-      }
-      if (!isAdmin && item.id === "rattelser") {
-        navigate("/my-time", { state: { tab: "rattelser" } });
         return;
       }
       navigate(item.path);
