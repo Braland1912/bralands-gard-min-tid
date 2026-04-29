@@ -140,17 +140,26 @@ const TimeCorrectionRequests = () => {
   });
 
   // Cleanup old requests (>30 days, all statuses)
-  const cutoffIso = useMemo(() => {
+  // Cutoff is computed once per click so the count and the DELETE use the exact same value.
+  const [cutoffIso, setCutoffIso] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
     return d.toISOString();
-  }, [cleanupOpen]); // recompute when dialog opens
+  });
 
-  // Match DELETE condition exactly: created_at < cutoffIso (skip rows missing created_at)
-  const oldCount = useMemo(
-    () => requests.filter((r: any) => typeof r.created_at === "string" && r.created_at < cutoffIso).length,
-    [requests, cutoffIso]
-  );
+  // Query exact count from DB using identical condition as DELETE (created_at < cutoffIso)
+  const { data: oldCount = 0, isFetching: countLoading } = useQuery({
+    queryKey: ["correction-requests-old-count", cutoffIso],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("time_correction_requests")
+        .select("id", { count: "exact", head: true })
+        .lt("created_at", cutoffIso);
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: cleanupOpen,
+  });
 
   const cleanupMutation = useMutation({
     mutationFn: async () => {
@@ -163,6 +172,7 @@ const TimeCorrectionRequests = () => {
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ["correction-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["correction-requests-old-count"] });
       queryClient.invalidateQueries({ queryKey: ["pending-corrections-counts"] });
       setCleanupOpen(false);
       toast({ title: `Rensade ${count} gamla rättelser` });
@@ -172,8 +182,24 @@ const TimeCorrectionRequests = () => {
     },
   });
 
-  const handleCleanupClick = () => {
-    if (oldCount === 0) {
+  const handleCleanupClick = async () => {
+    // Recompute cutoff at click time so it matches the DELETE moment closely
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    const newCutoff = d.toISOString();
+    setCutoffIso(newCutoff);
+
+    // Pre-check count in DB before opening dialog
+    const { count, error } = await supabase
+      .from("time_correction_requests")
+      .select("id", { count: "exact", head: true })
+      .lt("created_at", newCutoff);
+
+    if (error) {
+      toast({ title: "Fel", description: error.message, variant: "destructive" });
+      return;
+    }
+    if (!count || count === 0) {
       toast({ title: "Inga gamla rättelser att rensa" });
       return;
     }
