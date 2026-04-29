@@ -114,10 +114,26 @@ export const useEveningRoundGuests = (
         .select("*")
         .single();
       if (error) throw error;
-      return data;
+      return { data, patch };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, patch }) => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      // Tydlig feedback beroende på vad som ändrades
+      const keys = Object.keys(patch);
+      if (keys.length === 1 && keys[0] === "status") {
+        const labels: Record<string, string> = {
+          here: "Markerad som Här",
+          checked_out: "Markerad som Utcheckad",
+          not_here: "Markerad som Inte här",
+        };
+        toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
+          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+        });
+      } else {
+        toast.success("Ändringar sparade", {
+          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte spara ändringar"),
   });
