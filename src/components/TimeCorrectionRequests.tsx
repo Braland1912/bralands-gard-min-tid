@@ -519,7 +519,7 @@ const TimeCorrectionRequests = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Rensa gamla rättelser</AlertDialogTitle>
             <AlertDialogDescription>
-              Detta tar bort alla rättelser äldre än 30 dagar (oavsett status). Antalet rättelser som kommer raderas: <strong>{oldCount} st</strong>. Detta kan inte ångras.
+              Detta tar bort alla rättelser äldre än 30 dagar (oavsett status). Antalet rättelser som kommer raderas: <strong>{countLoading ? "räknar…" : `${oldCount} st`}</strong>. Detta kan inte ångras.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
