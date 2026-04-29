@@ -98,8 +98,10 @@ export const useEveningRoundGuests = (
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      toast.success("Gäst tillagd");
+    onSuccess: (data) => {
+      toast.success("Gäst tillagd", {
+        description: `Plats ${data.place_number} • ${data.guest_name}`,
+      });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till gäst"),
@@ -114,21 +116,48 @@ export const useEveningRoundGuests = (
         .select("*")
         .single();
       if (error) throw error;
-      return data;
+      return { data, patch };
     },
-    onSuccess: () => {
+    onSuccess: ({ data, patch }) => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      // Tydlig feedback beroende på vad som ändrades
+      const keys = Object.keys(patch);
+      if (keys.length === 1 && keys[0] === "status") {
+        const labels: Record<string, string> = {
+          here: "Markerad som Här",
+          checked_out: "Markerad som Utcheckad",
+          not_here: "Markerad som Inte här",
+        };
+        toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
+          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+        });
+      } else {
+        toast.success("Ändringar sparade", {
+          description: data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined,
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte spara ändringar"),
   });
 
   const deleteGuest = useMutation({
     mutationFn: async (id: string) => {
+      // Hämta gäst-info först för bättre toast-text
+      const { data: existing } = await supabase
+        .from("evening_round_guests")
+        .select("place_number, guest_name")
+        .eq("id", id)
+        .maybeSingle();
       const { error } = await supabase.from("evening_round_guests").delete().eq("id", id);
       if (error) throw error;
+      return existing;
     },
-    onSuccess: () => {
-      toast.success("Gäst borttagen");
+    onSuccess: (existing) => {
+      toast.success("Gäst borttagen", {
+        description: existing
+          ? `Plats ${existing.place_number} • ${existing.guest_name} – platsen är nu ledig`
+          : undefined,
+      });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort gäst"),
