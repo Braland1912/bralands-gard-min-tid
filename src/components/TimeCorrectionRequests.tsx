@@ -146,8 +146,9 @@ const TimeCorrectionRequests = () => {
     return d.toISOString();
   }, [cleanupOpen]); // recompute when dialog opens
 
+  // Match DELETE condition exactly: created_at < cutoffIso (skip rows missing created_at)
   const oldCount = useMemo(
-    () => requests.filter((r: any) => r.created_at && r.created_at < cutoffIso).length,
+    () => requests.filter((r: any) => typeof r.created_at === "string" && r.created_at < cutoffIso).length,
     [requests, cutoffIso]
   );
 
