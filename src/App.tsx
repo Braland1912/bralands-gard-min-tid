@@ -60,11 +60,7 @@ const App = () => (
               <AdminSchedule />
             </ProtectedRoute>
           } />
-          <Route path="/evening-round" element={
-            <ProtectedRoute>
-              <EveningRound />
-            </ProtectedRoute>
-          } />
+          <Route path="/evening-round" element={<EveningRound />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />
