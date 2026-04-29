@@ -17,6 +17,7 @@ import {
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
+import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type Filter = "alla" | "bokade" | "lediga";
@@ -121,7 +122,8 @@ const EveningRound = () => {
             </p>
           </div>
           {isAdmin && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <EveningRoundCreateDialog />
               <EveningRoundExportDialog />
               <Badge className="gap-1">
                 <Shield className="h-3 w-3" />
