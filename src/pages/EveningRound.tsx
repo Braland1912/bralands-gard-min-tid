@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Shield, AlertTriangle } from "lucide-react";
+import { Search, Plus, Shield, AlertTriangle, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +25,31 @@ type Filter = "alla" | "bokade" | "lediga";
 
 const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
 
+const todayLocal = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+const shiftDate = (iso: string, days: number) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  const yy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+};
+
 const EveningRound = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const { data: worker } = useWorker(user?.id);
-  const { data: round, date } = useEveningRound(worker?.id, isAdmin);
+  const [selectedDate, setSelectedDate] = useState<string>(todayLocal());
+  const { data: round, date } = useEveningRound(worker?.id, isAdmin, selectedDate);
   const {
     data: guests = [],
     addGuest,
@@ -43,6 +62,15 @@ const EveningRound = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+
+  const today = todayLocal();
+  const yesterday = shiftDate(today, -1);
+  const tomorrow = shiftDate(today, 1);
+  const datePresets: { id: string; label: string; value: string }[] = [
+    { id: "yesterday", label: "Igår", value: yesterday },
+    { id: "today", label: "Idag", value: today },
+    { id: "tomorrow", label: "Imorgon", value: tomorrow },
+  ];
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login", { replace: true });
