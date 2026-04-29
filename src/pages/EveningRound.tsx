@@ -17,6 +17,7 @@ import {
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
+import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
@@ -154,8 +155,8 @@ const EveningRound = () => {
           {(
             [
               { id: "alla", label: `Alla (${counts.booked + counts.free})` },
-              { id: "bokade", label: `Bokade (${counts.booked})` },
-              { id: "lediga", label: `Lediga (${counts.free})` },
+              { id: "bokade", label: `Upptagen (${counts.booked})` },
+              { id: "lediga", label: `Ledig (${counts.free})` },
             ] as { id: Filter; label: string }[]
           ).map((c) => (
             <button
@@ -198,15 +199,13 @@ const EveningRound = () => {
               );
             }
             return (
-              <button
+              <QuickReserveCard
                 key={p}
-                onClick={() => openAdd(p)}
-                className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-4 text-left hover:bg-muted transition-colors"
-              >
-                <div className="text-xs font-medium text-muted-foreground">Plats {p}</div>
-                <div className="text-base font-semibold text-foreground mt-1">Ledig</div>
-                <div className="text-xs text-muted-foreground mt-1">Klicka för att reservera</div>
-              </button>
+                placeNumber={p}
+                date={date}
+                onQuickReserve={(input) => addGuest.mutateAsync(input)}
+                onOpenFull={openAdd}
+              />
             );
           })}
         </div>
