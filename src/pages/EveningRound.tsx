@@ -16,6 +16,7 @@ import {
 } from "@/hooks/useEveningRoundGuests";
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
+import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type Filter = "alla" | "bokade" | "lediga";
@@ -120,10 +121,13 @@ const EveningRound = () => {
             </p>
           </div>
           {isAdmin && (
-            <Badge className="gap-1">
-              <Shield className="h-3 w-3" />
-              ADMIN
-            </Badge>
+            <div className="flex items-center gap-2">
+              <EveningRoundExportDialog />
+              <Badge className="gap-1">
+                <Shield className="h-3 w-3" />
+                ADMIN
+              </Badge>
+            </div>
           )}
         </header>
 
