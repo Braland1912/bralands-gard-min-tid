@@ -115,12 +115,8 @@ const DesktopSidebar = () => {
     // Member
     if (item.id === "hem") return location.pathname === "/";
     if (item.id === "schema") return location.pathname === "/my-schedule";
-    if (item.id === "tidrapport") {
-      return location.pathname === "/my-time" && (currentTab ?? "tidrapport") === "tidrapport";
-    }
-    if (item.id === "rattelser") {
-      return location.pathname === "/my-time" && currentTab === "rattelser";
-    }
+    if (item.id === "tidrapport") return location.pathname === "/my-time";
+    if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
     return false;
   };
 
