@@ -14,9 +14,13 @@ const todayLocal = () => {
  * Hämtar (eller skapar) dagens kvällsrunda för aktuell medarbetare.
  * Admin utan koppling till worker får null tillbaka och kan ändå se alla gäster i useEveningRoundGuests.
  */
-export const useEveningRound = (workerId: string | undefined, isAdmin: boolean) => {
+export const useEveningRound = (
+  workerId: string | undefined,
+  isAdmin: boolean,
+  selectedDate?: string,
+) => {
   const queryClient = useQueryClient();
-  const date = todayLocal();
+  const date = selectedDate ?? todayLocal();
 
   const query = useQuery({
     queryKey: ["evening-round", date, workerId, isAdmin],
