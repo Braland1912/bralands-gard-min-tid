@@ -251,7 +251,7 @@ const TimeCorrectionRequests = () => {
           variant="outline"
           size="sm"
           onClick={handleCleanupClick}
-          disabled={oldCount === 0}
+          disabled={cleanupMutation.isPending}
           className="gap-1.5"
         >
           <Trash2 className="h-3.5 w-3.5" />
