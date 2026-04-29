@@ -12,9 +12,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PAYMENT_LABELS, type PaymentMethod } from "@/hooks/useEveningRoundGuests";
+
+type Template = "standard" | "ekonomi";
 
 const todayLocal = () => {
   const d = new Date();
