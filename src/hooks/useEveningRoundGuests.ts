@@ -142,11 +142,22 @@ export const useEveningRoundGuests = (
 
   const deleteGuest = useMutation({
     mutationFn: async (id: string) => {
+      // Hämta gäst-info först för bättre toast-text
+      const { data: existing } = await supabase
+        .from("evening_round_guests")
+        .select("place_number, guest_name")
+        .eq("id", id)
+        .maybeSingle();
       const { error } = await supabase.from("evening_round_guests").delete().eq("id", id);
       if (error) throw error;
+      return existing;
     },
-    onSuccess: () => {
-      toast.success("Gäst borttagen");
+    onSuccess: (existing) => {
+      toast.success("Gäst borttagen", {
+        description: existing
+          ? `Plats ${existing.place_number} • ${existing.guest_name} – platsen är nu ledig`
+          : undefined,
+      });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort gäst"),
