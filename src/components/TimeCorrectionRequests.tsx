@@ -218,8 +218,11 @@ const TimeCorrectionRequests = () => {
     return true;
   });
 
+  // Chip counts == exactly what the list shows when that chip is active
+  // (vald medarbetare via workerFiltered, plus typ-filter för respektive chip)
   const totalEarly = workerFiltered.filter((r: any) => isEarlyClockout(r)).length;
   const totalNormal = workerFiltered.filter((r: any) => !isEarlyClockout(r)).length;
+  const totalAll = totalEarly + totalNormal;
 
   return (
     <div className="space-y-4 pb-24 md:pb-6 max-w-full overflow-x-hidden">
