@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Shield, AlertTriangle } from "lucide-react";
+import { Search, Plus, Shield, AlertTriangle, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +25,31 @@ type Filter = "alla" | "bokade" | "lediga";
 
 const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
 
+const todayLocal = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+const shiftDate = (iso: string, days: number) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  const yy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${dd}`;
+};
+
 const EveningRound = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const { data: worker } = useWorker(user?.id);
-  const { data: round, date } = useEveningRound(worker?.id, isAdmin);
+  const [selectedDate, setSelectedDate] = useState<string>(todayLocal());
+  const { data: round, date } = useEveningRound(worker?.id, isAdmin, selectedDate);
   const {
     data: guests = [],
     addGuest,
@@ -43,6 +62,15 @@ const EveningRound = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+
+  const today = todayLocal();
+  const yesterday = shiftDate(today, -1);
+  const tomorrow = shiftDate(today, 1);
+  const datePresets: { id: string; label: string; value: string }[] = [
+    { id: "yesterday", label: "Igår", value: yesterday },
+    { id: "today", label: "Idag", value: today },
+    { id: "tomorrow", label: "Imorgon", value: tomorrow },
+  ];
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login", { replace: true });
@@ -133,6 +161,50 @@ const EveningRound = () => {
             </div>
           )}
         </header>
+
+        <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {datePresets.map((p) => {
+              const active = selectedDate === p.value;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedDate(p.value)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-foreground border-border hover:bg-accent"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+            <div className="relative ml-auto">
+              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value || todayLocal())}
+                className="pl-8 pr-3 py-1.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label="Välj annat datum"
+              />
+            </div>
+          </div>
+          {selectedDate !== today && (
+            <button
+              onClick={() => setSelectedDate(today)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Hoppa till idag
+            </button>
+          )}
+          {!round && selectedDate !== today && (
+            <p className="text-xs text-muted-foreground">
+              Ingen runda finns för valt datum. {isAdmin ? "Skapa via knappen ovan." : "Be admin skapa en."}
+            </p>
+          )}
+        </div>
 
         {unpaidCount > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">

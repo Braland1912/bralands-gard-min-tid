@@ -14,9 +14,13 @@ const todayLocal = () => {
  * Hämtar (eller skapar) dagens kvällsrunda för aktuell medarbetare.
  * Admin utan koppling till worker får null tillbaka och kan ändå se alla gäster i useEveningRoundGuests.
  */
-export const useEveningRound = (workerId: string | undefined, isAdmin: boolean) => {
+export const useEveningRound = (
+  workerId: string | undefined,
+  isAdmin: boolean,
+  selectedDate?: string,
+) => {
   const queryClient = useQueryClient();
-  const date = todayLocal();
+  const date = selectedDate ?? todayLocal();
 
   const query = useQuery({
     queryKey: ["evening-round", date, workerId, isAdmin],
@@ -34,7 +38,9 @@ export const useEveningRound = (workerId: string | undefined, isAdmin: boolean) 
       if (selErr) throw selErr;
       if (existing) return existing;
 
-      // Skapa om saknas (RLS tillåter både medarbetare för egen och admin)
+      // Auto-skapa endast för dagens datum för att undvika oavsiktliga rundor
+      if (date !== todayLocal()) return null;
+
       const { data: created, error: insErr } = await supabase
         .from("evening_rounds")
         .insert({ assigned_worker_id: workerId, round_date: date })
