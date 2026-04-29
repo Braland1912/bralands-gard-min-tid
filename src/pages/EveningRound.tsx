@@ -93,6 +93,9 @@ const EveningRound = () => {
       const g = guestsByPlace.get(p);
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
+      if (filter === "har" && g?.status !== "here") return false;
+      if (filter === "utcheckad" && g?.status !== "checked_out") return false;
+      if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (s) {
         const matchesPlace = String(p).includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
