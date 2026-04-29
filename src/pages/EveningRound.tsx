@@ -122,7 +122,8 @@ const EveningRound = () => {
             </p>
           </div>
           {isAdmin && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <EveningRoundCreateDialog />
               <EveningRoundExportDialog />
               <Badge className="gap-1">
                 <Shield className="h-3 w-3" />
