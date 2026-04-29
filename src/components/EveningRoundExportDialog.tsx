@@ -219,6 +219,23 @@ const EveningRoundExportDialog = () => {
 
         <div className="space-y-3">
           <div className="space-y-1.5">
+            <Label htmlFor="export-template">Mall</Label>
+            <Select value={template} onValueChange={(v) => setTemplate(v as Template)}>
+              <SelectTrigger id="export-template">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">Standard – operativ vy</SelectItem>
+                <SelectItem value="ekonomi">Ekonomirapport – betalsätt &amp; summor</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {template === "ekonomi"
+                ? "Innehåller belopp per gäst och summering per betalsätt."
+                : "Innehåller alla operativa fält: status, plats, ansvarig m.m."}
+            </p>
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="export-name">Gästnamn (valfritt)</Label>
             <Input
               id="export-name"
