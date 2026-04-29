@@ -12,9 +12,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PAYMENT_LABELS, type PaymentMethod } from "@/hooks/useEveningRoundGuests";
+
+type Template = "standard" | "ekonomi";
 
 const todayLocal = () => {
   const d = new Date();
@@ -64,6 +73,7 @@ const EveningRoundExportDialog = () => {
   const [from, setFrom] = useState(monthAgoLocal());
   const [to, setTo] = useState(todayLocal());
   const [name, setName] = useState("");
+  const [template, setTemplate] = useState<Template>("standard");
   const [loading, setLoading] = useState(false);
 
   const handleExport = async () => {
@@ -94,42 +104,95 @@ const EveningRoundExportDialog = () => {
       const { data, error } = await q;
       if (error) throw error;
 
-      const rows: string[][] = [
-        [
-          "Plats",
-          "Gäst",
-          "Reg.nr",
-          "Ankomst",
-          "Avresa",
-          "Status",
-          "Betalsätt",
-          "Belopp",
-          "Rundans datum",
-          "Ansvarig",
-        ],
-      ];
+      const guests = data ?? [];
+      let rows: string[][];
+      let filename: string;
 
-      (data ?? []).forEach((g: any) => {
-        const round = g.evening_rounds;
-        const workerName = round?.workers?.name ?? "";
-        const pm = g.payment_method as PaymentMethod | null;
-        rows.push([
-          g.place_number,
-          g.guest_name,
-          g.registration_number ?? "",
-          g.arrival_date,
-          g.departure_date,
-          STATUS_LABELS[g.status] ?? g.status,
-          pm ? PAYMENT_LABELS[pm] ?? pm : "",
-          g.payment_amount ?? "",
-          round?.round_date ?? "",
-          workerName,
-        ]);
-      });
+      if (template === "ekonomi") {
+        // Ekonomirapport: en rad per gäst + summeringar per betalsätt
+        rows = [
+          ["Datum", "Gäst", "Plats", "Nätter", "Betalsätt", "Belopp (SEK)"],
+        ];
+        const totals = new Map<string, { count: number; amount: number }>();
+        let grandCount = 0;
+        let grandAmount = 0;
 
-      const filename = `kvallsrundan_${from}_till_${to}.csv`;
+        guests.forEach((g: any) => {
+          const pm = g.payment_method as PaymentMethod | null;
+          const pmLabel = pm ? PAYMENT_LABELS[pm] ?? pm : "Saknas";
+          const amount = Number(g.payment_amount ?? 0);
+          const arr = new Date(g.arrival_date);
+          const dep = new Date(g.departure_date);
+          const nights = Math.max(
+            1,
+            Math.round((dep.getTime() - arr.getTime()) / 86400000),
+          );
+          rows.push([
+            g.arrival_date,
+            g.guest_name,
+            String(g.place_number),
+            String(nights),
+            pmLabel,
+            amount.toFixed(2).replace(".", ","),
+          ]);
+          const t = totals.get(pmLabel) ?? { count: 0, amount: 0 };
+          t.count += 1;
+          t.amount += amount;
+          totals.set(pmLabel, t);
+          grandCount += 1;
+          grandAmount += amount;
+        });
+
+        rows.push([]);
+        rows.push(["Sammanställning per betalsätt"]);
+        rows.push(["Betalsätt", "Antal gäster", "Summa (SEK)"]);
+        Array.from(totals.entries())
+          .sort((a, b) => a[0].localeCompare(b[0], "sv"))
+          .forEach(([label, t]) => {
+            rows.push([label, String(t.count), t.amount.toFixed(2).replace(".", ",")]);
+          });
+        rows.push([]);
+        rows.push(["TOTALT", String(grandCount), grandAmount.toFixed(2).replace(".", ",")]);
+
+        filename = `ekonomirapport_${from}_till_${to}.csv`;
+      } else {
+        // Standard: full operativ vy
+        rows = [
+          [
+            "Plats",
+            "Gäst",
+            "Reg.nr",
+            "Ankomst",
+            "Avresa",
+            "Status",
+            "Betalsätt",
+            "Belopp",
+            "Rundans datum",
+            "Ansvarig",
+          ],
+        ];
+        guests.forEach((g: any) => {
+          const round = g.evening_rounds;
+          const workerName = round?.workers?.name ?? "";
+          const pm = g.payment_method as PaymentMethod | null;
+          rows.push([
+            String(g.place_number),
+            g.guest_name,
+            g.registration_number ?? "",
+            g.arrival_date,
+            g.departure_date,
+            STATUS_LABELS[g.status] ?? g.status,
+            pm ? PAYMENT_LABELS[pm] ?? pm : "",
+            g.payment_amount ?? "",
+            round?.round_date ?? "",
+            workerName,
+          ]);
+        });
+        filename = `kvallsrundan_${from}_till_${to}.csv`;
+      }
+
       downloadCsv(filename, rows);
-      toast.success(`Exporterade ${data?.length ?? 0} gäster`);
+      toast.success(`Exporterade ${guests.length} gäster`);
       setOpen(false);
     } catch (e: any) {
       toast.error(e.message ?? "Kunde inte exportera");
@@ -155,6 +218,23 @@ const EveningRoundExportDialog = () => {
         </DialogHeader>
 
         <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="export-template">Mall</Label>
+            <Select value={template} onValueChange={(v) => setTemplate(v as Template)}>
+              <SelectTrigger id="export-template">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">Standard – operativ vy</SelectItem>
+                <SelectItem value="ekonomi">Ekonomirapport – betalsätt &amp; summor</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {template === "ekonomi"
+                ? "Innehåller belopp per gäst och summering per betalsätt."
+                : "Innehåller alla operativa fält: status, plats, ansvarig m.m."}
+            </p>
+          </div>
           <div className="space-y-1.5">
             <Label htmlFor="export-name">Gästnamn (valfritt)</Label>
             <Input
