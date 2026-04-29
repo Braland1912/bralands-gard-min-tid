@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Home, Calendar, Clock, AlertTriangle } from "lucide-react";
+import { Home, Calendar, Clock, AlertTriangle, Menu, Moon } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useWorker } from "@/hooks/useWorker";
 
-type ActiveKey = "hem" | "schema" | "tidrapport" | "rattelser";
+type ActiveKey = "hem" | "schema" | "tidrapport" | "rattelser" | "mer";
 
 interface Props {
   active: ActiveKey;
@@ -14,9 +16,13 @@ interface Props {
 
 const tabs: { id: ActiveKey; label: string; icon: any }[] = [
   { id: "hem", label: "Hem", icon: Home },
-  { id: "schema", label: "Mitt schema", icon: Calendar },
+  { id: "schema", label: "Schema", icon: Calendar },
   { id: "tidrapport", label: "Tidrapport", icon: Clock },
   { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
+];
+
+const moreTabs = [
+  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
 ];
 
 const MemberMobileBottomNav = ({ active }: Props) => {
@@ -24,6 +30,7 @@ const MemberMobileBottomNav = ({ active }: Props) => {
   const { user } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const { data: worker } = useWorker(user?.id);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const { data: pendingCount = 0 } = useQuery({
     queryKey: ["my-pending-corrections", worker?.id],
@@ -41,7 +48,6 @@ const MemberMobileBottomNav = ({ active }: Props) => {
     refetchInterval: 15000,
   });
 
-  // Visa bara för inloggade icke-admins
   if (!user || adminLoading || isAdmin) return null;
 
   const handleTabClick = (id: ActiveKey) => {
@@ -84,6 +90,38 @@ const MemberMobileBottomNav = ({ active }: Props) => {
           <span className="text-[10px] font-medium">{tab.label}</span>
         </button>
       ))}
+      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+        <SheetTrigger asChild>
+          <button
+            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl min-w-[52px] transition-colors ${
+              active === "mer" ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            <Menu className="h-4 w-4" />
+            <span className="text-[10px] font-medium">Mer</span>
+          </button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>Mer</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-1">
+            {moreTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setMoreOpen(false);
+                  navigate(tab.path);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </nav>
   );
 };
