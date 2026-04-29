@@ -139,33 +139,20 @@ const TimeCorrectionRequests = () => {
     },
   });
 
-  // Cleanup old requests (>30 days, all statuses).
-  // Compute cutoff exactly when needed so N always matches what DELETE will affect.
-  const buildCutoffIso = () => {
+  // Cleanup old requests (>30 days, all statuses)
+  const cutoffIso = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
     return d.toISOString();
-  };
+  }, [cleanupOpen]); // recompute when dialog opens
 
-  // Live count from the server using the SAME predicate as DELETE (created_at < cutoff).
-  // This guarantees N matches the rows that will actually be removed, regardless of
-  // local cache staleness, pagination or null created_at values.
-  const { data: oldCount = 0, refetch: refetchOldCount } = useQuery({
-    queryKey: ["correction-requests-old-count"],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from("time_correction_requests")
-        .select("id", { count: "exact", head: true })
-        .lt("created_at", buildCutoffIso());
-      if (error) throw error;
-      return count ?? 0;
-    },
-    refetchInterval: 60_000,
-  });
+  const oldCount = useMemo(
+    () => requests.filter((r: any) => r.created_at && r.created_at < cutoffIso).length,
+    [requests, cutoffIso]
+  );
 
   const cleanupMutation = useMutation({
     mutationFn: async () => {
-      const cutoffIso = buildCutoffIso();
       const { error, count } = await supabase
         .from("time_correction_requests")
         .delete({ count: "exact" })
@@ -175,7 +162,6 @@ const TimeCorrectionRequests = () => {
     },
     onSuccess: (count) => {
       queryClient.invalidateQueries({ queryKey: ["correction-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["correction-requests-old-count"] });
       queryClient.invalidateQueries({ queryKey: ["pending-corrections-counts"] });
       setCleanupOpen(false);
       toast({ title: `Rensade ${count} gamla rättelser` });
@@ -185,11 +171,8 @@ const TimeCorrectionRequests = () => {
     },
   });
 
-  const handleCleanupClick = async () => {
-    // Refetch right before opening so the dialog shows a fresh, authoritative N.
-    const { data } = await refetchOldCount();
-    const fresh = data ?? 0;
-    if (fresh === 0) {
+  const handleCleanupClick = () => {
+    if (oldCount === 0) {
       toast({ title: "Inga gamla rättelser att rensa" });
       return;
     }
