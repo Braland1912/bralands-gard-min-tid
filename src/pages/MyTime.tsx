@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ShiftChecklists from "@/components/ShiftChecklists";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+import MonthlySummary from "@/components/MonthlySummary";
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
