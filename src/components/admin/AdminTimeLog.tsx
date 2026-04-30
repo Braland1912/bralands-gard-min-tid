@@ -279,6 +279,9 @@ const AdminTimeLog = () => {
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Datum
           </label>
+          <p className="text-xs text-muted-foreground">
+            Välj specifikt datum eller använd snabbfilter ovan.
+          </p>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
