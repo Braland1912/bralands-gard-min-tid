@@ -79,8 +79,18 @@ const EveningRound = () => {
   const [filter, setFilter] = useState<Filter>("alla");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
   const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
+  const [newPlaceLabel, setNewPlaceLabel] = useState("");
+
+  const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
+  const allPlaces = useMemo(() => {
+    const extras = extraPlaces.map((p) => p.label);
+    // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
+    const set = new Set<string>(STANDARD_PLACES);
+    extras.forEach((l) => set.add(l));
+    return Array.from(set);
+  }, [extraPlaces]);
 
   const today = todayLocal();
   const yesterday = shiftDate(today, -1);
