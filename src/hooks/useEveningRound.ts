@@ -102,7 +102,7 @@ export const useEveningRound = (
       return created;
     },
     // Aktivera alltid – även för admin utan worker-koppling
-    enabled: !authLoadingFlag,
+    enabled: true,
   });
 
   // Realtime: lyssna på rundor
