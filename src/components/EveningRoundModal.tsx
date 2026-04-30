@@ -158,7 +158,7 @@ const EveningRoundModal = ({
       setError("Avresa måste vara efter ankomst");
       return;
     }
-    if (place == null) {
+    if (place == null && !showPlacePicker) {
       setError("Välj en plats");
       return;
     }
