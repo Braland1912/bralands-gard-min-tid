@@ -145,29 +145,49 @@ const SalaryReport = () => {
     a.click();
   };
 
+  const selectedMonthLabel =
+    monthOptions.find((m) => m.value === selectedMonth)?.label ?? selectedMonth;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-xl font-semibold text-foreground">Lönerapport</h2>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportSalaryCSV} disabled={salaryData.length === 0} className="gap-2">
-            <Download className="h-4 w-4" />
-            CSV
-          </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger
+              aria-label="Välj månad"
+              className="flex-1 sm:flex-none sm:w-[220px] h-12 text-base rounded-xl border-border"
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl p-2">
               {monthOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
+                <SelectItem
+                  key={opt.value}
+                  value={opt.value}
+                  className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 capitalize data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                >
                   {opt.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={exportSalaryCSV}
+            disabled={salaryData.length === 0}
+            className="h-12 rounded-xl gap-2 shrink-0"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">CSV</span>
+          </Button>
         </div>
       </div>
+
+      <p className="text-xs text-muted-foreground capitalize">
+        Visar {selectedMonthLabel} • {salaryData.length} medarbetare
+      </p>
 
       {salaryData.length === 0 ? (
         <div className="flex flex-col items-center py-8 text-center">
