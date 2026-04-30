@@ -267,7 +267,7 @@ const EveningRoundModal = ({
                           {NATIONALITIES.map((n) => (
                             <CommandItem
                               key={n.code}
-                              value={`${n.label} ${n.code}`}
+                              value={`${n.label} ${n.code} ${n.plate}`}
                               onSelect={() => {
                                 setNationality(n.code);
                                 setNatOpen(false);
@@ -279,10 +279,13 @@ const EveningRoundModal = ({
                                 loading="lazy"
                                 className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
                               />
-                              {n.label}
+                              <span className="flex-1">{n.label}</span>
+                              <span className="ml-2 text-xs font-mono font-medium text-muted-foreground bg-muted rounded px-1.5 py-0.5">
+                                {n.plate}
+                              </span>
                               <Check
                                 className={cn(
-                                  "ml-auto h-4 w-4",
+                                  "ml-2 h-4 w-4",
                                   nationality === n.code ? "opacity-100" : "opacity-0",
                                 )}
                               />
