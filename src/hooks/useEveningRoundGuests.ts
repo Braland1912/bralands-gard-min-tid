@@ -77,22 +77,19 @@ export const useEveningRoundGuests = (
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["evening-round-guests", eveningRoundId, date, isAdmin],
+    queryKey: ["evening-round-guests", date, isAdmin, eveningRoundId],
     queryFn: async () => {
-      let q = supabase
+      // Alla inloggade ser alla gäster för datumet (read-only för icke-admin).
+      const { data, error } = await supabase
         .from("evening_round_guests")
         .select("*")
         .lte("arrival_date", date)
         .gt("departure_date", date)
         .order("place_number", { ascending: true });
-      if (!isAdmin && eveningRoundId) {
-        q = q.eq("evening_round_id", eveningRoundId);
-      }
-      const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as EveningRoundGuest[];
     },
-    enabled: isAdmin || !!eveningRoundId,
+    enabled: true,
   });
 
   // Realtime
