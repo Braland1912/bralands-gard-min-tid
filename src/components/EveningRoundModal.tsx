@@ -208,7 +208,13 @@ const EveningRoundModal = ({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
-                <DialogDescription>{place != null ? `Plats ${place}` : ""}</DialogDescription>
+                <DialogDescription>
+                  {place != null
+                    ? `Plats ${place}`
+                    : showPlacePicker
+                      ? "Välj plats (valfritt – kan väljas senare)"
+                      : ""}
+                </DialogDescription>
               </div>
               {guest && onDelete && (
                 <DropdownMenu>
