@@ -463,31 +463,97 @@ const EveningRound = () => {
           <DialogHeader>
             <DialogTitle>Välj plats</DialogTitle>
             <DialogDescription>
-              Tryck på en ledig plats för att lägga till en gäst.
+              Tryck på en ledig plats, eller lägg till en ny extra plats.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto">
-            {PLACES.map((p) => {
-              const taken = guestsByPlace.has(p);
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  disabled={taken}
-                  onClick={() => {
-                    setPickPlaceOpen(false);
-                    openAdd(p);
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-5 gap-2">
+              {allPlaces.map((p) => {
+                const taken = guestsByPlace.has(p);
+                const isExtra = !STANDARD_PLACES.includes(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    disabled={taken}
+                    onClick={() => {
+                      setPickPlaceOpen(false);
+                      openAdd(p);
+                    }}
+                    className={
+                      taken
+                        ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
+                        : `h-12 rounded-xl border text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors ${
+                            isExtra
+                              ? "border-primary/40 bg-primary/5 text-primary"
+                              : "border-border bg-card"
+                          }`
+                    }
+                    title={isExtra ? "Extra plats" : undefined}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            {extraPlaces.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground">Extra platser för denna runda</div>
+                <div className="flex flex-wrap gap-2">
+                  {extraPlaces.map((p) => (
+                    <span
+                      key={p.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs"
+                    >
+                      <span className="font-medium">{p.label}</span>
+                      <button
+                        type="button"
+                        onClick={() => deletePlace.mutate(p.id)}
+                        disabled={guestsByPlace.has(p.label)}
+                        className="text-muted-foreground hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed"
+                        aria-label={`Ta bort ${p.label}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1.5 pt-2 border-t border-border">
+              <label className="text-xs font-medium text-muted-foreground">Lägg till en extra plats</label>
+              <div className="flex gap-2">
+                <Input
+                  value={newPlaceLabel}
+                  onChange={(e) => setNewPlaceLabel(e.target.value)}
+                  placeholder="T.ex. Stuga 1, X1…"
+                  maxLength={20}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newPlaceLabel.trim() && round?.id) {
+                        addPlace.mutate(newPlaceLabel.trim(), {
+                          onSuccess: () => setNewPlaceLabel(""),
+                        });
+                      }
+                    }
                   }}
-                  className={
-                    taken
-                      ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
-                      : "h-12 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                  }
+                />
+                <Button
+                  type="button"
+                  disabled={!newPlaceLabel.trim() || !round?.id || addPlace.isPending}
+                  onClick={() => {
+                    addPlace.mutate(newPlaceLabel.trim(), {
+                      onSuccess: () => setNewPlaceLabel(""),
+                    });
+                  }}
                 >
-                  {p}
-                </button>
-              );
-            })}
+                  Lägg till
+                </Button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
