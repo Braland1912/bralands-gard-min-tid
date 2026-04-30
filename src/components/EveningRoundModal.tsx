@@ -99,6 +99,7 @@ const EveningRoundModal = ({
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<Currency>("SEK");
+  const [otherNote, setOtherNote] = useState<string>("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
