@@ -935,6 +935,69 @@ const AdminSchedule = () => {
           })()}
         </SheetContent>
       </Sheet>
+
+      <AlertDialog
+        open={!!confirmReassign}
+        onOpenChange={(o) => !o && !reassignShift.isPending && setConfirmReassign(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Flytta passet till {confirmReassign?.toName}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Hela passet flyttas från{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmReassign?.fromName}
+                  </span>{" "}
+                  till{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmReassign?.toName}
+                  </span>
+                  . Checklistor, avbockningar och anteckningar följer med automatiskt.
+                </p>
+                {confirmReassign?.conflictRowId && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                    Obs: {confirmReassign.toName} har redan ett pass denna dag och
+                    detta passindex
+                    {confirmReassign.conflictType
+                      ? ` (${SHIFT_MAP[confirmReassign.conflictType]?.label ?? confirmReassign.conflictType})`
+                      : ""}
+                    . Det befintliga passet kommer att skrivas över.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={reassignShift.isPending}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (!confirmReassign) return;
+                reassignShift.mutate({
+                  shiftRowId: confirmReassign.shiftRowId,
+                  toUserId: confirmReassign.toUserId,
+                  conflictRowId: confirmReassign.conflictRowId,
+                });
+              }}
+              disabled={reassignShift.isPending}
+            >
+              {reassignShift.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Flyttar…
+                </>
+              ) : (
+                "Flytta passet"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AdminMobileBottomNav active="schema" />
     </div>
   );
