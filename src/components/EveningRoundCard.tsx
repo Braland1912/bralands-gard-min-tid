@@ -29,8 +29,18 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Inte här",
 };
 
+const flagFor = (code?: string | null) => {
+  if (!code) return null;
+  const c = code.trim().toUpperCase();
+  if (c.length !== 2) return c;
+  const A = 0x1f1e6;
+  return String.fromCodePoint(A + (c.charCodeAt(0) - 65)) +
+    String.fromCodePoint(A + (c.charCodeAt(1) - 65));
+};
+
 const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
+  const flag = flagFor(guest.nationality);
 
   const StatusBtn = ({
     s,
@@ -62,12 +72,21 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
-          <div className="text-base font-semibold leading-tight">{guest.guest_name}</div>
-          {guest.registration_number && (
-            <div className="text-xs text-muted-foreground mt-0.5">
-              Reg.nr: {guest.registration_number}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
+            {flag && (
+              <span className="text-sm" title={guest.nationality ?? ""}>
+                {flag}
+              </span>
+            )}
+          </div>
+          <div className="text-base font-semibold leading-tight mt-0.5">
+            {guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>}
+          </div>
+          {guest.notes && (
+            <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              {guest.notes}
             </div>
           )}
         </div>
