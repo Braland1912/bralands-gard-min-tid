@@ -75,6 +75,7 @@ const EveningRound = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+  const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
 
   const today = todayLocal();
   const yesterday = shiftDate(today, -1);
