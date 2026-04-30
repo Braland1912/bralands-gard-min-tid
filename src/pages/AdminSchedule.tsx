@@ -440,6 +440,119 @@ const AdminSchedule = () => {
     },
   });
 
+  // ── Duplicera ett pass till ytterligare medarbetare ──────────────────
+  // Skapar en NY schedules-rad åt mottagaren (samma shift_type/index/datum)
+  // och kopierar checklistor + checklistpunkter (avbockningar nollställs så
+  // varje medarbetare bockar av sina egna).
+  const [duplicateTo, setDuplicateTo] = useState<string>("");
+  const [confirmDuplicate, setConfirmDuplicate] = useState<{
+    sourceShiftRowId: string;
+    sourceType: ShiftType;
+    sourceNote: string | null;
+    fromName: string;
+    toUserId: string;
+    toName: string;
+    date: string;
+    shiftIndex: 0 | 1;
+    conflictRowId?: string;
+    conflictType?: ShiftType;
+  } | null>(null);
+
+  const duplicateShift = useMutation({
+    mutationFn: async (args: {
+      sourceShiftRowId: string;
+      sourceType: ShiftType;
+      sourceNote: string | null;
+      toUserId: string;
+      date: string;
+      shiftIndex: 0 | 1;
+      conflictRowId?: string;
+    }) => {
+      // Eventuell konflikt: ta bort befintligt pass på mottagaren först
+      if (args.conflictRowId) {
+        const { error: delErr } = await supabase
+          .from("schedules")
+          .delete()
+          .eq("id", args.conflictRowId);
+        if (delErr) throw delErr;
+      }
+
+      // Skapa nytt pass för mottagaren
+      const { data: created, error: insErr } = await supabase
+        .from("schedules")
+        .insert({
+          user_id: args.toUserId,
+          date: args.date,
+          shift_type: args.sourceType,
+          shift_index: args.shiftIndex,
+          note: args.sourceType === "busy" ? args.sourceNote : null,
+        })
+        .select("id")
+        .single();
+      if (insErr || !created) throw insErr ?? new Error("Kunde inte skapa pass");
+
+      // Hämta källans checklistor + items
+      const { data: srcLists, error: listErr } = await supabase
+        .from("shift_checklists")
+        .select("id, name, sort_order")
+        .eq("shift_id", args.sourceShiftRowId)
+        .order("sort_order", { ascending: true });
+      if (listErr) throw listErr;
+      if (!srcLists || srcLists.length === 0) return;
+
+      const srcListIds = srcLists.map((l: any) => l.id);
+      const { data: srcItems, error: itemsErr } = await supabase
+        .from("shift_checklist_items")
+        .select("shift_checklist_id, text, sort_order")
+        .in("shift_checklist_id", srcListIds)
+        .order("sort_order", { ascending: true });
+      if (itemsErr) throw itemsErr;
+
+      // Klona varje checklista och dess items till det nya passet
+      for (const list of srcLists as any[]) {
+        const { data: newList, error: clErr } = await supabase
+          .from("shift_checklists")
+          .insert({ shift_id: created.id, name: list.name, sort_order: list.sort_order })
+          .select("id")
+          .single();
+        if (clErr || !newList) continue;
+        const items = (srcItems ?? []).filter((it: any) => it.shift_checklist_id === list.id);
+        if (items.length > 0) {
+          await supabase.from("shift_checklist_items").insert(
+            items.map((it: any) => ({
+              shift_checklist_id: newList.id,
+              text: it.text,
+              sort_order: it.sort_order,
+              is_checked: false,
+            })),
+          );
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+      toast({
+        title: "Pass duplicerat",
+        description: "Checklistor kopierades till den andra medarbetaren.",
+      });
+      setConfirmDuplicate(null);
+      setDuplicateTo("");
+    },
+    onError: (e: any) => {
+      toast({
+        title: "Kunde inte duplicera passet",
+        description: e?.message ?? "Försök igen.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Nollställ duplicate-val när sheet byter pass
+  useEffect(() => {
+    setDuplicateTo("");
+  }, [sheet?.worker?.user_id, sheet?.shiftIndex, sheet?.date]);
+
   const isLoading = workersLoading || schedulesLoading;
 
   // Compute name column width based on longest displayed name
