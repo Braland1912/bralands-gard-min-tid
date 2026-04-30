@@ -64,7 +64,7 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
       if (error) {
         // Postgres unique violation
         if ((error as any).code === "23505") {
-          throw new Error(`Platsen "${result.value}" finns redan`);
+          throw new Error(`Platsen "${value}" finns redan`);
         }
         throw error;
       }
