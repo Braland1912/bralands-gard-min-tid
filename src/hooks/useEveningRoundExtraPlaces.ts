@@ -79,6 +79,36 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
 
   const deletePlace = useMutation({
     mutationFn: async (id: string) => {
+      // Hitta platsen i cachen för att veta dess label
+      const place = (query.data ?? []).find((p) => p.id === id);
+      if (!place) throw new Error("Platsen hittades inte");
+
+      // Blockera om det finns gäster/bokningar kopplade till platsen i samma runda
+      const { data: linkedGuests, error: checkErr } = await supabase
+        .from("evening_round_guests")
+        .select("id, guest_name, status")
+        .eq("evening_round_id", place.evening_round_id)
+        .eq("place_label", place.label);
+      if (checkErr) throw checkErr;
+
+      if (linkedGuests && linkedGuests.length > 0) {
+        const count = linkedGuests.length;
+        const names = linkedGuests
+          .map((g: any) => g.guest_name)
+          .filter((n: string) => n && n.trim().length > 0);
+        const namePart =
+          names.length > 0
+            ? ` (${names.slice(0, 2).join(", ")}${names.length > 2 ? ` +${names.length - 2}` : ""})`
+            : "";
+        throw new Error(
+          `Kan inte ta bort platsen "${place.label}" — ${count} ${
+            count === 1 ? "bokning är" : "bokningar är"
+          } kopplade${namePart}. Ta bort eller flytta ${
+            count === 1 ? "bokningen" : "bokningarna"
+          } först.`,
+        );
+      }
+
       const { error } = await supabase
         .from("evening_round_extra_places")
         .delete()
