@@ -159,7 +159,7 @@ const EveningRoundModal = ({
       return;
     }
     if (place == null) {
-      setError("Saknar plats");
+      setError("Välj en plats");
       return;
     }
     const amt = amount.trim() === "" ? null : Number(amount);
