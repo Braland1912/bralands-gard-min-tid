@@ -259,26 +259,78 @@ const EveningRoundModal = ({
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {availablePlaces!.map((p) => {
-                      const taken = takenSet.has(p);
-                      return (
-                        <button
-                          key={p}
+                  <>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {availablePlaces!.map((p) => {
+                        const taken = takenSet.has(p);
+                        return (
+                          <button
+                            key={p}
+                            type="button"
+                            disabled={taken}
+                            onClick={() => setPickedPlace(p)}
+                            className={
+                              taken
+                                ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
+                                : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                            }
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {onAddPlace && (
+                      <div className="flex gap-2 pt-1">
+                        <Input
+                          value={newPlaceLabel}
+                          onChange={(e) => setNewPlaceLabel(e.target.value)}
+                          placeholder="Ny plats t.ex. Stuga 1"
+                          maxLength={20}
+                          className="h-9"
+                          onKeyDown={async (e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const label = newPlaceLabel.trim();
+                              if (!label || creatingPlace) return;
+                              setCreatingPlace(true);
+                              try {
+                                const created = await onAddPlace(label);
+                                setPickedPlace(created);
+                                setNewPlaceLabel("");
+                              } catch {
+                                /* hook visar toast */
+                              } finally {
+                                setCreatingPlace(false);
+                              }
+                            }
+                          }}
+                        />
+                        <Button
                           type="button"
-                          disabled={taken}
-                          onClick={() => setPickedPlace(p)}
-                          className={
-                            taken
-                              ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
-                              : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                          }
+                          variant="outline"
+                          size="sm"
+                          disabled={!newPlaceLabel.trim() || creatingPlace}
+                          onClick={async () => {
+                            const label = newPlaceLabel.trim();
+                            if (!label) return;
+                            setCreatingPlace(true);
+                            try {
+                              const created = await onAddPlace(label);
+                              setPickedPlace(created);
+                              setNewPlaceLabel("");
+                            } catch {
+                              /* hook visar toast */
+                            } finally {
+                              setCreatingPlace(false);
+                            }
+                          }}
                         >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          Skapa
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
                 <p className="text-[11px] text-muted-foreground">
                   Du kan lämna platsen tom och välja den när gästen kommer.
