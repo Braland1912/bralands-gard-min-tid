@@ -10,7 +10,7 @@ export type Currency = "SEK" | "EUR" | "NOK";
 export interface EveningRoundGuest {
   id: string;
   evening_round_id: string;
-  place_number: number;
+  place_label: number;
   guest_name: string;
   registration_number: string | null;
   arrival_date: string;
@@ -25,7 +25,7 @@ export interface EveningRoundGuest {
 }
 
 export interface GuestInput {
-  place_number: number;
+  place_label: number;
   guest_name: string;
   registration_number?: string | null;
   arrival_date: string;
@@ -87,7 +87,7 @@ export const useEveningRoundGuests = (
         .select("*")
         .lte("arrival_date", date)
         .gt("departure_date", date)
-        .order("place_number", { ascending: true });
+        .order("place_label", { ascending: true });
       if (error) throw error;
       return (data ?? []) as EveningRoundGuest[];
     },
@@ -118,7 +118,7 @@ export const useEveningRoundGuests = (
         .from("evening_round_guests")
         .insert({
           evening_round_id: eveningRoundId,
-          place_number: input.place_number,
+          place_label: input.place_label,
           guest_name: input.guest_name,
           registration_number: input.registration_number ?? null,
           arrival_date: input.arrival_date,
@@ -139,7 +139,7 @@ export const useEveningRoundGuests = (
     onSuccess: (data) => {
       toast.success("Gäst tillagd", {
         description: buildDescription([
-          `Plats ${data.place_number}`,
+          `Plats ${data.place_label}`,
           data.guest_name,
           formatDateLabel(date),
         ]),
@@ -163,7 +163,7 @@ export const useEveningRoundGuests = (
     onSuccess: ({ data, patch }) => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
       const keys = Object.keys(patch);
-      const guestPart = data?.guest_name ? `Plats ${data.place_number} • ${data.guest_name}` : undefined;
+      const guestPart = data?.guest_name ? `Plats ${data.place_label} • ${data.guest_name}` : undefined;
       const datePart = formatDateLabel(date);
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
@@ -187,7 +187,7 @@ export const useEveningRoundGuests = (
     mutationFn: async (id: string) => {
       const { data: existing } = await supabase
         .from("evening_round_guests")
-        .select("place_number, guest_name")
+        .select("place_label, guest_name")
         .eq("id", id)
         .maybeSingle();
       const { error } = await supabase.from("evening_round_guests").delete().eq("id", id);
@@ -197,7 +197,7 @@ export const useEveningRoundGuests = (
     onSuccess: (existing) => {
       toast.success("Gäst borttagen", {
         description: buildDescription([
-          existing ? `Plats ${existing.place_number} • ${existing.guest_name}` : undefined,
+          existing ? `Plats ${existing.place_label} • ${existing.guest_name}` : undefined,
           formatDateLabel(date),
           existing ? "platsen är nu ledig" : undefined,
         ]),

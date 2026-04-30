@@ -95,7 +95,7 @@ const EveningRoundExportDialog = () => {
         .lte("arrival_date", to)
         .gt("departure_date", from)
         .order("arrival_date", { ascending: true })
-        .order("place_number", { ascending: true });
+        .order("place_label", { ascending: true });
 
       if (name.trim()) {
         q = q.ilike("guest_name", `%${name.trim()}%`);
@@ -131,7 +131,7 @@ const EveningRoundExportDialog = () => {
           rows.push([
             g.arrival_date,
             g.guest_name,
-            String(g.place_number),
+            String(g.place_label),
             String(nights),
             pmLabel,
             amount.toFixed(2).replace(".", ","),
@@ -177,7 +177,7 @@ const EveningRoundExportDialog = () => {
           const workerName = round?.workers?.name ?? "";
           const pm = g.payment_method as PaymentMethod | null;
           rows.push([
-            String(g.place_number),
+            String(g.place_label),
             g.guest_name,
             g.registration_number ?? "",
             g.arrival_date,
