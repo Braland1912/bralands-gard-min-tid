@@ -127,9 +127,16 @@ const EveningRound = () => {
 
   const guestsByPlace = useMemo(() => {
     const m = new Map<string, EveningRoundGuest>();
-    guests.forEach((g) => m.set(g.place_label, g));
+    guests.forEach((g) => {
+      if (g.place_label) m.set(g.place_label, g);
+    });
     return m;
   }, [guests]);
+
+  const unassignedGuests = useMemo(
+    () => guests.filter((g) => !g.place_label),
+    [guests],
+  );
 
   const unpaidCount = useMemo(
     () => guests.filter((g) => !g.payment_method || !g.payment_amount).length,
@@ -402,6 +409,28 @@ const EveningRound = () => {
         </div>
 
 
+        {unassignedGuests.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Utan plats ({unassignedGuests.length})
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {unassignedGuests.map((g) => {
+                const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
+                return (
+                  <EveningRoundCard
+                    key={g.id}
+                    guest={g}
+                    onStatusChange={handleStatus}
+                    onEdit={openEdit}
+                    ownerName={ownerName}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-sm text-muted-foreground py-8">
@@ -440,7 +469,11 @@ const EveningRound = () => {
               size="lg"
               aria-label="Lägg till gäst"
               className="rounded-full md:rounded-xl shadow-lg md:shadow-none h-14 w-14 md:h-auto md:w-auto p-0 md:px-4 md:py-2"
-              onClick={() => setPickPlaceOpen(true)}
+              onClick={() => {
+                setEditing(null);
+                setSelectedPlace(null);
+                setModalOpen(true);
+              }}
             >
               <Plus className="h-6 w-6 md:h-4 md:w-4" />
               <span className="hidden md:inline">Lägg till gäst</span>
@@ -457,6 +490,8 @@ const EveningRound = () => {
         defaultDate={date}
         onSave={handleSave}
         onDelete={(id) => deleteGuest.mutateAsync(id)}
+        availablePlaces={allPlaces}
+        takenPlaces={Array.from(guestsByPlace.keys())}
       />
 
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>

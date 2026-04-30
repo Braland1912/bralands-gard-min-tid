@@ -66,6 +66,8 @@ interface Props {
   defaultDate: string;
   onSave: (input: GuestInput) => Promise<unknown> | void;
   onDelete?: (id: string) => Promise<unknown> | void;
+  availablePlaces?: string[];
+  takenPlaces?: string[];
 }
 
 const todayLocal = () => {
@@ -87,7 +89,10 @@ const EveningRoundModal = ({
   defaultDate,
   onSave,
   onDelete,
+  availablePlaces,
+  takenPlaces,
 }: Props) => {
+  const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [reg, setReg] = useState("");
   const [notes, setNotes] = useState("");
@@ -106,6 +111,7 @@ const EveningRoundModal = ({
 
   useEffect(() => {
     if (!open) return;
+    setPickedPlace(null);
     if (guest) {
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
@@ -135,7 +141,10 @@ const EveningRoundModal = ({
     setError(null);
   }, [open, guest, defaultDate]);
 
-  const place = guest?.place_label ?? placeLabel ?? null;
+  const place = guest?.place_label ?? placeLabel ?? pickedPlace ?? null;
+  const showPlacePicker =
+    !guest && placeLabel == null && Array.isArray(availablePlaces) && availablePlaces.length > 0;
+  const takenSet = new Set(takenPlaces ?? []);
   const isCash = method === "K";
   const isOther = method === "O";
 
@@ -149,8 +158,8 @@ const EveningRoundModal = ({
       setError("Avresa måste vara efter ankomst");
       return;
     }
-    if (place == null) {
-      setError("Saknar plats");
+    if (place == null && !showPlacePicker) {
+      setError("Välj en plats");
       return;
     }
     const amt = amount.trim() === "" ? null : Number(amount);
@@ -199,7 +208,13 @@ const EveningRoundModal = ({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
-                <DialogDescription>{place != null ? `Plats ${place}` : ""}</DialogDescription>
+                <DialogDescription>
+                  {place != null
+                    ? `Plats ${place}`
+                    : showPlacePicker
+                      ? "Välj plats (valfritt – kan väljas senare)"
+                      : ""}
+                </DialogDescription>
               </div>
               {guest && onDelete && (
                 <DropdownMenu>
@@ -222,7 +237,48 @@ const EveningRoundModal = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 rounded-xl bg-muted/40 p-4">
+          <div className="space-y-4 rounded-xl bg-muted/40 p-4 max-h-[70vh] overflow-y-auto">
+            {showPlacePicker && (
+              <div className="space-y-2">
+                <Label>Plats</Label>
+                {place != null ? (
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+                    <span className="text-sm">Plats <strong>{place}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setPickedPlace(null)}
+                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                    >
+                      Ändra
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {availablePlaces!.map((p) => {
+                      const taken = takenSet.has(p);
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          disabled={taken}
+                          onClick={() => setPickedPlace(p)}
+                          className={
+                            taken
+                              ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
+                              : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                          }
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Du kan lämna platsen tom och välja den när gästen kommer.
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">

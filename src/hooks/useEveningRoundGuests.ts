@@ -10,7 +10,7 @@ export type Currency = "SEK" | "EUR" | "NOK";
 export interface EveningRoundGuest {
   id: string;
   evening_round_id: string;
-  place_label: string;
+  place_label: string | null;
   guest_name: string;
   registration_number: string | null;
   arrival_date: string;
@@ -25,7 +25,7 @@ export interface EveningRoundGuest {
 }
 
 export interface GuestInput {
-  place_label: string;
+  place_label: string | null;
   guest_name: string;
   registration_number?: string | null;
   arrival_date: string;

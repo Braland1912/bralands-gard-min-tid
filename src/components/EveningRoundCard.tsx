@@ -94,7 +94,9 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
     <div {...wrapperProps}>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_label}</div>
+          <div className="text-xs font-medium text-muted-foreground">
+            {guest.place_label ? `Plats ${guest.place_label}` : "Ingen plats vald"}
+          </div>
           {isOtherNat ? (
             <span
               className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground"
