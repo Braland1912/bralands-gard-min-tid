@@ -61,7 +61,7 @@ const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  placeNumber: number | null;
+  placeLabel: string | null;
   guest: EveningRoundGuest | null;
   defaultDate: string;
   onSave: (input: GuestInput) => Promise<unknown> | void;
@@ -82,7 +82,7 @@ const tomorrowLocal = () => {
 const EveningRoundModal = ({
   open,
   onOpenChange,
-  placeNumber,
+  placeLabel,
   guest,
   defaultDate,
   onSave,
@@ -135,7 +135,7 @@ const EveningRoundModal = ({
     setError(null);
   }, [open, guest, defaultDate]);
 
-  const place = guest?.place_label ?? placeNumber ?? null;
+  const place = guest?.place_label ?? placeLabel ?? null;
   const isCash = method === "K";
   const isOther = method === "O";
 
