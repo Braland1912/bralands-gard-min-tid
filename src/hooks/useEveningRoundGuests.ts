@@ -220,4 +220,6 @@ export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   B: "Bank",
   K: "Kontant",
   Z: "Zettle",
+  F: "Frikort",
+  O: "Övrigt",
 };
