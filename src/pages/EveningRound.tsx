@@ -29,6 +29,7 @@ import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
+import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import { STANDARD_PLACES } from "@/lib/place-label";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
@@ -208,6 +209,7 @@ const EveningRound = () => {
           {isAdmin && (
             <div className="flex flex-wrap items-center gap-2">
               <EveningRoundCreateDialog />
+              <AdminExtraPlacesDialog currentRoundId={round?.id} />
               <EveningRoundExportDialog />
               <Badge className="gap-1">
                 <Shield className="h-3 w-3" />
