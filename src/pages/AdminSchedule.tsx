@@ -189,6 +189,11 @@ const AdminSchedule = () => {
     setNoteDraft(row?.note ?? "");
   }, [sheet, schedules]);
 
+  // Nollställ "Byt medarbetare"-valet när sheet öppnas/stängs/byter pass
+  useEffect(() => {
+    setReassignTo("");
+  }, [sheet?.worker?.user_id, sheet?.shiftIndex, sheet?.date]);
+
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
     const row = scheduleDays.find((d: any) => d.date === dateStr);
