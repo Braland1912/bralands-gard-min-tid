@@ -50,19 +50,19 @@ const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Pro
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={handleReserve}
-          disabled={saving}
-          className="flex-[1.6] rounded-xl bg-primary text-primary-foreground text-sm font-semibold py-2.5 disabled:opacity-40 flex items-center justify-center gap-1"
+          onClick={() => onOpenFull(placeNumber)}
+          className="flex-[1.6] rounded-xl bg-primary text-primary-foreground text-sm font-semibold py-2.5 flex items-center justify-center gap-1"
         >
           <Plus className="h-4 w-4" />
-          Reservera
+          Lägg till gäst
         </button>
         <button
           type="button"
-          onClick={() => onOpenFull(placeNumber)}
-          className="flex-1 rounded-xl border border-border bg-card text-xs font-medium py-2.5 hover:bg-accent text-muted-foreground"
+          onClick={handleReserve}
+          disabled={saving}
+          className="flex-1 rounded-xl border border-border bg-card text-xs font-medium py-2.5 hover:bg-accent text-muted-foreground disabled:opacity-40"
         >
-          Fler fält
+          Reservera
         </button>
       </div>
     </div>
