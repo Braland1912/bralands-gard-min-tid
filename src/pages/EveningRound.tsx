@@ -491,6 +491,10 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
         availablePlaces={allPlaces}
         takenPlaces={Array.from(guestsByPlace.keys())}
+        onAddPlace={async (label) => {
+          const created = await addPlace.mutateAsync(label);
+          return created.label;
+        }}
       />
 
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
