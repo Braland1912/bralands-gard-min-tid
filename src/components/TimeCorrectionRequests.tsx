@@ -263,29 +263,54 @@ const TimeCorrectionRequests = () => {
       </div>
 
       {/* Worker filter */}
-      <div className="w-full sm:max-w-xs">
-        <Select value={selectedWorker} onValueChange={setSelectedWorker}>
-          <SelectTrigger className="h-12 text-base rounded-xl border-border">
-            <SelectValue placeholder="Alla medarbetare" />
-          </SelectTrigger>
-          <SelectContent className="max-h-[60vh] p-2 rounded-xl">
-            <SelectItem
-              value="all"
-              className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Filtrera på medarbetare
+        </label>
+        <div className="flex items-center gap-2">
+          <Select value={selectedWorker} onValueChange={setSelectedWorker}>
+            <SelectTrigger
+              aria-label="Välj medarbetare"
+              className="h-12 text-base rounded-xl border-border flex-1"
             >
-              Alla medarbetare
-            </SelectItem>
-            {workers.map((w: any) => (
+              <SelectValue placeholder="Alla medarbetare" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[60vh] p-2 rounded-xl">
               <SelectItem
-                key={w.id}
-                value={w.id}
+                value="all"
                 className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
               >
-                {w.name}
+                Alla medarbetare
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              {workers.length === 0 ? (
+                <div className="py-6 text-center text-sm text-muted-foreground">
+                  Inga medarbetare ännu
+                </div>
+              ) : (
+                workers.map((w: any) => (
+                  <SelectItem
+                    key={w.id}
+                    value={w.id}
+                    className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                  >
+                    {w.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          {selectedWorker !== "all" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedWorker("all")}
+              className="h-12 rounded-xl px-3 shrink-0 text-muted-foreground"
+              aria-label="Rensa medarbetarfilter"
+            >
+              Rensa
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Tidig utstämpling — egen sektion */}
