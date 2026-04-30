@@ -230,15 +230,25 @@ const EveningRoundModal = ({
                       className="w-full justify-between font-normal"
                     >
                       {nationality ? (
-                        <span className="flex items-center gap-2 truncate">
-                          <img
-                            src={flagUrl(nationality)}
-                            alt=""
-                            loading="lazy"
-                            className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-                          />
-                          {NATIONALITIES.find((n) => n.code === nationality)?.label ?? nationality}
-                        </span>
+                        (() => {
+                          const n = NATIONALITIES.find((x) => x.code === nationality);
+                          return (
+                            <span className="flex items-center gap-2 truncate">
+                              <img
+                                src={flagUrl(nationality)}
+                                alt=""
+                                loading="lazy"
+                                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                              />
+                              {n?.label ?? nationality}
+                              {n?.plate && (
+                                <span className="text-xs font-mono font-medium text-muted-foreground">
+                                  ({n.plate})
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })()
                       ) : (
                         <span className="text-muted-foreground">Välj…</span>
                       )}
