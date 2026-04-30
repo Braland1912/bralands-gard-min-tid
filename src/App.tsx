@@ -67,6 +67,7 @@ const App = () => (
               <AdminChecklists />
             </ProtectedRoute>
           } />
+          <Route path="/dev/mobile-test" element={<MobileMenuTest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
