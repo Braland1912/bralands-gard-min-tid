@@ -54,10 +54,11 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
         ...(query.data ?? []).map((p) => p.label),
       ];
       const result = validatePlaceLabel(label, existing);
-      if (!result.ok) throw new Error(result.error);
+      if (result.ok === false) throw new Error(result.error);
+      const value = result.value;
       const { data, error } = await supabase
         .from("evening_round_extra_places")
-        .insert({ evening_round_id: eveningRoundId, label: result.value })
+        .insert({ evening_round_id: eveningRoundId, label: value })
         .select("*")
         .single();
       if (error) {
