@@ -153,7 +153,11 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
             <Badge variant="destructive">EJ BETALT</Badge>
           ) : (
             <div className="text-sm font-medium">
-              {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
+              {PAYMENT_LABELS[guest.payment_method!]}
+              {guest.payment_method === "O" && guest.payment_other_note
+                ? ` (${guest.payment_other_note})`
+                : ""}
+              {" • "}{guest.payment_amount} {guest.payment_currency ?? "kr"}
             </div>
           )}
         </div>
