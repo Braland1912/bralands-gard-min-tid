@@ -241,16 +241,21 @@ const EveningRoundModal = ({
                       {nationality ? (
                         (() => {
                           const n = NATIONALITIES.find((x) => x.code === nationality);
+                          const isOther = nationality === OTHER_CODE;
                           return (
                             <span className="flex items-center gap-2 truncate">
-                              <img
-                                src={flagUrl(nationality)}
-                                alt=""
-                                loading="lazy"
-                                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-                              />
-                              {n?.label ?? nationality}
-                              {n?.plate && (
+                              {!isOther && (
+                                <img
+                                  src={flagUrl(nationality)}
+                                  alt=""
+                                  loading="lazy"
+                                  className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                                />
+                              )}
+                              {isOther
+                                ? nationalityOther.trim() || "Övrigt"
+                                : n?.label ?? nationality}
+                              {!isOther && n?.plate && (
                                 <span className="text-xs font-mono font-medium text-muted-foreground">
                                   ({n.plate})
                                 </span>
