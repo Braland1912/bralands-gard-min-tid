@@ -149,6 +149,7 @@ const EveningRoundModal = ({
         departure_date: departure,
         payment_method: method === "none" ? null : method,
         payment_amount: amt,
+        payment_currency: method === "none" ? null : isCash ? currency : "SEK",
         notes: notes.trim() || null,
         nationality: nationality.trim() || null,
       });
@@ -257,15 +258,32 @@ const EveningRoundModal = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="amt">Belopp (kr)</Label>
-              <Input
-                id="amt"
-                type="number"
-                inputMode="numeric"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
+            <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
+              <div className="space-y-1.5">
+                <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>
+                <Input
+                  id="amt"
+                  type="number"
+                  inputMode="numeric"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+              {isCash && (
+                <div className="space-y-1.5">
+                  <Label>Valuta</Label>
+                  <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
