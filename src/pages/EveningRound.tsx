@@ -209,6 +209,7 @@ const EveningRound = () => {
           {isAdmin && (
             <div className="flex flex-wrap items-center gap-2">
               <EveningRoundCreateDialog />
+              <AdminExtraPlacesDialog currentRoundId={round?.id} />
               <EveningRoundExportDialog />
               <Badge className="gap-1">
                 <Shield className="h-3 w-3" />
