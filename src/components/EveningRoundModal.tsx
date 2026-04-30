@@ -162,6 +162,10 @@ const EveningRoundModal = ({
       setError("Ogiltigt belopp");
       return;
     }
+    if (isOther && !otherNote.trim()) {
+      setError("Beskriv betalningsmetoden");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -181,6 +185,7 @@ const EveningRoundModal = ({
               ? `${OTHER_CODE}:${nationalityOther.trim()}`
               : OTHER_CODE
             : nationality.trim() || null,
+        payment_other_note: isOther ? otherNote.trim() : null,
       });
       onOpenChange(false);
     } catch (e: any) {
