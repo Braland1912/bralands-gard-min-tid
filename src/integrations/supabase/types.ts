@@ -140,7 +140,7 @@ export type Database = {
           payment_currency: string | null
           payment_method: string | null
           payment_other_note: string | null
-          place_label: string
+          place_label: string | null
           registration_number: string | null
           status: string
           updated_at: string
@@ -158,7 +158,7 @@ export type Database = {
           payment_currency?: string | null
           payment_method?: string | null
           payment_other_note?: string | null
-          place_label: string
+          place_label?: string | null
           registration_number?: string | null
           status?: string
           updated_at?: string
@@ -176,7 +176,7 @@ export type Database = {
           payment_currency?: string | null
           payment_method?: string | null
           payment_other_note?: string | null
-          place_label?: string
+          place_label?: string | null
           registration_number?: string | null
           status?: string
           updated_at?: string

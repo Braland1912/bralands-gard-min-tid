@@ -1,0 +1,1 @@
+ALTER TABLE public.evening_round_guests ALTER COLUMN place_label DROP NOT NULL;
