@@ -17,6 +17,8 @@ export interface EveningRoundGuest {
   payment_method: PaymentMethod | null;
   payment_amount: number | null;
   status: GuestStatus;
+  notes: string | null;
+  nationality: string | null;
 }
 
 export interface GuestInput {
@@ -28,6 +30,8 @@ export interface GuestInput {
   payment_method?: PaymentMethod | null;
   payment_amount?: number | null;
   status?: GuestStatus;
+  notes?: string | null;
+  nationality?: string | null;
 }
 
 const todayLocalIso = () => {
@@ -120,6 +124,8 @@ export const useEveningRoundGuests = (
           payment_method: input.payment_method ?? null,
           payment_amount: input.payment_amount ?? null,
           status: input.status ?? "here",
+          notes: input.notes ?? null,
+          nationality: input.nationality ?? null,
         })
         .select("*")
         .single();
