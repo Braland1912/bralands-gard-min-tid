@@ -30,7 +30,7 @@ const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Pro
         guest_name: "",
         arrival_date: date,
         departure_date: addDays(date, 1),
-        status: "here",
+        status: "not_here",
       });
     } finally {
       setSaving(false);
