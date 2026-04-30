@@ -61,6 +61,11 @@ const EveningRound = () => {
     updateGuest,
     deleteGuest,
   } = useEveningRoundGuests(round?.id, date, isAdmin);
+  const { data: session, start: startSession, end: endSession } = useEveningRoundSession(
+    worker?.id,
+    date,
+  );
+  const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date, isAdmin);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("alla");
@@ -170,7 +175,33 @@ const EveningRound = () => {
           )}
         </header>
 
-        <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
+        <div className="rounded-2xl border border-border bg-card p-3 space-y-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
+              className="h-9 w-9 rounded-xl border border-border bg-card hover:bg-accent flex items-center justify-center"
+              aria-label="Föregående dag"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <div className="flex-1 text-center">
+              <div className="text-sm font-semibold capitalize">
+                {new Date(date).toLocaleDateString("sv-SE", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </div>
+            </div>
+            <button
+              onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
+              disabled={selectedDate >= tomorrow}
+              className="h-9 w-9 rounded-xl border border-border bg-card hover:bg-accent flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+              aria-label="Nästa dag"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             {datePresets.map((p) => {
               const active = selectedDate === p.value;
@@ -199,20 +230,69 @@ const EveningRound = () => {
               />
             </div>
           </div>
-          {selectedDate !== today && (
-            <button
-              onClick={() => setSelectedDate(today)}
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              Hoppa till idag
-            </button>
-          )}
           {!round && selectedDate !== today && (
             <p className="text-xs text-muted-foreground">
               Ingen runda finns för valt datum. {isAdmin ? "Skapa via knappen ovan." : "Be admin skapa en."}
             </p>
           )}
         </div>
+
+        {/* Session-loggning för medarbetare */}
+        {!isAdmin && worker && selectedDate === today && (
+          <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between gap-3">
+            <div className="text-sm">
+              {session?.session_start && !session?.session_end && (
+                <span className="font-medium text-emerald-700">
+                  Rundan pågår sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {session?.session_start && session?.session_end && (
+                <span className="text-muted-foreground">
+                  Rundan slutad {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {!session?.session_start && (
+                <span className="text-muted-foreground">Du har inte startat rundan än</span>
+              )}
+            </div>
+            {session?.session_start && !session?.session_end ? (
+              <Button size="sm" variant="outline" onClick={() => endSession.mutate()}>
+                <Square className="h-4 w-4" />
+                Slutade rundan
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => startSession.mutate()}>
+                <Play className="h-4 w-4" />
+                {session?.session_end ? "Starta om" : "Starta rundan"}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Admin: vilka medarbetare gick rundan */}
+        {isAdmin && adminSessions.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Rundan gick av
+            </div>
+            <ul className="space-y-1">
+              {adminSessions.map((s) => (
+                <li key={s.id} className="text-sm flex items-center justify-between gap-2">
+                  <span className="font-medium">{s.worker_name ?? "Okänd"}</span>
+                  <span className="text-muted-foreground text-xs">
+                    {s.session_start
+                      ? new Date(s.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })
+                      : "—"}
+                    {" → "}
+                    {s.session_end
+                      ? new Date(s.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })
+                      : "pågår"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {unpaidCount > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
