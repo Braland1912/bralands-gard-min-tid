@@ -82,6 +82,10 @@ const AdminDashboard = () => {
       navigate("/admin/checklists");
       return;
     }
+    if (tabId === "kvallsrundan") {
+      navigate("/evening-round");
+      return;
+    }
     setActiveTab(tabId);
     // Sync URL state so the desktop sidebar reflects the change
     navigate("/admin/dashboard", { replace: true, state: { tab: tabId } });
