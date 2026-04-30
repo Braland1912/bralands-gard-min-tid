@@ -37,8 +37,11 @@ import {
   type EveningRoundGuest,
   type GuestInput,
   type PaymentMethod,
+  type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+
+const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
   open: boolean;
@@ -78,6 +81,7 @@ const EveningRoundModal = ({
   const [departure, setDeparture] = useState(tomorrowLocal());
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
   const [amount, setAmount] = useState<string>("");
+  const [currency, setCurrency] = useState<Currency>("SEK");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +97,7 @@ const EveningRoundModal = ({
       setDeparture(guest.departure_date);
       setMethod(guest.payment_method ?? "none");
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
+      setCurrency((guest.payment_currency as Currency) ?? "SEK");
     } else {
       setName("");
       setReg("");
@@ -102,11 +107,13 @@ const EveningRoundModal = ({
       setDeparture(tomorrowLocal());
       setMethod("none");
       setAmount("");
+      setCurrency("SEK");
     }
     setError(null);
   }, [open, guest, defaultDate]);
 
   const place = guest?.place_number ?? placeNumber ?? null;
+  const isCash = method === "K";
 
   const handleSave = async () => {
     setError(null);
@@ -142,6 +149,7 @@ const EveningRoundModal = ({
         departure_date: departure,
         payment_method: method === "none" ? null : method,
         payment_amount: amt,
+        payment_currency: method === "none" ? null : isCash ? currency : "SEK",
         notes: notes.trim() || null,
         nationality: nationality.trim() || null,
       });
@@ -250,15 +258,32 @@ const EveningRoundModal = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="amt">Belopp (kr)</Label>
-              <Input
-                id="amt"
-                type="number"
-                inputMode="numeric"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
+            <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
+              <div className="space-y-1.5">
+                <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>
+                <Input
+                  id="amt"
+                  type="number"
+                  inputMode="numeric"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+              {isCash && (
+                <div className="space-y-1.5">
+                  <Label>Valuta</Label>
+                  <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 export type GuestStatus = "here" | "checked_out" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z";
+export type Currency = "SEK" | "EUR" | "NOK";
 
 export interface EveningRoundGuest {
   id: string;
@@ -16,6 +17,7 @@ export interface EveningRoundGuest {
   departure_date: string;
   payment_method: PaymentMethod | null;
   payment_amount: number | null;
+  payment_currency: Currency | null;
   status: GuestStatus;
   notes: string | null;
   nationality: string | null;
@@ -29,6 +31,7 @@ export interface GuestInput {
   departure_date: string;
   payment_method?: PaymentMethod | null;
   payment_amount?: number | null;
+  payment_currency?: Currency | null;
   status?: GuestStatus;
   notes?: string | null;
   nationality?: string | null;
@@ -123,6 +126,7 @@ export const useEveningRoundGuests = (
           departure_date: input.departure_date,
           payment_method: input.payment_method ?? null,
           payment_amount: input.payment_amount ?? null,
+          payment_currency: input.payment_currency ?? null,
           status: input.status ?? "here",
           notes: input.notes ?? null,
           nationality: input.nationality ?? null,

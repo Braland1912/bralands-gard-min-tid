@@ -113,7 +113,7 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
           <Badge variant="destructive">EJ BETALT</Badge>
         ) : (
           <div className="text-sm font-medium">
-            {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} kr
+            {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
           </div>
         )}
       </div>
