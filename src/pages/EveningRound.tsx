@@ -87,6 +87,26 @@ const EveningRound = () => {
     if (!authLoading && !user) navigate("/login", { replace: true });
   }, [authLoading, user, navigate]);
 
+  // Pågår någon runda just nu (egen eller någon medarbetares för admin)?
+  const isRoundOngoing = useMemo(() => {
+    if (isAdmin) {
+      return adminSessions.some((s) => s.session_start && !s.session_end);
+    }
+    return !!session?.session_start && !session?.session_end;
+  }, [isAdmin, adminSessions, session]);
+
+  // Realtids-poll: refetcha gäster + sessioner var 8s när rundan pågår.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!isRoundOngoing) return;
+    const i = window.setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-sessions-all"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-session"] });
+    }, 8000);
+    return () => window.clearInterval(i);
+  }, [isRoundOngoing, queryClient]);
+
   const guestsByPlace = useMemo(() => {
     const m = new Map<number, EveningRoundGuest>();
     guests.forEach((g) => m.set(g.place_number, g));
