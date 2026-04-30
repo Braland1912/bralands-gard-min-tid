@@ -98,6 +98,8 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
   const latestTime = formatTime(latest?.session_end ?? latest?.session_start ?? null);
   const latestName = latest?.worker_name;
   const isOngoing = !!ongoing && !completed;
+  const startTime = formatTime(latest?.session_start ?? null);
+  const endTime = formatTime(latest?.session_end ?? null);
 
   const handleClick = () => {
     if (onOpen) onOpen();
