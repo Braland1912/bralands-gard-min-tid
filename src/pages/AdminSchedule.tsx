@@ -1265,31 +1265,34 @@ const AdminSchedule = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Duplicera passet till {confirmDuplicate?.toName}?
+              Duplicera passet till {confirmDuplicate?.targets.length === 1
+                ? confirmDuplicate.targets[0].name
+                : `${confirmDuplicate?.targets.length ?? 0} medarbetare`}?
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2">
                 <p>
-                  Samma pass läggs upp på{" "}
-                  <span className="font-medium text-foreground">
-                    {confirmDuplicate?.toName}
-                  </span>
-                  . Checklistor kopieras från{" "}
+                  Samma pass läggs upp på följande från{" "}
                   <span className="font-medium text-foreground">
                     {confirmDuplicate?.fromName}
-                  </span>{" "}
-                  med tomma avbockningar, så var och en bockar av sina egna punkter.
+                  </span>
+                  . Checklistor kopieras med tomma avbockningar.
                 </p>
-                {confirmDuplicate?.conflictRowId && (
-                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-                    Obs: {confirmDuplicate.toName} har redan ett pass denna dag och
-                    detta passindex
-                    {confirmDuplicate.conflictType
-                      ? ` (${SHIFT_MAP[confirmDuplicate.conflictType]?.label ?? confirmDuplicate.conflictType})`
-                      : ""}
-                    . Det befintliga passet kommer att skrivas över.
-                  </div>
-                )}
+                <ul className="rounded-xl border border-border divide-y divide-border text-sm">
+                  {confirmDuplicate?.targets.map((t) => (
+                    <li key={t.userId} className="px-3 py-2 flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground truncate">{t.name}</span>
+                      {t.conflictRowId && (
+                        <span className="text-[11px] text-destructive whitespace-nowrap">
+                          Skriver över
+                          {t.conflictType
+                            ? ` (${SHIFT_MAP[t.conflictType]?.label ?? t.conflictType})`
+                            : ""}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1303,10 +1306,12 @@ const AdminSchedule = () => {
                   sourceShiftRowId: confirmDuplicate.sourceShiftRowId,
                   sourceType: confirmDuplicate.sourceType,
                   sourceNote: confirmDuplicate.sourceNote,
-                  toUserId: confirmDuplicate.toUserId,
                   date: confirmDuplicate.date,
                   shiftIndex: confirmDuplicate.shiftIndex,
-                  conflictRowId: confirmDuplicate.conflictRowId,
+                  targets: confirmDuplicate.targets.map((t) => ({
+                    userId: t.userId,
+                    conflictRowId: t.conflictRowId,
+                  })),
                 });
               }}
               disabled={duplicateShift.isPending}
@@ -1317,7 +1322,9 @@ const AdminSchedule = () => {
                   Duplicerar…
                 </>
               ) : (
-                "Duplicera passet"
+                confirmDuplicate && confirmDuplicate.targets.length > 1
+                  ? `Duplicera till ${confirmDuplicate.targets.length}`
+                  : "Duplicera passet"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
