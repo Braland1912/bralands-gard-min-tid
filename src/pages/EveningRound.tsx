@@ -451,7 +451,7 @@ const EveningRound = () => {
       <EveningRoundModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        placeNumber={selectedPlace}
+        placeLabel={selectedPlace}
         guest={editing}
         defaultDate={date}
         onSave={handleSave}
