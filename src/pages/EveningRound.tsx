@@ -395,13 +395,29 @@ const EveningRound = () => {
           {filtered.map((p) => {
             const g = guestsByPlace.get(p);
             if (g) {
+              const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
               return (
                 <EveningRoundCard
                   key={p}
                   guest={g}
                   onStatusChange={handleStatus}
                   onEdit={openEdit}
+                  readOnly={!isAdmin}
+                  ownerName={ownerName}
                 />
+              );
+            }
+            if (!isAdmin) {
+              return (
+                <div
+                  key={p}
+                  className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 flex flex-col items-center justify-center text-center min-h-[120px]"
+                >
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Plats {p}
+                  </div>
+                  <div className="text-sm text-muted-foreground/70 mt-1">Ledig</div>
+                </div>
               );
             }
             return (
@@ -416,19 +432,21 @@ const EveningRound = () => {
           })}
         </div>
 
-        <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
-          <Button
-            size="lg"
-            className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
-            onClick={() => {
-              const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
-              if (firstFree) openAdd(firstFree);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Lägg till gäst
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
+            <Button
+              size="lg"
+              className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
+              onClick={() => {
+                const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
+                if (firstFree) openAdd(firstFree);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Lägg till gäst
+            </Button>
+          </div>
+        )}
       </div>
 
       <EveningRoundModal
