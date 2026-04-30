@@ -129,6 +129,7 @@ export const useEveningRoundGuests = (
           status: input.status ?? "here",
           notes: input.notes ?? null,
           nationality: input.nationality ?? null,
+          payment_other_note: input.payment_other_note ?? null,
         })
         .select("*")
         .single();
