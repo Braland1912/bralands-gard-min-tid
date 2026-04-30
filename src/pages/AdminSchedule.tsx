@@ -934,6 +934,69 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              // Duplicera-väljare (visas endast när det finns ett aktivt pass)
+              const DuplicatePicker = currentShiftRow ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Duplicera till medarbetare
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Lägg upp samma pass på en annan medarbetare. Checklistor kopieras
+                    (avbockningar nollställs så var och en bockar av sina egna).
+                  </p>
+                  <div className="flex gap-2">
+                    <Select value={duplicateTo} onValueChange={setDuplicateTo}>
+                      <SelectTrigger className="flex-1 h-11 text-base rounded-xl">
+                        <SelectValue placeholder="Välj medarbetare att kopiera till" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[50vh]">
+                        {(allWorkers as any[])
+                          .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
+                          .map((w) => (
+                            <SelectItem key={w.id} value={w.user_id}>
+                              {w.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={!duplicateTo || duplicateShift.isPending}
+                      onClick={() => {
+                        const target = (allWorkers as any[]).find((w) => w.user_id === duplicateTo);
+                        if (!target || !currentShiftType) return;
+                        const dateStr = format(sheet.date, "yyyy-MM-dd");
+                        const conflictRow = (schedules as any[]).find(
+                          (s) =>
+                            s.user_id === duplicateTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === sheet.shiftIndex,
+                        );
+                        setConfirmDuplicate({
+                          sourceShiftRowId: currentShiftRow.id,
+                          sourceType: currentShiftType,
+                          sourceNote: currentShiftRow.note ?? null,
+                          fromName: sheet.worker.name,
+                          toUserId: duplicateTo,
+                          toName: target.name,
+                          date: dateStr,
+                          shiftIndex: sheet.shiftIndex,
+                          conflictRowId: conflictRow?.id,
+                          conflictType: conflictRow?.shift_type,
+                        });
+                      }}
+                      className="h-11 px-4 rounded-xl"
+                    >
+                      Duplicera
+                    </Button>
+                  </div>
+                </div>
+              ) : null;
+
               // Byt medarbetare-väljare (visas endast när det finns ett aktivt pass)
               const ReassignPicker = currentShiftRow ? (
                 <div className="space-y-2">
