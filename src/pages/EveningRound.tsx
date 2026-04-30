@@ -5,6 +5,7 @@ import { Search, Plus, Shield, AlertTriangle, Calendar, ChevronLeft, ChevronRigh
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useWorker } from "@/hooks/useWorker";
