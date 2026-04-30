@@ -54,7 +54,7 @@ import {
   type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
-import { NATIONALITIES, flagUrl } from "@/lib/nationalities";
+import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
@@ -92,6 +92,7 @@ const EveningRoundModal = ({
   const [reg, setReg] = useState("");
   const [notes, setNotes] = useState("");
   const [nationality, setNationality] = useState("");
+  const [nationalityOther, setNationalityOther] = useState("");
   const [natOpen, setNatOpen] = useState(false);
   const [arrival, setArrival] = useState(defaultDate || todayLocal());
   const [departure, setDeparture] = useState(tomorrowLocal());
@@ -108,7 +109,9 @@ const EveningRoundModal = ({
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
       setNotes(guest.notes ?? "");
-      setNationality(guest.nationality ?? "");
+      const parsed = parseNationality(guest.nationality);
+      setNationality(parsed?.code ?? "");
+      setNationalityOther(parsed?.code === OTHER_CODE ? parsed.custom ?? "" : "");
       setArrival(guest.arrival_date);
       setDeparture(guest.departure_date);
       setMethod(guest.payment_method ?? "none");
@@ -119,6 +122,7 @@ const EveningRoundModal = ({
       setReg("");
       setNotes("");
       setNationality("");
+      setNationalityOther("");
       setArrival(defaultDate || todayLocal());
       setDeparture(tomorrowLocal());
       setMethod("none");
@@ -167,7 +171,12 @@ const EveningRoundModal = ({
         payment_amount: amt,
         payment_currency: method === "none" ? null : isCash ? currency : "SEK",
         notes: notes.trim() || null,
-        nationality: nationality.trim() || null,
+        nationality:
+          nationality === OTHER_CODE
+            ? nationalityOther.trim()
+              ? `${OTHER_CODE}:${nationalityOther.trim()}`
+              : OTHER_CODE
+            : nationality.trim() || null,
       });
       onOpenChange(false);
     } catch (e: any) {
@@ -232,16 +241,21 @@ const EveningRoundModal = ({
                       {nationality ? (
                         (() => {
                           const n = NATIONALITIES.find((x) => x.code === nationality);
+                          const isOther = nationality === OTHER_CODE;
                           return (
                             <span className="flex items-center gap-2 truncate">
-                              <img
-                                src={flagUrl(nationality)}
-                                alt=""
-                                loading="lazy"
-                                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-                              />
-                              {n?.label ?? nationality}
-                              {n?.plate && (
+                              {!isOther && (
+                                <img
+                                  src={flagUrl(nationality)}
+                                  alt=""
+                                  loading="lazy"
+                                  className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                                />
+                              )}
+                              {isOther
+                                ? nationalityOther.trim() || "Övrigt"
+                                : n?.label ?? nationality}
+                              {!isOther && n?.plate && (
                                 <span className="text-xs font-mono font-medium text-muted-foreground">
                                   ({n.plate})
                                 </span>
@@ -283,16 +297,24 @@ const EveningRoundModal = ({
                                 setNatOpen(false);
                               }}
                             >
-                              <img
-                                src={flagUrl(n.code)}
-                                alt=""
-                                loading="lazy"
-                                className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
-                              />
+                              {n.code === OTHER_CODE ? (
+                                <span className="h-3.5 w-5 mr-2 rounded-[2px] border border-border bg-muted flex items-center justify-center text-[9px] text-muted-foreground">
+                                  ?
+                                </span>
+                              ) : (
+                                <img
+                                  src={flagUrl(n.code)}
+                                  alt=""
+                                  loading="lazy"
+                                  className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
+                                />
+                              )}
                               <span className="flex-1">{n.label}</span>
-                              <span className="ml-2 text-xs font-mono font-medium text-muted-foreground bg-muted rounded px-1.5 py-0.5">
-                                {n.plate}
-                              </span>
+                              {n.code !== OTHER_CODE && (
+                                <span className="ml-2 text-xs font-mono font-medium text-muted-foreground bg-muted rounded px-1.5 py-0.5">
+                                  {n.plate}
+                                </span>
+                              )}
                               <Check
                                 className={cn(
                                   "ml-2 h-4 w-4",
@@ -306,6 +328,14 @@ const EveningRoundModal = ({
                     </Command>
                   </PopoverContent>
                 </Popover>
+                {nationality === OTHER_CODE && (
+                  <Input
+                    value={nationalityOther}
+                    onChange={(e) => setNationalityOther(e.target.value)}
+                    placeholder="Skriv land…"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
             <div className="space-y-1.5">

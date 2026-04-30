@@ -5,7 +5,7 @@ import {
   type GuestStatus,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
-import { getNationality, flagUrl } from "@/lib/nationalities";
+import { getNationality, flagUrl, parseNationality, OTHER_CODE } from "@/lib/nationalities";
 
 interface Props {
   guest: EveningRoundGuest;
@@ -31,7 +31,9 @@ const statusLabels: Record<GuestStatus, string> = {
 
 const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
+  const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
+  const isOtherNat = parsedNat?.code === OTHER_CODE;
 
   const StatusBtn = ({
     s,
@@ -72,21 +74,33 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
-          {nat && (
+          {isOtherNat ? (
             <span
-              className="flex items-center gap-1"
-              title={`${nat.label} (skylt: ${nat.plate})`}
+              className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground"
+              title="Övrig nationalitet"
             >
-              <img
-                src={flagUrl(nat.code)}
-                alt={nat.label}
-                loading="lazy"
-                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-              />
-              <span className="text-[10px] font-mono font-semibold text-muted-foreground">
-                {nat.plate}
+              <span className="h-3.5 w-5 rounded-[2px] border border-border bg-muted flex items-center justify-center text-[9px]">
+                ?
               </span>
+              {parsedNat?.custom || "Övrigt"}
             </span>
+          ) : (
+            nat && (
+              <span
+                className="flex items-center gap-1"
+                title={`${nat.label} (skylt: ${nat.plate})`}
+              >
+                <img
+                  src={flagUrl(nat.code)}
+                  alt={nat.label}
+                  loading="lazy"
+                  className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                />
+                <span className="text-[10px] font-mono font-semibold text-muted-foreground">
+                  {nat.plate}
+                </span>
+              </span>
+            )
           )}
         </div>
         <div className="text-base font-semibold leading-tight mt-0.5">

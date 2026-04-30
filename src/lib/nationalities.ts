@@ -18,13 +18,31 @@ export const NATIONALITIES: Nationality[] = [
   { code: "CH", label: "Schweiz", plate: "CH" },
   { code: "FR", label: "Frankrike", plate: "F" },
   { code: "GB", label: "Storbritannien", plate: "GB" },
+  { code: "ES", label: "Spanien", plate: "E" },
+  { code: "IT", label: "Italien", plate: "I" },
+  { code: "XX", label: "Övrigt", plate: "—" },
 ];
+
+export const OTHER_CODE = "XX";
 
 const BY_CODE = new Map(NATIONALITIES.map((n) => [n.code, n]));
 
+/** Parsar lagrat värde. "XX:Italien" → övrig fritext, "DE" → vanlig kod. */
+export const parseNationality = (
+  value?: string | null,
+): { code: string; custom: string | null } | null => {
+  if (!value) return null;
+  const v = value.trim();
+  if (!v) return null;
+  const [code, ...rest] = v.split(":");
+  const custom = rest.join(":").trim() || null;
+  return { code: code.toUpperCase(), custom };
+};
+
 export const getNationality = (code?: string | null): Nationality | null => {
-  if (!code) return null;
-  return BY_CODE.get(code.trim().toUpperCase()) ?? null;
+  const parsed = parseNationality(code);
+  if (!parsed) return null;
+  return BY_CODE.get(parsed.code) ?? null;
 };
 
 export const flagUrl = (code: string) =>
