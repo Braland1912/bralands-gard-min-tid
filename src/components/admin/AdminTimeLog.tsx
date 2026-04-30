@@ -339,11 +339,16 @@ const AdminTimeLog = () => {
             <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
               {filterMode === "today" && "Idag"}
               {filterMode === "week" && "Denna vecka"}
-              {filterMode === "custom" && selectedDate &&
-                format(new Date(selectedDate), "d MMM yyyy", { locale: sv })}
+              {filterMode === "custom" && selectedDate && (() => {
+                const [y, m, d] = selectedDate.split("-").map(Number);
+                return format(new Date(y, m - 1, d), "d MMM yyyy", { locale: sv });
+              })()}
               {filterMode === "custom" && !selectedDate && "Anpassat datum"}
             </span>
           )}
+          <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground font-medium">
+            Tider visas i lokal tid (Europe/Stockholm)
+          </span>
           <button
             type="button"
             onClick={() => {
