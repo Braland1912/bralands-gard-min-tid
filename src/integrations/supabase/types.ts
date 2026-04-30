@@ -110,6 +110,8 @@ export type Database = {
           evening_round_id: string
           guest_name: string
           id: string
+          nationality: string | null
+          notes: string | null
           payment_amount: number | null
           payment_method: string | null
           place_number: number
@@ -124,6 +126,8 @@ export type Database = {
           evening_round_id: string
           guest_name: string
           id?: string
+          nationality?: string | null
+          notes?: string | null
           payment_amount?: number | null
           payment_method?: string | null
           place_number: number
@@ -138,6 +142,8 @@ export type Database = {
           evening_round_id?: string
           guest_name?: string
           id?: string
+          nationality?: string | null
+          notes?: string | null
           payment_amount?: number | null
           payment_method?: string | null
           place_number?: number
@@ -154,6 +160,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      evening_round_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          round_date: string
+          session_end: string | null
+          session_start: string | null
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          round_date: string
+          session_end?: string | null
+          session_start?: string | null
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          round_date?: string
+          session_end?: string | null
+          session_start?: string | null
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: []
       }
       evening_rounds: {
         Row: {
