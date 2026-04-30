@@ -40,22 +40,9 @@ import {
   type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+import { NATIONALITIES, flagUrl } from "@/lib/nationalities";
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
-
-const NATIONALITIES: { code: string; label: string }[] = [
-  { code: "SE", label: "Sverige" },
-  { code: "NO", label: "Norge" },
-  { code: "DK", label: "Danmark" },
-  { code: "FI", label: "Finland" },
-  { code: "DE", label: "Tyskland" },
-  { code: "NL", label: "Nederländerna" },
-  { code: "BE", label: "Belgien" },
-  { code: "AT", label: "Österrike" },
-  { code: "CH", label: "Schweiz" },
-  { code: "FR", label: "Frankrike" },
-  { code: "GB", label: "Storbritannien" },
-];
 
 interface Props {
   open: boolean;
