@@ -31,7 +31,9 @@ const statusLabels: Record<GuestStatus, string> = {
 
 const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
+  const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
+  const isOtherNat = parsedNat?.code === OTHER_CODE;
 
   const StatusBtn = ({
     s,
