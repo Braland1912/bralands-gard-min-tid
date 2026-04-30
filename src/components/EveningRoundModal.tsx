@@ -286,7 +286,7 @@ const EveningRoundModal = ({
                           value={newPlaceLabel}
                           onChange={(e) => setNewPlaceLabel(e.target.value)}
                           placeholder="Ny plats t.ex. Stuga 1"
-                          maxLength={20}
+                          maxLength={60}
                           className="h-9"
                           onKeyDown={async (e) => {
                             if (e.key === "Enter") {
