@@ -218,40 +218,125 @@ const AdminTimeLog = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Select value={selectedWorker} onValueChange={setSelectedWorker}>
-          <SelectTrigger className="h-12 text-base rounded-xl border-border">
-            <SelectValue placeholder="Alla medarbetare" />
-          </SelectTrigger>
-          <SelectContent className="max-h-[60vh] p-2 rounded-xl">
-            <SelectItem
-              value="all"
-              className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
-            >
-              Alla medarbetare
-            </SelectItem>
-            {workers.map((w) => (
-              <SelectItem
-                key={w.id}
-                value={w.id}
-                className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Medarbetare
+          </label>
+          <div className="flex items-center gap-2">
+            <Select value={selectedWorker} onValueChange={setSelectedWorker}>
+              <SelectTrigger
+                aria-label="Välj medarbetare"
+                className="h-12 text-base rounded-xl border-border flex-1"
               >
-                {w.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => {
-            setSelectedDate(e.target.value);
-            if (e.target.value) setFilterMode("custom");
-            else if (filterMode === "custom") setFilterMode("all");
-          }}
-          className="h-12 text-base rounded-xl border-border"
-        />
+                <SelectValue placeholder="Alla medarbetare" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[60vh] p-2 rounded-xl">
+                <SelectItem
+                  value="all"
+                  className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                >
+                  Alla medarbetare
+                </SelectItem>
+                {workers.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Inga medarbetare ännu
+                  </div>
+                ) : (
+                  workers.map((w) => (
+                    <SelectItem
+                      key={w.id}
+                      value={w.id}
+                      className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                    >
+                      {w.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            {selectedWorker !== "all" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedWorker("all")}
+                className="h-12 rounded-xl px-3 shrink-0 text-muted-foreground"
+                aria-label="Rensa medarbetarfilter"
+              >
+                Rensa
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Datum
+          </label>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  if (e.target.value) setFilterMode("custom");
+                  else if (filterMode === "custom") setFilterMode("all");
+                }}
+                aria-label="Välj datum"
+                className="h-12 text-base rounded-xl border-border pl-9"
+              />
+            </div>
+            {selectedDate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedDate("");
+                  if (filterMode === "custom") setFilterMode("all");
+                }}
+                className="h-12 rounded-xl px-3 shrink-0 text-muted-foreground"
+                aria-label="Rensa datumfilter"
+              >
+                Rensa
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Aktiv filter-summering */}
+      {(selectedWorker !== "all" || filterMode !== "all" || selectedDate) && (
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Aktiva filter:</span>
+          {selectedWorker !== "all" && (
+            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+              {workers.find((w: any) => w.id === selectedWorker)?.name ?? "Medarbetare"}
+            </span>
+          )}
+          {filterMode !== "all" && (
+            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+              {filterMode === "today" && "Idag"}
+              {filterMode === "week" && "Denna vecka"}
+              {filterMode === "custom" && selectedDate &&
+                format(new Date(selectedDate), "d MMM yyyy", { locale: sv })}
+              {filterMode === "custom" && !selectedDate && "Anpassat datum"}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedWorker("all");
+              setFilterMode("all");
+              setSelectedDate("");
+            }}
+            className="text-muted-foreground hover:text-foreground underline underline-offset-2"
+          >
+            Rensa alla
+          </button>
+        </div>
+      )}
 
       {/* Månadssammanställning för vald medarbetare */}
       {selectedWorker !== "all" && (() => {
