@@ -107,8 +107,8 @@ export const useEveningRoundSession = (
   return { ...query, start, end };
 };
 
-/** Admin-vy: alla sessioner för ett datum. */
-export const useEveningRoundSessionsForDate = (date: string, enabled: boolean) => {
+/** Alla sessioner för ett datum (alla inloggade kan läsa). */
+export const useEveningRoundSessionsForDate = (date: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["evening-round-sessions-all", date],
     queryFn: async () => {
