@@ -1,20 +1,23 @@
 export interface Nationality {
+  /** ISO 3166-1 alpha-2 (för flagga + lagring) */
   code: string;
   label: string;
+  /** Internationell förkortning på registreringsskylten (Oval/Euro-platta) */
+  plate: string;
 }
 
 export const NATIONALITIES: Nationality[] = [
-  { code: "SE", label: "Sverige" },
-  { code: "NO", label: "Norge" },
-  { code: "DK", label: "Danmark" },
-  { code: "FI", label: "Finland" },
-  { code: "DE", label: "Tyskland" },
-  { code: "NL", label: "Nederländerna" },
-  { code: "BE", label: "Belgien" },
-  { code: "AT", label: "Österrike" },
-  { code: "CH", label: "Schweiz" },
-  { code: "FR", label: "Frankrike" },
-  { code: "GB", label: "Storbritannien" },
+  { code: "SE", label: "Sverige", plate: "S" },
+  { code: "NO", label: "Norge", plate: "N" },
+  { code: "DK", label: "Danmark", plate: "DK" },
+  { code: "FI", label: "Finland", plate: "FIN" },
+  { code: "DE", label: "Tyskland", plate: "D" },
+  { code: "NL", label: "Nederländerna", plate: "NL" },
+  { code: "BE", label: "Belgien", plate: "B" },
+  { code: "AT", label: "Österrike", plate: "A" },
+  { code: "CH", label: "Schweiz", plate: "CH" },
+  { code: "FR", label: "Frankrike", plate: "F" },
+  { code: "GB", label: "Storbritannien", plate: "GB" },
 ];
 
 const BY_CODE = new Map(NATIONALITIES.map((n) => [n.code, n]));
