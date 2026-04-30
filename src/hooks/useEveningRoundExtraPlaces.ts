@@ -84,12 +84,33 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
         .delete()
         .eq("id", id);
       if (error) throw error;
+      return id;
+    },
+    // Optimistisk uppdatering: ta bort kortet direkt, rulla tillbaka vid fel
+    onMutate: async (id: string) => {
+      const queryKey = ["evening-round-extra-places", eveningRoundId];
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<ExtraPlace[]>(queryKey);
+      queryClient.setQueryData<ExtraPlace[]>(queryKey, (old) =>
+        (old ?? []).filter((p) => p.id !== id),
+      );
+      return { previous };
+    },
+    onError: (e: any, _id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          ["evening-round-extra-places", eveningRoundId],
+          context.previous,
+        );
+      }
+      toast.error(e.message ?? "Kunde inte ta bort plats");
     },
     onSuccess: () => {
       toast.success("Plats borttagen");
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
     },
-    onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort plats"),
   });
 
   return { ...query, addPlace, deletePlace };
