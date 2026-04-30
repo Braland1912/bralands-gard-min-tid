@@ -392,6 +392,18 @@ const EveningRoundModal = ({
                 </SelectContent>
               </Select>
             </div>
+            {isOther && (
+              <div className="space-y-1.5">
+                <Label htmlFor="other-note">Beskrivning av betalning</Label>
+                <Input
+                  id="other-note"
+                  value={otherNote}
+                  onChange={(e) => setOtherNote(e.target.value)}
+                  placeholder="T.ex. faktura, presentkort…"
+                  maxLength={120}
+                />
+              </div>
+            )}
             <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
               <div className="space-y-1.5">
                 <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>
