@@ -3,8 +3,33 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useOverlayScrollGuard } from "@/hooks/useOverlayScrollGuard";
 
-const Select = SelectPrimitive.Root;
+const SelectOpenContext = React.createContext<boolean>(false);
+
+const Select: React.FC<React.ComponentProps<typeof SelectPrimitive.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
+  const isControlled = open !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+  return (
+    <SelectOpenContext.Provider value={!!currentOpen}>
+      <SelectPrimitive.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={(o) => {
+          if (!isControlled) setInternalOpen(o);
+          onOpenChange?.(o);
+        }}
+        {...props}
+      />
+    </SelectOpenContext.Provider>
+  );
+};
 
 const SelectGroup = SelectPrimitive.Group;
 
