@@ -47,20 +47,31 @@ const AdminTimeLog = () => {
 
       let start: Date | null = null;
       let end: Date | null = null;
+      // Bygg datum i LOKAL tid så att "YYYY-MM-DD" alltid matchar exakt den dagen
+      // i svensk tid (annars tolkas ISO-strängen som UTC och kan hamna en dag fel).
+      const localDayStart = (iso: string) => {
+        const [y, m, d] = iso.split("-").map(Number);
+        return new Date(y, m - 1, d, 0, 0, 0, 0);
+      };
+      const localDayEnd = (iso: string) => {
+        const [y, m, d] = iso.split("-").map(Number);
+        return new Date(y, m - 1, d, 23, 59, 59, 999);
+      };
       if (filterMode === "today") {
-        start = new Date();
-        end = new Date();
+        const now = new Date();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       } else if (filterMode === "week") {
         const now = new Date();
         start = startOfWeek(now, { weekStartsOn: 1 });
         end = endOfWeek(now, { weekStartsOn: 1 });
-      } else if ((filterMode === "custom" || filterMode === "all") && selectedDate) {
-        start = new Date(selectedDate);
-        end = new Date(selectedDate);
-      }
-      if (start && end) {
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
+      } else if ((filterMode === "custom" || filterMode === "all") && selectedDate) {
+        start = localDayStart(selectedDate);
+        end = localDayEnd(selectedDate);
+      }
+      if (start && end) {
         query = query.gte("clock_in", start.toISOString()).lte("clock_in", end.toISOString());
       }
       const { data, error } = await query;
