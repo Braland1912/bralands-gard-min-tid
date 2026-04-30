@@ -341,7 +341,7 @@ const EveningRoundModal = ({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="name">Namn (valfritt)</Label>
+              <Label htmlFor="name">Namn</Label>
               <Input
                 id="name"
                 value={name}
