@@ -67,7 +67,8 @@ const EveningRound = () => {
     worker?.id,
     date,
   );
-  const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date, isAdmin);
+  const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
+  const { data: ownersByRoundId } = useRoundOwnersForDate(date);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("alla");
