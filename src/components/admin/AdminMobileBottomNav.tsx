@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 
-type ActiveKey = "oversikt" | "schema" | "tidslogg" | "rattelser" | "mer";
+type ActiveKey = "oversikt" | "schema" | "tidslogg" | "rattelser" | "kvallsrundan" | "mer";
 
 interface Props {
   active: ActiveKey;
@@ -19,12 +19,12 @@ const bottomTabs: { id: ActiveKey; label: string; icon: any }[] = [
   { id: "schema", label: "Schema", icon: Calendar },
   { id: "tidslogg", label: "Tidslogg", icon: Clock },
   { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
+  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
 ];
 
 const moreTabs = [
   { id: "team", label: "Team", icon: Users },
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
-  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
 ];
@@ -77,6 +77,10 @@ const AdminMobileBottomNav = ({ active }: Props) => {
     }
     if (id === "rattelser") {
       goToDashboard("rattelser");
+      return;
+    }
+    if (id === "kvallsrundan") {
+      navigate("/evening-round");
       return;
     }
   };

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -24,6 +24,7 @@ const mobileBottomTabs = [
   { id: "schema", label: "Schema", icon: Calendar },
   { id: "tidslogg", label: "Tidslogg", icon: Clock },
   { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
+  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
 ];
 
 const mobileMoreTabs = [
@@ -79,6 +80,10 @@ const AdminDashboard = () => {
     }
     if (tabId === "checklistor") {
       navigate("/admin/checklists");
+      return;
+    }
+    if (tabId === "kvallsrundan") {
+      navigate("/evening-round");
       return;
     }
     setActiveTab(tabId);
