@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Shield, AlertTriangle, Calendar } from "lucide-react";
+import { Search, Plus, Shield, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,10 @@ import {
   type GuestInput,
   type GuestStatus,
 } from "@/hooks/useEveningRoundGuests";
+import {
+  useEveningRoundSession,
+  useEveningRoundSessionsForDate,
+} from "@/hooks/useEveningRoundSession";
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
