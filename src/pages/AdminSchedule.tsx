@@ -1065,6 +1065,8 @@ const AdminSchedule = () => {
                   )}
                   {ReassignPicker && <Separator />}
                   {ReassignPicker}
+                  {DuplicatePicker && <Separator />}
+                  {DuplicatePicker}
                   <Separator />
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
