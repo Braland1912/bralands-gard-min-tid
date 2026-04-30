@@ -69,6 +69,7 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/dev/mobile-test" element={<MobileMenuTest />} />
+          <Route path="/dev/evening-widget-test" element={<EveningRoundWidgetTest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
