@@ -424,10 +424,7 @@ const EveningRound = () => {
             <Button
               size="lg"
               className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
-              onClick={() => {
-                const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
-                if (firstFree) openAdd(firstFree);
-              }}
+              onClick={() => setPickPlaceOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Lägg till gäst
