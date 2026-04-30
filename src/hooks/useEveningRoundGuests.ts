@@ -25,7 +25,7 @@ export interface EveningRoundGuest {
 }
 
 export interface GuestInput {
-  place_label: number;
+  place_label: string;
   guest_name: string;
   registration_number?: string | null;
   arrival_date: string;
