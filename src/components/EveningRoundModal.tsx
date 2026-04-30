@@ -297,16 +297,24 @@ const EveningRoundModal = ({
                                 setNatOpen(false);
                               }}
                             >
-                              <img
-                                src={flagUrl(n.code)}
-                                alt=""
-                                loading="lazy"
-                                className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
-                              />
+                              {n.code === OTHER_CODE ? (
+                                <span className="h-3.5 w-5 mr-2 rounded-[2px] border border-border bg-muted flex items-center justify-center text-[9px] text-muted-foreground">
+                                  ?
+                                </span>
+                              ) : (
+                                <img
+                                  src={flagUrl(n.code)}
+                                  alt=""
+                                  loading="lazy"
+                                  className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
+                                />
+                              )}
                               <span className="flex-1">{n.label}</span>
-                              <span className="ml-2 text-xs font-mono font-medium text-muted-foreground bg-muted rounded px-1.5 py-0.5">
-                                {n.plate}
-                              </span>
+                              {n.code !== OTHER_CODE && (
+                                <span className="ml-2 text-xs font-mono font-medium text-muted-foreground bg-muted rounded px-1.5 py-0.5">
+                                  {n.plate}
+                                </span>
+                              )}
                               <Check
                                 className={cn(
                                   "ml-2 h-4 w-4",
