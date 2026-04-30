@@ -126,7 +126,7 @@ const EveningRound = () => {
   }, [isRoundOngoing, queryClient]);
 
   const guestsByPlace = useMemo(() => {
-    const m = new Map<number, EveningRoundGuest>();
+    const m = new Map<string, EveningRoundGuest>();
     guests.forEach((g) => m.set(g.place_label, g));
     return m;
   }, [guests]);
@@ -138,7 +138,7 @@ const EveningRound = () => {
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
-    return PLACES.filter((p) => {
+    return allPlaces.filter((p) => {
       const g = guestsByPlace.get(p);
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
@@ -146,23 +146,23 @@ const EveningRound = () => {
       if (filter === "utcheckad" && g?.status !== "checked_out") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (s) {
-        const matchesPlace = String(p).includes(s);
+        const matchesPlace = p.toLowerCase().includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
         if (!matchesPlace && !matchesName) return false;
       }
       return true;
     });
-  }, [filter, search, guestsByPlace]);
+  }, [filter, search, guestsByPlace, allPlaces]);
 
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
     const out = guests.filter((g) => g.status === "checked_out").length;
     const not = guests.filter((g) => g.status === "not_here").length;
-    const free = 45 - guests.length;
+    const free = allPlaces.length - guests.length;
     return { here, out, not, free, booked: guests.length };
-  }, [guests]);
+  }, [guests, allPlaces]);
 
-  const openAdd = (place: number) => {
+  const openAdd = (place: string) => {
     setEditing(null);
     setSelectedPlace(place);
     setModalOpen(true);
