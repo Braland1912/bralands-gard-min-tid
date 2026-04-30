@@ -464,19 +464,18 @@ const EveningRound = () => {
         </div>
 
         {(
-          <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
+          <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-20">
             <Button
               size="lg"
               aria-label="Lägg till gäst"
-              className="rounded-full md:rounded-xl shadow-lg md:shadow-none h-14 w-14 md:h-auto md:w-auto p-0 md:px-4 md:py-2"
+              className="rounded-full shadow-lg h-14 w-14 p-0"
               onClick={() => {
                 setEditing(null);
                 setSelectedPlace(null);
                 setModalOpen(true);
               }}
             >
-              <Plus className="h-6 w-6 md:h-4 md:w-4" />
-              <span className="hidden md:inline">Lägg till gäst</span>
+              <Plus className="h-6 w-6" />
             </Button>
           </div>
         )}
