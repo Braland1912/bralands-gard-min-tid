@@ -816,6 +816,64 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              // Byt medarbetare-väljare (visas endast när det finns ett aktivt pass)
+              const ReassignPicker = currentShiftRow ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <UserCog className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Byt medarbetare
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Flytta hela passet till någon annan. Checklistor, avbockningar och anteckningar
+                    följer med.
+                  </p>
+                  <div className="flex gap-2">
+                    <Select value={reassignTo} onValueChange={setReassignTo}>
+                      <SelectTrigger className="flex-1 h-11 text-base rounded-xl">
+                        <SelectValue placeholder="Välj ny medarbetare" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[50vh]">
+                        {(allWorkers as any[])
+                          .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
+                          .map((w) => (
+                            <SelectItem key={w.id} value={w.user_id}>
+                              {w.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      disabled={!reassignTo || reassignShift.isPending}
+                      onClick={() => {
+                        const target = (allWorkers as any[]).find((w) => w.user_id === reassignTo);
+                        if (!target) return;
+                        const dateStr = format(sheet.date, "yyyy-MM-dd");
+                        const conflictRow = (schedules as any[]).find(
+                          (s) =>
+                            s.user_id === reassignTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === sheet.shiftIndex,
+                        );
+                        setConfirmReassign({
+                          shiftRowId: currentShiftRow.id,
+                          fromName: sheet.worker.name,
+                          toUserId: reassignTo,
+                          toName: target.name,
+                          conflictRowId: conflictRow?.id,
+                          conflictType: conflictRow?.shift_type,
+                        });
+                      }}
+                      className="h-11 px-4 rounded-xl"
+                    >
+                      Flytta
+                    </Button>
+                  </div>
+                </div>
+              ) : null;
+
               return hasShift ? (
                 <>
                   {BusyNoteEditor}
@@ -824,7 +882,9 @@ const AdminSchedule = () => {
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
                     </div>
                   )}
-                  {currentShiftRow && currentShiftType !== "busy" && <Separator />}
+                  {ReassignPicker && <Separator />}
+                  {ReassignPicker}
+                  <Separator />
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Passtyp
