@@ -99,6 +99,7 @@ const EveningRoundModal = ({
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<Currency>("SEK");
+  const [otherNote, setOtherNote] = useState<string>("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +118,7 @@ const EveningRoundModal = ({
       setMethod(guest.payment_method ?? "none");
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
+      setOtherNote(guest.payment_other_note ?? "");
     } else {
       setName("");
       setReg("");
@@ -128,12 +130,14 @@ const EveningRoundModal = ({
       setMethod("none");
       setAmount("");
       setCurrency("SEK");
+      setOtherNote("");
     }
     setError(null);
   }, [open, guest, defaultDate]);
 
   const place = guest?.place_number ?? placeNumber ?? null;
   const isCash = method === "K";
+  const isOther = method === "O";
 
   const handleSave = async () => {
     setError(null);
@@ -158,6 +162,10 @@ const EveningRoundModal = ({
       setError("Ogiltigt belopp");
       return;
     }
+    if (isOther && !otherNote.trim()) {
+      setError("Beskriv betalningsmetoden");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -177,6 +185,7 @@ const EveningRoundModal = ({
               ? `${OTHER_CODE}:${nationalityOther.trim()}`
               : OTHER_CODE
             : nationality.trim() || null,
+        payment_other_note: isOther ? otherNote.trim() : null,
       });
       onOpenChange(false);
     } catch (e: any) {
@@ -383,6 +392,18 @@ const EveningRoundModal = ({
                 </SelectContent>
               </Select>
             </div>
+            {isOther && (
+              <div className="space-y-1.5">
+                <Label htmlFor="other-note">Beskrivning av betalning</Label>
+                <Input
+                  id="other-note"
+                  value={otherNote}
+                  onChange={(e) => setOtherNote(e.target.value)}
+                  placeholder="T.ex. faktura, presentkort…"
+                  maxLength={120}
+                />
+              </div>
+            )}
             <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
               <div className="space-y-1.5">
                 <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>

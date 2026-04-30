@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export type GuestStatus = "here" | "checked_out" | "not_here";
-export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z";
+export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
 export type Currency = "SEK" | "EUR" | "NOK";
 
 export interface EveningRoundGuest {
@@ -21,6 +21,7 @@ export interface EveningRoundGuest {
   status: GuestStatus;
   notes: string | null;
   nationality: string | null;
+  payment_other_note: string | null;
 }
 
 export interface GuestInput {
@@ -35,6 +36,7 @@ export interface GuestInput {
   status?: GuestStatus;
   notes?: string | null;
   nationality?: string | null;
+  payment_other_note?: string | null;
 }
 
 const todayLocalIso = () => {
@@ -127,6 +129,7 @@ export const useEveningRoundGuests = (
           status: input.status ?? "here",
           notes: input.notes ?? null,
           nationality: input.nationality ?? null,
+          payment_other_note: input.payment_other_note ?? null,
         })
         .select("*")
         .single();
@@ -217,4 +220,6 @@ export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   B: "Bank",
   K: "Kontant",
   Z: "Zettle",
+  F: "Frikort",
+  O: "Övrigt",
 };

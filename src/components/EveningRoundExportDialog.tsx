@@ -119,7 +119,8 @@ const EveningRoundExportDialog = () => {
 
         guests.forEach((g: any) => {
           const pm = g.payment_method as PaymentMethod | null;
-          const pmLabel = pm ? PAYMENT_LABELS[pm] ?? pm : "Saknas";
+          let pmLabel = pm ? PAYMENT_LABELS[pm] ?? pm : "Saknas";
+          if (pm === "O" && g.payment_other_note) pmLabel = `Övrigt: ${g.payment_other_note}`;
           const amount = Number(g.payment_amount ?? 0);
           const arr = new Date(g.arrival_date);
           const dep = new Date(g.departure_date);
@@ -182,7 +183,7 @@ const EveningRoundExportDialog = () => {
             g.arrival_date,
             g.departure_date,
             STATUS_LABELS[g.status] ?? g.status,
-            pm ? PAYMENT_LABELS[pm] ?? pm : "",
+            pm ? (pm === "O" && g.payment_other_note ? `Övrigt: ${g.payment_other_note}` : PAYMENT_LABELS[pm] ?? pm) : "",
             g.payment_amount ?? "",
             round?.round_date ?? "",
             workerName,
