@@ -112,13 +112,21 @@ export const useEveningRoundSessionsForDate = (date: string, enabled: boolean) =
   return useQuery({
     queryKey: ["evening-round-sessions-all", date],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: sessions, error } = await supabase
         .from("evening_round_sessions")
-        .select("*, workers(name)")
+        .select("*")
         .eq("round_date", date)
         .order("session_start", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as Array<EveningRoundSession & { workers: { name: string } | null }>;
+      const list = (sessions ?? []) as EveningRoundSession[];
+      if (list.length === 0) return [] as Array<EveningRoundSession & { worker_name: string | null }>;
+      const ids = Array.from(new Set(list.map((s) => s.worker_id)));
+      const { data: workers } = await supabase
+        .from("workers")
+        .select("id, name")
+        .in("id", ids);
+      const nameById = new Map((workers ?? []).map((w: any) => [w.id, w.name]));
+      return list.map((s) => ({ ...s, worker_name: nameById.get(s.worker_id) ?? null }));
     },
     enabled,
   });
