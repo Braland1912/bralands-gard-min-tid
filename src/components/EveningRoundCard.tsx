@@ -11,6 +11,10 @@ interface Props {
   guest: EveningRoundGuest;
   onStatusChange: (id: string, status: GuestStatus) => void;
   onEdit: (guest: EveningRoundGuest) => void;
+  /** Read-only: ingen redigering, ingen statusbyte (medarbetare-läge). */
+  readOnly?: boolean;
+  /** Visas som "Gick: Eva" om angivet. */
+  ownerName?: string | null;
 }
 
 const formatDate = (iso: string) => {
