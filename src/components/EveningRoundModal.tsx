@@ -40,22 +40,9 @@ import {
   type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+import { NATIONALITIES, flagUrl } from "@/lib/nationalities";
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
-
-const NATIONALITIES: { code: string; label: string }[] = [
-  { code: "SE", label: "Sverige" },
-  { code: "NO", label: "Norge" },
-  { code: "DK", label: "Danmark" },
-  { code: "FI", label: "Finland" },
-  { code: "DE", label: "Tyskland" },
-  { code: "NL", label: "Nederländerna" },
-  { code: "BE", label: "Belgien" },
-  { code: "AT", label: "Österrike" },
-  { code: "CH", label: "Schweiz" },
-  { code: "FR", label: "Frankrike" },
-  { code: "GB", label: "Storbritannien" },
-];
 
 interface Props {
   open: boolean;
@@ -229,7 +216,15 @@ const EveningRoundModal = ({
                     <SelectItem value="none">Ingen</SelectItem>
                     {NATIONALITIES.map((n) => (
                       <SelectItem key={n.code} value={n.code}>
-                        {n.label}
+                        <span className="flex items-center gap-2">
+                          <img
+                            src={flagUrl(n.code)}
+                            alt=""
+                            loading="lazy"
+                            className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                          />
+                          {n.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
