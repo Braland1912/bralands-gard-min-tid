@@ -37,8 +37,11 @@ import {
   type EveningRoundGuest,
   type GuestInput,
   type PaymentMethod,
+  type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+
+const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
   open: boolean;
@@ -78,6 +81,7 @@ const EveningRoundModal = ({
   const [departure, setDeparture] = useState(tomorrowLocal());
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
   const [amount, setAmount] = useState<string>("");
+  const [currency, setCurrency] = useState<Currency>("SEK");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +97,7 @@ const EveningRoundModal = ({
       setDeparture(guest.departure_date);
       setMethod(guest.payment_method ?? "none");
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
+      setCurrency((guest.payment_currency as Currency) ?? "SEK");
     } else {
       setName("");
       setReg("");
@@ -102,11 +107,13 @@ const EveningRoundModal = ({
       setDeparture(tomorrowLocal());
       setMethod("none");
       setAmount("");
+      setCurrency("SEK");
     }
     setError(null);
   }, [open, guest, defaultDate]);
 
   const place = guest?.place_number ?? placeNumber ?? null;
+  const isCash = method === "K";
 
   const handleSave = async () => {
     setError(null);
