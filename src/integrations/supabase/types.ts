@@ -102,6 +102,30 @@ export type Database = {
         }
         Relationships: []
       }
+      evening_round_extra_places: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          evening_round_id: string
+          id: string
+          label: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          evening_round_id: string
+          id?: string
+          label: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          evening_round_id?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
       evening_round_guests: {
         Row: {
           arrival_date: string
@@ -116,7 +140,7 @@ export type Database = {
           payment_currency: string | null
           payment_method: string | null
           payment_other_note: string | null
-          place_number: number
+          place_label: string
           registration_number: string | null
           status: string
           updated_at: string
@@ -134,7 +158,7 @@ export type Database = {
           payment_currency?: string | null
           payment_method?: string | null
           payment_other_note?: string | null
-          place_number: number
+          place_label: string
           registration_number?: string | null
           status?: string
           updated_at?: string
@@ -152,7 +176,7 @@ export type Database = {
           payment_currency?: string | null
           payment_method?: string | null
           payment_other_note?: string | null
-          place_number?: number
+          place_label?: string
           registration_number?: string | null
           status?: string
           updated_at?: string
