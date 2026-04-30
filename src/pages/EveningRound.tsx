@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Shield, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -85,6 +86,26 @@ const EveningRound = () => {
   useEffect(() => {
     if (!authLoading && !user) navigate("/login", { replace: true });
   }, [authLoading, user, navigate]);
+
+  // Pågår någon runda just nu (egen eller någon medarbetares för admin)?
+  const isRoundOngoing = useMemo(() => {
+    if (isAdmin) {
+      return adminSessions.some((s) => s.session_start && !s.session_end);
+    }
+    return !!session?.session_start && !session?.session_end;
+  }, [isAdmin, adminSessions, session]);
+
+  // Realtids-poll: refetcha gäster + sessioner var 8s när rundan pågår.
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!isRoundOngoing) return;
+    const i = window.setInterval(() => {
+      queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-sessions-all"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-session"] });
+    }, 8000);
+    return () => window.clearInterval(i);
+  }, [isRoundOngoing, queryClient]);
 
   const guestsByPlace = useMemo(() => {
     const m = new Map<number, EveningRoundGuest>();
@@ -294,6 +315,28 @@ const EveningRound = () => {
           </div>
         )}
 
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <KpiCard
+            label="Lediga"
+            value={counts.free}
+            color="text-muted-foreground"
+            dim={!isRoundOngoing && selectedDate !== today}
+          />
+          <KpiCard
+            label="På plats"
+            value={counts.here}
+            color="text-emerald-600"
+            dim={!isRoundOngoing && selectedDate !== today}
+            live={isRoundOngoing}
+          />
+          <KpiCard
+            label="Ej kommit"
+            value={counts.not}
+            color="text-destructive"
+            dim={!isRoundOngoing && selectedDate !== today}
+          />
+        </div>
+
         {unpaidCount > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
             <AlertTriangle className="h-4 w-4" />
@@ -336,12 +379,6 @@ const EveningRound = () => {
           ))}
         </div>
 
-        <div className="hidden md:grid grid-cols-4 gap-3">
-          <SummaryCard label="Här" value={counts.here} className="text-emerald-600" />
-          <SummaryCard label="Utcheckad" value={counts.out} className="text-amber-600" />
-          <SummaryCard label="Inte här" value={counts.not} className="text-destructive" />
-          <SummaryCard label="Lediga" value={counts.free} className="text-muted-foreground" />
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.length === 0 && (
@@ -419,6 +456,41 @@ const SummaryCard = ({
   <div className="rounded-2xl border border-border bg-card p-4">
     <div className="text-xs text-muted-foreground">{label}</div>
     <div className={`text-2xl font-semibold mt-1 ${className ?? ""}`}>{value}</div>
+  </div>
+);
+
+const KpiCard = ({
+  label,
+  value,
+  color,
+  dim,
+  live,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  dim?: boolean;
+  live?: boolean;
+}) => (
+  <div
+    className={`rounded-2xl border border-border bg-card p-3 transition-opacity ${
+      dim ? "opacity-50" : ""
+    }`}
+  >
+    <div className="flex items-center justify-between">
+      <div className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </div>
+      {live && (
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"
+          aria-label="Live"
+        />
+      )}
+    </div>
+    <div className={`text-xl sm:text-2xl font-semibold mt-1 ${color}`}>
+      {dim ? "–" : value}
+    </div>
   </div>
 );
 

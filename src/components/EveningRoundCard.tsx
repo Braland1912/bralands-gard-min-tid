@@ -1,5 +1,4 @@
-import { Check, LogOut, MoreVertical, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, LogOut, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   type EveningRoundGuest,
@@ -47,7 +46,10 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
     return (
       <button
         type="button"
-        onClick={() => onStatusChange(guest.id, s)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onStatusChange(guest.id, s);
+        }}
         aria-label={label}
         aria-pressed={active}
         className={`h-9 w-9 rounded-xl border flex items-center justify-center transition-colors ${
@@ -62,40 +64,39 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
-            {nat && (
-              <span
-                className="flex items-center gap-1"
-                title={`${nat.label} (skylt: ${nat.plate})`}
-              >
-                <img
-                  src={flagUrl(nat.code)}
-                  alt={nat.label}
-                  loading="lazy"
-                  className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-                />
-                <span className="text-[10px] font-mono font-semibold text-muted-foreground">
-                  {nat.plate}
-                </span>
+    <button
+      type="button"
+      onClick={() => onEdit(guest)}
+      className="w-full text-left rounded-2xl border border-border bg-card p-4 space-y-3 transition-colors hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary"
+    >
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
+          {nat && (
+            <span
+              className="flex items-center gap-1"
+              title={`${nat.label} (skylt: ${nat.plate})`}
+            >
+              <img
+                src={flagUrl(nat.code)}
+                alt={nat.label}
+                loading="lazy"
+                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+              />
+              <span className="text-[10px] font-mono font-semibold text-muted-foreground">
+                {nat.plate}
               </span>
-            )}
-          </div>
-          <div className="text-base font-semibold leading-tight mt-0.5">
-            {guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>}
-          </div>
-          {guest.notes && (
-            <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-              {guest.notes}
-            </div>
+            </span>
           )}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => onEdit(guest)} aria-label="Redigera">
-          <MoreVertical className="h-4 w-4" />
-        </Button>
+        <div className="text-base font-semibold leading-tight mt-0.5">
+          {guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>}
+        </div>
+        {guest.notes && (
+          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+            {guest.notes}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -120,7 +121,7 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 };
 
