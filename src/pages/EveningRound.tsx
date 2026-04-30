@@ -5,6 +5,7 @@ import { Search, Plus, Shield, AlertTriangle, Calendar, ChevronLeft, ChevronRigh
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useWorker } from "@/hooks/useWorker";
@@ -75,6 +76,7 @@ const EveningRound = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+  const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
 
   const today = todayLocal();
   const yesterday = shiftDate(today, -1);
@@ -423,10 +425,7 @@ const EveningRound = () => {
             <Button
               size="lg"
               className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
-              onClick={() => {
-                const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
-                if (firstFree) openAdd(firstFree);
-              }}
+              onClick={() => setPickPlaceOpen(true)}
             >
               <Plus className="h-4 w-4" />
               Lägg till gäst
@@ -444,6 +443,40 @@ const EveningRound = () => {
         onSave={handleSave}
         onDelete={(id) => deleteGuest.mutateAsync(id)}
       />
+
+      <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Välj plats</DialogTitle>
+            <DialogDescription>
+              Tryck på en ledig plats för att lägga till en gäst.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto">
+            {PLACES.map((p) => {
+              const taken = guestsByPlace.has(p);
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  disabled={taken}
+                  onClick={() => {
+                    setPickPlaceOpen(false);
+                    openAdd(p);
+                  }}
+                  className={
+                    taken
+                      ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
+                      : "h-12 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  }
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {isAdmin ? (
         <AdminMobileBottomNav active="kvallsrundan" />
