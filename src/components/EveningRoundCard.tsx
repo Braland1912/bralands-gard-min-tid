@@ -5,7 +5,7 @@ import {
   type GuestStatus,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
-import { getNationality, flagUrl } from "@/lib/nationalities";
+import { getNationality, flagUrl, parseNationality, OTHER_CODE } from "@/lib/nationalities";
 
 interface Props {
   guest: EveningRoundGuest;
