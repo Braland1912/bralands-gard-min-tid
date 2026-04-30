@@ -1176,6 +1176,72 @@ const AdminSchedule = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog
+        open={!!confirmDuplicate}
+        onOpenChange={(o) => !o && !duplicateShift.isPending && setConfirmDuplicate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Duplicera passet till {confirmDuplicate?.toName}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Samma pass läggs upp på{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmDuplicate?.toName}
+                  </span>
+                  . Checklistor kopieras från{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmDuplicate?.fromName}
+                  </span>{" "}
+                  med tomma avbockningar, så var och en bockar av sina egna punkter.
+                </p>
+                {confirmDuplicate?.conflictRowId && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                    Obs: {confirmDuplicate.toName} har redan ett pass denna dag och
+                    detta passindex
+                    {confirmDuplicate.conflictType
+                      ? ` (${SHIFT_MAP[confirmDuplicate.conflictType]?.label ?? confirmDuplicate.conflictType})`
+                      : ""}
+                    . Det befintliga passet kommer att skrivas över.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={duplicateShift.isPending}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (!confirmDuplicate) return;
+                duplicateShift.mutate({
+                  sourceShiftRowId: confirmDuplicate.sourceShiftRowId,
+                  sourceType: confirmDuplicate.sourceType,
+                  sourceNote: confirmDuplicate.sourceNote,
+                  toUserId: confirmDuplicate.toUserId,
+                  date: confirmDuplicate.date,
+                  shiftIndex: confirmDuplicate.shiftIndex,
+                  conflictRowId: confirmDuplicate.conflictRowId,
+                });
+              }}
+              disabled={duplicateShift.isPending}
+            >
+              {duplicateShift.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Duplicerar…
+                </>
+              ) : (
+                "Duplicera passet"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AdminMobileBottomNav active="schema" />
     </div>
   );
