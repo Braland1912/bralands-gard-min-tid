@@ -68,13 +68,20 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
           <div className="flex items-center gap-2">
             <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
             {nat && (
-              <img
-                src={flagUrl(nat.code)}
-                alt={nat.label}
-                title={nat.label}
-                loading="lazy"
-                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
-              />
+              <span
+                className="flex items-center gap-1"
+                title={`${nat.label} (skylt: ${nat.plate})`}
+              >
+                <img
+                  src={flagUrl(nat.code)}
+                  alt={nat.label}
+                  loading="lazy"
+                  className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                />
+                <span className="text-[10px] font-mono font-semibold text-muted-foreground">
+                  {nat.plate}
+                </span>
+              </span>
             )}
           </div>
           <div className="text-base font-semibold leading-tight mt-0.5">
