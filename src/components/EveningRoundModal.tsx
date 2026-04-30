@@ -141,10 +141,6 @@ const EveningRoundModal = ({
 
   const handleSave = async () => {
     setError(null);
-    if (!name.trim()) {
-      setError("Ange ett namn");
-      return;
-    }
     if (!arrival || !departure) {
       setError("Ange ankomst och avresa");
       return;
