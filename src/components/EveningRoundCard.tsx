@@ -163,7 +163,7 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
           </span>
         )}
       </div>
-    </Wrapper>
+    </div>
   );
 };
 
