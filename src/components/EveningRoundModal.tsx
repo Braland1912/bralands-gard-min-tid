@@ -341,6 +341,15 @@ const EveningRoundModal = ({
               </div>
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="name">Namn (valfritt)</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Skriv gästens namn"
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
               <Input
                 id="notes"
