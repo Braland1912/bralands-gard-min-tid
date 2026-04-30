@@ -16,6 +16,7 @@ import AdminSchedule from "./pages/AdminSchedule";
 import AdminChecklists from "./pages/AdminChecklists";
 import EveningRound from "./pages/EveningRound";
 import MobileMenuTest from "./pages/MobileMenuTest";
+import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
@@ -68,6 +69,7 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/dev/mobile-test" element={<MobileMenuTest />} />
+          <Route path="/dev/evening-widget-test" element={<EveningRoundWidgetTest />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
