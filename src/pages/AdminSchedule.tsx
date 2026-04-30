@@ -440,6 +440,119 @@ const AdminSchedule = () => {
     },
   });
 
+  // ── Duplicera ett pass till ytterligare medarbetare ──────────────────
+  // Skapar en NY schedules-rad åt mottagaren (samma shift_type/index/datum)
+  // och kopierar checklistor + checklistpunkter (avbockningar nollställs så
+  // varje medarbetare bockar av sina egna).
+  const [duplicateTo, setDuplicateTo] = useState<string>("");
+  const [confirmDuplicate, setConfirmDuplicate] = useState<{
+    sourceShiftRowId: string;
+    sourceType: ShiftType;
+    sourceNote: string | null;
+    fromName: string;
+    toUserId: string;
+    toName: string;
+    date: string;
+    shiftIndex: 0 | 1;
+    conflictRowId?: string;
+    conflictType?: ShiftType;
+  } | null>(null);
+
+  const duplicateShift = useMutation({
+    mutationFn: async (args: {
+      sourceShiftRowId: string;
+      sourceType: ShiftType;
+      sourceNote: string | null;
+      toUserId: string;
+      date: string;
+      shiftIndex: 0 | 1;
+      conflictRowId?: string;
+    }) => {
+      // Eventuell konflikt: ta bort befintligt pass på mottagaren först
+      if (args.conflictRowId) {
+        const { error: delErr } = await supabase
+          .from("schedules")
+          .delete()
+          .eq("id", args.conflictRowId);
+        if (delErr) throw delErr;
+      }
+
+      // Skapa nytt pass för mottagaren
+      const { data: created, error: insErr } = await supabase
+        .from("schedules")
+        .insert({
+          user_id: args.toUserId,
+          date: args.date,
+          shift_type: args.sourceType,
+          shift_index: args.shiftIndex,
+          note: args.sourceType === "busy" ? args.sourceNote : null,
+        })
+        .select("id")
+        .single();
+      if (insErr || !created) throw insErr ?? new Error("Kunde inte skapa pass");
+
+      // Hämta källans checklistor + items
+      const { data: srcLists, error: listErr } = await supabase
+        .from("shift_checklists")
+        .select("id, name, sort_order")
+        .eq("shift_id", args.sourceShiftRowId)
+        .order("sort_order", { ascending: true });
+      if (listErr) throw listErr;
+      if (!srcLists || srcLists.length === 0) return;
+
+      const srcListIds = srcLists.map((l: any) => l.id);
+      const { data: srcItems, error: itemsErr } = await supabase
+        .from("shift_checklist_items")
+        .select("shift_checklist_id, text, sort_order")
+        .in("shift_checklist_id", srcListIds)
+        .order("sort_order", { ascending: true });
+      if (itemsErr) throw itemsErr;
+
+      // Klona varje checklista och dess items till det nya passet
+      for (const list of srcLists as any[]) {
+        const { data: newList, error: clErr } = await supabase
+          .from("shift_checklists")
+          .insert({ shift_id: created.id, name: list.name, sort_order: list.sort_order })
+          .select("id")
+          .single();
+        if (clErr || !newList) continue;
+        const items = (srcItems ?? []).filter((it: any) => it.shift_checklist_id === list.id);
+        if (items.length > 0) {
+          await supabase.from("shift_checklist_items").insert(
+            items.map((it: any) => ({
+              shift_checklist_id: newList.id,
+              text: it.text,
+              sort_order: it.sort_order,
+              is_checked: false,
+            })),
+          );
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+      toast({
+        title: "Pass duplicerat",
+        description: "Checklistor kopierades till den andra medarbetaren.",
+      });
+      setConfirmDuplicate(null);
+      setDuplicateTo("");
+    },
+    onError: (e: any) => {
+      toast({
+        title: "Kunde inte duplicera passet",
+        description: e?.message ?? "Försök igen.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Nollställ duplicate-val när sheet byter pass
+  useEffect(() => {
+    setDuplicateTo("");
+  }, [sheet?.worker?.user_id, sheet?.shiftIndex, sheet?.date]);
+
   const isLoading = workersLoading || schedulesLoading;
 
   // Compute name column width based on longest displayed name
@@ -821,6 +934,69 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              // Duplicera-väljare (visas endast när det finns ett aktivt pass)
+              const DuplicatePicker = currentShiftRow ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Duplicera till medarbetare
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Lägg upp samma pass på en annan medarbetare. Checklistor kopieras
+                    (avbockningar nollställs så var och en bockar av sina egna).
+                  </p>
+                  <div className="flex gap-2">
+                    <Select value={duplicateTo} onValueChange={setDuplicateTo}>
+                      <SelectTrigger className="flex-1 h-11 text-base rounded-xl">
+                        <SelectValue placeholder="Välj medarbetare att kopiera till" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[50vh]">
+                        {(allWorkers as any[])
+                          .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
+                          .map((w) => (
+                            <SelectItem key={w.id} value={w.user_id}>
+                              {w.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={!duplicateTo || duplicateShift.isPending}
+                      onClick={() => {
+                        const target = (allWorkers as any[]).find((w) => w.user_id === duplicateTo);
+                        if (!target || !currentShiftType) return;
+                        const dateStr = format(sheet.date, "yyyy-MM-dd");
+                        const conflictRow = (schedules as any[]).find(
+                          (s) =>
+                            s.user_id === duplicateTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === sheet.shiftIndex,
+                        );
+                        setConfirmDuplicate({
+                          sourceShiftRowId: currentShiftRow.id,
+                          sourceType: currentShiftType,
+                          sourceNote: currentShiftRow.note ?? null,
+                          fromName: sheet.worker.name,
+                          toUserId: duplicateTo,
+                          toName: target.name,
+                          date: dateStr,
+                          shiftIndex: sheet.shiftIndex,
+                          conflictRowId: conflictRow?.id,
+                          conflictType: conflictRow?.shift_type,
+                        });
+                      }}
+                      className="h-11 px-4 rounded-xl"
+                    >
+                      Duplicera
+                    </Button>
+                  </div>
+                </div>
+              ) : null;
+
               // Byt medarbetare-väljare (visas endast när det finns ett aktivt pass)
               const ReassignPicker = currentShiftRow ? (
                 <div className="space-y-2">
@@ -889,6 +1065,8 @@ const AdminSchedule = () => {
                   )}
                   {ReassignPicker && <Separator />}
                   {ReassignPicker}
+                  {DuplicatePicker && <Separator />}
+                  {DuplicatePicker}
                   <Separator />
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -992,6 +1170,72 @@ const AdminSchedule = () => {
                 </>
               ) : (
                 "Flytta passet"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!confirmDuplicate}
+        onOpenChange={(o) => !o && !duplicateShift.isPending && setConfirmDuplicate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Duplicera passet till {confirmDuplicate?.toName}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Samma pass läggs upp på{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmDuplicate?.toName}
+                  </span>
+                  . Checklistor kopieras från{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmDuplicate?.fromName}
+                  </span>{" "}
+                  med tomma avbockningar, så var och en bockar av sina egna punkter.
+                </p>
+                {confirmDuplicate?.conflictRowId && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                    Obs: {confirmDuplicate.toName} har redan ett pass denna dag och
+                    detta passindex
+                    {confirmDuplicate.conflictType
+                      ? ` (${SHIFT_MAP[confirmDuplicate.conflictType]?.label ?? confirmDuplicate.conflictType})`
+                      : ""}
+                    . Det befintliga passet kommer att skrivas över.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={duplicateShift.isPending}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (!confirmDuplicate) return;
+                duplicateShift.mutate({
+                  sourceShiftRowId: confirmDuplicate.sourceShiftRowId,
+                  sourceType: confirmDuplicate.sourceType,
+                  sourceNote: confirmDuplicate.sourceNote,
+                  toUserId: confirmDuplicate.toUserId,
+                  date: confirmDuplicate.date,
+                  shiftIndex: confirmDuplicate.shiftIndex,
+                  conflictRowId: confirmDuplicate.conflictRowId,
+                });
+              }}
+              disabled={duplicateShift.isPending}
+            >
+              {duplicateShift.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Duplicerar…
+                </>
+              ) : (
+                "Duplicera passet"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
