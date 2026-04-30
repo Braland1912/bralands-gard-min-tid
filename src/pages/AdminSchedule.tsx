@@ -983,51 +983,96 @@ const AdminSchedule = () => {
                     Lägg upp samma pass på en annan medarbetare. Checklistor kopieras
                     (avbockningar nollställs så var och en bockar av sina egna).
                   </p>
-                  <div className="flex gap-2">
-                    <Select value={duplicateTo} onValueChange={setDuplicateTo}>
-                      <SelectTrigger className="flex-1 h-11 text-base rounded-xl">
-                        <SelectValue placeholder="Välj medarbetare att kopiera till" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[50vh]">
-                        {(allWorkers as any[])
-                          .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
-                          .map((w) => (
-                            <SelectItem key={w.id} value={w.user_id}>
-                              {w.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-2">
+                    <div className="max-h-56 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+                      {(allWorkers as any[])
+                        .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
+                        .map((w) => {
+                          const checked = duplicateTargets.has(w.user_id);
+                          const dateStr = format(sheet.date, "yyyy-MM-dd");
+                          const conflictRow = (schedules as any[]).find(
+                            (s) =>
+                              s.user_id === w.user_id &&
+                              s.date === dateStr &&
+                              (s.shift_index ?? 0) === sheet.shiftIndex,
+                          );
+                          return (
+                            <label
+                              key={w.id}
+                              className="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-muted/40 transition-colors"
+                            >
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={(v) => {
+                                  setDuplicateTargets((prev) => {
+                                    const next = new Set(prev);
+                                    if (v) next.add(w.user_id);
+                                    else next.delete(w.user_id);
+                                    return next;
+                                  });
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-foreground truncate">
+                                  {w.name}
+                                </div>
+                                {conflictRow && (
+                                  <div className="text-[11px] text-destructive">
+                                    Har redan ett pass{conflictRow.shift_type
+                                      ? ` (${SHIFT_MAP[conflictRow.shift_type as ShiftType]?.label ?? conflictRow.shift_type})`
+                                      : ""} — skrivs över
+                                  </div>
+                                )}
+                              </div>
+                            </label>
+                          );
+                        })}
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
-                      disabled={!duplicateTo || duplicateShift.isPending}
+                      disabled={duplicateTargets.size === 0 || duplicateShift.isPending}
                       onClick={() => {
-                        const target = (allWorkers as any[]).find((w) => w.user_id === duplicateTo);
-                        if (!target || !currentShiftType) return;
+                        if (!currentShiftType || !currentShiftRow) return;
                         const dateStr = format(sheet.date, "yyyy-MM-dd");
-                        const conflictRow = (schedules as any[]).find(
-                          (s) =>
-                            s.user_id === duplicateTo &&
-                            s.date === dateStr &&
-                            (s.shift_index ?? 0) === sheet.shiftIndex,
-                        );
+                        const targets = Array.from(duplicateTargets)
+                          .map((uid) => {
+                            const w = (allWorkers as any[]).find((x) => x.user_id === uid);
+                            if (!w) return null;
+                            const conflictRow = (schedules as any[]).find(
+                              (s) =>
+                                s.user_id === uid &&
+                                s.date === dateStr &&
+                                (s.shift_index ?? 0) === sheet.shiftIndex,
+                            );
+                            return {
+                              userId: uid,
+                              name: w.name,
+                              conflictRowId: conflictRow?.id,
+                              conflictType: conflictRow?.shift_type as ShiftType | undefined,
+                            };
+                          })
+                          .filter(Boolean) as Array<{
+                            userId: string;
+                            name: string;
+                            conflictRowId?: string;
+                            conflictType?: ShiftType;
+                          }>;
+                        if (targets.length === 0) return;
                         setConfirmDuplicate({
                           sourceShiftRowId: currentShiftRow.id,
                           sourceType: currentShiftType,
                           sourceNote: currentShiftRow.note ?? null,
                           fromName: sheet.worker.name,
-                          toUserId: duplicateTo,
-                          toName: target.name,
                           date: dateStr,
                           shiftIndex: sheet.shiftIndex,
-                          conflictRowId: conflictRow?.id,
-                          conflictType: conflictRow?.shift_type,
+                          targets,
                         });
                       }}
-                      className="h-11 px-4 rounded-xl"
+                      className="w-full h-11 rounded-xl"
                     >
                       Duplicera
+                      {duplicateTargets.size > 0 ? ` (${duplicateTargets.size})` : ""}
                     </Button>
                   </div>
                 </div>
