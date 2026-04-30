@@ -79,6 +79,10 @@ const AdminMobileBottomNav = ({ active }: Props) => {
       goToDashboard("rattelser");
       return;
     }
+    if (id === "kvallsrundan") {
+      navigate("/evening-round");
+      return;
+    }
   };
 
   const handleMoreClick = (id: string) => {
