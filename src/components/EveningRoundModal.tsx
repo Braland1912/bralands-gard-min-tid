@@ -315,6 +315,14 @@ const EveningRoundModal = ({
                     </Command>
                   </PopoverContent>
                 </Popover>
+                {nationality === OTHER_CODE && (
+                  <Input
+                    value={nationalityOther}
+                    onChange={(e) => setNationalityOther(e.target.value)}
+                    placeholder="Skriv land…"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
             <div className="space-y-1.5">
