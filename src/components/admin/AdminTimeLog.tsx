@@ -291,7 +291,7 @@ const AdminTimeLog = () => {
             Datum
           </label>
           <p className="text-xs text-muted-foreground">
-            Välj specifikt datum eller använd snabbfilter ovan.
+            Välj specifikt datum eller använd snabbfilter ovan. Matchar exakt den valda dagen i lokal tid.
           </p>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
