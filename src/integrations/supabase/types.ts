@@ -113,6 +113,7 @@ export type Database = {
           nationality: string | null
           notes: string | null
           payment_amount: number | null
+          payment_currency: string | null
           payment_method: string | null
           place_number: number
           registration_number: string | null
@@ -129,6 +130,7 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           payment_amount?: number | null
+          payment_currency?: string | null
           payment_method?: string | null
           place_number: number
           registration_number?: string | null
@@ -145,6 +147,7 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           payment_amount?: number | null
+          payment_currency?: string | null
           payment_method?: string | null
           place_number?: number
           registration_number?: string | null
