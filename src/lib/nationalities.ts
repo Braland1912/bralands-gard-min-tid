@@ -18,7 +18,12 @@ export const NATIONALITIES: Nationality[] = [
   { code: "CH", label: "Schweiz", plate: "CH" },
   { code: "FR", label: "Frankrike", plate: "F" },
   { code: "GB", label: "Storbritannien", plate: "GB" },
+  { code: "ES", label: "Spanien", plate: "E" },
+  { code: "IT", label: "Italien", plate: "I" },
+  { code: "XX", label: "Övrigt", plate: "—" },
 ];
+
+export const OTHER_CODE = "XX";
 
 const BY_CODE = new Map(NATIONALITIES.map((n) => [n.code, n]));
 
