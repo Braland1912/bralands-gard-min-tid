@@ -126,6 +126,7 @@ export const useEveningRoundGuests = (
           departure_date: input.departure_date,
           payment_method: input.payment_method ?? null,
           payment_amount: input.payment_amount ?? null,
+          payment_currency: input.payment_currency ?? null,
           status: input.status ?? "here",
           notes: input.notes ?? null,
           nationality: input.nationality ?? null,
