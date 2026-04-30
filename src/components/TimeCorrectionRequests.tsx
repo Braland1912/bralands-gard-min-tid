@@ -267,6 +267,9 @@ const TimeCorrectionRequests = () => {
         <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Filtrera på medarbetare
         </label>
+        <p className="text-xs text-muted-foreground">
+          Visar bara förfrågningar från vald person.
+        </p>
         <div className="flex items-center gap-2">
           <Select value={selectedWorker} onValueChange={setSelectedWorker}>
             <SelectTrigger
@@ -280,11 +283,14 @@ const TimeCorrectionRequests = () => {
                 value="all"
                 className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
               >
-                Alla medarbetare
+                Alla medarbetare ({workers.length})
               </SelectItem>
               {workers.length === 0 ? (
-                <div className="py-6 text-center text-sm text-muted-foreground">
-                  Inga medarbetare ännu
+                <div className="py-8 px-4 text-center space-y-1">
+                  <div className="text-sm font-medium text-foreground">Inga medarbetare ännu</div>
+                  <div className="text-xs text-muted-foreground">
+                    Inga förfrågningar att filtrera. Bjud in personal via "Team".
+                  </div>
                 </div>
               ) : (
                 workers.map((w: any) => (

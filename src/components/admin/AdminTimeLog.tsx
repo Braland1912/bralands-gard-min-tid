@@ -223,6 +223,9 @@ const AdminTimeLog = () => {
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Medarbetare
           </label>
+          <p className="text-xs text-muted-foreground">
+            Välj en person eller visa alla.
+          </p>
           <div className="flex items-center gap-2">
             <Select value={selectedWorker} onValueChange={setSelectedWorker}>
               <SelectTrigger
@@ -236,11 +239,14 @@ const AdminTimeLog = () => {
                   value="all"
                   className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
                 >
-                  Alla medarbetare
+                  Alla medarbetare ({workers.length})
                 </SelectItem>
                 {workers.length === 0 ? (
-                  <div className="py-6 text-center text-sm text-muted-foreground">
-                    Inga medarbetare ännu
+                  <div className="py-8 px-4 text-center space-y-1">
+                    <div className="text-sm font-medium text-foreground">Inga medarbetare ännu</div>
+                    <div className="text-xs text-muted-foreground">
+                      Bjud in personal via "Team" för att kunna filtrera här.
+                    </div>
                   </div>
                 ) : (
                   workers.map((w) => (
@@ -273,6 +279,9 @@ const AdminTimeLog = () => {
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Datum
           </label>
+          <p className="text-xs text-muted-foreground">
+            Välj specifikt datum eller använd snabbfilter ovan.
+          </p>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -489,15 +498,24 @@ const AdminTimeLog = () => {
                   <SelectValue placeholder="Välj medarbetare" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[60vh] p-2 rounded-xl">
-                  {workers.map((w) => (
-                    <SelectItem
-                      key={w.id}
-                      value={w.id}
-                      className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
-                    >
-                      {w.name}
-                    </SelectItem>
-                  ))}
+                  {workers.length === 0 ? (
+                    <div className="py-8 px-4 text-center space-y-1">
+                      <div className="text-sm font-medium text-foreground">Inga medarbetare</div>
+                      <div className="text-xs text-muted-foreground">
+                        Lägg till personal under "Team" innan du skapar stämplingar.
+                      </div>
+                    </div>
+                  ) : (
+                    workers.map((w) => (
+                      <SelectItem
+                        key={w.id}
+                        value={w.id}
+                        className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                      >
+                        {w.name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

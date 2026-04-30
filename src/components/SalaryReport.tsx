@@ -161,15 +161,24 @@ const SalaryReport = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-xl p-2">
-              {monthOptions.map((opt) => (
-                <SelectItem
-                  key={opt.value}
-                  value={opt.value}
-                  className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 capitalize data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
-                >
-                  {opt.label}
-                </SelectItem>
-              ))}
+              {monthOptions.length === 0 ? (
+                <div className="py-8 px-4 text-center space-y-1">
+                  <div className="text-sm font-medium text-foreground">Inga månader att visa</div>
+                  <div className="text-xs text-muted-foreground">
+                    Månader dyker upp här när det finns avslutade pass.
+                  </div>
+                </div>
+              ) : (
+                monthOptions.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="h-12 px-3 my-0.5 rounded-lg text-base font-medium pl-9 capitalize data-[state=checked]:bg-primary/10 data-[state=checked]:text-primary data-[state=checked]:font-semibold"
+                  >
+                    {opt.label}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
           <Button
