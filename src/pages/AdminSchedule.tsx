@@ -2,7 +2,24 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -171,6 +188,11 @@ const AdminSchedule = () => {
     );
     setNoteDraft(row?.note ?? "");
   }, [sheet, schedules]);
+
+  // Nollställ "Byt medarbetare"-valet när sheet öppnas/stängs/byter pass
+  useEffect(() => {
+    setReassignTo("");
+  }, [sheet?.worker?.user_id, sheet?.shiftIndex, sheet?.date]);
 
   const isDayPublished = (date: Date) => {
     const dateStr = format(date, "yyyy-MM-dd");
@@ -354,6 +376,67 @@ const AdminSchedule = () => {
     },
     onError: () => {
       toast({ title: "Kunde inte ta bort", description: "Försök igen.", variant: "destructive" });
+    },
+  });
+
+  // ── Byt medarbetare på ett befintligt pass ──────────────────────────
+  // Uppdaterar bara schedules.user_id på samma rad → checklistor (shift_id),
+  // avbockningar och anteckningar följer automatiskt med.
+  const [reassignTo, setReassignTo] = useState<string>("");
+  const [confirmReassign, setConfirmReassign] = useState<{
+    shiftRowId: string;
+    fromName: string;
+    toUserId: string;
+    toName: string;
+    conflictRowId?: string;
+    conflictType?: ShiftType;
+  } | null>(null);
+
+  const reassignShift = useMutation({
+    mutationFn: async ({
+      shiftRowId,
+      toUserId,
+      conflictRowId,
+    }: {
+      shiftRowId: string;
+      toUserId: string;
+      conflictRowId?: string;
+    }) => {
+      // Om mottagaren redan har ett pass i samma index/datum → ta bort det först
+      // (admin har bekräftat ersättning i UI:t)
+      if (conflictRowId) {
+        const { error: delErr } = await supabase
+          .from("schedules")
+          .delete()
+          .eq("id", conflictRowId);
+        if (delErr) throw delErr;
+      }
+      const { error } = await supabase
+        .from("schedules")
+        .update({ user_id: toUserId })
+        .eq("id", shiftRowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+      toast({ title: "Pass flyttat", description: "Checklistor och anteckningar följde med." });
+      setConfirmReassign(null);
+      setReassignTo("");
+      // Uppdatera sheet:en så den pekar på den nya medarbetaren
+      if (sheet) {
+        const newWorker = (allWorkers as any[]).find(
+          (w) => w.user_id === confirmReassign?.toUserId,
+        );
+        if (newWorker) setSheet({ ...sheet, worker: newWorker });
+      }
+    },
+    onError: (e: any) => {
+      toast({
+        title: "Kunde inte flytta passet",
+        description: e?.message ?? "Försök igen.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -738,6 +821,64 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              // Byt medarbetare-väljare (visas endast när det finns ett aktivt pass)
+              const ReassignPicker = currentShiftRow ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <UserCog className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Byt medarbetare
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Flytta hela passet till någon annan. Checklistor, avbockningar och anteckningar
+                    följer med.
+                  </p>
+                  <div className="flex gap-2">
+                    <Select value={reassignTo} onValueChange={setReassignTo}>
+                      <SelectTrigger className="flex-1 h-11 text-base rounded-xl">
+                        <SelectValue placeholder="Välj ny medarbetare" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[50vh]">
+                        {(allWorkers as any[])
+                          .filter((w) => w.user_id && w.user_id !== sheet.worker.user_id)
+                          .map((w) => (
+                            <SelectItem key={w.id} value={w.user_id}>
+                              {w.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      disabled={!reassignTo || reassignShift.isPending}
+                      onClick={() => {
+                        const target = (allWorkers as any[]).find((w) => w.user_id === reassignTo);
+                        if (!target) return;
+                        const dateStr = format(sheet.date, "yyyy-MM-dd");
+                        const conflictRow = (schedules as any[]).find(
+                          (s) =>
+                            s.user_id === reassignTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === sheet.shiftIndex,
+                        );
+                        setConfirmReassign({
+                          shiftRowId: currentShiftRow.id,
+                          fromName: sheet.worker.name,
+                          toUserId: reassignTo,
+                          toName: target.name,
+                          conflictRowId: conflictRow?.id,
+                          conflictType: conflictRow?.shift_type,
+                        });
+                      }}
+                      className="h-11 px-4 rounded-xl"
+                    >
+                      Flytta
+                    </Button>
+                  </div>
+                </div>
+              ) : null;
+
               return hasShift ? (
                 <>
                   {BusyNoteEditor}
@@ -746,7 +887,9 @@ const AdminSchedule = () => {
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
                     </div>
                   )}
-                  {currentShiftRow && currentShiftType !== "busy" && <Separator />}
+                  {ReassignPicker && <Separator />}
+                  {ReassignPicker}
+                  <Separator />
                   <div className="space-y-3">
                     <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Passtyp
@@ -792,6 +935,69 @@ const AdminSchedule = () => {
           })()}
         </SheetContent>
       </Sheet>
+
+      <AlertDialog
+        open={!!confirmReassign}
+        onOpenChange={(o) => !o && !reassignShift.isPending && setConfirmReassign(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Flytta passet till {confirmReassign?.toName}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Hela passet flyttas från{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmReassign?.fromName}
+                  </span>{" "}
+                  till{" "}
+                  <span className="font-medium text-foreground">
+                    {confirmReassign?.toName}
+                  </span>
+                  . Checklistor, avbockningar och anteckningar följer med automatiskt.
+                </p>
+                {confirmReassign?.conflictRowId && (
+                  <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                    Obs: {confirmReassign.toName} har redan ett pass denna dag och
+                    detta passindex
+                    {confirmReassign.conflictType
+                      ? ` (${SHIFT_MAP[confirmReassign.conflictType]?.label ?? confirmReassign.conflictType})`
+                      : ""}
+                    . Det befintliga passet kommer att skrivas över.
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={reassignShift.isPending}>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (!confirmReassign) return;
+                reassignShift.mutate({
+                  shiftRowId: confirmReassign.shiftRowId,
+                  toUserId: confirmReassign.toUserId,
+                  conflictRowId: confirmReassign.conflictRowId,
+                });
+              }}
+              disabled={reassignShift.isPending}
+            >
+              {reassignShift.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Flyttar…
+                </>
+              ) : (
+                "Flytta passet"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AdminMobileBottomNav active="schema" />
     </div>
   );
