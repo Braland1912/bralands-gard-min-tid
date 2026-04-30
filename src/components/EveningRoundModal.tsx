@@ -216,7 +216,15 @@ const EveningRoundModal = ({
                     <SelectItem value="none">Ingen</SelectItem>
                     {NATIONALITIES.map((n) => (
                       <SelectItem key={n.code} value={n.code}>
-                        {n.label}
+                        <span className="flex items-center gap-2">
+                          <img
+                            src={flagUrl(n.code)}
+                            alt=""
+                            loading="lazy"
+                            className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+                          />
+                          {n.label}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
