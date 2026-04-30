@@ -21,6 +21,7 @@ import {
   useEveningRoundSessionsForDate,
 } from "@/hooks/useEveningRoundSession";
 import { useRoundOwnersForDate } from "@/hooks/useRoundOwnersForDate";
+import { useEveningRoundExtraPlaces } from "@/hooks/useEveningRoundExtraPlaces";
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
