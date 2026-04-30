@@ -3,10 +3,10 @@ import { Plus } from "lucide-react";
 import type { GuestInput } from "@/hooks/useEveningRoundGuests";
 
 interface Props {
-  placeNumber: number;
+  placeLabel: string;
   date: string;
   onQuickReserve: (input: GuestInput) => Promise<unknown> | unknown;
-  onOpenFull: (place: number) => void;
+  onOpenFull: (place: string) => void;
 }
 
 const addDays = (iso: string, days: number) => {
