@@ -190,9 +190,11 @@ const SalaryReport = () => {
       </p>
 
       {salaryData.length === 0 ? (
-        <div className="flex flex-col items-center py-8 text-center">
+        <div className="flex flex-col items-center py-12 text-center rounded-2xl border border-dashed border-border bg-muted/20">
           <DollarSign className="h-10 w-10 text-muted-foreground/40 mb-2" />
-          <p className="text-muted-foreground font-medium">Inga avslutade pass denna månad</p>
+          <p className="text-foreground font-medium">Inga avslutade pass</p>
+          <p className="text-sm text-muted-foreground mt-1 capitalize">för {selectedMonthLabel}</p>
+          <p className="text-xs text-muted-foreground mt-2">Välj en annan månad i listan ovan</p>
         </div>
       ) : (
         <>
