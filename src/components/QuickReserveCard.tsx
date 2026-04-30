@@ -26,7 +26,7 @@ const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Pro
     setSaving(true);
     try {
       await onQuickReserve({
-        place_number: placeNumber,
+        place_label: placeNumber,
         guest_name: "",
         arrival_date: date,
         departure_date: addDays(date, 1),

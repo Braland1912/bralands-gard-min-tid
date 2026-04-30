@@ -113,7 +113,7 @@ const EveningRound = () => {
 
   const guestsByPlace = useMemo(() => {
     const m = new Map<number, EveningRoundGuest>();
-    guests.forEach((g) => m.set(g.place_number, g));
+    guests.forEach((g) => m.set(g.place_label, g));
     return m;
   }, [guests]);
 
@@ -156,7 +156,7 @@ const EveningRound = () => {
 
   const openEdit = (g: EveningRoundGuest) => {
     setEditing(g);
-    setSelectedPlace(g.place_number);
+    setSelectedPlace(g.place_label);
     setModalOpen(true);
   };
 
