@@ -33,6 +33,7 @@ const addDays = (iso: string, days: number) => {
 
 const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemoveExtraPlace }: Props) => {
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const isExtra = !!onRemoveExtraPlace;
 
   const handleReserve = async () => {
@@ -52,9 +53,8 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemo
 
   const handleRemove = () => {
     if (!onRemoveExtraPlace) return;
-    if (window.confirm(`Ta bort platsen "${placeLabel}"?`)) {
-      onRemoveExtraPlace();
-    }
+    onRemoveExtraPlace();
+    setConfirmOpen(false);
   };
 
   return (
