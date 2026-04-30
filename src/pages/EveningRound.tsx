@@ -127,9 +127,16 @@ const EveningRound = () => {
 
   const guestsByPlace = useMemo(() => {
     const m = new Map<string, EveningRoundGuest>();
-    guests.forEach((g) => m.set(g.place_label, g));
+    guests.forEach((g) => {
+      if (g.place_label) m.set(g.place_label, g);
+    });
     return m;
   }, [guests]);
+
+  const unassignedGuests = useMemo(
+    () => guests.filter((g) => !g.place_label),
+    [guests],
+  );
 
   const unpaidCount = useMemo(
     () => guests.filter((g) => !g.payment_method || !g.payment_amount).length,
