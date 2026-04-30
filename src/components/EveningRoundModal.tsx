@@ -171,7 +171,12 @@ const EveningRoundModal = ({
         payment_amount: amt,
         payment_currency: method === "none" ? null : isCash ? currency : "SEK",
         notes: notes.trim() || null,
-        nationality: nationality.trim() || null,
+        nationality:
+          nationality === OTHER_CODE
+            ? nationalityOther.trim()
+              ? `${OTHER_CODE}:${nationalityOther.trim()}`
+              : OTHER_CODE
+            : nationality.trim() || null,
       });
       onOpenChange(false);
     } catch (e: any) {
