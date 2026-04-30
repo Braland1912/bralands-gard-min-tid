@@ -461,6 +461,8 @@ const EveningRound = () => {
         defaultDate={date}
         onSave={handleSave}
         onDelete={(id) => deleteGuest.mutateAsync(id)}
+        availablePlaces={allPlaces}
+        takenPlaces={Array.from(guestsByPlace.keys())}
       />
 
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
