@@ -54,7 +54,7 @@ import {
   type Currency,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
-import { NATIONALITIES, flagUrl } from "@/lib/nationalities";
+import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
