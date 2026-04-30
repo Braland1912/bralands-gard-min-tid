@@ -3,10 +3,10 @@ import { Plus } from "lucide-react";
 import type { GuestInput } from "@/hooks/useEveningRoundGuests";
 
 interface Props {
-  placeNumber: number;
+  placeLabel: string;
   date: string;
   onQuickReserve: (input: GuestInput) => Promise<unknown> | unknown;
-  onOpenFull: (place: number) => void;
+  onOpenFull: (place: string) => void;
 }
 
 const addDays = (iso: string, days: number) => {
@@ -19,14 +19,14 @@ const addDays = (iso: string, days: number) => {
   return `${yy}-${mm}-${dd}`;
 };
 
-const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Props) => {
+const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull }: Props) => {
   const [saving, setSaving] = useState(false);
 
   const handleReserve = async () => {
     setSaving(true);
     try {
       await onQuickReserve({
-        place_number: placeNumber,
+        place_label: placeLabel,
         guest_name: "",
         arrival_date: date,
         departure_date: addDays(date, 1),
@@ -41,7 +41,7 @@ const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Pro
     <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-xs font-medium text-muted-foreground">
-          Plats {placeNumber}
+          Plats {placeLabel}
         </div>
         <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5">
           Ledig
@@ -50,7 +50,7 @@ const QuickReserveCard = ({ placeNumber, date, onQuickReserve, onOpenFull }: Pro
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => onOpenFull(placeNumber)}
+          onClick={() => onOpenFull(placeLabel)}
           className="flex-[1.6] rounded-xl bg-primary text-primary-foreground text-sm font-semibold py-2.5 flex items-center justify-center gap-1"
         >
           <Plus className="h-4 w-4" />

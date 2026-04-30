@@ -61,7 +61,7 @@ const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  placeNumber: number | null;
+  placeLabel: string | null;
   guest: EveningRoundGuest | null;
   defaultDate: string;
   onSave: (input: GuestInput) => Promise<unknown> | void;
@@ -82,7 +82,7 @@ const tomorrowLocal = () => {
 const EveningRoundModal = ({
   open,
   onOpenChange,
-  placeNumber,
+  placeLabel,
   guest,
   defaultDate,
   onSave,
@@ -135,7 +135,7 @@ const EveningRoundModal = ({
     setError(null);
   }, [open, guest, defaultDate]);
 
-  const place = guest?.place_number ?? placeNumber ?? null;
+  const place = guest?.place_label ?? placeLabel ?? null;
   const isCash = method === "K";
   const isOther = method === "O";
 
@@ -166,7 +166,7 @@ const EveningRoundModal = ({
     setSaving(true);
     try {
       await onSave({
-        place_number: place,
+        place_label: place,
         guest_name: name.trim(),
         registration_number: reg.trim() || null,
         arrival_date: arrival,
@@ -453,7 +453,7 @@ const EveningRoundModal = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Radera gäst?</AlertDialogTitle>
             <AlertDialogDescription>
-              Detta tar bort {guest?.guest_name} från plats {guest?.place_number}.
+              Detta tar bort {guest?.guest_name} från plats {guest?.place_label}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

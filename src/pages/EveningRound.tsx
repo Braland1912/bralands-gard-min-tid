@@ -21,6 +21,7 @@ import {
   useEveningRoundSessionsForDate,
 } from "@/hooks/useEveningRoundSession";
 import { useRoundOwnersForDate } from "@/hooks/useRoundOwnersForDate";
+import { useEveningRoundExtraPlaces } from "@/hooks/useEveningRoundExtraPlaces";
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
@@ -31,7 +32,10 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
 
-const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
+const STANDARD_PLACES: string[] = [
+  ...Array.from({ length: 21 }, (_, i) => String(i + 1)),
+  ...Array.from({ length: 6 }, (_, i) => `E${i + 1}`),
+];
 
 const todayLocal = () => {
   const d = new Date();
@@ -75,8 +79,18 @@ const EveningRound = () => {
   const [filter, setFilter] = useState<Filter>("alla");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<EveningRoundGuest | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
   const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
+  const [newPlaceLabel, setNewPlaceLabel] = useState("");
+
+  const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
+  const allPlaces = useMemo(() => {
+    const extras = extraPlaces.map((p) => p.label);
+    // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
+    const set = new Set<string>(STANDARD_PLACES);
+    extras.forEach((l) => set.add(l));
+    return Array.from(set);
+  }, [extraPlaces]);
 
   const today = todayLocal();
   const yesterday = shiftDate(today, -1);
@@ -112,8 +126,8 @@ const EveningRound = () => {
   }, [isRoundOngoing, queryClient]);
 
   const guestsByPlace = useMemo(() => {
-    const m = new Map<number, EveningRoundGuest>();
-    guests.forEach((g) => m.set(g.place_number, g));
+    const m = new Map<string, EveningRoundGuest>();
+    guests.forEach((g) => m.set(g.place_label, g));
     return m;
   }, [guests]);
 
@@ -124,7 +138,7 @@ const EveningRound = () => {
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
-    return PLACES.filter((p) => {
+    return allPlaces.filter((p) => {
       const g = guestsByPlace.get(p);
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
@@ -132,23 +146,23 @@ const EveningRound = () => {
       if (filter === "utcheckad" && g?.status !== "checked_out") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (s) {
-        const matchesPlace = String(p).includes(s);
+        const matchesPlace = p.toLowerCase().includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
         if (!matchesPlace && !matchesName) return false;
       }
       return true;
     });
-  }, [filter, search, guestsByPlace]);
+  }, [filter, search, guestsByPlace, allPlaces]);
 
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
     const out = guests.filter((g) => g.status === "checked_out").length;
     const not = guests.filter((g) => g.status === "not_here").length;
-    const free = 45 - guests.length;
+    const free = allPlaces.length - guests.length;
     return { here, out, not, free, booked: guests.length };
-  }, [guests]);
+  }, [guests, allPlaces]);
 
-  const openAdd = (place: number) => {
+  const openAdd = (place: string) => {
     setEditing(null);
     setSelectedPlace(place);
     setModalOpen(true);
@@ -156,7 +170,7 @@ const EveningRound = () => {
 
   const openEdit = (g: EveningRoundGuest) => {
     setEditing(g);
-    setSelectedPlace(g.place_number);
+    setSelectedPlace(g.place_label);
     setModalOpen(true);
   };
 
@@ -411,7 +425,7 @@ const EveningRound = () => {
             return (
               <QuickReserveCard
                 key={p}
-                placeNumber={p}
+                placeLabel={p}
                 date={date}
                 onQuickReserve={(input) => addGuest.mutateAsync(input)}
                 onOpenFull={openAdd}
@@ -437,7 +451,7 @@ const EveningRound = () => {
       <EveningRoundModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        placeNumber={selectedPlace}
+        placeLabel={selectedPlace}
         guest={editing}
         defaultDate={date}
         onSave={handleSave}
@@ -449,31 +463,97 @@ const EveningRound = () => {
           <DialogHeader>
             <DialogTitle>Välj plats</DialogTitle>
             <DialogDescription>
-              Tryck på en ledig plats för att lägga till en gäst.
+              Tryck på en ledig plats, eller lägg till en ny extra plats.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto">
-            {PLACES.map((p) => {
-              const taken = guestsByPlace.has(p);
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  disabled={taken}
-                  onClick={() => {
-                    setPickPlaceOpen(false);
-                    openAdd(p);
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-5 gap-2">
+              {allPlaces.map((p) => {
+                const taken = guestsByPlace.has(p);
+                const isExtra = !STANDARD_PLACES.includes(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    disabled={taken}
+                    onClick={() => {
+                      setPickPlaceOpen(false);
+                      openAdd(p);
+                    }}
+                    className={
+                      taken
+                        ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
+                        : `h-12 rounded-xl border text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors ${
+                            isExtra
+                              ? "border-primary/40 bg-primary/5 text-primary"
+                              : "border-border bg-card"
+                          }`
+                    }
+                    title={isExtra ? "Extra plats" : undefined}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+
+            {extraPlaces.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground">Extra platser för denna runda</div>
+                <div className="flex flex-wrap gap-2">
+                  {extraPlaces.map((p) => (
+                    <span
+                      key={p.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs"
+                    >
+                      <span className="font-medium">{p.label}</span>
+                      <button
+                        type="button"
+                        onClick={() => deletePlace.mutate(p.id)}
+                        disabled={guestsByPlace.has(p.label)}
+                        className="text-muted-foreground hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed"
+                        aria-label={`Ta bort ${p.label}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1.5 pt-2 border-t border-border">
+              <label className="text-xs font-medium text-muted-foreground">Lägg till en extra plats</label>
+              <div className="flex gap-2">
+                <Input
+                  value={newPlaceLabel}
+                  onChange={(e) => setNewPlaceLabel(e.target.value)}
+                  placeholder="T.ex. Stuga 1, X1…"
+                  maxLength={20}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (newPlaceLabel.trim() && round?.id) {
+                        addPlace.mutate(newPlaceLabel.trim(), {
+                          onSuccess: () => setNewPlaceLabel(""),
+                        });
+                      }
+                    }
                   }}
-                  className={
-                    taken
-                      ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
-                      : "h-12 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                  }
+                />
+                <Button
+                  type="button"
+                  disabled={!newPlaceLabel.trim() || !round?.id || addPlace.isPending}
+                  onClick={() => {
+                    addPlace.mutate(newPlaceLabel.trim(), {
+                      onSuccess: () => setNewPlaceLabel(""),
+                    });
+                  }}
                 >
-                  {p}
-                </button>
-              );
-            })}
+                  Lägg till
+                </Button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
