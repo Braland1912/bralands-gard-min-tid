@@ -89,7 +89,10 @@ const EveningRoundModal = ({
   defaultDate,
   onSave,
   onDelete,
+  availablePlaces,
+  takenPlaces,
 }: Props) => {
+  const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [reg, setReg] = useState("");
   const [notes, setNotes] = useState("");
