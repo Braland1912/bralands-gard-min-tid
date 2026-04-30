@@ -141,10 +141,6 @@ const EveningRoundModal = ({
 
   const handleSave = async () => {
     setError(null);
-    if (!name.trim()) {
-      setError("Ange ett namn");
-      return;
-    }
     if (!arrival || !departure) {
       setError("Ange ankomst och avresa");
       return;
@@ -227,10 +223,7 @@ const EveningRoundModal = ({
           </DialogHeader>
 
           <div className="space-y-4 rounded-xl bg-muted/40 p-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Namn</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="reg">Reg.nummer</Label>
@@ -346,6 +339,15 @@ const EveningRoundModal = ({
                   />
                 )}
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Namn (valfritt)</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Skriv gästens namn"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
