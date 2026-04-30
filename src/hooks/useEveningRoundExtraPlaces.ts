@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { STANDARD_PLACES, validatePlaceLabel } from "@/lib/place-label";
 
 export interface ExtraPlace {
   id: string;
@@ -48,14 +49,25 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
   const addPlace = useMutation({
     mutationFn: async (label: string) => {
       if (!eveningRoundId) throw new Error("Saknar runda");
-      const trimmed = label.trim();
-      if (!trimmed) throw new Error("Ange ett namn på platsen");
+      const existing = [
+        ...STANDARD_PLACES,
+        ...(query.data ?? []).map((p) => p.label),
+      ];
+      const result = validatePlaceLabel(label, existing);
+      if (result.ok === false) throw new Error(result.error);
+      const value = result.value;
       const { data, error } = await supabase
         .from("evening_round_extra_places")
-        .insert({ evening_round_id: eveningRoundId, label: trimmed })
+        .insert({ evening_round_id: eveningRoundId, label: value })
         .select("*")
         .single();
-      if (error) throw error;
+      if (error) {
+        // Postgres unique violation
+        if ((error as any).code === "23505") {
+          throw new Error(`Platsen "${value}" finns redan`);
+        }
+        throw error;
+      }
       return data;
     },
     onSuccess: (data) => {
