@@ -20,6 +20,7 @@ import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
 import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
 
@@ -313,7 +314,11 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
       />
 
-      <MemberMobileBottomNav active="kvallsrundan" />
+      {isAdmin ? (
+        <AdminMobileBottomNav active="kvallsrundan" />
+      ) : (
+        <MemberMobileBottomNav active="kvallsrundan" />
+      )}
     </div>
   );
 };
