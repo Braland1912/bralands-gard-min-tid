@@ -109,7 +109,9 @@ const EveningRoundModal = ({
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
       setNotes(guest.notes ?? "");
-      setNationality(guest.nationality ?? "");
+      const parsed = parseNationality(guest.nationality);
+      setNationality(parsed?.code ?? "");
+      setNationalityOther(parsed?.code === OTHER_CODE ? parsed.custom ?? "" : "");
       setArrival(guest.arrival_date);
       setDeparture(guest.departure_date);
       setMethod(guest.payment_method ?? "none");
@@ -120,6 +122,7 @@ const EveningRoundModal = ({
       setReg("");
       setNotes("");
       setNationality("");
+      setNationalityOther("");
       setArrival(defaultDate || todayLocal());
       setDeparture(tomorrowLocal());
       setMethod("none");
