@@ -66,6 +66,8 @@ interface Props {
   defaultDate: string;
   onSave: (input: GuestInput) => Promise<unknown> | void;
   onDelete?: (id: string) => Promise<unknown> | void;
+  availablePlaces?: string[];
+  takenPlaces?: string[];
 }
 
 const todayLocal = () => {
