@@ -438,11 +438,12 @@ const EveningRound = () => {
           <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
             <Button
               size="lg"
-              className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
+              aria-label="Lägg till gäst"
+              className="rounded-full md:rounded-xl shadow-lg md:shadow-none h-14 w-14 md:h-auto md:w-auto p-0 md:px-4 md:py-2"
               onClick={() => setPickPlaceOpen(true)}
             >
-              <Plus className="h-4 w-4" />
-              Lägg till gäst
+              <Plus className="h-6 w-6 md:h-4 md:w-4" />
+              <span className="hidden md:inline">Lägg till gäst</span>
             </Button>
           </div>
         )}
