@@ -15,6 +15,7 @@ import MySchedule from "./pages/MySchedule";
 import AdminSchedule from "./pages/AdminSchedule";
 import AdminChecklists from "./pages/AdminChecklists";
 import EveningRound from "./pages/EveningRound";
+import MobileMenuTest from "./pages/MobileMenuTest";
 
 import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
