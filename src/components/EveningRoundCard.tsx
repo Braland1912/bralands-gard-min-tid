@@ -6,6 +6,7 @@ import {
   type GuestStatus,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+import { getNationality, flagUrl } from "@/lib/nationalities";
 
 interface Props {
   guest: EveningRoundGuest;
@@ -29,18 +30,9 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Inte här",
 };
 
-const flagFor = (code?: string | null) => {
-  if (!code) return null;
-  const c = code.trim().toUpperCase();
-  if (c.length !== 2) return c;
-  const A = 0x1f1e6;
-  return String.fromCodePoint(A + (c.charCodeAt(0) - 65)) +
-    String.fromCodePoint(A + (c.charCodeAt(1) - 65));
-};
-
 const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
-  const flag = flagFor(guest.nationality);
+  const nat = getNationality(guest.nationality);
 
   const StatusBtn = ({
     s,
@@ -75,10 +67,14 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
-            {flag && (
-              <span className="text-sm" title={guest.nationality ?? ""}>
-                {flag}
-              </span>
+            {nat && (
+              <img
+                src={flagUrl(nat.code)}
+                alt={nat.label}
+                title={nat.label}
+                loading="lazy"
+                className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
+              />
             )}
           </div>
           <div className="text-base font-semibold leading-tight mt-0.5">
