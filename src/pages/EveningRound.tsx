@@ -447,6 +447,7 @@ const EveningRound = () => {
                 />
               );
             }
+            const extra = extraPlaces.find((ep) => ep.label === p);
             return (
               <QuickReserveCard
                 key={p}
@@ -454,6 +455,7 @@ const EveningRound = () => {
                 date={date}
                 onQuickReserve={(input) => addGuest.mutateAsync(input)}
                 onOpenFull={openAdd}
+                onRemoveExtraPlace={extra ? () => deletePlace.mutate(extra.id) : undefined}
               />
             );
           })}

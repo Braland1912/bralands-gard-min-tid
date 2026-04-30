@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import type { GuestInput } from "@/hooks/useEveningRoundGuests";
 
 interface Props {
@@ -7,6 +7,8 @@ interface Props {
   date: string;
   onQuickReserve: (input: GuestInput) => Promise<unknown> | unknown;
   onOpenFull: (place: string) => void;
+  /** Visas endast för egna extra-platser. Om satt går platsen att ta bort. */
+  onRemoveExtraPlace?: () => void;
 }
 
 const addDays = (iso: string, days: number) => {
@@ -19,8 +21,9 @@ const addDays = (iso: string, days: number) => {
   return `${yy}-${mm}-${dd}`;
 };
 
-const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull }: Props) => {
+const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemoveExtraPlace }: Props) => {
   const [saving, setSaving] = useState(false);
+  const isExtra = !!onRemoveExtraPlace;
 
   const handleReserve = async () => {
     setSaving(true);
@@ -37,15 +40,44 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull }: Prop
     }
   };
 
+  const handleRemove = () => {
+    if (!onRemoveExtraPlace) return;
+    if (window.confirm(`Ta bort platsen "${placeLabel}"?`)) {
+      onRemoveExtraPlace();
+    }
+  };
+
   return (
-    <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-3 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-xs font-medium text-muted-foreground">
+    <div
+      className={`rounded-2xl border-2 border-dashed p-3 space-y-2 ${
+        isExtra ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-medium text-muted-foreground truncate">
           Plats {placeLabel}
+          {isExtra && (
+            <span className="ml-1.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+              Extra
+            </span>
+          )}
         </div>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5">
-          Ledig
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5">
+            Ledig
+          </span>
+          {isExtra && (
+            <button
+              type="button"
+              onClick={handleRemove}
+              aria-label={`Ta bort platsen ${placeLabel}`}
+              title="Ta bort platsen"
+              className="h-6 w-6 rounded-full border border-border bg-card text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <button
