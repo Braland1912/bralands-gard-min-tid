@@ -68,6 +68,8 @@ interface Props {
   onDelete?: (id: string) => Promise<unknown> | void;
   availablePlaces?: string[];
   takenPlaces?: string[];
+  /** Skapa en ny extra plats (namngiven). Returnerar etiketten som skapades. */
+  onAddPlace?: (label: string) => Promise<string>;
 }
 
 const todayLocal = () => {
