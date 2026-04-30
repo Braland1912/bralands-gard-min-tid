@@ -183,7 +183,7 @@ const EveningRoundExportDialog = () => {
             g.arrival_date,
             g.departure_date,
             STATUS_LABELS[g.status] ?? g.status,
-            pm ? PAYMENT_LABELS[pm] ?? pm : "",
+            pm ? (pm === "O" && g.payment_other_note ? `Övrigt: ${g.payment_other_note}` : PAYMENT_LABELS[pm] ?? pm) : "",
             g.payment_amount ?? "",
             round?.round_date ?? "",
             workerName,
