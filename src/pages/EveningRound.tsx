@@ -444,6 +444,40 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
       />
 
+      <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Välj plats</DialogTitle>
+            <DialogDescription>
+              Tryck på en ledig plats för att lägga till en gäst.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-5 gap-2 max-h-[60vh] overflow-y-auto">
+            {PLACES.map((p) => {
+              const taken = guestsByPlace.has(p);
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  disabled={taken}
+                  onClick={() => {
+                    setPickPlaceOpen(false);
+                    openAdd(p);
+                  }}
+                  className={
+                    taken
+                      ? "h-12 rounded-xl border border-border bg-muted text-muted-foreground text-sm font-medium opacity-60 cursor-not-allowed"
+                      : "h-12 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                  }
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {isAdmin ? (
         <AdminMobileBottomNav active="kvallsrundan" />
       ) : (
