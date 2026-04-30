@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 export type GuestStatus = "here" | "checked_out" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z";
+export type Currency = "SEK" | "EUR" | "NOK";
 
 export interface EveningRoundGuest {
   id: string;
@@ -16,6 +17,7 @@ export interface EveningRoundGuest {
   departure_date: string;
   payment_method: PaymentMethod | null;
   payment_amount: number | null;
+  payment_currency: Currency | null;
   status: GuestStatus;
   notes: string | null;
   nationality: string | null;
@@ -29,6 +31,7 @@ export interface GuestInput {
   departure_date: string;
   payment_method?: PaymentMethod | null;
   payment_amount?: number | null;
+  payment_currency?: Currency | null;
   status?: GuestStatus;
   notes?: string | null;
   nationality?: string | null;
