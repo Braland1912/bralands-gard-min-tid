@@ -402,22 +402,8 @@ const EveningRound = () => {
                   guest={g}
                   onStatusChange={handleStatus}
                   onEdit={openEdit}
-                  readOnly={!isAdmin}
                   ownerName={ownerName}
                 />
-              );
-            }
-            if (!isAdmin) {
-              return (
-                <div
-                  key={p}
-                  className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 flex flex-col items-center justify-center text-center min-h-[120px]"
-                >
-                  <div className="text-xs font-medium text-muted-foreground">
-                    Plats {p}
-                  </div>
-                  <div className="text-sm text-muted-foreground/70 mt-1">Ledig</div>
-                </div>
               );
             }
             return (
@@ -432,7 +418,7 @@ const EveningRound = () => {
           })}
         </div>
 
-        {isAdmin && (
+        {(
           <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
             <Button
               size="lg"
