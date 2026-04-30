@@ -592,6 +592,18 @@ const EveningRound = () => {
                   Lägg till
                 </Button>
               </div>
+              <div
+                className={`text-[11px] text-right tabular-nums ${
+                  newPlaceLabel.length >= 60
+                    ? "text-destructive font-medium"
+                    : newPlaceLabel.length >= 50
+                      ? "text-amber-600"
+                      : "text-muted-foreground"
+                }`}
+                aria-live="polite"
+              >
+                {newPlaceLabel.length} / 60 tecken
+              </div>
             </div>
           </div>
         </DialogContent>
