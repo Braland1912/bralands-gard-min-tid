@@ -1,0 +1,1 @@
+ALTER TABLE public.evening_round_guests ADD COLUMN payment_other_note text;
