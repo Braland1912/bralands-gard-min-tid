@@ -32,7 +32,10 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
 
-const PLACES = Array.from({ length: 45 }, (_, i) => i + 1);
+const STANDARD_PLACES: string[] = [
+  ...Array.from({ length: 21 }, (_, i) => String(i + 1)),
+  ...Array.from({ length: 6 }, (_, i) => `E${i + 1}`),
+];
 
 const todayLocal = () => {
   const d = new Date();
