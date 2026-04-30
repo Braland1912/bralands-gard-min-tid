@@ -33,7 +33,7 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Inte här",
 };
 
-const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
+const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
   const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
@@ -52,8 +52,10 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
     return (
       <button
         type="button"
+        disabled={readOnly}
         onClick={(e) => {
           e.stopPropagation();
+          if (readOnly) return;
           onStatusChange(guest.id, s);
         }}
         aria-label={label}
@@ -62,7 +64,7 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
           active
             ? `${statusColors[s]} border-current bg-current/10`
             : "text-muted-foreground border-border hover:bg-accent"
-        }`}
+        } ${readOnly ? "opacity-60 cursor-not-allowed hover:bg-transparent" : ""}`}
       >
         <Icon className="h-4 w-4" />
       </button>
