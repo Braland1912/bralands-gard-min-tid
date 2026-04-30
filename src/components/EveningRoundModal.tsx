@@ -111,6 +111,8 @@ const EveningRoundModal = ({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newPlaceLabel, setNewPlaceLabel] = useState("");
+  const [creatingPlace, setCreatingPlace] = useState(false);
 
   useEffect(() => {
     if (!open) return;
