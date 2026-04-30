@@ -281,18 +281,40 @@ const EveningRoundModal = ({
                       })}
                     </div>
                     {onAddPlace && (
-                      <div className="flex gap-2 pt-1">
-                        <Input
-                          value={newPlaceLabel}
-                          onChange={(e) => setNewPlaceLabel(e.target.value)}
-                          placeholder="Ny plats t.ex. Stuga 1"
-                          maxLength={60}
-                          className="h-9"
-                          onKeyDown={async (e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
+                      <div className="space-y-1 pt-1">
+                        <div className="flex gap-2">
+                          <Input
+                            value={newPlaceLabel}
+                            onChange={(e) => setNewPlaceLabel(e.target.value)}
+                            placeholder="Ny plats t.ex. Stuga 1"
+                            maxLength={60}
+                            className="h-9"
+                            onKeyDown={async (e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const label = newPlaceLabel.trim();
+                                if (!label || creatingPlace) return;
+                                setCreatingPlace(true);
+                                try {
+                                  const created = await onAddPlace(label);
+                                  setPickedPlace(created);
+                                  setNewPlaceLabel("");
+                                } catch {
+                                  /* hook visar toast */
+                                } finally {
+                                  setCreatingPlace(false);
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={!newPlaceLabel.trim() || creatingPlace}
+                            onClick={async () => {
                               const label = newPlaceLabel.trim();
-                              if (!label || creatingPlace) return;
+                              if (!label) return;
                               setCreatingPlace(true);
                               try {
                                 const created = await onAddPlace(label);
@@ -303,31 +325,23 @@ const EveningRoundModal = ({
                               } finally {
                                 setCreatingPlace(false);
                               }
-                            }
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={!newPlaceLabel.trim() || creatingPlace}
-                          onClick={async () => {
-                            const label = newPlaceLabel.trim();
-                            if (!label) return;
-                            setCreatingPlace(true);
-                            try {
-                              const created = await onAddPlace(label);
-                              setPickedPlace(created);
-                              setNewPlaceLabel("");
-                            } catch {
-                              /* hook visar toast */
-                            } finally {
-                              setCreatingPlace(false);
-                            }
-                          }}
+                            }}
+                          >
+                            Skapa
+                          </Button>
+                        </div>
+                        <div
+                          className={`text-[11px] text-right tabular-nums ${
+                            newPlaceLabel.length >= 60
+                              ? "text-destructive font-medium"
+                              : newPlaceLabel.length >= 50
+                                ? "text-amber-600"
+                                : "text-muted-foreground"
+                          }`}
+                          aria-live="polite"
                         >
-                          Skapa
-                        </Button>
+                          {newPlaceLabel.length} / 60 tecken
+                        </div>
                       </div>
                     )}
                   </>
