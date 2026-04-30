@@ -568,7 +568,7 @@ const EveningRound = () => {
                   value={newPlaceLabel}
                   onChange={(e) => setNewPlaceLabel(e.target.value)}
                   placeholder="T.ex. Stuga 1, X1…"
-                  maxLength={20}
+                  maxLength={60}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
