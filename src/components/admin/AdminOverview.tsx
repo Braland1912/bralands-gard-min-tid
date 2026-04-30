@@ -375,6 +375,9 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         })}
       </div>
 
+      {/* Kvällsrundan – snabb status */}
+      <EveningRoundWidget />
+
       {/* Stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => {
