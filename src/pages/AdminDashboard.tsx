@@ -24,6 +24,7 @@ const mobileBottomTabs = [
   { id: "schema", label: "Schema", icon: Calendar },
   { id: "tidslogg", label: "Tidslogg", icon: Clock },
   { id: "rattelser", label: "Rättelser", icon: AlertTriangle },
+  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
 ];
 
 const mobileMoreTabs = [
