@@ -71,12 +71,18 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
     );
   };
 
+  const Wrapper: any = readOnly ? "div" : "button";
+  const wrapperProps = readOnly
+    ? { className: "w-full text-left rounded-2xl border border-border bg-muted/30 p-4 space-y-3 opacity-90" }
+    : {
+        type: "button" as const,
+        onClick: () => onEdit(guest),
+        className:
+          "w-full text-left rounded-2xl border border-border bg-card p-4 space-y-3 transition-colors hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary",
+      };
+
   return (
-    <button
-      type="button"
-      onClick={() => onEdit(guest)}
-      className="w-full text-left rounded-2xl border border-border bg-card p-4 space-y-3 transition-colors hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary"
-    >
+    <Wrapper {...wrapperProps}>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
