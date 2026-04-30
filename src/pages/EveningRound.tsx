@@ -409,6 +409,28 @@ const EveningRound = () => {
         </div>
 
 
+        {unassignedGuests.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Utan plats ({unassignedGuests.length})
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {unassignedGuests.map((g) => {
+                const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
+                return (
+                  <EveningRoundCard
+                    key={g.id}
+                    guest={g}
+                    onStatusChange={handleStatus}
+                    onEdit={openEdit}
+                    ownerName={ownerName}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.length === 0 && (
             <div className="col-span-full text-center text-sm text-muted-foreground py-8">
