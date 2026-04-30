@@ -107,6 +107,28 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemo
           Reservera
         </button>
       </div>
+
+      {isExtra && (
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Ta bort platsen "{placeLabel}"?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Platsen försvinner från denna runda. Du kan lägga till den igen senare om du behöver.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Avbryt</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRemove}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Ta bort
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
