@@ -92,6 +92,7 @@ const EveningRoundModal = ({
   const [reg, setReg] = useState("");
   const [notes, setNotes] = useState("");
   const [nationality, setNationality] = useState("");
+  const [natOpen, setNatOpen] = useState(false);
   const [arrival, setArrival] = useState(defaultDate || todayLocal());
   const [departure, setDeparture] = useState(tomorrowLocal());
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
