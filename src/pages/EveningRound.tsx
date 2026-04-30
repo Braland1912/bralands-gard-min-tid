@@ -379,12 +379,6 @@ const EveningRound = () => {
           ))}
         </div>
 
-        <div className="hidden md:grid grid-cols-4 gap-3">
-          <SummaryCard label="Här" value={counts.here} className="text-emerald-600" />
-          <SummaryCard label="Utcheckad" value={counts.out} className="text-amber-600" />
-          <SummaryCard label="Inte här" value={counts.not} className="text-destructive" />
-          <SummaryCard label="Lediga" value={counts.free} className="text-muted-foreground" />
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.length === 0 && (
