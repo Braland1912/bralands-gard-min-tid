@@ -297,7 +297,7 @@ const EveningRound = () => {
         )}
 
         {/* Admin: vilka medarbetare gick rundan */}
-        {isAdmin && adminSessions.length > 0 && (
+        {adminSessions.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Rundan gick av
