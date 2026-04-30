@@ -43,6 +43,20 @@ import {
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
+const NATIONALITIES: { code: string; label: string }[] = [
+  { code: "SE", label: "Sverige" },
+  { code: "NO", label: "Norge" },
+  { code: "DK", label: "Danmark" },
+  { code: "FI", label: "Finland" },
+  { code: "DE", label: "Tyskland" },
+  { code: "NL", label: "Nederländerna" },
+  { code: "BE", label: "Belgien" },
+  { code: "AT", label: "Österrike" },
+  { code: "CH", label: "Schweiz" },
+  { code: "FR", label: "Frankrike" },
+  { code: "GB", label: "Storbritannien" },
+];
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -203,14 +217,23 @@ const EveningRoundModal = ({
                 <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="nat">Nationalitet</Label>
-                <Input
-                  id="nat"
-                  value={nationality}
-                  onChange={(e) => setNationality(e.target.value.toUpperCase().slice(0, 2))}
-                  placeholder="SE"
-                  maxLength={2}
-                />
+                <Label>Nationalitet</Label>
+                <Select
+                  value={nationality || "none"}
+                  onValueChange={(v) => setNationality(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Ingen</SelectItem>
+                    {NATIONALITIES.map((n) => (
+                      <SelectItem key={n.code} value={n.code}>
+                        {n.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-1.5">
