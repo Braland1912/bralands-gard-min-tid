@@ -111,6 +111,7 @@ const EveningRoundModal = ({
 
   useEffect(() => {
     if (!open) return;
+    setPickedPlace(null);
     if (guest) {
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
@@ -140,7 +141,10 @@ const EveningRoundModal = ({
     setError(null);
   }, [open, guest, defaultDate]);
 
-  const place = guest?.place_label ?? placeLabel ?? null;
+  const place = guest?.place_label ?? placeLabel ?? pickedPlace ?? null;
+  const showPlacePicker =
+    !guest && placeLabel == null && Array.isArray(availablePlaces) && availablePlaces.length > 0;
+  const takenSet = new Set(takenPlaces ?? []);
   const isCash = method === "K";
   const isOther = method === "O";
 
