@@ -130,12 +130,14 @@ const EveningRoundModal = ({
       setMethod("none");
       setAmount("");
       setCurrency("SEK");
+      setOtherNote("");
     }
     setError(null);
   }, [open, guest, defaultDate]);
 
   const place = guest?.place_number ?? placeNumber ?? null;
   const isCash = method === "K";
+  const isOther = method === "O";
 
   const handleSave = async () => {
     setError(null);
