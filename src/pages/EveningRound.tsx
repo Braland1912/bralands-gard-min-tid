@@ -459,4 +459,39 @@ const SummaryCard = ({
   </div>
 );
 
+const KpiCard = ({
+  label,
+  value,
+  color,
+  dim,
+  live,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  dim?: boolean;
+  live?: boolean;
+}) => (
+  <div
+    className={`rounded-2xl border border-border bg-card p-3 transition-opacity ${
+      dim ? "opacity-50" : ""
+    }`}
+  >
+    <div className="flex items-center justify-between">
+      <div className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </div>
+      {live && (
+        <span
+          className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"
+          aria-label="Live"
+        />
+      )}
+    </div>
+    <div className={`text-xl sm:text-2xl font-semibold mt-1 ${color}`}>
+      {dim ? "–" : value}
+    </div>
+  </div>
+);
+
 export default EveningRound;
