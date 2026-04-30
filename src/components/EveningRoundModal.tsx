@@ -223,10 +223,7 @@ const EveningRoundModal = ({
           </DialogHeader>
 
           <div className="space-y-4 rounded-xl bg-muted/40 p-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name">Namn</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="reg">Reg.nummer</Label>
