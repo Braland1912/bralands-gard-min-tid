@@ -374,6 +374,67 @@ const AdminSchedule = () => {
     },
   });
 
+  // ── Byt medarbetare på ett befintligt pass ──────────────────────────
+  // Uppdaterar bara schedules.user_id på samma rad → checklistor (shift_id),
+  // avbockningar och anteckningar följer automatiskt med.
+  const [reassignTo, setReassignTo] = useState<string>("");
+  const [confirmReassign, setConfirmReassign] = useState<{
+    shiftRowId: string;
+    fromName: string;
+    toUserId: string;
+    toName: string;
+    conflictRowId?: string;
+    conflictType?: ShiftType;
+  } | null>(null);
+
+  const reassignShift = useMutation({
+    mutationFn: async ({
+      shiftRowId,
+      toUserId,
+      conflictRowId,
+    }: {
+      shiftRowId: string;
+      toUserId: string;
+      conflictRowId?: string;
+    }) => {
+      // Om mottagaren redan har ett pass i samma index/datum → ta bort det först
+      // (admin har bekräftat ersättning i UI:t)
+      if (conflictRowId) {
+        const { error: delErr } = await supabase
+          .from("schedules")
+          .delete()
+          .eq("id", conflictRowId);
+        if (delErr) throw delErr;
+      }
+      const { error } = await supabase
+        .from("schedules")
+        .update({ user_id: toUserId })
+        .eq("id", shiftRowId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
+      toast({ title: "Pass flyttat", description: "Checklistor och anteckningar följde med." });
+      setConfirmReassign(null);
+      setReassignTo("");
+      // Uppdatera sheet:en så den pekar på den nya medarbetaren
+      if (sheet) {
+        const newWorker = (allWorkers as any[]).find(
+          (w) => w.user_id === confirmReassign?.toUserId,
+        );
+        if (newWorker) setSheet({ ...sheet, worker: newWorker });
+      }
+    },
+    onError: (e: any) => {
+      toast({
+        title: "Kunde inte flytta passet",
+        description: e?.message ?? "Försök igen.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const isLoading = workersLoading || schedulesLoading;
 
   // Compute name column width based on longest displayed name
