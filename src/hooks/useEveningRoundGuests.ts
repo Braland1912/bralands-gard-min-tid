@@ -21,6 +21,7 @@ export interface EveningRoundGuest {
   status: GuestStatus;
   notes: string | null;
   nationality: string | null;
+  payment_other_note: string | null;
 }
 
 export interface GuestInput {
