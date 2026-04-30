@@ -79,7 +79,7 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemo
           {isExtra && (
             <button
               type="button"
-              onClick={handleRemove}
+              onClick={() => setConfirmOpen(true)}
               aria-label={`Ta bort platsen ${placeLabel}`}
               title="Ta bort platsen"
               className="h-6 w-6 rounded-full border border-border bg-card text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/40 flex items-center justify-center transition-colors"
