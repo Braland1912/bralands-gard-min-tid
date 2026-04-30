@@ -237,7 +237,48 @@ const EveningRoundModal = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 rounded-xl bg-muted/40 p-4">
+          <div className="space-y-4 rounded-xl bg-muted/40 p-4 max-h-[70vh] overflow-y-auto">
+            {showPlacePicker && (
+              <div className="space-y-2">
+                <Label>Plats</Label>
+                {place != null ? (
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+                    <span className="text-sm">Plats <strong>{place}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setPickedPlace(null)}
+                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                    >
+                      Ändra
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {availablePlaces!.map((p) => {
+                      const taken = takenSet.has(p);
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          disabled={taken}
+                          onClick={() => setPickedPlace(p)}
+                          className={
+                            taken
+                              ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
+                              : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                          }
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Du kan lämna platsen tom och välja den när gästen kommer.
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
