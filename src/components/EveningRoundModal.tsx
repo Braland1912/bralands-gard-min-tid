@@ -72,6 +72,8 @@ const EveningRoundModal = ({
 }: Props) => {
   const [name, setName] = useState("");
   const [reg, setReg] = useState("");
+  const [notes, setNotes] = useState("");
+  const [nationality, setNationality] = useState("");
   const [arrival, setArrival] = useState(defaultDate || todayLocal());
   const [departure, setDeparture] = useState(tomorrowLocal());
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
@@ -85,6 +87,8 @@ const EveningRoundModal = ({
     if (guest) {
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
+      setNotes(guest.notes ?? "");
+      setNationality(guest.nationality ?? "");
       setArrival(guest.arrival_date);
       setDeparture(guest.departure_date);
       setMethod(guest.payment_method ?? "none");
@@ -92,6 +96,8 @@ const EveningRoundModal = ({
     } else {
       setName("");
       setReg("");
+      setNotes("");
+      setNationality("");
       setArrival(defaultDate || todayLocal());
       setDeparture(tomorrowLocal());
       setMethod("none");
@@ -136,6 +142,8 @@ const EveningRoundModal = ({
         departure_date: departure,
         payment_method: method === "none" ? null : method,
         payment_amount: amt,
+        notes: notes.trim() || null,
+        nationality: nationality.trim() || null,
       });
       onOpenChange(false);
     } catch (e: any) {
@@ -181,9 +189,30 @@ const EveningRoundModal = ({
               <Label htmlFor="name">Namn</Label>
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="reg">Reg.nummer</Label>
+                <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="nat">Nationalitet</Label>
+                <Input
+                  id="nat"
+                  value={nationality}
+                  onChange={(e) => setNationality(e.target.value.toUpperCase().slice(0, 2))}
+                  placeholder="SE"
+                  maxLength={2}
+                />
+              </div>
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="reg">Reg.nummer (valfritt)</Label>
-              <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} />
+              <Label htmlFor="notes">Anteckning</Label>
+              <Input
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="T.ex. lugn gäst, husdjur…"
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
