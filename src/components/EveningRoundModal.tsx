@@ -32,7 +32,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, MoreVertical, Trash2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown, MoreVertical, Trash2, X } from "lucide-react";
 import {
   type EveningRoundGuest,
   type GuestInput,
@@ -78,6 +92,7 @@ const EveningRoundModal = ({
   const [reg, setReg] = useState("");
   const [notes, setNotes] = useState("");
   const [nationality, setNationality] = useState("");
+  const [natOpen, setNatOpen] = useState(false);
   const [arrival, setArrival] = useState(defaultDate || todayLocal());
   const [departure, setDeparture] = useState(tomorrowLocal());
   const [method, setMethod] = useState<PaymentMethod | "none">("none");
@@ -205,30 +220,79 @@ const EveningRoundModal = ({
               </div>
               <div className="space-y-1.5">
                 <Label>Nationalitet</Label>
-                <Select
-                  value={nationality || "none"}
-                  onValueChange={(v) => setNationality(v === "none" ? "" : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Välj…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Ingen</SelectItem>
-                    {NATIONALITIES.map((n) => (
-                      <SelectItem key={n.code} value={n.code}>
-                        <span className="flex items-center gap-2">
+                <Popover open={natOpen} onOpenChange={setNatOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={natOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      {nationality ? (
+                        <span className="flex items-center gap-2 truncate">
                           <img
-                            src={flagUrl(n.code)}
+                            src={flagUrl(nationality)}
                             alt=""
                             loading="lazy"
                             className="h-3.5 w-5 rounded-[2px] border border-border object-cover"
                           />
-                          {n.label}
+                          {NATIONALITIES.find((n) => n.code === nationality)?.label ?? nationality}
                         </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      ) : (
+                        <span className="text-muted-foreground">Välj…</span>
+                      )}
+                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[--radix-popover-trigger-width] p-0 pointer-events-auto"
+                    align="start"
+                  >
+                    <Command>
+                      <CommandInput placeholder="Sök land…" />
+                      <CommandList>
+                        <CommandEmpty>Inget land hittades.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="ingen"
+                            onSelect={() => {
+                              setNationality("");
+                              setNatOpen(false);
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-2 opacity-60" />
+                            Ingen
+                          </CommandItem>
+                          {NATIONALITIES.map((n) => (
+                            <CommandItem
+                              key={n.code}
+                              value={`${n.label} ${n.code}`}
+                              onSelect={() => {
+                                setNationality(n.code);
+                                setNatOpen(false);
+                              }}
+                            >
+                              <img
+                                src={flagUrl(n.code)}
+                                alt=""
+                                loading="lazy"
+                                className="h-3.5 w-5 mr-2 rounded-[2px] border border-border object-cover"
+                              />
+                              {n.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  nationality === n.code ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             <div className="space-y-1.5">
