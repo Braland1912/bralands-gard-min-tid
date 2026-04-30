@@ -3,8 +3,33 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useOverlayScrollGuard } from "@/hooks/useOverlayScrollGuard";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+const DropdownOpenContext = React.createContext<boolean>(false);
+
+const DropdownMenu: React.FC<React.ComponentProps<typeof DropdownMenuPrimitive.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
+  const isControlled = open !== undefined;
+  const currentOpen = isControlled ? open : internalOpen;
+  return (
+    <DropdownOpenContext.Provider value={!!currentOpen}>
+      <DropdownMenuPrimitive.Root
+        open={open}
+        defaultOpen={defaultOpen}
+        onOpenChange={(o) => {
+          if (!isControlled) setInternalOpen(o);
+          onOpenChange?.(o);
+        }}
+        {...props}
+      />
+    </DropdownOpenContext.Provider>
+  );
+};
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
