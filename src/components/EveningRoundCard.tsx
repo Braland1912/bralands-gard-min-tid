@@ -138,16 +138,23 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
         Ankomst/Avresa: {formatDate(guest.arrival_date)} → {formatDate(guest.departure_date)}
       </div>
 
-      <div>
-        {isUnpaid ? (
-          <Badge variant="destructive">EJ BETALT</Badge>
-        ) : (
-          <div className="text-sm font-medium">
-            {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
-          </div>
+      <div className="flex items-end justify-between gap-2">
+        <div>
+          {isUnpaid ? (
+            <Badge variant="destructive">EJ BETALT</Badge>
+          ) : (
+            <div className="text-sm font-medium">
+              {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
+            </div>
+          )}
+        </div>
+        {ownerName && (
+          <span className="text-[11px] font-medium text-muted-foreground bg-background border border-border rounded-full px-2 py-0.5">
+            Gick: {ownerName}
+          </span>
         )}
       </div>
-    </button>
+    </Wrapper>
   );
 };
 
