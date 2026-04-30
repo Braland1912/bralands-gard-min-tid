@@ -425,7 +425,7 @@ const EveningRound = () => {
             return (
               <QuickReserveCard
                 key={p}
-                placeNumber={p}
+                placeLabel={p}
                 date={date}
                 onQuickReserve={(input) => addGuest.mutateAsync(input)}
                 onOpenFull={openAdd}
