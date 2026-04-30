@@ -19,6 +19,7 @@ import {
   useEveningRoundSession,
   useEveningRoundSessionsForDate,
 } from "@/hooks/useEveningRoundSession";
+import { useRoundOwnersForDate } from "@/hooks/useRoundOwnersForDate";
 import EveningRoundCard from "@/components/EveningRoundCard";
 import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
@@ -66,7 +67,8 @@ const EveningRound = () => {
     worker?.id,
     date,
   );
-  const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date, isAdmin);
+  const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
+  const { data: ownersByRoundId } = useRoundOwnersForDate(date);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("alla");
@@ -264,16 +266,20 @@ const EveningRound = () => {
             <div className="text-sm">
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
-                  Rundan pågår sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Du är ute — Rundan pågår sedan{" "}
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {session?.session_start && session?.session_end && (
                 <span className="text-muted-foreground">
-                  Rundan slutad {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Du var ute — Från{" "}
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  {" till "}
+                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {!session?.session_start && (
-                <span className="text-muted-foreground">Du har inte startat rundan än</span>
+                <span className="text-muted-foreground">Du är inte ute än</span>
               )}
             </div>
             {session?.session_start && !session?.session_end ? (
@@ -284,14 +290,14 @@ const EveningRound = () => {
             ) : (
               <Button size="sm" onClick={() => startSession.mutate()}>
                 <Play className="h-4 w-4" />
-                {session?.session_end ? "Starta om" : "Starta rundan"}
+                {session?.session_end ? "Starta om" : "Börja rundan"}
               </Button>
             )}
           </div>
         )}
 
         {/* Admin: vilka medarbetare gick rundan */}
-        {isAdmin && adminSessions.length > 0 && (
+        {adminSessions.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-3 space-y-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Rundan gick av
@@ -389,13 +395,29 @@ const EveningRound = () => {
           {filtered.map((p) => {
             const g = guestsByPlace.get(p);
             if (g) {
+              const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
               return (
                 <EveningRoundCard
                   key={p}
                   guest={g}
                   onStatusChange={handleStatus}
                   onEdit={openEdit}
+                  readOnly={!isAdmin}
+                  ownerName={ownerName}
                 />
+              );
+            }
+            if (!isAdmin) {
+              return (
+                <div
+                  key={p}
+                  className="rounded-2xl border border-dashed border-border bg-muted/20 p-4 flex flex-col items-center justify-center text-center min-h-[120px]"
+                >
+                  <div className="text-xs font-medium text-muted-foreground">
+                    Plats {p}
+                  </div>
+                  <div className="text-sm text-muted-foreground/70 mt-1">Ledig</div>
+                </div>
               );
             }
             return (
@@ -410,19 +432,21 @@ const EveningRound = () => {
           })}
         </div>
 
-        <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
-          <Button
-            size="lg"
-            className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
-            onClick={() => {
-              const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
-              if (firstFree) openAdd(firstFree);
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Lägg till gäst
-          </Button>
-        </div>
+        {isAdmin && (
+          <div className="fixed md:static bottom-20 right-4 md:bottom-auto md:right-auto z-20">
+            <Button
+              size="lg"
+              className="rounded-full md:rounded-xl shadow-lg md:shadow-none"
+              onClick={() => {
+                const firstFree = PLACES.find((p) => !guestsByPlace.has(p));
+                if (firstFree) openAdd(firstFree);
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Lägg till gäst
+            </Button>
+          </div>
+        )}
       </div>
 
       <EveningRoundModal

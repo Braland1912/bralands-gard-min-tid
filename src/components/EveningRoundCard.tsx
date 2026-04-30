@@ -11,6 +11,10 @@ interface Props {
   guest: EveningRoundGuest;
   onStatusChange: (id: string, status: GuestStatus) => void;
   onEdit: (guest: EveningRoundGuest) => void;
+  /** Read-only: ingen redigering, ingen statusbyte (medarbetare-läge). */
+  readOnly?: boolean;
+  /** Visas som "Gick: Eva" om angivet. */
+  ownerName?: string | null;
 }
 
 const formatDate = (iso: string) => {
@@ -29,7 +33,7 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Inte här",
 };
 
-const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
+const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
   const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
@@ -48,8 +52,10 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
     return (
       <button
         type="button"
+        disabled={readOnly}
         onClick={(e) => {
           e.stopPropagation();
+          if (readOnly) return;
           onStatusChange(guest.id, s);
         }}
         aria-label={label}
@@ -58,19 +64,25 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
           active
             ? `${statusColors[s]} border-current bg-current/10`
             : "text-muted-foreground border-border hover:bg-accent"
-        }`}
+        } ${readOnly ? "opacity-60 cursor-not-allowed hover:bg-transparent" : ""}`}
       >
         <Icon className="h-4 w-4" />
       </button>
     );
   };
 
+  const Wrapper: any = readOnly ? "div" : "button";
+  const wrapperProps = readOnly
+    ? { className: "w-full text-left rounded-2xl border border-border bg-muted/30 p-4 space-y-3 opacity-90" }
+    : {
+        type: "button" as const,
+        onClick: () => onEdit(guest),
+        className:
+          "w-full text-left rounded-2xl border border-border bg-card p-4 space-y-3 transition-colors hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary",
+      };
+
   return (
-    <button
-      type="button"
-      onClick={() => onEdit(guest)}
-      className="w-full text-left rounded-2xl border border-border bg-card p-4 space-y-3 transition-colors hover:bg-accent/40 focus:outline-none focus:ring-2 focus:ring-primary"
-    >
+    <Wrapper {...wrapperProps}>
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <div className="text-xs font-medium text-muted-foreground">Plats {guest.place_number}</div>
@@ -126,16 +138,23 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit }: Props) => {
         Ankomst/Avresa: {formatDate(guest.arrival_date)} → {formatDate(guest.departure_date)}
       </div>
 
-      <div>
-        {isUnpaid ? (
-          <Badge variant="destructive">EJ BETALT</Badge>
-        ) : (
-          <div className="text-sm font-medium">
-            {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
-          </div>
+      <div className="flex items-end justify-between gap-2">
+        <div>
+          {isUnpaid ? (
+            <Badge variant="destructive">EJ BETALT</Badge>
+          ) : (
+            <div className="text-sm font-medium">
+              {PAYMENT_LABELS[guest.payment_method!]} • {guest.payment_amount} {guest.payment_currency ?? "kr"}
+            </div>
+          )}
+        </div>
+        {ownerName && (
+          <span className="text-[11px] font-medium text-muted-foreground bg-background border border-border rounded-full px-2 py-0.5">
+            Gick: {ownerName}
+          </span>
         )}
       </div>
-    </button>
+    </Wrapper>
   );
 };
 
