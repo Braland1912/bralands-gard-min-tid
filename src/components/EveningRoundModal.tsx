@@ -141,9 +141,9 @@ const EveningRoundModal = ({
     setError(null);
   }, [open, guest, defaultDate]);
 
-  const place = guest?.place_label ?? placeLabel ?? pickedPlace ?? null;
+  const place = pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
   const showPlacePicker =
-    !guest && placeLabel == null && Array.isArray(availablePlaces) && availablePlaces.length > 0;
+    place == null && Array.isArray(availablePlaces) && availablePlaces.length > 0;
   const takenSet = new Set(takenPlaces ?? []);
   const isCash = method === "K";
   const isOther = method === "O";
