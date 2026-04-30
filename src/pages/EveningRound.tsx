@@ -266,16 +266,20 @@ const EveningRound = () => {
             <div className="text-sm">
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
-                  Rundan pågår sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Du är ute — Rundan pågår sedan{" "}
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {session?.session_start && session?.session_end && (
                 <span className="text-muted-foreground">
-                  Rundan slutad {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Du var ute — Från{" "}
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  {" till "}
+                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {!session?.session_start && (
-                <span className="text-muted-foreground">Du har inte startat rundan än</span>
+                <span className="text-muted-foreground">Du är inte ute än</span>
               )}
             </div>
             {session?.session_start && !session?.session_end ? (
@@ -286,7 +290,7 @@ const EveningRound = () => {
             ) : (
               <Button size="sm" onClick={() => startSession.mutate()}>
                 <Play className="h-4 w-4" />
-                {session?.session_end ? "Starta om" : "Starta rundan"}
+                {session?.session_end ? "Starta om" : "Börja rundan"}
               </Button>
             )}
           </div>
