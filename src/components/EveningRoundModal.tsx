@@ -117,6 +117,7 @@ const EveningRoundModal = ({
   useEffect(() => {
     if (!open) return;
     setPickedPlace(null);
+    setNewPlaceLabel("");
     if (guest) {
       setName(guest.guest_name);
       setReg(guest.registration_number ?? "");
