@@ -209,7 +209,7 @@ const EveningRoundModal = ({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="-mt-1 mr-6" aria-label="Mer">
-                      <MoreVertical className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
