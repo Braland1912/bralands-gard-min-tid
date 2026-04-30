@@ -98,6 +98,8 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
   const latestTime = formatTime(latest?.session_end ?? latest?.session_start ?? null);
   const latestName = latest?.worker_name;
   const isOngoing = !!ongoing && !completed;
+  const startTime = formatTime(latest?.session_start ?? null);
+  const endTime = formatTime(latest?.session_end ?? null);
 
   const handleClick = () => {
     if (onOpen) onOpen();
@@ -166,16 +168,30 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
             </>
           )}
 
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs">
-            <span className={`h-1.5 w-1.5 rounded-full ${statusDot}`} aria-hidden />
-            {latest && latestTime && latestName ? (
-              <span className="text-muted-foreground">
-                {isOngoing ? "Pågår" : "Runda gjord"}{" "}
-                <span className="tabular-nums font-medium text-foreground">{latestTime}</span>{" "}
-                av <span className="font-medium text-foreground">{latestName}</span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Ingen runda startad ännu</span>
+          <div className="mt-2.5 space-y-1 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className={`h-1.5 w-1.5 rounded-full ${statusDot}`} aria-hidden />
+              {latest && latestTime && latestName ? (
+                <span className="text-muted-foreground">
+                  {isOngoing ? "Pågår" : "Runda gjord"}{" "}
+                  <span className="tabular-nums font-medium text-foreground">{latestTime}</span>{" "}
+                  av <span className="font-medium text-foreground">{latestName}</span>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">Ingen runda startad ännu</span>
+              )}
+            </div>
+            {latest && startTime && (
+              <div className="pl-3 text-muted-foreground">
+                Senaste session:{" "}
+                <span className="tabular-nums font-medium text-foreground">{startTime}</span>
+                {" – "}
+                {endTime ? (
+                  <span className="tabular-nums font-medium text-foreground">{endTime}</span>
+                ) : (
+                  <span className="font-medium text-[hsl(38_75%_40%)]">pågår</span>
+                )}
+              </div>
             )}
           </div>
         </div>
