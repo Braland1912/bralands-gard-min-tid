@@ -696,7 +696,7 @@ const EveningRoundModal = ({
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving} className="h-11">
               Avbryt
             </Button>
-            <Button onClick={handleSave} disabled={saving} className="h-11">
+            <Button onClick={handleSave} disabled={saving || !!dateError} className="h-11">
               <Check className="h-4 w-4" />
               Spara
             </Button>
