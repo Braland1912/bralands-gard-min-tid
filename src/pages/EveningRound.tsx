@@ -37,6 +37,7 @@ import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import { STANDARD_PLACES } from "@/lib/place-label";
+import { formatLocalDate } from "@/lib/date-format";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt";
 
