@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Save, Wifi, WifiOff } from "lucide-react";
+import { Loader2, Play, Save, Square, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,10 +17,15 @@ import {
   type EveningRoundSummary,
   useEveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
+import { useEveningRoundSession } from "@/hooks/useEveningRoundSession";
 
 interface Props {
   eveningRoundId: string | undefined;
   workerId: string | undefined;
+  /** Datum för rundan (YYYY-MM-DD). Krävs för snabbstartknappen. */
+  roundDate?: string;
+  /** Visa snabbstartknappen (start/stopp av runda). Default: true för egna redovisningar. */
+  showQuickStart?: boolean;
   /** Om admin redigerar någon annans redovisning – override worker_id. */
   overrideSummary?: EveningRoundSummary | null;
   /** Anropas när admin sparat en historisk redovisning. */
@@ -50,6 +55,8 @@ const sumCash = (c: CashBreakdown) =>
 const EveningRoundSummaryForm = ({
   eveningRoundId,
   workerId,
+  roundDate,
+  showQuickStart = true,
   overrideSummary,
   onSaved,
 }: Props) => {
@@ -59,6 +66,14 @@ const EveningRoundSummaryForm = ({
     overrideSummary ? overrideSummary.worker_id : workerId,
   );
   const data = overrideSummary ?? summaryHook.data;
+  const canShowQuickStart = showQuickStart && !overrideSummary && !!workerId && !!roundDate;
+  const sessionHook = useEveningRoundSession(
+    canShowQuickStart ? workerId : undefined,
+    roundDate ?? "",
+  );
+  const session = sessionHook.data;
+  const sessionRunning = !!session?.session_start && !session?.session_end;
+  const sessionFinished = !!session?.session_start && !!session?.session_end;
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
@@ -132,6 +147,51 @@ const EveningRoundSummaryForm = ({
           <WifiOff className="h-4 w-4" />
           Du är offline – ändringar sparas inte förrän du är online igen.
         </div>
+      )}
+
+      {canShowQuickStart && (
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold">Snabbstart</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {sessionRunning && session?.session_start
+                ? `Pågår sedan ${new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`
+                : sessionFinished && session?.session_end
+                  ? `Avslutad ${new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Starta rundan innan du fyller i nedan."}
+            </p>
+          </div>
+          {sessionRunning ? (
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => sessionHook.end.mutate()}
+              disabled={sessionHook.end.isPending}
+              className="shrink-0"
+            >
+              {sessionHook.end.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Square className="h-4 w-4" />
+              )}
+              Stoppa
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={() => sessionHook.start.mutate()}
+              disabled={sessionHook.start.isPending}
+              className="shrink-0"
+            >
+              {sessionHook.start.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {sessionFinished ? "Starta om" : "Starta"}
+            </Button>
+          )}
+        </section>
       )}
 
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
