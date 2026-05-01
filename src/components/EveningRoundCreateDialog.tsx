@@ -127,22 +127,26 @@ const CreateRoundDialog = () => {
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="round-date">Datum</Label>
               <Input
                 id="round-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                placeholder="ÅÅÅÅ-MM-DD"
+                className="input-datetime"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="round-time">Tid</Label>
               <Input
                 id="round-time"
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
+                placeholder="HH:MM"
+                className="input-datetime"
               />
             </div>
           </div>
