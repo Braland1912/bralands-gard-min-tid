@@ -171,7 +171,6 @@ const EveningRound = () => {
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
       if (filter === "har" && g?.status !== "here") return false;
-      if (filter === "utcheckad" && g?.status !== "checked_out") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (filter === "ej_betalt" && (!g || (g.payment_method && g.payment_amount))) return false;
       if (s) {
