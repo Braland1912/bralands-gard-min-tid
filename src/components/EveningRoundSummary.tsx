@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, CheckCircle2, Circle, Cloud, CloudOff, Loader2, Play, Plus, Square, Trash2, Wifi, WifiOff } from "lucide-react";
+import { Check, CheckCircle2, Circle, Cloud, CloudOff, Loader2, Play, Plus, Square, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
