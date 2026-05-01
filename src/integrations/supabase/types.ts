@@ -224,6 +224,45 @@ export type Database = {
         }
         Relationships: []
       }
+      evening_round_summaries: {
+        Row: {
+          cash_breakdown: Json
+          checklist: Json
+          created_at: string
+          created_by: string
+          evening_round_id: string
+          id: string
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+          worker_id: string
+        }
+        Insert: {
+          cash_breakdown?: Json
+          checklist?: Json
+          created_at?: string
+          created_by: string
+          evening_round_id: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          worker_id: string
+        }
+        Update: {
+          cash_breakdown?: Json
+          checklist?: Json
+          created_at?: string
+          created_by?: string
+          evening_round_id?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          worker_id?: string
+        }
+        Relationships: []
+      }
       evening_rounds: {
         Row: {
           assigned_worker_id: string
