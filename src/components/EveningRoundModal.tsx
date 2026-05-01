@@ -214,7 +214,7 @@ const EveningRoundModal = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="p-0 gap-0 w-full sm:max-w-md max-h-[100dvh] sm:max-h-[90vh] h-[100dvh] sm:h-auto rounded-none sm:rounded-2xl flex flex-col">
           <DialogHeader>
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
