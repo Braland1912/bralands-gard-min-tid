@@ -114,6 +114,7 @@ const EveningRoundModal = ({
   const [error, setError] = useState<string | null>(null);
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
   const [creatingPlace, setCreatingPlace] = useState(false);
+  const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
 
   useEffect(() => {
     if (!open) return;
