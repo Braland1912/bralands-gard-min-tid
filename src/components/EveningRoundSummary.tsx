@@ -354,8 +354,11 @@ const EveningRoundSummaryForm = ({
         {/* Per kategori */}
         <div className="space-y-3">
           {(Object.keys(CASH_LABELS) as CashKey[]).map((key) => {
-            const entry = cash[key] ?? DEFAULT_CASH_ENTRY;
-            const subtotal = categorySubtotal(entry);
+            const entries = cash[key] ?? [];
+            const subTotals = categoryTotalsByCurrency(entries);
+            const subtotalLabel = CURRENCIES.filter((c) => subTotals[c] > 0)
+              .map((c) => `${formatAmount(subTotals[c])} ${c}`)
+              .join(" + ") || "—";
             return (
               <div
                 key={key}
@@ -363,85 +366,136 @@ const EveningRoundSummaryForm = ({
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-sm font-semibold">{CASH_LABELS[key]}</h3>
-                  <span className="text-sm font-medium tabular-nums">
-                    {formatAmount(subtotal)} {entry.currency}
+                  <span className="text-sm font-medium tabular-nums text-right break-words max-w-[60%]">
+                    {subtotalLabel}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`qty-${key}`} className="text-xs">
-                      Antal
-                    </Label>
-                    <Input
-                      id={`qty-${key}`}
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step="1"
-                      value={entry.quantity === 0 ? "" : String(entry.quantity)}
-                      placeholder="0"
-                      onChange={(e) =>
-                        updateCashField(
-                          key,
-                          "quantity",
-                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`amt-${key}`} className="text-xs">
-                      Belopp
-                    </Label>
-                    <Input
-                      id={`amt-${key}`}
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      step="0.01"
-                      value={entry.amount === 0 ? "" : String(entry.amount)}
-                      placeholder="0"
-                      onChange={(e) =>
-                        updateCashField(
-                          key,
-                          "amount",
-                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <Label htmlFor={`cur-${key}`} className="text-xs">
-                      Valuta
-                    </Label>
-                    <Select
-                      value={entry.currency}
-                      onValueChange={(v) => updateCashField(key, "currency", v as Currency)}
-                    >
-                      <SelectTrigger id={`cur-${key}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {activeCurrencies.map((cur) => (
-                          <SelectItem key={cur} value={cur}>
-                            {cur}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`note-${key}`} className="text-xs">
-                    Anteckning
-                  </Label>
-                  <Input
-                    id={`note-${key}`}
-                    value={entry.notes}
-                    onChange={(e) => updateCashField(key, "notes", e.target.value)}
-                    placeholder="Valfritt"
-                  />
-                </div>
+
+                {entries.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Inga rader än. Lägg till en rad för att registrera belopp.
+                  </p>
+                )}
+
+                <ul className="space-y-3">
+                  {entries.map((entry, idx) => {
+                    const rowId = entry.id ?? `${key}-${idx}`;
+                    return (
+                      <li
+                        key={rowId}
+                        className="rounded-lg border border-border/70 bg-card p-3 space-y-2.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Rad {idx + 1}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCashRow(key, rowId)}
+                            className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                            aria-label="Ta bort rad"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`qty-${rowId}`} className="text-xs">
+                              Antal
+                            </Label>
+                            <Input
+                              id={`qty-${rowId}`}
+                              type="number"
+                              inputMode="numeric"
+                              min={0}
+                              step="1"
+                              value={entry.quantity === 0 ? "" : String(entry.quantity)}
+                              placeholder="0"
+                              onChange={(e) =>
+                                updateCashField(
+                                  key,
+                                  rowId,
+                                  "quantity",
+                                  e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`amt-${rowId}`} className="text-xs">
+                              Belopp
+                            </Label>
+                            <Input
+                              id={`amt-${rowId}`}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              step="0.01"
+                              value={entry.amount === 0 ? "" : String(entry.amount)}
+                              placeholder="0"
+                              onChange={(e) =>
+                                updateCashField(
+                                  key,
+                                  rowId,
+                                  "amount",
+                                  e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                            <Label htmlFor={`cur-${rowId}`} className="text-xs">
+                              Valuta
+                            </Label>
+                            <Select
+                              value={entry.currency}
+                              onValueChange={(v) =>
+                                updateCashField(key, rowId, "currency", v as Currency)
+                              }
+                            >
+                              <SelectTrigger id={`cur-${rowId}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {activeCurrencies.map((cur) => (
+                                  <SelectItem key={cur} value={cur}>
+                                    {cur}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`note-${rowId}`} className="text-xs">
+                            Anteckning
+                          </Label>
+                          <Input
+                            id={`note-${rowId}`}
+                            value={entry.notes}
+                            onChange={(e) =>
+                              updateCashField(key, rowId, "notes", e.target.value)
+                            }
+                            placeholder="Valfritt – t.ex. ”kontant”, ”Swish”…"
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addCashRow(key)}
+                  className="w-full sm:w-auto"
+                >
+                  <Plus className="h-4 w-4" />
+                  Lägg till rad
+                </Button>
               </div>
             );
           })}
