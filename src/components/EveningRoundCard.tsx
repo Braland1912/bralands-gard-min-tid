@@ -127,7 +127,18 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
           )}
         </div>
         <div className="text-base font-semibold leading-tight mt-0.5">
-          {guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>}
+          {guest.accommodation_type === "tent" ? (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary rounded px-1.5 py-0.5">
+                Tält
+              </span>
+              {guest.registration_number && (
+                <span className="text-sm font-normal text-muted-foreground">{guest.registration_number}</span>
+              )}
+            </span>
+          ) : (
+            guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>
+          )}
         </div>
         {guest.notes && (
           <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
