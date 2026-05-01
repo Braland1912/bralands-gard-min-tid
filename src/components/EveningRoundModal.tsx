@@ -165,6 +165,15 @@ const EveningRoundModal = ({
   const isCash = method === "K";
   const isOther = method === "O";
 
+  // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
+  // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
+  const dateError: string | null =
+    arrival && departure && departure <= arrival
+      ? departure === arrival
+        ? "Avresa måste vara minst en natt efter ankomst"
+        : "Avresa kan inte vara före ankomst"
+      : null;
+
   const handleSave = async () => {
     setError(null);
     if (!arrival || !departure) {
@@ -589,8 +598,24 @@ const EveningRoundModal = ({
                       value={departure}
                       onChange={(e) => setDeparture(e.target.value)}
                       placeholder="ÅÅÅÅ-MM-DD"
-                      className="input-datetime"
+                      min={arrival || undefined}
+                      aria-invalid={!!dateError}
+                      aria-describedby={dateError ? "dep-error" : undefined}
+                      className={cn(
+                        "input-datetime",
+                        dateError &&
+                          "border-destructive focus-visible:ring-destructive bg-destructive/5",
+                      )}
                     />
+                    {dateError && (
+                      <p
+                        id="dep-error"
+                        role="alert"
+                        className="text-xs font-medium text-destructive"
+                      >
+                        {dateError}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
@@ -671,7 +696,7 @@ const EveningRoundModal = ({
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving} className="h-11">
               Avbryt
             </Button>
-            <Button onClick={handleSave} disabled={saving} className="h-11">
+            <Button onClick={handleSave} disabled={saving || !!dateError} className="h-11">
               <Check className="h-4 w-4" />
               Spara
             </Button>
