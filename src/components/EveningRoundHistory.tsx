@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { formatLocalDate, formatLocalDateTime } from "@/lib/date-format";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -144,12 +145,7 @@ const EveningRoundHistory = () => {
                     <div className="min-w-0">
                       <div className="text-sm font-semibold">
                         {row.round_date
-                          ? new Date(row.round_date).toLocaleDateString("sv-SE", {
-                              weekday: "short",
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })
+                          ? formatLocalDate(row.round_date, "weekday-medium")
                           : "Okänt datum"}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
@@ -161,7 +157,7 @@ const EveningRoundHistory = () => {
                         {formatTotals(totals)}
                       </div>
                       <div className="text-[11px] text-muted-foreground">
-                        {new Date(row.updated_at).toLocaleDateString("sv-SE")}
+                        {formatLocalDateTime(row.updated_at)}
                       </div>
                     </div>
                   </button>
@@ -178,14 +174,7 @@ const EveningRoundHistory = () => {
             <DialogTitle>Redigera redovisning</DialogTitle>
             <DialogDescription>
               {editing?.worker_name ?? "Okänd"} ·{" "}
-              {editing?.round_date
-                ? new Date(editing.round_date).toLocaleDateString("sv-SE", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : ""}
+              {editing?.round_date ? formatLocalDate(editing.round_date, "long") : ""}
             </DialogDescription>
           </DialogHeader>
           {editing && (

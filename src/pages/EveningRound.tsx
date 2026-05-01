@@ -37,6 +37,7 @@ import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import { STANDARD_PLACES } from "@/lib/place-label";
+import { formatLocalDate } from "@/lib/date-format";
 
 type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt";
 
@@ -228,11 +229,7 @@ const EveningRound = () => {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Kvällsrundan</h1>
             <p className="text-sm text-muted-foreground">
-              {new Date(date).toLocaleDateString("sv-SE", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
+              {formatLocalDate(date, "long")}
             </p>
           </div>
           {isAdmin && (
@@ -258,11 +255,7 @@ const EveningRound = () => {
             </button>
             <div className="flex-1 text-center">
               <div className="text-sm font-semibold capitalize">
-                {new Date(date).toLocaleDateString("sv-SE", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })}
+                {formatLocalDate(date, "long")}
               </div>
             </div>
             <button

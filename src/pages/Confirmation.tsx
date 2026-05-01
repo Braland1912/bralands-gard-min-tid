@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
+import { formatLocalDate, formatLocalTime } from "@/lib/date-format";
 
 const Confirmation = () => {
   const [searchParams] = useSearchParams();
@@ -19,15 +20,8 @@ const Confirmation = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
-  const timeStr = tsDate.toLocaleTimeString("sv-SE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const dateStr = tsDate.toLocaleDateString("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const timeStr = formatLocalTime(tsDate);
+  const dateStr = formatLocalDate(tsDate, "long");
 
   return (
     <div className="min-h-screen bg-background flex flex-col px-6 pt-16 pb-8 safe-area-inset">
