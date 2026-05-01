@@ -187,8 +187,14 @@ const EveningRound = () => {
     const here = guests.filter((g) => g.status === "here").length;
     const out = guests.filter((g) => g.status === "checked_out").length;
     const not = guests.filter((g) => g.status === "not_here").length;
-    const free = allPlaces.length - guests.length;
-    return { here, out, not, free, booked: guests.length };
+    // Bokade = gäster som ligger på en känd plats (synliga i listan).
+    // Unassigned visas i sin egen sektion och räknas separat.
+    const assignedGuestIds = new Set(
+      guests.filter((g) => g.place_label && allPlaces.includes(g.place_label)).map((g) => g.id),
+    );
+    const booked = assignedGuestIds.size;
+    const free = Math.max(0, allPlaces.length - booked);
+    return { here, out, not, free, booked };
   }, [guests, allPlaces]);
 
   const openAdd = (place: string) => {
