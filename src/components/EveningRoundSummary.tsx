@@ -101,15 +101,24 @@ const EveningRoundSummaryForm = ({
     if (!data) return;
     if (dirty) return;
     setChecklist({ ...DEFAULT_CHECKLIST, ...(data.checklist ?? {}) });
-    setCash({ ...DEFAULT_CASH, ...(data.cash_breakdown ?? {}) });
-    // Härled valda valutor: explicit fält om finns, annars från befintliga entries
+    const cb = data.cash_breakdown ?? DEFAULT_CASH;
+    setCash({
+      kiosk: cb.kiosk ?? [],
+      ved: cb.ved ?? [],
+      tvattmaskin: cb.tvattmaskin ?? [],
+      torktumlare: cb.torktumlare ?? [],
+      other: cb.other ?? [],
+    });
+    // Härled valda valutor: explicit fält om finns, annars från befintliga rader
     const explicit = data.selected_currencies;
     if (explicit && Array.isArray(explicit) && explicit.length > 0) {
       setSelectedCurrencies(explicit);
-    } else if (data.cash_breakdown) {
+    } else if (cb) {
       const used = new Set<Currency>();
-      (Object.values(data.cash_breakdown) as CashCategoryEntry[]).forEach((e) => {
-        if (e?.currency) used.add(e.currency);
+      (Object.values(cb) as CashCategoryEntry[][]).forEach((entries) => {
+        (entries ?? []).forEach((e) => {
+          if (e?.currency) used.add(e.currency);
+        });
       });
       setSelectedCurrencies(used.size > 0 ? Array.from(used) : ["SEK"]);
     }
@@ -128,17 +137,16 @@ const EveningRoundSummaryForm = ({
     setSelectedCurrencies((prev) => {
       const has = prev.includes(cur);
       if (has) {
-        // Tillåt inte tom lista
         if (prev.length === 1) return prev;
         const next = prev.filter((c) => c !== cur);
-        // Flytta kategorier som använde valutan till första kvarvarande
+        const fallback = next[0];
+        // Flytta rader som använde valutan till första kvarvarande
         setCash((cash) => {
-          const fallback = next[0];
           const updated: CashBreakdown = { ...cash };
           (Object.keys(updated) as CashKey[]).forEach((key) => {
-            if (updated[key].currency === cur) {
-              updated[key] = { ...updated[key], currency: fallback };
-            }
+            updated[key] = updated[key].map((e) =>
+              e.currency === cur ? { ...e, currency: fallback } : e,
+            );
           });
           return updated;
         });
@@ -149,12 +157,27 @@ const EveningRoundSummaryForm = ({
     setDirty(true);
   };
 
+  const addCashRow = (catKey: CashKey) => {
+    const fallback = activeCurrencies[0] ?? "SEK";
+    setCash((c) => ({ ...c, [catKey]: [...c[catKey], newCashEntry(fallback)] }));
+    setDirty(true);
+  };
+
+  const removeCashRow = (catKey: CashKey, rowId: string) => {
+    setCash((c) => ({ ...c, [catKey]: c[catKey].filter((e) => e.id !== rowId) }));
+    setDirty(true);
+  };
+
   const updateCashField = <K extends keyof CashCategoryEntry>(
     catKey: CashKey,
+    rowId: string,
     field: K,
     value: CashCategoryEntry[K],
   ) => {
-    setCash((c) => ({ ...c, [catKey]: { ...c[catKey], [field]: value } }));
+    setCash((c) => ({
+      ...c,
+      [catKey]: c[catKey].map((e) => (e.id === rowId ? { ...e, [field]: value } : e)),
+    }));
     setDirty(true);
   };
 
