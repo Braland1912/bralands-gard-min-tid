@@ -3,14 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export type ChecklistKey =
+/** Lega-nycklar för bakåtkompatibilitet med tidigare lagrade rader. */
+export type LegacyChecklistKey =
   | "cool_boxes"
   | "drain_locks"
   | "dryer_service"
   | "dryer_laundry"
   | "laundry_check";
 
-export type Checklist = Record<ChecklistKey, boolean>;
+/** Checklist är nu dynamisk: nyckel = checklist_template_items.id (uuid),
+ *  värde = avbockad. Lega-nycklar tolereras vid läsning av gamla rader. */
+export type Checklist = Record<string, boolean>;
 
 export type CashKey = "kiosk" | "ved" | "tvattmaskin" | "torktumlare" | "other";
 
