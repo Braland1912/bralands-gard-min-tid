@@ -40,6 +40,10 @@ interface Props {
   roundDate?: string;
   /** Visa snabbstartknappen (start/stopp av runda). Default: true för egna redovisningar. */
   showQuickStart?: boolean;
+  /** Visa den fasta checklistan (servicehus, vattenlås m.m.). Default: true. */
+  showChecklist?: boolean;
+  /** Visa kassaredovisningen och anteckningar. Default: true. */
+  showCashSection?: boolean;
   /** Om admin redigerar någon annans redovisning – override worker_id. */
   overrideSummary?: EveningRoundSummary | null;
   /** Anropas när admin sparat en historisk redovisning. */
@@ -71,6 +75,8 @@ const EveningRoundSummaryForm = ({
   workerId,
   roundDate,
   showQuickStart = true,
+  showChecklist = true,
+  showCashSection = true,
   overrideSummary,
   onSaved,
 }: Props) => {
@@ -273,6 +279,7 @@ const EveningRoundSummaryForm = ({
         </section>
       )}
 
+      {showChecklist && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold">Checklista</h2>
@@ -312,7 +319,9 @@ const EveningRoundSummaryForm = ({
           })}
         </ul>
       </section>
+      )}
 
+      {showCashSection && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
         <div>
           <h2 className="text-base font-semibold">Kassaredovisning</h2>
@@ -565,6 +574,7 @@ const EveningRoundSummaryForm = ({
           />
         </div>
       </section>
+      )}
 
       <div className="sticky bottom-20 md:bottom-4 z-10">
         <div className="rounded-2xl border border-border bg-card/95 backdrop-blur px-3 py-2 flex items-center justify-between gap-3 shadow-sm">
