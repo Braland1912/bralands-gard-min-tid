@@ -47,13 +47,8 @@ export interface EveningRoundSummary {
   updated_at: string;
 }
 
-export const DEFAULT_CHECKLIST: Checklist = {
-  cool_boxes: false,
-  drain_locks: false,
-  dryer_service: false,
-  dryer_laundry: false,
-  laundry_check: false,
-};
+/** Default: tom checklista. Items kommer dynamiskt från vald mall. */
+export const DEFAULT_CHECKLIST: Checklist = {};
 
 export const DEFAULT_CASH_ENTRY: CashCategoryEntry = {
   quantity: 0,
@@ -71,7 +66,8 @@ export const DEFAULT_CASH: CashBreakdown = {
   other: [],
 };
 
-export const CHECKLIST_LABELS: Record<ChecklistKey, string> = {
+/** Lega-etiketter (för rader som lagrats med gamla nycklar innan mallen infördes). */
+export const LEGACY_CHECKLIST_LABELS: Record<LegacyChecklistKey, string> = {
   cool_boxes: "Torka av under båda kylarna i kiosken",
   drain_locks: "Plocka isär och rengör båda vattenlåsen i båda duscharna",
   dryer_service: "Töm vatten och filter i torktumlare servicehuset",
