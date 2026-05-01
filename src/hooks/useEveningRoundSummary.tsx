@@ -310,3 +310,46 @@ export const useEveningRoundSummary = (
 
   return { ...query, ensure, update };
 };
+
+/* -------------------------------------------------------------------------- */
+/*  Dynamisk checklista — hämtar items från en checklist_template (mall).     */
+/*  Vald mall pekas ut av app_settings.evening_round_checklist_template_id    */
+/* -------------------------------------------------------------------------- */
+
+export interface EveningChecklistItem {
+  id: string;
+  text: string;
+  sort_order: number;
+}
+
+export const EVENING_CHECKLIST_SETTING_KEY = "evening_round_checklist_template_id";
+
+export const useEveningRoundChecklistItems = () => {
+  return useQuery({
+    queryKey: ["evening-round-checklist-items"],
+    queryFn: async (): Promise<EveningChecklistItem[]> => {
+      const { data: setting } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", EVENING_CHECKLIST_SETTING_KEY)
+        .maybeSingle();
+      const raw = setting?.value;
+      const templateId =
+        typeof raw === "string"
+          ? raw
+          : raw && typeof raw === "object"
+            ? null
+            : null;
+      // value är jsonb: kan vara "uuid-string" eller {id:"..."} – vi sparar som string
+      const id = typeof raw === "string" ? raw : (raw as string | null);
+      if (!id) return [];
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("id, text, sort_order")
+        .eq("template_id", id)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as EveningChecklistItem[];
+    },
+  });
+};
