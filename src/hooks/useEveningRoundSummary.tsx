@@ -3,14 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export type ChecklistKey =
+/** Lega-nycklar för bakåtkompatibilitet med tidigare lagrade rader. */
+export type LegacyChecklistKey =
   | "cool_boxes"
   | "drain_locks"
   | "dryer_service"
   | "dryer_laundry"
   | "laundry_check";
 
-export type Checklist = Record<ChecklistKey, boolean>;
+/** Checklist är nu dynamisk: nyckel = checklist_template_items.id (uuid),
+ *  värde = avbockad. Lega-nycklar tolereras vid läsning av gamla rader. */
+export type Checklist = Record<string, boolean>;
 
 export type CashKey = "kiosk" | "ved" | "tvattmaskin" | "torktumlare" | "other";
 
@@ -44,13 +47,8 @@ export interface EveningRoundSummary {
   updated_at: string;
 }
 
-export const DEFAULT_CHECKLIST: Checklist = {
-  cool_boxes: false,
-  drain_locks: false,
-  dryer_service: false,
-  dryer_laundry: false,
-  laundry_check: false,
-};
+/** Default: tom checklista. Items kommer dynamiskt från vald mall. */
+export const DEFAULT_CHECKLIST: Checklist = {};
 
 export const DEFAULT_CASH_ENTRY: CashCategoryEntry = {
   quantity: 0,
@@ -68,7 +66,8 @@ export const DEFAULT_CASH: CashBreakdown = {
   other: [],
 };
 
-export const CHECKLIST_LABELS: Record<ChecklistKey, string> = {
+/** Lega-etiketter (för rader som lagrats med gamla nycklar innan mallen infördes). */
+export const LEGACY_CHECKLIST_LABELS: Record<LegacyChecklistKey, string> = {
   cool_boxes: "Torka av under båda kylarna i kiosken",
   drain_locks: "Plocka isär och rengör båda vattenlåsen i båda duscharna",
   dryer_service: "Töm vatten och filter i torktumlare servicehuset",
@@ -310,4 +309,45 @@ export const useEveningRoundSummary = (
   }, [eveningRoundId, workerId, queryClient]);
 
   return { ...query, ensure, update };
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Dynamisk checklista — hämtar items från en checklist_template (mall).     */
+/*  Vald mall pekas ut av app_settings.evening_round_checklist_template_id    */
+/* -------------------------------------------------------------------------- */
+
+export interface EveningChecklistItem {
+  id: string;
+  text: string;
+  sort_order: number;
+}
+
+export const EVENING_CHECKLIST_SETTING_KEY = "evening_round_checklist_template_id";
+
+export const useEveningRoundChecklistItems = () => {
+  return useQuery({
+    queryKey: ["evening-round-checklist-items"],
+    queryFn: async (): Promise<EveningChecklistItem[]> => {
+      const { data: setting } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", EVENING_CHECKLIST_SETTING_KEY)
+        .maybeSingle();
+      const raw = setting?.value as unknown;
+      const id =
+        typeof raw === "string"
+          ? raw
+          : raw && typeof raw === "object" && "id" in (raw as Record<string, unknown>)
+            ? String((raw as Record<string, unknown>).id)
+            : null;
+      if (!id) return [];
+      const { data, error } = await supabase
+        .from("checklist_template_items")
+        .select("id, text, sort_order")
+        .eq("template_id", id)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as EveningChecklistItem[];
+    },
+  });
 };
