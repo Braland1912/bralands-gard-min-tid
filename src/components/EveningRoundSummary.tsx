@@ -146,19 +146,6 @@ const EveningRoundSummaryForm = ({
     setDirty(true);
   };
 
-  const updateCashField = <K extends keyof CashCategoryEntry>(
-    catKey: CashKey,
-    rowId: string,
-    field: K,
-    value: CashCategoryEntry[K],
-  ) => {
-    setCash((c) => ({
-      ...c,
-      [catKey]: c[catKey].map((e) => (e.id === rowId ? { ...e, [field]: value } : e)),
-    }));
-    setDirty(true);
-  };
-
   const onSave = async () => {
     if (!online) {
       toast.error("Du är offline", { description: "Anslut igen för att spara." });
