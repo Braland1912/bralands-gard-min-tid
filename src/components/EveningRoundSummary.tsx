@@ -434,7 +434,7 @@ const EveningRoundSummaryForm = ({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {activeCurrencies.map((cur) => (
+                                {CURRENCIES.map((cur) => (
                                   <SelectItem key={cur} value={cur}>
                                     {cur}
                                   </SelectItem>
@@ -483,7 +483,7 @@ const EveningRoundSummaryForm = ({
             Total per valuta
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {activeCurrencies.map((cur) => (
+            {CURRENCIES.map((cur) => (
               <div key={cur} className="text-sm">
                 <span className="font-semibold tabular-nums">
                   {formatAmount(totals[cur])}
@@ -497,7 +497,7 @@ const EveningRoundSummaryForm = ({
               Grand Total
             </div>
             <div className="text-sm font-semibold tabular-nums break-words">
-              {activeCurrencies
+              {CURRENCIES
                 .map((cur) => `${formatAmount(totals[cur])} ${cur}`)
                 .join(" + ")}
             </div>
