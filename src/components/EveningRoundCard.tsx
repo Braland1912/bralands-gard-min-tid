@@ -1,4 +1,4 @@
-import { Check, LogOut, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   type EveningRoundGuest,
