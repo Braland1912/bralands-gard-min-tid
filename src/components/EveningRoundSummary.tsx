@@ -483,23 +483,27 @@ const EveningRoundSummaryForm = ({
             Total per valuta
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {CURRENCIES.map((cur) => (
-              <div key={cur} className="text-sm">
-                <span className="font-semibold tabular-nums">
-                  {formatAmount(totals[cur])}
-                </span>{" "}
-                <span className="text-muted-foreground">{cur}</span>
-              </div>
-            ))}
+            {CURRENCIES.filter((cur) => totals[cur] > 0).length === 0 ? (
+              <div className="text-sm text-muted-foreground">Inget registrerat än.</div>
+            ) : (
+              CURRENCIES.filter((cur) => totals[cur] > 0).map((cur) => (
+                <div key={cur} className="text-sm">
+                  <span className="font-semibold tabular-nums">
+                    {formatAmount(totals[cur])}
+                  </span>{" "}
+                  <span className="text-muted-foreground">{cur}</span>
+                </div>
+              ))
+            )}
           </div>
           <div className="pt-2 border-t border-border">
             <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
               Grand Total
             </div>
             <div className="text-sm font-semibold tabular-nums break-words">
-              {CURRENCIES
+              {CURRENCIES.filter((cur) => totals[cur] > 0)
                 .map((cur) => `${formatAmount(totals[cur])} ${cur}`)
-                .join(" + ")}
+                .join(" + ") || "—"}
             </div>
           </div>
         </div>
