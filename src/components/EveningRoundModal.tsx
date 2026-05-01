@@ -215,7 +215,7 @@ const EveningRoundModal = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="p-0 gap-0 w-full sm:max-w-md max-h-[100dvh] sm:max-h-[90vh] h-[100dvh] sm:h-auto rounded-none sm:rounded-2xl flex flex-col">
-          <DialogHeader>
+          <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
                 <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
