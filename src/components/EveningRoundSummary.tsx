@@ -97,7 +97,7 @@ const EveningRoundSummaryForm = ({
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
-  const [categoryNotes, setCategoryNotes] = useState<Partial<Record<CashKey, string>>>({});
+  
   const [notes, setNotes] = useState<string>("");
   const [dirty, setDirty] = useState(false);
 
