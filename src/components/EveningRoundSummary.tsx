@@ -149,6 +149,51 @@ const EveningRoundSummaryForm = ({
         </div>
       )}
 
+      {canShowQuickStart && (
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold">Snabbstart</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {sessionRunning && session?.session_start
+                ? `Pågår sedan ${new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`
+                : sessionFinished && session?.session_end
+                  ? `Avslutad ${new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}`
+                  : "Starta rundan innan du fyller i nedan."}
+            </p>
+          </div>
+          {sessionRunning ? (
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => sessionHook.end.mutate()}
+              disabled={sessionHook.end.isPending}
+              className="shrink-0"
+            >
+              {sessionHook.end.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Square className="h-4 w-4" />
+              )}
+              Stoppa
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={() => sessionHook.start.mutate()}
+              disabled={sessionHook.start.isPending}
+              className="shrink-0"
+            >
+              {sessionHook.start.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {sessionFinished ? "Starta om" : "Starta"}
+            </Button>
+          )}
+        </section>
+      )}
+
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold">Checklista</h2>
