@@ -150,9 +150,11 @@ const EveningRoundSummaryForm = ({
     setDirty(true);
   };
 
-  const onSave = async () => {
+  const onSave = async (opts: { silent?: boolean } = {}) => {
     if (!online) {
-      toast.error("Du är offline", { description: "Anslut igen för att spara." });
+      if (!opts.silent) {
+        toast.error("Du är offline", { description: "Anslut igen för att spara." });
+      }
       return;
     }
     try {
@@ -170,12 +172,30 @@ const EveningRoundSummaryForm = ({
         notes: notes.trim() ? notes.trim() : null,
       });
       setDirty(false);
-      toast.success("Redovisning sparad");
-      onSaved?.();
+      if (!opts.silent) {
+        toast.success("Redovisning sparad");
+        onSaved?.();
+      }
     } catch {
       // toast hanteras i hook
     }
   };
+
+  // Autosave: debounce 800ms efter senaste ändring
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!dirty) return;
+    if (!online) return;
+    if (!eveningRoundId || !workerId) return;
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(() => {
+      onSave({ silent: true });
+    }, 800);
+    return () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checklist, cash, notes, dirty, online, eveningRoundId, workerId]);
 
   const missingTarget = !eveningRoundId && !overrideSummary;
   if (missingTarget) {
