@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Save, Wifi, WifiOff } from "lucide-react";
+import { Loader2, Play, Save, Square, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,10 +17,15 @@ import {
   type EveningRoundSummary,
   useEveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
+import { useEveningRoundSession } from "@/hooks/useEveningRoundSession";
 
 interface Props {
   eveningRoundId: string | undefined;
   workerId: string | undefined;
+  /** Datum för rundan (YYYY-MM-DD). Krävs för snabbstartknappen. */
+  roundDate?: string;
+  /** Visa snabbstartknappen (start/stopp av runda). Default: true för egna redovisningar. */
+  showQuickStart?: boolean;
   /** Om admin redigerar någon annans redovisning – override worker_id. */
   overrideSummary?: EveningRoundSummary | null;
   /** Anropas när admin sparat en historisk redovisning. */
