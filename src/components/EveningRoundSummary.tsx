@@ -120,7 +120,7 @@ const EveningRoundSummaryForm = ({
 
   const totals = useMemo(() => totalsByCurrency(cash), [cash]);
 
-  const toggleItem = (key: ChecklistKey) => {
+  const toggleItem = (key: string) => {
     setChecklist((c) => ({ ...c, [key]: !c[key] }));
     setDirty(true);
   };
