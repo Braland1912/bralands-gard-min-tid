@@ -174,14 +174,7 @@ const EveningRoundHistory = () => {
             <DialogTitle>Redigera redovisning</DialogTitle>
             <DialogDescription>
               {editing?.worker_name ?? "Okänd"} ·{" "}
-              {editing?.round_date
-                ? new Date(editing.round_date).toLocaleDateString("sv-SE", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : ""}
+              {editing?.round_date ? formatLocalDate(editing.round_date, "long") : ""}
             </DialogDescription>
           </DialogHeader>
           {editing && (
