@@ -133,6 +133,7 @@ const EveningRoundModal = ({
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
       setOtherNote(guest.payment_other_note ?? "");
+      setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
     } else {
       setName("");
       setReg("");
