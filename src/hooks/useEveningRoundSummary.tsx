@@ -333,15 +333,13 @@ export const useEveningRoundChecklistItems = () => {
         .select("value")
         .eq("key", EVENING_CHECKLIST_SETTING_KEY)
         .maybeSingle();
-      const raw = setting?.value;
-      const templateId =
+      const raw = setting?.value as unknown;
+      const id =
         typeof raw === "string"
           ? raw
-          : raw && typeof raw === "object"
-            ? null
+          : raw && typeof raw === "object" && "id" in (raw as Record<string, unknown>)
+            ? String((raw as Record<string, unknown>).id)
             : null;
-      // value är jsonb: kan vara "uuid-string" eller {id:"..."} – vi sparar som string
-      const id = typeof raw === "string" ? raw : (raw as string | null);
       if (!id) return [];
       const { data, error } = await supabase
         .from("checklist_template_items")
