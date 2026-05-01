@@ -88,22 +88,26 @@ const EveningRoundHistory = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 min-w-0">
             <Label htmlFor="from">Från datum</Label>
             <Input
               id="from"
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
+              placeholder="ÅÅÅÅ-MM-DD"
+              className="input-datetime"
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 min-w-0">
             <Label htmlFor="to">Till datum</Label>
             <Input
               id="to"
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
+              placeholder="ÅÅÅÅ-MM-DD"
+              className="input-datetime"
             />
           </div>
         </div>
