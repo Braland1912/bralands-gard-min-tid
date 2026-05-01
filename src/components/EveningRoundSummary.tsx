@@ -626,16 +626,38 @@ const EveningRoundSummaryForm = ({
       </section>
       )}
 
-      <div className="sticky bottom-20 md:bottom-4 z-10">
-        <div className="rounded-2xl border border-border bg-card/95 backdrop-blur px-3 py-2 flex items-center justify-between gap-3 shadow-sm">
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-            {online ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
-            {dirty ? "Osparade ändringar" : "Allt sparat"}
-          </div>
-          <Button onClick={onSave} disabled={saving || !online || !dirty}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Spara
-          </Button>
+      <div className="sticky bottom-20 md:bottom-4 z-10 flex justify-center pointer-events-none">
+        <div
+          className={`pointer-events-auto inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium backdrop-blur transition-colors ${
+            !online
+              ? "border-amber-300/60 bg-amber-50/95 text-amber-800"
+              : saving || dirty
+                ? "border-border bg-card/95 text-muted-foreground"
+                : "border-primary/30 bg-primary/10 text-primary"
+          }`}
+          aria-live="polite"
+        >
+          {!online ? (
+            <>
+              <CloudOff className="h-3.5 w-3.5" />
+              Offline – sparas när du är online igen
+            </>
+          ) : saving ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Sparar…
+            </>
+          ) : dirty ? (
+            <>
+              <Cloud className="h-3.5 w-3.5" />
+              Osparade ändringar
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Allt sparat
+            </>
+          )}
         </div>
       </div>
 
