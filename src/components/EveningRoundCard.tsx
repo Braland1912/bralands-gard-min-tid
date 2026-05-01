@@ -147,7 +147,6 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
 
       <div className="flex items-center gap-2">
         <StatusBtn s="here" Icon={Check} label="Här" />
-        <StatusBtn s="checked_out" Icon={LogOut} label="Utcheckad" />
         <StatusBtn s="not_here" Icon={X} label="Inte här" />
         <span className={`text-sm font-medium ${statusColors[guest.status]}`}>
           {statusLabels[guest.status]}
