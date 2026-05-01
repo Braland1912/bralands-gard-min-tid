@@ -420,8 +420,8 @@ const EveningRound = () => {
             [
               { id: "alla", label: `Alla (${counts.booked + counts.free})` },
               { id: "bokade", label: `Upptagen (${counts.booked})` },
-              { id: "lediga", label: `Ledig (${counts.free})` },
-              { id: "har", label: `Här (${counts.here})` },
+              { id: "lediga", label: `Lediga (${counts.free})` },
+              { id: "har", label: `På plats (${counts.here})` },
               { id: "utcheckad", label: `Utcheckad (${counts.out})` },
               { id: "inte_har", label: `Ej kommit (${counts.not})` },
               { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
