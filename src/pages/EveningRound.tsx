@@ -491,6 +491,21 @@ const EveningRound = () => {
             </Button>
           </div>
         )}
+          </TabsContent>
+
+          <TabsContent value="redovisning" className="mt-0">
+            <EveningRoundSummaryForm
+              eveningRoundId={round?.id}
+              workerId={worker?.id}
+            />
+          </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="historik" className="mt-0">
+              <EveningRoundHistory />
+            </TabsContent>
+          )}
+        </Tabs>
       </div>
 
       <EveningRoundModal
