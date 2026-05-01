@@ -142,9 +142,15 @@ export const normalizeCashBreakdown = (raw: unknown): CashBreakdown => {
   return result;
 };
 
-/** Subtotal för en rad. */
-export const entrySubtotal = (entry: CashCategoryEntry) =>
-  (Number(entry.quantity) || 0) * (Number(entry.amount) || 0);
+/**
+ * Subtotal för en rad: quantity * amount.
+ * Om quantity saknas/är 0 (t.ex. kiosk/övrigt utan antalsfält) räknas amount direkt.
+ */
+export const entrySubtotal = (entry: CashCategoryEntry) => {
+  const qty = Number(entry.quantity) || 0;
+  const amt = Number(entry.amount) || 0;
+  return (qty > 0 ? qty : 1) * amt;
+};
 
 /** Subtotal för en kategori (summa av alla rader, oavsett valuta). */
 export const categorySubtotal = (entries: CashCategoryEntry[]) =>
