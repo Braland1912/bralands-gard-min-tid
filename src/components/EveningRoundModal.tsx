@@ -210,11 +210,11 @@ const EveningRoundModal = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
-                <DialogDescription>
+          <DialogHeader className="text-left sm:text-left">
+            <div className="flex items-start justify-between gap-2 pr-8">
+              <div className="text-left min-w-0 flex-1">
+                <DialogTitle className="text-left">{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
+                <DialogDescription className="text-left">
                   {place != null
                     ? `Plats ${place}`
                     : showPlacePicker
