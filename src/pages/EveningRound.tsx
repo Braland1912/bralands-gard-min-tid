@@ -38,7 +38,7 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import { STANDARD_PLACES } from "@/lib/place-label";
 
-type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har" | "ej_betalt";
 
 const todayLocal = () => {
   const d = new Date();
@@ -173,6 +173,7 @@ const EveningRound = () => {
       if (filter === "har" && g?.status !== "here") return false;
       if (filter === "utcheckad" && g?.status !== "checked_out") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
+      if (filter === "ej_betalt" && (!g || (g.payment_method && g.payment_amount))) return false;
       if (s) {
         const matchesPlace = p.toLowerCase().includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
@@ -423,6 +424,7 @@ const EveningRound = () => {
               { id: "har", label: `Här (${counts.here})` },
               { id: "utcheckad", label: `Utcheckad (${counts.out})` },
               { id: "inte_har", label: `Inte här (${counts.not})` },
+              { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
             ] as { id: Filter; label: string }[]
           ).map((c) => (
             <button
