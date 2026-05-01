@@ -15,20 +15,21 @@ import {
 import { toast } from "sonner";
 import {
   CASH_LABELS,
-  CHECKLIST_LABELS,
   CURRENCIES,
   DEFAULT_CASH,
   DEFAULT_CHECKLIST,
+  LEGACY_CHECKLIST_LABELS,
   categoryTotalsByCurrency,
   newCashEntry,
   totalsByCurrency,
+  useEveningRoundChecklistItems,
   type CashBreakdown,
   type CashCategoryEntry,
   type CashKey,
   type Checklist,
-  type ChecklistKey,
   type Currency,
   type EveningRoundSummary,
+  type LegacyChecklistKey,
   useEveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
 import { useEveningRoundSession } from "@/hooks/useEveningRoundSession";
