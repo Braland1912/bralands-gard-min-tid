@@ -182,9 +182,9 @@ export const useEveningRoundSummary = (
           worker_id: workerId,
           created_by: workerId,
           updated_by: workerId,
-          checklist: DEFAULT_CHECKLIST,
-          cash_breakdown: DEFAULT_CASH as unknown as Record<string, unknown>,
-        })
+          checklist: DEFAULT_CHECKLIST as never,
+          cash_breakdown: DEFAULT_CASH as never,
+        } as never)
         .select("*")
         .single();
       if (error) throw error;
