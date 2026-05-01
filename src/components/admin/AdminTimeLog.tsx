@@ -452,13 +452,13 @@ const AdminTimeLog = () => {
             <DialogDescription>{editEntry?.worker_name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <label className="text-sm font-medium text-foreground">In</label>
-              <Input type="datetime-local" value={editClockIn} onChange={(e) => setEditClockIn(e.target.value)} className="h-12 text-base" />
+              <Input type="datetime-local" value={editClockIn} onChange={(e) => setEditClockIn(e.target.value)} placeholder="ÅÅÅÅ-MM-DD HH:MM" className="input-datetime h-12" />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <label className="text-sm font-medium text-foreground">Ut</label>
-              <Input type="datetime-local" value={editClockOut} onChange={(e) => setEditClockOut(e.target.value)} className="h-12 text-base" />
+              <Input type="datetime-local" value={editClockOut} onChange={(e) => setEditClockOut(e.target.value)} placeholder="ÅÅÅÅ-MM-DD HH:MM" className="input-datetime h-12" />
             </div>
           </div>
           <DialogFooter>
