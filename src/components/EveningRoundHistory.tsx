@@ -145,12 +145,7 @@ const EveningRoundHistory = () => {
                     <div className="min-w-0">
                       <div className="text-sm font-semibold">
                         {row.round_date
-                          ? new Date(row.round_date).toLocaleDateString("sv-SE", {
-                              weekday: "short",
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })
+                          ? formatLocalDate(row.round_date, "weekday-medium")
                           : "Okänt datum"}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
