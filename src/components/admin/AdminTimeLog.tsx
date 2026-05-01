@@ -305,7 +305,8 @@ const AdminTimeLog = () => {
                   else if (filterMode === "custom") setFilterMode("all");
                 }}
                 aria-label="Välj datum"
-                className="h-12 text-base rounded-xl border-border pl-9"
+                placeholder="ÅÅÅÅ-MM-DD"
+                className="input-datetime h-12 pl-9"
               />
             </div>
             {selectedDate && (
