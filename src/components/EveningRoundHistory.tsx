@@ -19,9 +19,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  CASH_LABELS,
-  type CashBreakdown,
-  type CashKey,
+  CURRENCIES,
+  normalizeCashBreakdown,
+  totalsByCurrency,
+  type Currency,
   type EveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
 import {
@@ -30,8 +31,12 @@ import {
 } from "@/hooks/useEveningRoundHistory";
 import EveningRoundSummaryForm from "@/components/EveningRoundSummary";
 
-const sumCash = (c: CashBreakdown) =>
-  Object.values(c).reduce((a, b) => a + (Number(b) || 0), 0);
+const formatTotals = (totals: Record<Currency, number>) => {
+  const parts = CURRENCIES.filter((c) => totals[c] > 0).map(
+    (c) => `${totals[c].toLocaleString("sv-SE", { maximumFractionDigits: 2 })} ${c}`,
+  );
+  return parts.length > 0 ? parts.join(" + ") : "0 SEK";
+};
 
 const EveningRoundHistory = () => {
   const [workerId, setWorkerId] = useState<string>("all");
@@ -121,7 +126,8 @@ const EveningRoundHistory = () => {
         ) : (
           <ul className="divide-y divide-border">
             {history.map((row) => {
-              const total = sumCash(row.cash_breakdown);
+              const cash = normalizeCashBreakdown(row.cash_breakdown);
+              const totals = totalsByCurrency(cash);
               const checks = Object.values(row.checklist).filter(Boolean).length;
               const totalChecks = Object.keys(row.checklist).length;
               return (
@@ -148,7 +154,7 @@ const EveningRoundHistory = () => {
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-sm font-semibold tabular-nums">
-                        {total.toLocaleString("sv-SE")} kr
+                        {formatTotals(totals)}
                       </div>
                       <div className="text-[11px] text-muted-foreground">
                         {new Date(row.updated_at).toLocaleDateString("sv-SE")}
