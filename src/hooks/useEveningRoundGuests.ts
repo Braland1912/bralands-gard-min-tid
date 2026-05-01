@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export type GuestStatus = "here" | "checked_out" | "not_here";
+export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
 export type Currency = "SEK" | "EUR" | "NOK";
 export type AccommodationType = "vehicle" | "tent";
