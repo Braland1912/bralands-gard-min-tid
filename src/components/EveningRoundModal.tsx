@@ -146,6 +146,7 @@ const EveningRoundModal = ({
       setAmount("");
       setCurrency("SEK");
       setOtherNote("");
+      setAccommodation("vehicle");
     }
     setError(null);
   }, [open, guest, defaultDate]);
