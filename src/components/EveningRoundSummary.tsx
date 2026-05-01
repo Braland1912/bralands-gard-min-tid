@@ -152,10 +152,17 @@ const EveningRoundSummaryForm = ({
       return;
     }
     try {
+      const usedCurrencies = Array.from(
+        new Set(
+          (Object.values(cash) as CashCategoryEntry[][])
+            .flat()
+            .map((e) => e.currency),
+        ),
+      );
       await summaryHook.update.mutateAsync({
         checklist,
         cash_breakdown: cash,
-        selected_currencies: selectedCurrencies,
+        selected_currencies: usedCurrencies.length > 0 ? usedCurrencies : ["SEK"],
         notes: notes.trim() ? notes.trim() : null,
       });
       setDirty(false);
