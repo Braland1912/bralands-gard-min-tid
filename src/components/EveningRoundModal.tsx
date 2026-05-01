@@ -84,6 +84,13 @@ const tomorrowLocal = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
+const addDaysLocal = (iso: string, days: number) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+};
+
 const EveningRoundModal = ({
   open,
   onOpenChange,
@@ -513,30 +520,81 @@ const EveningRoundModal = ({
                 placeholder="T.ex. lugn gäst, husdjur…"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5 min-w-0">
-                <Label htmlFor="arr">Ankomst</Label>
-                <Input
-                  id="arr"
-                  type="date"
-                  value={arrival}
-                  onChange={(e) => setArrival(e.target.value)}
-                  placeholder="ÅÅÅÅ-MM-DD"
-                  className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
-                />
-              </div>
-              <div className="space-y-1.5 min-w-0">
-                <Label htmlFor="dep">Avresa</Label>
-                <Input
-                  id="dep"
-                  type="date"
-                  value={departure}
-                  onChange={(e) => setDeparture(e.target.value)}
-                  placeholder="ÅÅÅÅ-MM-DD"
-                  className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
-                />
-              </div>
-            </div>
+            {(() => {
+              const today = todayLocal();
+              const tomorrow = tomorrowLocal();
+              const arrPresets = [
+                { label: "Idag", value: today },
+                { label: "Imorgon", value: tomorrow },
+              ];
+              const depPresets = [
+                { label: "1 natt", nights: 1 },
+                { label: "2 nätter", nights: 2 },
+                { label: "1 vecka", nights: 7 },
+              ];
+              const chipBase =
+                "px-2.5 h-7 rounded-full text-xs font-medium border transition-colors whitespace-nowrap";
+              const chipActive = "bg-primary text-primary-foreground border-primary";
+              const chipIdle = "bg-card text-muted-foreground border-border hover:bg-accent";
+              return (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5 min-w-0">
+                    <Label htmlFor="arr">Ankomst</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {arrPresets.map((p) => (
+                        <button
+                          key={p.label}
+                          type="button"
+                          onClick={() => {
+                            setArrival(p.value);
+                            if (departure <= p.value) {
+                              setDeparture(addDaysLocal(p.value, 1));
+                            }
+                          }}
+                          className={cn(chipBase, arrival === p.value ? chipActive : chipIdle)}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                    <Input
+                      id="arr"
+                      type="date"
+                      value={arrival}
+                      onChange={(e) => setArrival(e.target.value)}
+                      placeholder="ÅÅÅÅ-MM-DD"
+                      className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
+                    />
+                  </div>
+                  <div className="space-y-1.5 min-w-0">
+                    <Label htmlFor="dep">Avresa</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {depPresets.map((p) => {
+                        const value = addDaysLocal(arrival || today, p.nights);
+                        return (
+                          <button
+                            key={p.label}
+                            type="button"
+                            onClick={() => setDeparture(value)}
+                            className={cn(chipBase, departure === value ? chipActive : chipIdle)}
+                          >
+                            {p.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <Input
+                      id="dep"
+                      type="date"
+                      value={departure}
+                      onChange={(e) => setDeparture(e.target.value)}
+                      placeholder="ÅÅÅÅ-MM-DD"
+                      className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
+                    />
+                  </div>
+                </div>
+              );
+            })()}
             <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
               <div className="space-y-1.5">
                 <Label>Betalningsmetod</Label>
