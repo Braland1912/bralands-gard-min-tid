@@ -214,8 +214,8 @@ const EveningRoundModal = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="p-0 gap-0 w-full sm:max-w-md max-h-[100dvh] sm:max-h-[90vh] h-[100dvh] sm:h-auto rounded-none sm:rounded-2xl flex flex-col">
+          <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
                 <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
@@ -248,7 +248,7 @@ const EveningRoundModal = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 max-h-[70vh] overflow-y-auto -mx-1 px-1">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
@@ -522,6 +522,7 @@ const EveningRoundModal = ({
                   type="date"
                   value={arrival}
                   onChange={(e) => setArrival(e.target.value)}
+                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
                 />
               </div>
               <div className="space-y-1.5">
@@ -531,6 +532,7 @@ const EveningRoundModal = ({
                   type="date"
                   value={departure}
                   onChange={(e) => setDeparture(e.target.value)}
+                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
                 />
               </div>
             </div>
@@ -592,11 +594,11 @@ const EveningRoundModal = ({
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
+          <div className="grid grid-cols-2 gap-3 px-4 py-3 border-t border-border bg-card shrink-0 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving} className="h-11">
               Avbryt
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="h-11">
               <Check className="h-4 w-4" />
               Spara
             </Button>
