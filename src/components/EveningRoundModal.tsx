@@ -514,24 +514,26 @@ const EveningRoundModal = ({
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="arr">Ankomst</Label>
                 <Input
                   id="arr"
                   type="date"
                   value={arrival}
                   onChange={(e) => setArrival(e.target.value)}
-                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
+                  placeholder="ÅÅÅÅ-MM-DD"
+                  className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="dep">Avresa</Label>
                 <Input
                   id="dep"
                   type="date"
                   value={departure}
                   onChange={(e) => setDeparture(e.target.value)}
-                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
+                  placeholder="ÅÅÅÅ-MM-DD"
+                  className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
                 />
               </div>
             </div>
