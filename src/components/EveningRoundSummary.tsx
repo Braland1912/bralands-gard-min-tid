@@ -247,47 +247,88 @@ const EveningRoundSummaryForm = ({
         </section>
       )}
 
-      {showChecklist && (
-      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Checklista för kvällsrundan</h2>
-          <span className="text-xs text-muted-foreground">
-            {Object.values(checklist).filter(Boolean).length} / {Object.keys(checklist).length} klart
-          </span>
-        </div>
-        <ul className="space-y-2">
-          {(Object.keys(CHECKLIST_LABELS) as ChecklistKey[]).map((key) => {
-            const checked = checklist[key];
-            return (
-              <li key={key}>
-                <button
-                  type="button"
-                  onClick={() => toggleItem(key)}
-                  aria-pressed={checked}
-                  className={`w-full text-left rounded-xl border p-3 flex items-start gap-3 transition-colors ${
-                    checked
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-background hover:bg-accent/40"
-                  }`}
-                >
-                  <span
-                    className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
+      {showChecklist && (() => {
+        const total = Object.keys(checklist).length;
+        const done = Object.values(checklist).filter(Boolean).length;
+        const allDone = done === total && total > 0;
+        const progress = total > 0 ? (done / total) * 100 : 0;
+        return (
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold">Checklista för kvällsrundan</h2>
+              <span
+                className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium tabular-nums transition-colors ${
+                  allDone
+                    ? "bg-primary/15 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {allDone && <Check className="h-3.5 w-3.5" strokeWidth={2.5} />}
+                {done} / {total}
+              </span>
+            </div>
+            <div
+              className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+              role="progressbar"
+              aria-valuenow={done}
+              aria-valuemin={0}
+              aria-valuemax={total}
+            >
+              <div
+                className={`h-full rounded-full transition-[width,background-color] duration-300 ease-out ${
+                  allDone ? "bg-primary" : "bg-primary/70"
+                }`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+          <ul className="space-y-2">
+            {(Object.keys(CHECKLIST_LABELS) as ChecklistKey[]).map((key) => {
+              const checked = checklist[key];
+              return (
+                <li key={key}>
+                  <button
+                    type="button"
+                    onClick={() => toggleItem(key)}
+                    aria-pressed={checked}
+                    className={`group w-full text-left rounded-xl border p-4 min-h-[64px] flex items-center gap-3.5 transition-all active:scale-[0.99] ${
                       checked
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card"
+                        ? "border-primary/40 bg-primary/5 hover:bg-primary/10"
+                        : "border-border bg-background hover:bg-accent/40 hover:border-border/80"
                     }`}
-                    aria-hidden
                   >
-                    {checked ? "✓" : ""}
-                  </span>
-                  <span className="text-sm leading-snug">{CHECKLIST_LABELS[key]}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-      )}
+                    <span
+                      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+                        checked
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-muted-foreground/30 bg-card text-transparent group-hover:border-muted-foreground/50"
+                      }`}
+                      aria-hidden
+                    >
+                      {checked ? (
+                        <Check className="h-4 w-4" strokeWidth={3} />
+                      ) : (
+                        <Circle className="h-3 w-3 opacity-0" />
+                      )}
+                    </span>
+                    <span
+                      className={`text-[15px] leading-snug transition-colors ${
+                        checked
+                          ? "text-foreground/70 line-through decoration-foreground/30"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {CHECKLIST_LABELS[key]}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+        );
+      })()}
 
       {showCashSection && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
