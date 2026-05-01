@@ -97,7 +97,6 @@ const EveningRoundSummaryForm = ({
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
-  const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>(["SEK"]);
   const [notes, setNotes] = useState<string>("");
   const [dirty, setDirty] = useState(false);
 
@@ -114,57 +113,18 @@ const EveningRoundSummaryForm = ({
       torktumlare: cb.torktumlare ?? [],
       other: cb.other ?? [],
     });
-    // Härled valda valutor: explicit fält om finns, annars från befintliga rader
-    const explicit = data.selected_currencies;
-    if (explicit && Array.isArray(explicit) && explicit.length > 0) {
-      setSelectedCurrencies(explicit);
-    } else if (cb) {
-      const used = new Set<Currency>();
-      (Object.values(cb) as CashCategoryEntry[][]).forEach((entries) => {
-        (entries ?? []).forEach((e) => {
-          if (e?.currency) used.add(e.currency);
-        });
-      });
-      setSelectedCurrencies(used.size > 0 ? Array.from(used) : ["SEK"]);
-    }
     setNotes(data.notes ?? "");
   }, [data, dirty]);
 
   const totals = useMemo(() => totalsByCurrency(cash), [cash]);
-  const activeCurrencies = selectedCurrencies.length > 0 ? selectedCurrencies : ["SEK" as Currency];
 
   const toggleItem = (key: ChecklistKey) => {
     setChecklist((c) => ({ ...c, [key]: !c[key] }));
     setDirty(true);
   };
 
-  const toggleCurrency = (cur: Currency) => {
-    setSelectedCurrencies((prev) => {
-      const has = prev.includes(cur);
-      if (has) {
-        if (prev.length === 1) return prev;
-        const next = prev.filter((c) => c !== cur);
-        const fallback = next[0];
-        // Flytta rader som använde valutan till första kvarvarande
-        setCash((cash) => {
-          const updated: CashBreakdown = { ...cash };
-          (Object.keys(updated) as CashKey[]).forEach((key) => {
-            updated[key] = updated[key].map((e) =>
-              e.currency === cur ? { ...e, currency: fallback } : e,
-            );
-          });
-          return updated;
-        });
-        return next;
-      }
-      return [...prev, cur];
-    });
-    setDirty(true);
-  };
-
   const addCashRow = (catKey: CashKey) => {
-    const fallback = activeCurrencies[0] ?? "SEK";
-    setCash((c) => ({ ...c, [catKey]: [...c[catKey], newCashEntry(fallback)] }));
+    setCash((c) => ({ ...c, [catKey]: [...c[catKey], newCashEntry("SEK")] }));
     setDirty(true);
   };
 
@@ -192,10 +152,17 @@ const EveningRoundSummaryForm = ({
       return;
     }
     try {
+      const usedCurrencies = Array.from(
+        new Set(
+          (Object.values(cash) as CashCategoryEntry[][])
+            .flat()
+            .map((e) => e.currency),
+        ),
+      );
       await summaryHook.update.mutateAsync({
         checklist,
         cash_breakdown: cash,
-        selected_currencies: selectedCurrencies,
+        selected_currencies: usedCurrencies.length > 0 ? usedCurrencies : ["SEK"],
         notes: notes.trim() ? notes.trim() : null,
       });
       setDirty(false);
@@ -326,37 +293,8 @@ const EveningRoundSummaryForm = ({
         <div>
           <h2 className="text-base font-semibold">Kassaredovisning</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Välj vilka valutor du behöver, fyll sedan i per kategori.
+            Lägg till rader per kategori. Välj valuta per rad.
           </p>
-        </div>
-
-        {/* Valutaval */}
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Valutor
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {CURRENCIES.map((cur) => {
-              const checked = selectedCurrencies.includes(cur);
-              return (
-                <label
-                  key={cur}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer transition-colors ${
-                    checked
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-background hover:bg-accent/40"
-                  }`}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleCurrency(cur)}
-                    aria-label={cur}
-                  />
-                  <span className="text-sm font-medium">{cur}</span>
-                </label>
-              );
-            })}
-          </div>
         </div>
 
         {/* Per kategori */}
@@ -496,7 +434,7 @@ const EveningRoundSummaryForm = ({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {activeCurrencies.map((cur) => (
+                                {CURRENCIES.map((cur) => (
                                   <SelectItem key={cur} value={cur}>
                                     {cur}
                                   </SelectItem>
@@ -545,23 +483,27 @@ const EveningRoundSummaryForm = ({
             Total per valuta
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {activeCurrencies.map((cur) => (
-              <div key={cur} className="text-sm">
-                <span className="font-semibold tabular-nums">
-                  {formatAmount(totals[cur])}
-                </span>{" "}
-                <span className="text-muted-foreground">{cur}</span>
-              </div>
-            ))}
+            {CURRENCIES.filter((cur) => totals[cur] > 0).length === 0 ? (
+              <div className="text-sm text-muted-foreground">Inget registrerat än.</div>
+            ) : (
+              CURRENCIES.filter((cur) => totals[cur] > 0).map((cur) => (
+                <div key={cur} className="text-sm">
+                  <span className="font-semibold tabular-nums">
+                    {formatAmount(totals[cur])}
+                  </span>{" "}
+                  <span className="text-muted-foreground">{cur}</span>
+                </div>
+              ))
+            )}
           </div>
           <div className="pt-2 border-t border-border">
             <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
               Grand Total
             </div>
             <div className="text-sm font-semibold tabular-nums break-words">
-              {activeCurrencies
+              {CURRENCIES.filter((cur) => totals[cur] > 0)
                 .map((cur) => `${formatAmount(totals[cur])} ${cur}`)
-                .join(" + ")}
+                .join(" + ") || "—"}
             </div>
           </div>
         </div>
