@@ -228,11 +228,7 @@ const EveningRound = () => {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Kvällsrundan</h1>
             <p className="text-sm text-muted-foreground">
-              {new Date(date).toLocaleDateString("sv-SE", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
+              {formatLocalDate(date, "long")}
             </p>
           </div>
           {isAdmin && (
