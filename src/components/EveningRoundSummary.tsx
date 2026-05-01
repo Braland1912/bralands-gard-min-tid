@@ -97,7 +97,7 @@ const EveningRoundSummaryForm = ({
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
-  const [categoryNotes, setCategoryNotes] = useState<Partial<Record<CashKey, string>>>({});
+  
   const [notes, setNotes] = useState<string>("");
   const [dirty, setDirty] = useState(false);
 
@@ -479,22 +479,6 @@ const EveningRoundSummaryForm = ({
                   <Plus className="h-4 w-4" />
                   Lägg till rad
                 </Button>
-
-                {(key === "kiosk" || key === "other") && (
-                  <div className="space-y-1.5 pt-1">
-                    <Label htmlFor={`catnote-${key}`} className="text-xs">
-                      Anteckning
-                    </Label>
-                    <Textarea
-                      id={`catnote-${key}`}
-                      value={categoryNotes[key] ?? ""}
-                      onChange={(e) =>
-                        setCategoryNotes((prev) => ({ ...prev, [key]: e.target.value }))
-                      }
-                      rows={2}
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
