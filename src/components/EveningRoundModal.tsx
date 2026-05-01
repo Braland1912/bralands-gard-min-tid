@@ -243,7 +243,7 @@ const EveningRoundModal = ({
             </div>
           </DialogHeader>
 
-          <div className="space-y-4 rounded-xl bg-muted/40 p-4 max-h-[70vh] overflow-y-auto">
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto -mx-1 px-1">
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
