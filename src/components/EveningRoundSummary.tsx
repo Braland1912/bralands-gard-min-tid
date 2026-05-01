@@ -19,7 +19,7 @@ import {
   CURRENCIES,
   DEFAULT_CASH,
   DEFAULT_CHECKLIST,
-  categorySubtotal,
+  categoryTotalsByCurrency as _categoryTotalsByCurrency,
   categoryTotalsByCurrency,
   newCashEntry,
   totalsByCurrency,
