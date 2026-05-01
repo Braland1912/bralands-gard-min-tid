@@ -380,12 +380,7 @@ const EveningRoundSummaryForm = ({
                   {entries.map((entry, idx) => {
                     const rowId = entry.id ?? `${key}-${idx}`;
                     const showQuantity = key === "ved" || key === "tvattmaskin" || key === "torktumlare";
-                    const notesPlaceholder =
-                      key === "kiosk"
-                        ? "T.ex. 3 glassar, chips och öl"
-                        : key === "other"
-                          ? "Beskriv vad det avser"
-                          : "Valfritt – t.ex. ”kontant”, ”Swish”…";
+                    const useTextareaNotes = key === "kiosk" || key === "other";
                     return (
                       <li
                         key={rowId}
