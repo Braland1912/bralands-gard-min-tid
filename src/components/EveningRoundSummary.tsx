@@ -220,7 +220,7 @@ const EveningRoundSummaryForm = ({
     <div className="space-y-4">
       {!online && (
         <div className="flex items-center gap-2 rounded-xl border border-amber-300/40 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          <WifiOff className="h-4 w-4" />
+          <CloudOff className="h-4 w-4" />
           Du är offline – ändringar sparas inte förrän du är online igen.
         </div>
       )}
