@@ -87,9 +87,8 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
 
   const total = guests.length;
   const here = guests.filter((g: any) => g.status === "here").length;
-  const checkedOut = guests.filter((g: any) => g.status === "checked_out").length;
   const notHere = guests.filter((g: any) => g.status === "not_here").length;
-  const handled = checkedOut + notHere;
+  const handled = notHere;
 
   // Hitta senaste avslutade runda (annars senaste startade)
   const completed = sessions.filter((s) => s.session_end).slice(-1)[0];
