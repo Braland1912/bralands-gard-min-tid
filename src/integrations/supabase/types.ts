@@ -128,6 +128,7 @@ export type Database = {
       }
       evening_round_guests: {
         Row: {
+          accommodation_type: string
           arrival_date: string
           created_at: string
           departure_date: string
@@ -146,6 +147,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accommodation_type?: string
           arrival_date: string
           created_at?: string
           departure_date: string
@@ -164,6 +166,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accommodation_type?: string
           arrival_date?: string
           created_at?: string
           departure_date?: string

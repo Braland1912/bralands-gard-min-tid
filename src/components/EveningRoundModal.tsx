@@ -52,6 +52,7 @@ import {
   type GuestInput,
   type PaymentMethod,
   type Currency,
+  type AccommodationType,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
@@ -113,6 +114,7 @@ const EveningRoundModal = ({
   const [error, setError] = useState<string | null>(null);
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
   const [creatingPlace, setCreatingPlace] = useState(false);
+  const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
 
   useEffect(() => {
     if (!open) return;
@@ -131,6 +133,7 @@ const EveningRoundModal = ({
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
       setOtherNote(guest.payment_other_note ?? "");
+      setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
     } else {
       setName("");
       setReg("");
@@ -143,6 +146,7 @@ const EveningRoundModal = ({
       setAmount("");
       setCurrency("SEK");
       setOtherNote("");
+      setAccommodation("vehicle");
     }
     setError(null);
   }, [open, guest, defaultDate]);
@@ -183,7 +187,7 @@ const EveningRoundModal = ({
       await onSave({
         place_label: place,
         guest_name: name.trim(),
-        registration_number: reg.trim() || null,
+        registration_number: accommodation === "tent" ? null : (reg.trim() || null),
         arrival_date: arrival,
         departure_date: departure,
         payment_method: method === "none" ? null : method,
@@ -197,6 +201,7 @@ const EveningRoundModal = ({
               : OTHER_CODE
             : nationality.trim() || null,
         payment_other_note: isOther ? otherNote.trim() : null,
+        accommodation_type: accommodation,
       });
       onOpenChange(false);
     } catch (e: any) {
@@ -352,11 +357,34 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="reg">Reg.nummer</Label>
-                <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
+            <div className="space-y-1.5">
+              <Label>Boende</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={accommodation === "vehicle" ? "default" : "outline"}
+                  onClick={() => setAccommodation("vehicle")}
+                  className="w-full"
+                >
+                  Fordon
+                </Button>
+                <Button
+                  type="button"
+                  variant={accommodation === "tent" ? "default" : "outline"}
+                  onClick={() => setAccommodation("tent")}
+                  className="w-full"
+                >
+                  Tält
+                </Button>
               </div>
+            </div>
+            <div className={cn("grid gap-3", accommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
+              {accommodation !== "tent" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="reg">Reg.nummer</Label>
+                  <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label>Nationalitet</Label>
                 <Popover open={natOpen} onOpenChange={setNatOpen}>
