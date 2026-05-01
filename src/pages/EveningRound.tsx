@@ -32,7 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import QuickReserveCard from "@/components/QuickReserveCard";
-import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
+
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
@@ -237,7 +237,6 @@ const EveningRound = () => {
           </div>
           {isAdmin && (
             <div className="flex flex-wrap items-center gap-2">
-              <EveningRoundCreateDialog />
               <AdminExtraPlacesDialog currentRoundId={round?.id} />
               <EveningRoundExportDialog />
               <Badge className="gap-1">
@@ -305,7 +304,7 @@ const EveningRound = () => {
           </div>
           {!round && selectedDate !== today && (
             <p className="text-xs text-muted-foreground">
-              Ingen runda finns för valt datum. {isAdmin ? "Skapa via knappen ovan." : "Be admin skapa en."}
+              Ingen runda finns för valt datum.
             </p>
           )}
         </div>
