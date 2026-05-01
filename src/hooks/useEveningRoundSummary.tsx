@@ -19,13 +19,16 @@ export type Currency = "SEK" | "EUR" | "NOK";
 export const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 export interface CashCategoryEntry {
+  /** Stabilt id för UI (genereras klientside om saknas). */
+  id?: string;
   quantity: number;
   amount: number;
   currency: Currency;
   notes: string;
 }
 
-export type CashBreakdown = Record<CashKey, CashCategoryEntry>;
+/** En kategori innehåller en lista av rader. Tom lista = inget registrerat. */
+export type CashBreakdown = Record<CashKey, CashCategoryEntry[]>;
 
 export interface EveningRoundSummary {
   id: string;
@@ -56,12 +59,13 @@ export const DEFAULT_CASH_ENTRY: CashCategoryEntry = {
   notes: "",
 };
 
+/** Tom default: inga rader per kategori. */
 export const DEFAULT_CASH: CashBreakdown = {
-  kiosk: { ...DEFAULT_CASH_ENTRY },
-  ved: { ...DEFAULT_CASH_ENTRY },
-  tvattmaskin: { ...DEFAULT_CASH_ENTRY },
-  torktumlare: { ...DEFAULT_CASH_ENTRY },
-  other: { ...DEFAULT_CASH_ENTRY },
+  kiosk: [],
+  ved: [],
+  tvattmaskin: [],
+  torktumlare: [],
+  other: [],
 };
 
 export const CHECKLIST_LABELS: Record<ChecklistKey, string> = {
@@ -80,46 +84,91 @@ export const CASH_LABELS: Record<CashKey, string> = {
   other: "Övrigt",
 };
 
-/** Konvertera ev. gammal struktur (number per kategori) till ny. */
+const makeId = () =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `e_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+
+export const newCashEntry = (currency: Currency = "SEK"): CashCategoryEntry => ({
+  id: makeId(),
+  quantity: 0,
+  amount: 0,
+  currency,
+  notes: "",
+});
+
+const parseEntry = (v: Record<string, unknown>): CashCategoryEntry => {
+  const currency = (v.currency as Currency) ?? "SEK";
+  return {
+    id: typeof v.id === "string" ? v.id : makeId(),
+    quantity: Number(v.quantity) || 0,
+    amount: Number(v.amount) || 0,
+    currency: CURRENCIES.includes(currency) ? currency : "SEK",
+    notes: typeof v.notes === "string" ? v.notes : "",
+  };
+};
+
+/**
+ * Konvertera ev. gammal struktur till ny array-baserad form.
+ * Stödjer:
+ *  - number per kategori (äldsta formatet) => 1 rad SEK
+ *  - enstaka object per kategori (mellanformat) => 1 rad
+ *  - array av objects (nya formatet) => behålls
+ */
 export const normalizeCashBreakdown = (raw: unknown): CashBreakdown => {
   const result: CashBreakdown = {
-    kiosk: { ...DEFAULT_CASH_ENTRY },
-    ved: { ...DEFAULT_CASH_ENTRY },
-    tvattmaskin: { ...DEFAULT_CASH_ENTRY },
-    torktumlare: { ...DEFAULT_CASH_ENTRY },
-    other: { ...DEFAULT_CASH_ENTRY },
+    kiosk: [],
+    ved: [],
+    tvattmaskin: [],
+    torktumlare: [],
+    other: [],
   };
   if (!raw || typeof raw !== "object") return result;
   const obj = raw as Record<string, unknown>;
   (Object.keys(result) as CashKey[]).forEach((key) => {
     const value = obj[key];
-    if (typeof value === "number") {
-      // Gammal form
-      result[key] = { quantity: 1, amount: value, currency: "SEK", notes: "" };
+    if (Array.isArray(value)) {
+      result[key] = value
+        .filter((v) => v && typeof v === "object")
+        .map((v) => parseEntry(v as Record<string, unknown>));
+    } else if (typeof value === "number") {
+      result[key] = [
+        { id: makeId(), quantity: 1, amount: value, currency: "SEK", notes: "" },
+      ];
     } else if (value && typeof value === "object") {
-      const v = value as Record<string, unknown>;
-      const currency = (v.currency as Currency) ?? "SEK";
-      result[key] = {
-        quantity: Number(v.quantity) || 0,
-        amount: Number(v.amount) || 0,
-        currency: CURRENCIES.includes(currency) ? currency : "SEK",
-        notes: typeof v.notes === "string" ? v.notes : "",
-      };
+      result[key] = [parseEntry(value as Record<string, unknown>)];
     }
   });
   return result;
 };
 
-/** Subtotal för en kategori (quantity * amount). */
-export const categorySubtotal = (entry: CashCategoryEntry) =>
+/** Subtotal för en rad. */
+export const entrySubtotal = (entry: CashCategoryEntry) =>
   (Number(entry.quantity) || 0) * (Number(entry.amount) || 0);
+
+/** Subtotal för en kategori (summa av alla rader, oavsett valuta). */
+export const categorySubtotal = (entries: CashCategoryEntry[]) =>
+  entries.reduce((sum, e) => sum + entrySubtotal(e), 0);
+
+/** Subtotal för en kategori per valuta. */
+export const categoryTotalsByCurrency = (
+  entries: CashCategoryEntry[],
+): Record<Currency, number> => {
+  const totals: Record<Currency, number> = { SEK: 0, EUR: 0, NOK: 0 };
+  entries.forEach((e) => {
+    totals[e.currency] += entrySubtotal(e);
+  });
+  return totals;
+};
 
 /** Summera alla kategorier per valuta. */
 export const totalsByCurrency = (cash: CashBreakdown): Record<Currency, number> => {
   const totals: Record<Currency, number> = { SEK: 0, EUR: 0, NOK: 0 };
   (Object.keys(cash) as CashKey[]).forEach((key) => {
-    const entry = cash[key];
-    totals[entry.currency] += categorySubtotal(entry);
+    const sub = categoryTotalsByCurrency(cash[key] ?? []);
+    CURRENCIES.forEach((c) => {
+      totals[c] += sub[c];
+    });
   });
   return totals;
 };

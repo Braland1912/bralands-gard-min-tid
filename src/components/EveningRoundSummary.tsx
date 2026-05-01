@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Play, Save, Square, Wifi, WifiOff } from "lucide-react";
+import { Loader2, Play, Plus, Save, Square, Trash2, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,9 +18,9 @@ import {
   CHECKLIST_LABELS,
   CURRENCIES,
   DEFAULT_CASH,
-  DEFAULT_CASH_ENTRY,
   DEFAULT_CHECKLIST,
-  categorySubtotal,
+  categoryTotalsByCurrency,
+  newCashEntry,
   totalsByCurrency,
   type CashBreakdown,
   type CashCategoryEntry,
@@ -100,15 +100,24 @@ const EveningRoundSummaryForm = ({
     if (!data) return;
     if (dirty) return;
     setChecklist({ ...DEFAULT_CHECKLIST, ...(data.checklist ?? {}) });
-    setCash({ ...DEFAULT_CASH, ...(data.cash_breakdown ?? {}) });
-    // Härled valda valutor: explicit fält om finns, annars från befintliga entries
+    const cb = data.cash_breakdown ?? DEFAULT_CASH;
+    setCash({
+      kiosk: cb.kiosk ?? [],
+      ved: cb.ved ?? [],
+      tvattmaskin: cb.tvattmaskin ?? [],
+      torktumlare: cb.torktumlare ?? [],
+      other: cb.other ?? [],
+    });
+    // Härled valda valutor: explicit fält om finns, annars från befintliga rader
     const explicit = data.selected_currencies;
     if (explicit && Array.isArray(explicit) && explicit.length > 0) {
       setSelectedCurrencies(explicit);
-    } else if (data.cash_breakdown) {
+    } else if (cb) {
       const used = new Set<Currency>();
-      (Object.values(data.cash_breakdown) as CashCategoryEntry[]).forEach((e) => {
-        if (e?.currency) used.add(e.currency);
+      (Object.values(cb) as CashCategoryEntry[][]).forEach((entries) => {
+        (entries ?? []).forEach((e) => {
+          if (e?.currency) used.add(e.currency);
+        });
       });
       setSelectedCurrencies(used.size > 0 ? Array.from(used) : ["SEK"]);
     }
@@ -127,17 +136,16 @@ const EveningRoundSummaryForm = ({
     setSelectedCurrencies((prev) => {
       const has = prev.includes(cur);
       if (has) {
-        // Tillåt inte tom lista
         if (prev.length === 1) return prev;
         const next = prev.filter((c) => c !== cur);
-        // Flytta kategorier som använde valutan till första kvarvarande
+        const fallback = next[0];
+        // Flytta rader som använde valutan till första kvarvarande
         setCash((cash) => {
-          const fallback = next[0];
           const updated: CashBreakdown = { ...cash };
           (Object.keys(updated) as CashKey[]).forEach((key) => {
-            if (updated[key].currency === cur) {
-              updated[key] = { ...updated[key], currency: fallback };
-            }
+            updated[key] = updated[key].map((e) =>
+              e.currency === cur ? { ...e, currency: fallback } : e,
+            );
           });
           return updated;
         });
@@ -148,12 +156,27 @@ const EveningRoundSummaryForm = ({
     setDirty(true);
   };
 
+  const addCashRow = (catKey: CashKey) => {
+    const fallback = activeCurrencies[0] ?? "SEK";
+    setCash((c) => ({ ...c, [catKey]: [...c[catKey], newCashEntry(fallback)] }));
+    setDirty(true);
+  };
+
+  const removeCashRow = (catKey: CashKey, rowId: string) => {
+    setCash((c) => ({ ...c, [catKey]: c[catKey].filter((e) => e.id !== rowId) }));
+    setDirty(true);
+  };
+
   const updateCashField = <K extends keyof CashCategoryEntry>(
     catKey: CashKey,
+    rowId: string,
     field: K,
     value: CashCategoryEntry[K],
   ) => {
-    setCash((c) => ({ ...c, [catKey]: { ...c[catKey], [field]: value } }));
+    setCash((c) => ({
+      ...c,
+      [catKey]: c[catKey].map((e) => (e.id === rowId ? { ...e, [field]: value } : e)),
+    }));
     setDirty(true);
   };
 
@@ -330,8 +353,11 @@ const EveningRoundSummaryForm = ({
         {/* Per kategori */}
         <div className="space-y-3">
           {(Object.keys(CASH_LABELS) as CashKey[]).map((key) => {
-            const entry = cash[key] ?? DEFAULT_CASH_ENTRY;
-            const subtotal = categorySubtotal(entry);
+            const entries = cash[key] ?? [];
+            const subTotals = categoryTotalsByCurrency(entries);
+            const subtotalLabel = CURRENCIES.filter((c) => subTotals[c] > 0)
+              .map((c) => `${formatAmount(subTotals[c])} ${c}`)
+              .join(" + ") || "—";
             return (
               <div
                 key={key}
@@ -339,85 +365,136 @@ const EveningRoundSummaryForm = ({
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-sm font-semibold">{CASH_LABELS[key]}</h3>
-                  <span className="text-sm font-medium tabular-nums">
-                    {formatAmount(subtotal)} {entry.currency}
+                  <span className="text-sm font-medium tabular-nums text-right break-words max-w-[60%]">
+                    {subtotalLabel}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`qty-${key}`} className="text-xs">
-                      Antal
-                    </Label>
-                    <Input
-                      id={`qty-${key}`}
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      step="1"
-                      value={entry.quantity === 0 ? "" : String(entry.quantity)}
-                      placeholder="0"
-                      onChange={(e) =>
-                        updateCashField(
-                          key,
-                          "quantity",
-                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor={`amt-${key}`} className="text-xs">
-                      Belopp
-                    </Label>
-                    <Input
-                      id={`amt-${key}`}
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      step="0.01"
-                      value={entry.amount === 0 ? "" : String(entry.amount)}
-                      placeholder="0"
-                      onChange={(e) =>
-                        updateCashField(
-                          key,
-                          "amount",
-                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <Label htmlFor={`cur-${key}`} className="text-xs">
-                      Valuta
-                    </Label>
-                    <Select
-                      value={entry.currency}
-                      onValueChange={(v) => updateCashField(key, "currency", v as Currency)}
-                    >
-                      <SelectTrigger id={`cur-${key}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {activeCurrencies.map((cur) => (
-                          <SelectItem key={cur} value={cur}>
-                            {cur}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`note-${key}`} className="text-xs">
-                    Anteckning
-                  </Label>
-                  <Input
-                    id={`note-${key}`}
-                    value={entry.notes}
-                    onChange={(e) => updateCashField(key, "notes", e.target.value)}
-                    placeholder="Valfritt"
-                  />
-                </div>
+
+                {entries.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Inga rader än. Lägg till en rad för att registrera belopp.
+                  </p>
+                )}
+
+                <ul className="space-y-3">
+                  {entries.map((entry, idx) => {
+                    const rowId = entry.id ?? `${key}-${idx}`;
+                    return (
+                      <li
+                        key={rowId}
+                        className="rounded-lg border border-border/70 bg-card p-3 space-y-2.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            Rad {idx + 1}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeCashRow(key, rowId)}
+                            className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                            aria-label="Ta bort rad"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`qty-${rowId}`} className="text-xs">
+                              Antal
+                            </Label>
+                            <Input
+                              id={`qty-${rowId}`}
+                              type="number"
+                              inputMode="numeric"
+                              min={0}
+                              step="1"
+                              value={entry.quantity === 0 ? "" : String(entry.quantity)}
+                              placeholder="0"
+                              onChange={(e) =>
+                                updateCashField(
+                                  key,
+                                  rowId,
+                                  "quantity",
+                                  e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`amt-${rowId}`} className="text-xs">
+                              Belopp
+                            </Label>
+                            <Input
+                              id={`amt-${rowId}`}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              step="0.01"
+                              value={entry.amount === 0 ? "" : String(entry.amount)}
+                              placeholder="0"
+                              onChange={(e) =>
+                                updateCashField(
+                                  key,
+                                  rowId,
+                                  "amount",
+                                  e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                            <Label htmlFor={`cur-${rowId}`} className="text-xs">
+                              Valuta
+                            </Label>
+                            <Select
+                              value={entry.currency}
+                              onValueChange={(v) =>
+                                updateCashField(key, rowId, "currency", v as Currency)
+                              }
+                            >
+                              <SelectTrigger id={`cur-${rowId}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {activeCurrencies.map((cur) => (
+                                  <SelectItem key={cur} value={cur}>
+                                    {cur}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`note-${rowId}`} className="text-xs">
+                            Anteckning
+                          </Label>
+                          <Input
+                            id={`note-${rowId}`}
+                            value={entry.notes}
+                            onChange={(e) =>
+                              updateCashField(key, rowId, "notes", e.target.value)
+                            }
+                            placeholder="Valfritt – t.ex. ”kontant”, ”Swish”…"
+                          />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addCashRow(key)}
+                  className="w-full sm:w-auto"
+                >
+                  <Plus className="h-4 w-4" />
+                  Lägg till rad
+                </Button>
               </div>
             );
           })}
