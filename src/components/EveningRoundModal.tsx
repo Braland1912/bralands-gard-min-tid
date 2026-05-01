@@ -594,11 +594,11 @@ const EveningRoundModal = ({
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
+          <div className="grid grid-cols-2 gap-3 px-4 py-3 border-t border-border bg-card shrink-0 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving} className="h-11">
               Avbryt
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="h-11">
               <Check className="h-4 w-4" />
               Spara
             </Button>
