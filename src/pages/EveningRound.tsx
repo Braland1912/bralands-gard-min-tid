@@ -184,7 +184,6 @@ const EveningRound = () => {
 
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
-    const out = guests.filter((g) => g.status === "checked_out").length;
     const not = guests.filter((g) => g.status === "not_here").length;
     // Bokade = gäster som ligger på en känd plats (synliga i listan).
     // Unassigned visas i sin egen sektion och räknas separat.
@@ -193,7 +192,7 @@ const EveningRound = () => {
     );
     const booked = assignedGuestIds.size;
     const free = Math.max(0, allPlaces.length - booked);
-    return { here, out, not, free, booked };
+    return { here, not, free, booked };
   }, [guests, allPlaces]);
 
   const openAdd = (place: string) => {
