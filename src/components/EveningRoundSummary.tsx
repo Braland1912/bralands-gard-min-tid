@@ -574,6 +574,7 @@ const EveningRoundSummaryForm = ({
           />
         </div>
       </section>
+      )}
 
       <div className="sticky bottom-20 md:bottom-4 z-10">
         <div className="rounded-2xl border border-border bg-card/95 backdrop-blur px-3 py-2 flex items-center justify-between gap-3 shadow-sm">
