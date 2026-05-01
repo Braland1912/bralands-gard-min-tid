@@ -306,10 +306,10 @@ const EveningRound = () => {
         </div>
 
         <Tabs defaultValue="rundan" className="space-y-4">
-          <TabsList className={`w-full grid ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+          <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="rundan">Rundan</TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
-            {isAdmin && <TabsTrigger value="historik">Historik</TabsTrigger>}
+            <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="rundan" className="space-y-4 mt-0">
