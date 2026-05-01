@@ -255,11 +255,7 @@ const EveningRound = () => {
             </button>
             <div className="flex-1 text-center">
               <div className="text-sm font-semibold capitalize">
-                {new Date(date).toLocaleDateString("sv-SE", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })}
+                {formatLocalDate(date, "long")}
               </div>
             </div>
             <button
