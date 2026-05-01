@@ -38,7 +38,7 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import { STANDARD_PLACES } from "@/lib/place-label";
 
-type Filter = "alla" | "bokade" | "lediga" | "har" | "utcheckad" | "inte_har" | "ej_betalt";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt";
 
 const todayLocal = () => {
   const d = new Date();
@@ -171,7 +171,6 @@ const EveningRound = () => {
       if (filter === "bokade" && !g) return false;
       if (filter === "lediga" && g) return false;
       if (filter === "har" && g?.status !== "here") return false;
-      if (filter === "utcheckad" && g?.status !== "checked_out") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (filter === "ej_betalt" && (!g || (g.payment_method && g.payment_amount))) return false;
       if (s) {
@@ -185,7 +184,6 @@ const EveningRound = () => {
 
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
-    const out = guests.filter((g) => g.status === "checked_out").length;
     const not = guests.filter((g) => g.status === "not_here").length;
     // Bokade = gäster som ligger på en känd plats (synliga i listan).
     // Unassigned visas i sin egen sektion och räknas separat.
@@ -194,7 +192,7 @@ const EveningRound = () => {
     );
     const booked = assignedGuestIds.size;
     const free = Math.max(0, allPlaces.length - booked);
-    return { here, out, not, free, booked };
+    return { here, not, free, booked };
   }, [guests, allPlaces]);
 
   const openAdd = (place: string) => {

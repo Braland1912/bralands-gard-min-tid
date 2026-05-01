@@ -1,4 +1,4 @@
-import { Check, LogOut, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   type EveningRoundGuest,
@@ -24,12 +24,10 @@ const formatDate = (iso: string) => {
 
 const statusColors: Record<GuestStatus, string> = {
   here: "text-emerald-600",
-  checked_out: "text-amber-600",
   not_here: "text-destructive",
 };
 const statusLabels: Record<GuestStatus, string> = {
   here: "Här",
-  checked_out: "Utcheckad",
   not_here: "Inte här",
 };
 
@@ -149,7 +147,6 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
 
       <div className="flex items-center gap-2">
         <StatusBtn s="here" Icon={Check} label="Här" />
-        <StatusBtn s="checked_out" Icon={LogOut} label="Utcheckad" />
         <StatusBtn s="not_here" Icon={X} label="Inte här" />
         <span className={`text-sm font-medium ${statusColors[guest.status]}`}>
           {statusLabels[guest.status]}

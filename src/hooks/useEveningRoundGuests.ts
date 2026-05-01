@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export type GuestStatus = "here" | "checked_out" | "not_here";
+export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
 export type Currency = "SEK" | "EUR" | "NOK";
 export type AccommodationType = "vehicle" | "tent";
@@ -172,7 +172,6 @@ export const useEveningRoundGuests = (
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
           here: "Markerad som Här",
-          checked_out: "Markerad som Utcheckad",
           not_here: "Markerad som Inte här",
         };
         toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {

@@ -44,7 +44,6 @@ const monthAgoLocal = () => {
 
 const STATUS_LABELS: Record<string, string> = {
   here: "Här",
-  checked_out: "Utcheckad",
   not_here: "Inte här",
 };
 

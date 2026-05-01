@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Moon, ChevronRight, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Moon, ChevronRight, Circle, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -87,9 +87,8 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
 
   const total = guests.length;
   const here = guests.filter((g: any) => g.status === "here").length;
-  const checkedOut = guests.filter((g: any) => g.status === "checked_out").length;
   const notHere = guests.filter((g: any) => g.status === "not_here").length;
-  const handled = checkedOut + notHere;
+  const handled = notHere;
 
   // Hitta senaste avslutade runda (annars senaste startade)
   const completed = sessions.filter((s) => s.session_end).slice(-1)[0];
@@ -153,10 +152,6 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
                 <span className="inline-flex items-center gap-1">
                   <Circle className="h-3 w-3 text-[hsl(183_25%_45%)] fill-[hsl(183_25%_45%)]" />
                   <span className="tabular-nums font-medium text-foreground">{here}</span> kvar
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-[hsl(150_30%_45%)]" />
-                  <span className="tabular-nums font-medium text-foreground">{checkedOut}</span> ut
                 </span>
                 {notHere > 0 && (
                   <span className="inline-flex items-center gap-1">
