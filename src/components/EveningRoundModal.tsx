@@ -165,6 +165,15 @@ const EveningRoundModal = ({
   const isCash = method === "K";
   const isOther = method === "O";
 
+  // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
+  // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
+  const dateError: string | null =
+    arrival && departure && departure <= arrival
+      ? departure === arrival
+        ? "Avresa måste vara minst en natt efter ankomst"
+        : "Avresa kan inte vara före ankomst"
+      : null;
+
   const handleSave = async () => {
     setError(null);
     if (!arrival || !departure) {
