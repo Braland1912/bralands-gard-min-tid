@@ -157,7 +157,7 @@ const EveningRoundHistory = () => {
                         {formatTotals(totals)}
                       </div>
                       <div className="text-[11px] text-muted-foreground">
-                        {new Date(row.updated_at).toLocaleDateString("sv-SE")}
+                        {formatLocalDateTime(row.updated_at)}
                       </div>
                     </div>
                   </button>
