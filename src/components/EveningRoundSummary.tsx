@@ -410,6 +410,21 @@ const EveningRoundSummaryForm = ({
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
+                        {useTextareaNotes && (
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`desc-${rowId}`} className="text-xs">
+                              Beskrivning
+                            </Label>
+                            <Textarea
+                              id={`desc-${rowId}`}
+                              value={entry.notes}
+                              onChange={(e) =>
+                                updateCashField(key, rowId, "notes", e.target.value)
+                              }
+                              rows={2}
+                            />
+                          </div>
+                        )}
                         <div
                           className={`grid gap-2 ${
                             showQuantity
@@ -490,20 +505,11 @@ const EveningRoundSummaryForm = ({
                             </Select>
                           </div>
                         </div>
-                        <div className="space-y-1.5">
-                          <Label htmlFor={`note-${rowId}`} className="text-xs">
-                            Anteckning
-                          </Label>
-                          {useTextareaNotes ? (
-                            <Textarea
-                              id={`note-${rowId}`}
-                              value={entry.notes}
-                              onChange={(e) =>
-                                updateCashField(key, rowId, "notes", e.target.value)
-                              }
-                              rows={2}
-                            />
-                          ) : (
+                        {!useTextareaNotes && (
+                          <div className="space-y-1.5">
+                            <Label htmlFor={`note-${rowId}`} className="text-xs">
+                              Anteckning
+                            </Label>
                             <Input
                               id={`note-${rowId}`}
                               value={entry.notes}
@@ -511,8 +517,8 @@ const EveningRoundSummaryForm = ({
                                 updateCashField(key, rowId, "notes", e.target.value)
                               }
                             />
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </li>
                     );
                   })}
