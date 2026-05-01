@@ -379,6 +379,13 @@ const EveningRoundSummaryForm = ({
                 <ul className="space-y-3">
                   {entries.map((entry, idx) => {
                     const rowId = entry.id ?? `${key}-${idx}`;
+                    const showQuantity = key === "ved" || key === "tvattmaskin" || key === "torktumlare";
+                    const notesPlaceholder =
+                      key === "kiosk"
+                        ? "T.ex. 3 glassar, chips och öl"
+                        : key === "other"
+                          ? "Beskriv vad det avser"
+                          : "Valfritt – t.ex. ”kontant”, ”Swish”…";
                     return (
                       <li
                         key={rowId}
@@ -399,29 +406,37 @@ const EveningRoundSummaryForm = ({
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          <div className="space-y-1.5">
-                            <Label htmlFor={`qty-${rowId}`} className="text-xs">
-                              Antal
-                            </Label>
-                            <Input
-                              id={`qty-${rowId}`}
-                              type="number"
-                              inputMode="numeric"
-                              min={0}
-                              step="1"
-                              value={entry.quantity === 0 ? "" : String(entry.quantity)}
-                              placeholder="0"
-                              onChange={(e) =>
-                                updateCashField(
-                                  key,
-                                  rowId,
-                                  "quantity",
-                                  e.target.value === "" ? 0 : Number(e.target.value) || 0,
-                                )
-                              }
-                            />
-                          </div>
+                        <div
+                          className={`grid gap-2 ${
+                            showQuantity
+                              ? "grid-cols-2 sm:grid-cols-3"
+                              : "grid-cols-2"
+                          }`}
+                        >
+                          {showQuantity && (
+                            <div className="space-y-1.5">
+                              <Label htmlFor={`qty-${rowId}`} className="text-xs">
+                                Antal
+                              </Label>
+                              <Input
+                                id={`qty-${rowId}`}
+                                type="number"
+                                inputMode="numeric"
+                                min={0}
+                                step="1"
+                                value={entry.quantity === 0 ? "" : String(entry.quantity)}
+                                placeholder="0"
+                                onChange={(e) =>
+                                  updateCashField(
+                                    key,
+                                    rowId,
+                                    "quantity",
+                                    e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                                  )
+                                }
+                              />
+                            </div>
+                          )}
                           <div className="space-y-1.5">
                             <Label htmlFor={`amt-${rowId}`} className="text-xs">
                               Belopp
@@ -444,7 +459,11 @@ const EveningRoundSummaryForm = ({
                               }
                             />
                           </div>
-                          <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                          <div
+                            className={`space-y-1.5 ${
+                              showQuantity ? "col-span-2 sm:col-span-1" : ""
+                            }`}
+                          >
                             <Label htmlFor={`cur-${rowId}`} className="text-xs">
                               Valuta
                             </Label>
@@ -469,16 +488,28 @@ const EveningRoundSummaryForm = ({
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor={`note-${rowId}`} className="text-xs">
-                            Anteckning
+                            {key === "kiosk" || key === "other" ? "Vad avser det?" : "Anteckning"}
                           </Label>
-                          <Input
-                            id={`note-${rowId}`}
-                            value={entry.notes}
-                            onChange={(e) =>
-                              updateCashField(key, rowId, "notes", e.target.value)
-                            }
-                            placeholder="Valfritt – t.ex. ”kontant”, ”Swish”…"
-                          />
+                          {key === "kiosk" || key === "other" ? (
+                            <Textarea
+                              id={`note-${rowId}`}
+                              value={entry.notes}
+                              onChange={(e) =>
+                                updateCashField(key, rowId, "notes", e.target.value)
+                              }
+                              placeholder={notesPlaceholder}
+                              rows={2}
+                            />
+                          ) : (
+                            <Input
+                              id={`note-${rowId}`}
+                              value={entry.notes}
+                              onChange={(e) =>
+                                updateCashField(key, rowId, "notes", e.target.value)
+                              }
+                              placeholder={notesPlaceholder}
+                            />
+                          )}
                         </div>
                       </li>
                     );
