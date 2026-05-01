@@ -351,7 +351,7 @@ const EveningRoundSummaryForm = ({
                         </div>
                         {useTextareaNotes && (
                           <div className="space-y-1.5">
-                            <Label htmlFor={`desc-${rowId}`} className="text-xs">
+                            <Label htmlFor={`desc-${rowId}`} className="text-xs font-medium">
                               Beskrivning
                             </Label>
                             <Textarea
@@ -360,7 +360,13 @@ const EveningRoundSummaryForm = ({
                               onChange={(e) =>
                                 updateCashField(key, rowId, "notes", e.target.value)
                               }
-                              rows={2}
+                              rows={3}
+                              placeholder={
+                                key === "kiosk"
+                                  ? "T.ex. 2 glassar, öl & chips"
+                                  : "T.ex. båt, kanot, bastu eller annat"
+                              }
+                              className="min-h-[80px] text-base leading-relaxed resize-y"
                             />
                           </div>
                         )}
