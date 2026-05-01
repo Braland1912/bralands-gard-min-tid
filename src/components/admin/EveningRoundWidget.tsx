@@ -153,7 +153,6 @@ const EveningRoundWidget = ({ onOpen }: EveningRoundWidgetProps) => {
                   <Circle className="h-3 w-3 text-[hsl(183_25%_45%)] fill-[hsl(183_25%_45%)]" />
                   <span className="tabular-nums font-medium text-foreground">{here}</span> kvar
                 </span>
-                </span>
                 {notHere > 0 && (
                   <span className="inline-flex items-center gap-1">
                     <AlertCircle className="h-3 w-3 text-[hsl(8_55%_55%)]" />
