@@ -522,6 +522,7 @@ const EveningRoundModal = ({
                   type="date"
                   value={arrival}
                   onChange={(e) => setArrival(e.target.value)}
+                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
                 />
               </div>
               <div className="space-y-1.5">
@@ -531,6 +532,7 @@ const EveningRoundModal = ({
                   type="date"
                   value={departure}
                   onChange={(e) => setDeparture(e.target.value)}
+                  className="h-11 rounded-xl text-left [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full"
                 />
               </div>
             </div>
