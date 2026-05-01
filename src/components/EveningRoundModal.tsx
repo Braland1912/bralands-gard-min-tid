@@ -248,7 +248,7 @@ const EveningRoundModal = ({
             </div>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
@@ -359,23 +359,31 @@ const EveningRoundModal = ({
 
             <div className="space-y-1.5">
               <Label>Boende</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
+              <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
+                <button
                   type="button"
-                  variant={accommodation === "vehicle" ? "default" : "outline"}
                   onClick={() => setAccommodation("vehicle")}
-                  className="w-full"
+                  className={cn(
+                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                    accommodation === "vehicle"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground",
+                  )}
                 >
                   Fordon
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant={accommodation === "tent" ? "default" : "outline"}
                   onClick={() => setAccommodation("tent")}
-                  className="w-full"
+                  className={cn(
+                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                    accommodation === "tent"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground",
+                  )}
                 >
                   Tält
-                </Button>
+                </button>
               </div>
             </div>
             <div className={cn("grid gap-3", accommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
@@ -497,15 +505,6 @@ const EveningRoundModal = ({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="name">Namn</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Skriv gästens namn"
-              />
-            </div>
-            <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
               <Input
                 id="notes"
@@ -536,21 +535,35 @@ const EveningRoundModal = ({
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Betalningsmetod</Label>
-              <Select value={method} onValueChange={(v) => setMethod(v as any)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Välj…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Ingen</SelectItem>
-                  {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {PAYMENT_LABELS[m]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
+              <div className="space-y-1.5">
+                <Label>Betalningsmetod</Label>
+                <Select value={method} onValueChange={(v) => setMethod(v as any)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Ingen</SelectItem>
+                    {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {PAYMENT_LABELS[m]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {!isCash && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="amt">Belopp (kr)</Label>
+                  <Input
+                    id="amt"
+                    type="number"
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             {isOther && (
               <div className="space-y-1.5">
@@ -564,18 +577,18 @@ const EveningRoundModal = ({
                 />
               </div>
             )}
-            <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
-              <div className="space-y-1.5">
-                <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>
-                <Input
-                  id="amt"
-                  type="number"
-                  inputMode="numeric"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              {isCash && (
+            {isCash && (
+              <div className="grid grid-cols-[1fr_110px] gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="amt">Belopp</Label>
+                  <Input
+                    id="amt"
+                    type="number"
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-1.5">
                   <Label>Valuta</Label>
                   <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
@@ -589,8 +602,8 @@ const EveningRoundModal = ({
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
@@ -611,7 +624,7 @@ const EveningRoundModal = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Radera gäst?</AlertDialogTitle>
             <AlertDialogDescription>
-              Detta tar bort {guest?.guest_name} från plats {guest?.place_label}.
+              Detta tar bort gästen från plats {guest?.place_label}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
