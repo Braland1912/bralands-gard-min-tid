@@ -250,7 +250,7 @@ const EveningRoundSummaryForm = ({
       {showChecklist && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold">Checklista</h2>
+          <h2 className="text-base font-semibold">Checklista för kvällsrundan</h2>
           <span className="text-xs text-muted-foreground">
             {Object.values(checklist).filter(Boolean).length} / {Object.keys(checklist).length} klart
           </span>
