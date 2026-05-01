@@ -479,22 +479,6 @@ const EveningRoundSummaryForm = ({
                   <Plus className="h-4 w-4" />
                   Lägg till rad
                 </Button>
-
-                {(key === "kiosk" || key === "other") && (
-                  <div className="space-y-1.5 pt-1">
-                    <Label htmlFor={`catnote-${key}`} className="text-xs">
-                      Anteckning
-                    </Label>
-                    <Textarea
-                      id={`catnote-${key}`}
-                      value={categoryNotes[key] ?? ""}
-                      onChange={(e) =>
-                        setCategoryNotes((prev) => ({ ...prev, [key]: e.target.value }))
-                      }
-                      rows={2}
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
