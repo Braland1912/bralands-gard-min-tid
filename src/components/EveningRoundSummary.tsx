@@ -326,37 +326,8 @@ const EveningRoundSummaryForm = ({
         <div>
           <h2 className="text-base font-semibold">Kassaredovisning</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Välj vilka valutor du behöver, fyll sedan i per kategori.
+            Lägg till rader per kategori. Välj valuta per rad.
           </p>
-        </div>
-
-        {/* Valutaval */}
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Valutor
-          </Label>
-          <div className="flex flex-wrap gap-2">
-            {CURRENCIES.map((cur) => {
-              const checked = selectedCurrencies.includes(cur);
-              return (
-                <label
-                  key={cur}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer transition-colors ${
-                    checked
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-background hover:bg-accent/40"
-                  }`}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleCurrency(cur)}
-                    aria-label={cur}
-                  />
-                  <span className="text-sm font-medium">{cur}</span>
-                </label>
-              );
-            })}
-          </div>
         </div>
 
         {/* Per kategori */}
