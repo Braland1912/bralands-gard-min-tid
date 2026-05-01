@@ -112,7 +112,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
                   <Checkbox
                     id={`vw-${item.id}`}
                     checked={item.is_checked}
-                    onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true })}
+                    onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true, shiftChecklistId: list.id })}
                   />
                   <label
                     htmlFor={`vw-${item.id}`}
