@@ -536,10 +536,12 @@ const EveningRoundModal = ({
                 { label: "Idag", value: today },
                 { label: "Imorgon", value: tomorrow },
               ];
-              const depPresets = [
-                { label: "1 natt", nights: 1 },
-                { label: "2 nätter", nights: 2 },
-                { label: "1 vecka", nights: 7 },
+              const depPresets: Array<{ label: string; value: string }> = [
+                { label: "Idag", value: today },
+                { label: "Imorgon", value: tomorrow },
+                { label: "1 natt", value: addDaysLocal(arrival || today, 1) },
+                { label: "2 nätter", value: addDaysLocal(arrival || today, 2) },
+                { label: "1 vecka", value: addDaysLocal(arrival || today, 7) },
               ];
               const chipBase =
                 "px-2.5 h-7 rounded-full text-xs font-medium border transition-colors whitespace-nowrap";
