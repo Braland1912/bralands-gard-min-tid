@@ -602,7 +602,7 @@ const EveningRoundModal = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Radera gäst?</AlertDialogTitle>
             <AlertDialogDescription>
-              Detta tar bort {guest?.guest_name} från plats {guest?.place_label}.
+              Detta tar bort gästen från plats {guest?.place_label}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
