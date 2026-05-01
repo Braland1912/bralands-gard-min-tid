@@ -19,13 +19,16 @@ export type Currency = "SEK" | "EUR" | "NOK";
 export const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 export interface CashCategoryEntry {
+  /** Stabilt id för UI (genereras klientside om saknas). */
+  id?: string;
   quantity: number;
   amount: number;
   currency: Currency;
   notes: string;
 }
 
-export type CashBreakdown = Record<CashKey, CashCategoryEntry>;
+/** En kategori innehåller en lista av rader. Tom lista = inget registrerat. */
+export type CashBreakdown = Record<CashKey, CashCategoryEntry[]>;
 
 export interface EveningRoundSummary {
   id: string;
