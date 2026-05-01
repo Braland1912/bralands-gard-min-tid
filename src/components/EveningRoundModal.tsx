@@ -535,21 +535,35 @@ const EveningRoundModal = ({
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Betalningsmetod</Label>
-              <Select value={method} onValueChange={(v) => setMethod(v as any)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Välj…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Ingen</SelectItem>
-                  {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {PAYMENT_LABELS[m]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
+              <div className="space-y-1.5">
+                <Label>Betalningsmetod</Label>
+                <Select value={method} onValueChange={(v) => setMethod(v as any)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Välj…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Ingen</SelectItem>
+                    {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
+                      <SelectItem key={m} value={m}>
+                        {PAYMENT_LABELS[m]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {!isCash && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="amt">Belopp (kr)</Label>
+                  <Input
+                    id="amt"
+                    type="number"
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             {isOther && (
               <div className="space-y-1.5">
@@ -563,18 +577,18 @@ const EveningRoundModal = ({
                 />
               </div>
             )}
-            <div className={`grid gap-3 ${isCash ? "grid-cols-[1fr_120px]" : "grid-cols-1"}`}>
-              <div className="space-y-1.5">
-                <Label htmlFor="amt">Belopp{isCash ? "" : " (kr)"}</Label>
-                <Input
-                  id="amt"
-                  type="number"
-                  inputMode="numeric"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              {isCash && (
+            {isCash && (
+              <div className="grid grid-cols-[1fr_110px] gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="amt">Belopp</Label>
+                  <Input
+                    id="amt"
+                    type="number"
+                    inputMode="numeric"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-1.5">
                   <Label>Valuta</Label>
                   <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
@@ -588,8 +602,8 @@ const EveningRoundModal = ({
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
