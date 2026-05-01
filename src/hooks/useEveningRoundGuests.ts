@@ -172,7 +172,6 @@ export const useEveningRoundGuests = (
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
           here: "Markerad som Här",
-          checked_out: "Markerad som Utcheckad",
           not_here: "Markerad som Inte här",
         };
         toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
