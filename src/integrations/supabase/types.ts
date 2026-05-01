@@ -423,6 +423,39 @@ export type Database = {
         }
         Relationships: []
       }
+      shift_checklist_completion_log: {
+        Row: {
+          changed_at: string
+          checklist_item_id: string
+          id: string
+          is_checked: boolean
+          shift_checklist_id: string
+          shift_date: string
+          shift_id: string
+          worker_user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          checklist_item_id: string
+          id?: string
+          is_checked: boolean
+          shift_checklist_id: string
+          shift_date: string
+          shift_id: string
+          worker_user_id: string
+        }
+        Update: {
+          changed_at?: string
+          checklist_item_id?: string
+          id?: string
+          is_checked?: boolean
+          shift_checklist_id?: string
+          shift_date?: string
+          shift_id?: string
+          worker_user_id?: string
+        }
+        Relationships: []
+      }
       shift_checklist_items: {
         Row: {
           created_at: string
