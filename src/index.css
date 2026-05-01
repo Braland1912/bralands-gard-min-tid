@@ -134,23 +134,39 @@
      Säkerställer rak vänsterjusterad text, läsbar storlek, jämn höjd
      och tydlig kalenderikon till höger. */
   .input-datetime {
-    @apply w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none;
+    /* Extra padding-höger för att ge plats åt den större kalenderikonen */
+    @apply w-full h-11 rounded-xl pl-3 pr-2 text-base font-medium tabular-nums text-left appearance-none;
   }
   .input-datetime::-webkit-date-and-time-value {
     text-align: left;
     width: 100%;
     min-height: 1.5rem;
   }
+  /* Större träffyta för kalenderikonen så den är lätt att tappa på mobil.
+     Minst 44x44px enligt Apple/Material guidelines. */
   .input-datetime::-webkit-calendar-picker-indicator {
     margin-left: auto;
-    opacity: 0.6;
+    margin-right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0.625rem;
+    box-sizing: content-box;
+    opacity: 0.7;
     cursor: pointer;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+  }
+  .input-datetime::-webkit-calendar-picker-indicator:hover {
+    background-color: hsl(var(--accent));
+    opacity: 1;
+  }
+  .input-datetime::-webkit-calendar-picker-indicator:active {
+    background-color: hsl(var(--accent) / 0.8);
   }
   .input-datetime::-webkit-datetime-edit-fields-wrapper {
     padding: 0;
   }
-  /* När fältet är tomt, visa en placeholder via attributet data-placeholder.
-     (Native date-fält har ingen riktig placeholder, så vi simulerar.) */
+  /* Placeholder-känsla när fältet är tomt (native date saknar placeholder). */
   .input-datetime:not(:focus):invalid::-webkit-datetime-edit {
     color: hsl(var(--muted-foreground));
   }
