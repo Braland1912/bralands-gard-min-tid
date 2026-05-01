@@ -423,7 +423,7 @@ const EveningRound = () => {
               { id: "lediga", label: `Ledig (${counts.free})` },
               { id: "har", label: `Här (${counts.here})` },
               { id: "utcheckad", label: `Utcheckad (${counts.out})` },
-              { id: "inte_har", label: `Inte här (${counts.not})` },
+              { id: "inte_har", label: `Ej kommit (${counts.not})` },
               { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
             ] as { id: Filter; label: string }[]
           ).map((c) => (
