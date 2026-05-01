@@ -55,6 +55,8 @@ const sumCash = (c: CashBreakdown) =>
 const EveningRoundSummaryForm = ({
   eveningRoundId,
   workerId,
+  roundDate,
+  showQuickStart = true,
   overrideSummary,
   onSaved,
 }: Props) => {
@@ -64,6 +66,14 @@ const EveningRoundSummaryForm = ({
     overrideSummary ? overrideSummary.worker_id : workerId,
   );
   const data = overrideSummary ?? summaryHook.data;
+  const canShowQuickStart = showQuickStart && !overrideSummary && !!workerId && !!roundDate;
+  const sessionHook = useEveningRoundSession(
+    canShowQuickStart ? workerId : undefined,
+    roundDate ?? "",
+  );
+  const session = sessionHook.data;
+  const sessionRunning = !!session?.session_start && !session?.session_end;
+  const sessionFinished = !!session?.session_start && !!session?.session_end;
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
