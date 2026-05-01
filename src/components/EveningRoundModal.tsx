@@ -357,11 +357,34 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="reg">Reg.nummer</Label>
-                <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
+            <div className="space-y-1.5">
+              <Label>Boende</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant={accommodation === "vehicle" ? "default" : "outline"}
+                  onClick={() => setAccommodation("vehicle")}
+                  className="w-full"
+                >
+                  Fordon
+                </Button>
+                <Button
+                  type="button"
+                  variant={accommodation === "tent" ? "default" : "outline"}
+                  onClick={() => setAccommodation("tent")}
+                  className="w-full"
+                >
+                  Tält
+                </Button>
               </div>
+            </div>
+            <div className={cn("grid gap-3", accommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
+              {accommodation !== "tent" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="reg">Reg.nummer</Label>
+                  <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label>Nationalitet</Label>
                 <Popover open={natOpen} onOpenChange={setNatOpen}>
