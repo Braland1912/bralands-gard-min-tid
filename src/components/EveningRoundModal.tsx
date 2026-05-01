@@ -580,19 +580,16 @@ const EveningRoundModal = ({
                   <div className="space-y-1.5 min-w-0">
                     <Label htmlFor="dep">Avresa</Label>
                     <div className="flex flex-wrap gap-1.5">
-                      {depPresets.map((p) => {
-                        const value = addDaysLocal(arrival || today, p.nights);
-                        return (
-                          <button
-                            key={p.label}
-                            type="button"
-                            onClick={() => setDeparture(value)}
-                            className={cn(chipBase, departure === value ? chipActive : chipIdle)}
-                          >
-                            {p.label}
-                          </button>
-                        );
-                      })}
+                      {depPresets.map((p) => (
+                        <button
+                          key={p.label}
+                          type="button"
+                          onClick={() => setDeparture(p.value)}
+                          className={cn(chipBase, departure === p.value ? chipActive : chipIdle)}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
                     </div>
                     <Input
                       id="dep"
