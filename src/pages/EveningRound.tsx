@@ -27,6 +27,9 @@ import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
 import EveningRoundSummaryForm from "@/components/EveningRoundSummary";
 import EveningRoundHistory from "@/components/EveningRoundHistory";
+import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import QuickReserveCard from "@/components/QuickReserveCard";
 import EveningRoundCreateDialog from "@/components/EveningRoundCreateDialog";
@@ -74,6 +77,24 @@ const EveningRound = () => {
   );
   const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
   const { data: ownersByRoundId } = useRoundOwnersForDate(date);
+
+  // Hitta dagens evening_round-pass för medarbetaren (för checklista)
+  const { data: roundShiftId } = useQuery({
+    queryKey: ["evening-round-shift", user?.id, date],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("date", date)
+        .eq("shift_type", "evening_round")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.id ?? null;
+    },
+    enabled: !!user?.id && !isAdmin,
+  });
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("alla");
@@ -285,10 +306,10 @@ const EveningRound = () => {
         </div>
 
         <Tabs defaultValue="rundan" className="space-y-4">
-          <TabsList className={`w-full grid ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+          <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="rundan">Rundan</TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
-            {isAdmin && <TabsTrigger value="historik">Historik</TabsTrigger>}
+            <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="rundan" className="space-y-4 mt-0">
@@ -502,11 +523,19 @@ const EveningRound = () => {
             />
           </TabsContent>
 
-          {isAdmin && (
-            <TabsContent value="historik" className="mt-0">
+          <TabsContent value="checklista" className="mt-0">
+            {isAdmin ? (
               <EveningRoundHistory />
-            </TabsContent>
-          )}
+            ) : roundShiftId ? (
+              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+                <ShiftChecklistViewer shiftId={roundShiftId} />
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
+                Ingen checklista hittad — du är inte schemalagd på kvällsrundan idag.
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
 
