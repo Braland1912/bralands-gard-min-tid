@@ -52,6 +52,7 @@ import {
   type GuestInput,
   type PaymentMethod,
   type Currency,
+  type AccommodationType,
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
