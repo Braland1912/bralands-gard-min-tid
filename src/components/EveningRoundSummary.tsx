@@ -251,8 +251,23 @@ const EveningRoundSummaryForm = ({
       )}
 
       {showChecklist && (() => {
-        const total = Object.keys(checklist).length;
-        const done = Object.values(checklist).filter(Boolean).length;
+        // Bygg renderingslista: aktiva items från mallen, plus ev. legacy-nycklar
+        // som redan finns i sparad checklist (för att inte tappa historik).
+        const itemEntries = checklistItems.map((it) => ({
+          id: it.id,
+          label: it.text,
+        }));
+        const knownIds = new Set(itemEntries.map((i) => i.id));
+        const legacyEntries = (Object.keys(checklist) as string[])
+          .filter((k) => !knownIds.has(k) && k in LEGACY_CHECKLIST_LABELS)
+          .map((k) => ({
+            id: k,
+            label: LEGACY_CHECKLIST_LABELS[k as LegacyChecklistKey],
+          }));
+        const renderItems = [...itemEntries, ...legacyEntries];
+
+        const total = renderItems.length;
+        const done = renderItems.filter((i) => checklist[i.id]).length;
         const allDone = done === total && total > 0;
         const progress = total > 0 ? (done / total) * 100 : 0;
         return (
@@ -286,14 +301,20 @@ const EveningRoundSummaryForm = ({
               />
             </div>
           </div>
+          {renderItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">
+              Ingen checklista vald än. Be en admin koppla en mall under
+              inställningar.
+            </p>
+          ) : (
           <ul className="space-y-2">
-            {(Object.keys(CHECKLIST_LABELS) as ChecklistKey[]).map((key) => {
-              const checked = checklist[key];
+            {renderItems.map((item) => {
+              const checked = !!checklist[item.id];
               return (
-                <li key={key}>
+                <li key={item.id}>
                   <button
                     type="button"
-                    onClick={() => toggleItem(key)}
+                    onClick={() => toggleItem(item.id)}
                     aria-pressed={checked}
                     className={`group w-full text-left rounded-xl border p-4 min-h-[64px] flex items-center gap-3.5 transition-all active:scale-[0.99] ${
                       checked
@@ -322,13 +343,14 @@ const EveningRoundSummaryForm = ({
                           : "text-foreground"
                       }`}
                     >
-                      {CHECKLIST_LABELS[key]}
+                      {item.label}
                     </span>
                   </button>
                 </li>
               );
             })}
           </ul>
+          )}
         </section>
         );
       })()}
