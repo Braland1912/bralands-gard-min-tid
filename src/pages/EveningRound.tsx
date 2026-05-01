@@ -481,7 +481,7 @@ const EveningRound = () => {
         </div>
 
         {(
-          <div className="fixed bottom-20 right-4 md:bottom-8 md:right-8 z-20">
+          <div className="fixed right-4 md:right-8 md:bottom-8 z-20 bottom-[calc(5rem+env(safe-area-inset-bottom))]">
             <Button
               size="lg"
               aria-label="Lägg till gäst"
