@@ -33,13 +33,50 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
+  // Hämta passets datum (för loggning per kväll)
+  const { data: shiftMeta } = useQuery({
+    queryKey: ["shift-meta", shiftId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("date")
+        .eq("id", shiftId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const toggle = useMutation({
-    mutationFn: async ({ id, checked }: { id: string; checked: boolean }) => {
+    mutationFn: async ({
+      id,
+      checked,
+      shiftChecklistId,
+    }: {
+      id: string;
+      checked: boolean;
+      shiftChecklistId: string;
+    }) => {
       const { error } = await supabase
         .from("shift_checklist_items")
         .update({ is_checked: checked })
         .eq("id", id);
       if (error) throw error;
+
+      // Logga avbockning per pass/datum/arbetare så historik bevaras
+      const { data: userRes } = await supabase.auth.getUser();
+      const userId = userRes?.user?.id;
+      const shiftDate = shiftMeta?.date;
+      if (userId && shiftDate) {
+        await supabase.from("shift_checklist_completion_log").insert({
+          checklist_item_id: id,
+          shift_checklist_id: shiftChecklistId,
+          shift_id: shiftId,
+          shift_date: shiftDate,
+          worker_user_id: userId,
+          is_checked: checked,
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-checklists-viewer", shiftId] });
