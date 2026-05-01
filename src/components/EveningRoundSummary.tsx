@@ -102,6 +102,8 @@ const EveningRoundSummaryForm = ({
   const [notes, setNotes] = useState<string>("");
   const [dirty, setDirty] = useState(false);
 
+  const { data: checklistItems = [] } = useEveningRoundChecklistItems();
+
   // Synka från server när data uppdateras (men inte när lokalt dirty)
   useEffect(() => {
     if (!data) return;
