@@ -291,10 +291,19 @@ const EveningRoundSummaryForm = ({
 
       {showCashSection && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
-        <div>
+        <div className="space-y-2">
           <h2 className="text-base font-semibold">Kassaredovisning</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Lägg till rader per kategori. Välj valuta per rad.
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Räkna kontanterna från brevlådan i kiosken och från servicehuset.
+            Lägg även till om någon betalat dig kontant under passet (t.ex. för
+            ved, tvätt eller kiosk).
+          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            <span className="font-medium text-foreground">Obs:</span> Gästnätter
+            redovisas inte här – det gör du under fliken <span className="font-medium text-foreground">Rundan</span>.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Lägg till en rad per kategori och välj valuta per rad.
           </p>
         </div>
 
