@@ -563,7 +563,7 @@ const EveningRoundModal = ({
                       value={arrival}
                       onChange={(e) => setArrival(e.target.value)}
                       placeholder="ÅÅÅÅ-MM-DD"
-                      className="w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:w-full [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:opacity-60"
+                      className="input-datetime"
                     />
                   </div>
                   <div className="space-y-1.5 min-w-0">
