@@ -284,6 +284,15 @@ const EveningRound = () => {
           )}
         </div>
 
+        <Tabs defaultValue="rundan" className="space-y-4">
+          <TabsList className={`w-full grid ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
+            <TabsTrigger value="rundan">Rundan</TabsTrigger>
+            <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
+            {isAdmin && <TabsTrigger value="historik">Historik</TabsTrigger>}
+          </TabsList>
+
+          <TabsContent value="rundan" className="space-y-4 mt-0">
+
         {/* Session-loggning för medarbetare */}
         {!isAdmin && worker && selectedDate === today && (
           <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between gap-3">
