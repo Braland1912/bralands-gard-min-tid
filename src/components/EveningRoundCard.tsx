@@ -24,12 +24,10 @@ const formatDate = (iso: string) => {
 
 const statusColors: Record<GuestStatus, string> = {
   here: "text-emerald-600",
-  checked_out: "text-amber-600",
   not_here: "text-destructive",
 };
 const statusLabels: Record<GuestStatus, string> = {
   here: "Här",
-  checked_out: "Utcheckad",
   not_here: "Inte här",
 };
 
