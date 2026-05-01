@@ -382,51 +382,6 @@ const EveningRound = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
-          <KpiCard
-            label="Alla"
-            value={counts.booked + counts.free}
-            color="text-foreground"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-          <KpiCard
-            label="Upptagen"
-            value={counts.booked}
-            color="text-foreground"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-          <KpiCard
-            label="Lediga"
-            value={counts.free}
-            color="text-muted-foreground"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-          <KpiCard
-            label="På plats"
-            value={counts.here}
-            color="text-emerald-600"
-            dim={!isRoundOngoing && selectedDate !== today}
-            live={isRoundOngoing}
-          />
-          <KpiCard
-            label="Utcheckad"
-            value={counts.out}
-            color="text-muted-foreground"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-          <KpiCard
-            label="Ej kommit"
-            value={counts.not}
-            color="text-destructive"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-          <KpiCard
-            label="Ej betalt"
-            value={unpaidCount}
-            color="text-destructive"
-            dim={!isRoundOngoing && selectedDate !== today}
-          />
-        </div>
 
         {unpaidCount > 0 && (
           <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
