@@ -75,6 +75,8 @@ const EveningRoundSummaryForm = ({
   workerId,
   roundDate,
   showQuickStart = true,
+  showChecklist = true,
+  showCashSection = true,
   overrideSummary,
   onSaved,
 }: Props) => {
