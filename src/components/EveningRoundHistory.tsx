@@ -19,9 +19,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  CASH_LABELS,
-  type CashBreakdown,
-  type CashKey,
+  CURRENCIES,
+  normalizeCashBreakdown,
+  totalsByCurrency,
+  type Currency,
   type EveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
 import {
@@ -30,8 +31,12 @@ import {
 } from "@/hooks/useEveningRoundHistory";
 import EveningRoundSummaryForm from "@/components/EveningRoundSummary";
 
-const sumCash = (c: CashBreakdown) =>
-  Object.values(c).reduce((a, b) => a + (Number(b) || 0), 0);
+const formatTotals = (totals: Record<Currency, number>) => {
+  const parts = CURRENCIES.filter((c) => totals[c] > 0).map(
+    (c) => `${totals[c].toLocaleString("sv-SE", { maximumFractionDigits: 2 })} ${c}`,
+  );
+  return parts.length > 0 ? parts.join(" + ") : "0 SEK";
+};
 
 const EveningRoundHistory = () => {
   const [workerId, setWorkerId] = useState<string>("all");
