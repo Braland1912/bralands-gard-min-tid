@@ -14,7 +14,18 @@ export type Checklist = Record<ChecklistKey, boolean>;
 
 export type CashKey = "kiosk" | "ved" | "tvattmaskin" | "torktumlare" | "other";
 
-export type CashBreakdown = Record<CashKey, number>;
+export type Currency = "SEK" | "EUR" | "NOK";
+
+export const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
+
+export interface CashCategoryEntry {
+  quantity: number;
+  amount: number;
+  currency: Currency;
+  notes: string;
+}
+
+export type CashBreakdown = Record<CashKey, CashCategoryEntry>;
 
 export interface EveningRoundSummary {
   id: string;
@@ -22,6 +33,7 @@ export interface EveningRoundSummary {
   worker_id: string;
   checklist: Checklist;
   cash_breakdown: CashBreakdown;
+  selected_currencies?: Currency[];
   notes: string | null;
   created_by: string;
   updated_by: string | null;
@@ -37,12 +49,19 @@ export const DEFAULT_CHECKLIST: Checklist = {
   laundry_check: false,
 };
 
+export const DEFAULT_CASH_ENTRY: CashCategoryEntry = {
+  quantity: 0,
+  amount: 0,
+  currency: "SEK",
+  notes: "",
+};
+
 export const DEFAULT_CASH: CashBreakdown = {
-  kiosk: 0,
-  ved: 0,
-  tvattmaskin: 0,
-  torktumlare: 0,
-  other: 0,
+  kiosk: { ...DEFAULT_CASH_ENTRY },
+  ved: { ...DEFAULT_CASH_ENTRY },
+  tvattmaskin: { ...DEFAULT_CASH_ENTRY },
+  torktumlare: { ...DEFAULT_CASH_ENTRY },
+  other: { ...DEFAULT_CASH_ENTRY },
 };
 
 export const CHECKLIST_LABELS: Record<ChecklistKey, string> = {
@@ -61,9 +80,54 @@ export const CASH_LABELS: Record<CashKey, string> = {
   other: "Övrigt",
 };
 
+/** Konvertera ev. gammal struktur (number per kategori) till ny. */
+export const normalizeCashBreakdown = (raw: unknown): CashBreakdown => {
+  const result: CashBreakdown = {
+    kiosk: { ...DEFAULT_CASH_ENTRY },
+    ved: { ...DEFAULT_CASH_ENTRY },
+    tvattmaskin: { ...DEFAULT_CASH_ENTRY },
+    torktumlare: { ...DEFAULT_CASH_ENTRY },
+    other: { ...DEFAULT_CASH_ENTRY },
+  };
+  if (!raw || typeof raw !== "object") return result;
+  const obj = raw as Record<string, unknown>;
+  (Object.keys(result) as CashKey[]).forEach((key) => {
+    const value = obj[key];
+    if (typeof value === "number") {
+      // Gammal form
+      result[key] = { quantity: 1, amount: value, currency: "SEK", notes: "" };
+    } else if (value && typeof value === "object") {
+      const v = value as Record<string, unknown>;
+      const currency = (v.currency as Currency) ?? "SEK";
+      result[key] = {
+        quantity: Number(v.quantity) || 0,
+        amount: Number(v.amount) || 0,
+        currency: CURRENCIES.includes(currency) ? currency : "SEK",
+        notes: typeof v.notes === "string" ? v.notes : "",
+      };
+    }
+  });
+  return result;
+};
+
+/** Subtotal för en kategori (quantity * amount). */
+export const categorySubtotal = (entry: CashCategoryEntry) =>
+  (Number(entry.quantity) || 0) * (Number(entry.amount) || 0);
+
+/** Summera alla kategorier per valuta. */
+export const totalsByCurrency = (cash: CashBreakdown): Record<Currency, number> => {
+  const totals: Record<Currency, number> = { SEK: 0, EUR: 0, NOK: 0 };
+  (Object.keys(cash) as CashKey[]).forEach((key) => {
+    const entry = cash[key];
+    totals[entry.currency] += categorySubtotal(entry);
+  });
+  return totals;
+};
+
 interface UpdatePayload {
   checklist?: Checklist;
   cash_breakdown?: CashBreakdown;
+  selected_currencies?: Currency[];
   notes?: string | null;
 }
 
@@ -87,7 +151,12 @@ export const useEveningRoundSummary = (
         .eq("worker_id", workerId)
         .maybeSingle();
       if (error) throw error;
-      return (data as unknown as EveningRoundSummary) ?? null;
+      if (!data) return null;
+      const row = data as unknown as EveningRoundSummary;
+      return {
+        ...row,
+        cash_breakdown: normalizeCashBreakdown(row.cash_breakdown),
+      };
     },
     enabled: !!eveningRoundId && !!workerId,
   });
@@ -95,14 +164,16 @@ export const useEveningRoundSummary = (
   const ensure = useMutation({
     mutationFn: async (): Promise<EveningRoundSummary> => {
       if (!eveningRoundId || !workerId) throw new Error("Saknar runda eller medarbetare");
-      // Försök hämta först
       const { data: existing } = await supabase
         .from("evening_round_summaries")
         .select("*")
         .eq("evening_round_id", eveningRoundId)
         .eq("worker_id", workerId)
         .maybeSingle();
-      if (existing) return existing as unknown as EveningRoundSummary;
+      if (existing) {
+        const row = existing as unknown as EveningRoundSummary;
+        return { ...row, cash_breakdown: normalizeCashBreakdown(row.cash_breakdown) };
+      }
 
       const { data, error } = await supabase
         .from("evening_round_summaries")
@@ -112,12 +183,13 @@ export const useEveningRoundSummary = (
           created_by: workerId,
           updated_by: workerId,
           checklist: DEFAULT_CHECKLIST,
-          cash_breakdown: DEFAULT_CASH,
+          cash_breakdown: DEFAULT_CASH as unknown as Record<string, unknown>,
         })
         .select("*")
         .single();
       if (error) throw error;
-      return data as unknown as EveningRoundSummary;
+      const row = data as unknown as EveningRoundSummary;
+      return { ...row, cash_breakdown: normalizeCashBreakdown(row.cash_breakdown) };
     },
     onSuccess: (row) => {
       queryClient.setQueryData(
@@ -130,19 +202,19 @@ export const useEveningRoundSummary = (
   const update = useMutation({
     mutationFn: async (payload: UpdatePayload) => {
       if (!eveningRoundId || !workerId) throw new Error("Saknar runda eller medarbetare");
-      // Säkerställ att rad finns
       let row = query.data;
       if (!row) {
         row = await ensure.mutateAsync();
       }
       const { data, error } = await supabase
         .from("evening_round_summaries")
-        .update({ ...payload, updated_by: workerId })
+        .update({ ...payload, updated_by: workerId } as never)
         .eq("id", row.id)
         .select("*")
         .single();
       if (error) throw error;
-      return data as unknown as EveningRoundSummary;
+      const updated = data as unknown as EveningRoundSummary;
+      return { ...updated, cash_breakdown: normalizeCashBreakdown(updated.cash_breakdown) };
     },
     onSuccess: (row) => {
       queryClient.setQueryData(
