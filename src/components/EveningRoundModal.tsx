@@ -598,8 +598,24 @@ const EveningRoundModal = ({
                       value={departure}
                       onChange={(e) => setDeparture(e.target.value)}
                       placeholder="ÅÅÅÅ-MM-DD"
-                      className="input-datetime"
+                      min={arrival || undefined}
+                      aria-invalid={!!dateError}
+                      aria-describedby={dateError ? "dep-error" : undefined}
+                      className={cn(
+                        "input-datetime",
+                        dateError &&
+                          "border-destructive focus-visible:ring-destructive bg-destructive/5",
+                      )}
                     />
+                    {dateError && (
+                      <p
+                        id="dep-error"
+                        role="alert"
+                        className="text-xs font-medium text-destructive"
+                      >
+                        {dateError}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
