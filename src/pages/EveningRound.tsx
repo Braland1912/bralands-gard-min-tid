@@ -533,7 +533,7 @@ const EveningRound = () => {
                   eveningRoundId={round?.id}
                   workerId={worker?.id}
                   roundDate={date}
-                  showQuickStart={false}
+                  showQuickStart={selectedDate === today}
                   showCashSection={false}
                 />
                 {roundShiftId ? (
