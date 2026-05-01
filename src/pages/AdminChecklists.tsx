@@ -23,6 +23,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
+import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
 
 type Template = { id: string; name: string; sort_order: number };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
