@@ -359,23 +359,31 @@ const EveningRoundModal = ({
 
             <div className="space-y-1.5">
               <Label>Boende</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
+              <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
+                <button
                   type="button"
-                  variant={accommodation === "vehicle" ? "default" : "outline"}
                   onClick={() => setAccommodation("vehicle")}
-                  className="w-full"
+                  className={cn(
+                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                    accommodation === "vehicle"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground",
+                  )}
                 >
                   Fordon
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant={accommodation === "tent" ? "default" : "outline"}
                   onClick={() => setAccommodation("tent")}
-                  className="w-full"
+                  className={cn(
+                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                    accommodation === "tent"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground",
+                  )}
                 >
                   Tält
-                </Button>
+                </button>
               </div>
             </div>
             <div className={cn("grid gap-3", accommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
