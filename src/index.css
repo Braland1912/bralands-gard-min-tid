@@ -129,6 +129,31 @@
   .hover-lift:active {
     transform: scale(0.98);
   }
+
+  /* Konsekvent stil för alla datum-/tidsfält i appen.
+     Säkerställer rak vänsterjusterad text, läsbar storlek, jämn höjd
+     och tydlig kalenderikon till höger. */
+  .input-datetime {
+    @apply w-full h-11 rounded-xl px-3 text-base font-medium tabular-nums text-left appearance-none;
+  }
+  .input-datetime::-webkit-date-and-time-value {
+    text-align: left;
+    width: 100%;
+    min-height: 1.5rem;
+  }
+  .input-datetime::-webkit-calendar-picker-indicator {
+    margin-left: auto;
+    opacity: 0.6;
+    cursor: pointer;
+  }
+  .input-datetime::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  /* När fältet är tomt, visa en placeholder via attributet data-placeholder.
+     (Native date-fält har ingen riktig placeholder, så vi simulerar.) */
+  .input-datetime:not(:focus):invalid::-webkit-datetime-edit {
+    color: hsl(var(--muted-foreground));
+  }
 }
 
 @layer utilities {
