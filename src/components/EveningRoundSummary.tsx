@@ -4,16 +4,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   CASH_LABELS,
   CHECKLIST_LABELS,
+  CURRENCIES,
   DEFAULT_CASH,
+  DEFAULT_CASH_ENTRY,
   DEFAULT_CHECKLIST,
+  categorySubtotal,
+  totalsByCurrency,
   type CashBreakdown,
+  type CashCategoryEntry,
   type CashKey,
   type Checklist,
   type ChecklistKey,
+  type Currency,
   type EveningRoundSummary,
   useEveningRoundSummary,
 } from "@/hooks/useEveningRoundSummary";
@@ -49,8 +63,8 @@ const useOnline = () => {
   return online;
 };
 
-const sumCash = (c: CashBreakdown) =>
-  Object.values(c).reduce((a, b) => a + (Number(b) || 0), 0);
+const formatAmount = (n: number) =>
+  n.toLocaleString("sv-SE", { maximumFractionDigits: 2 });
 
 const EveningRoundSummaryForm = ({
   eveningRoundId,
@@ -77,6 +91,7 @@ const EveningRoundSummaryForm = ({
 
   const [checklist, setChecklist] = useState<Checklist>(DEFAULT_CHECKLIST);
   const [cash, setCash] = useState<CashBreakdown>(DEFAULT_CASH);
+  const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>(["SEK"]);
   const [notes, setNotes] = useState<string>("");
   const [dirty, setDirty] = useState(false);
 
@@ -86,19 +101,59 @@ const EveningRoundSummaryForm = ({
     if (dirty) return;
     setChecklist({ ...DEFAULT_CHECKLIST, ...(data.checklist ?? {}) });
     setCash({ ...DEFAULT_CASH, ...(data.cash_breakdown ?? {}) });
+    // Härled valda valutor: explicit fält om finns, annars från befintliga entries
+    const explicit = data.selected_currencies;
+    if (explicit && Array.isArray(explicit) && explicit.length > 0) {
+      setSelectedCurrencies(explicit);
+    } else if (data.cash_breakdown) {
+      const used = new Set<Currency>();
+      (Object.values(data.cash_breakdown) as CashCategoryEntry[]).forEach((e) => {
+        if (e?.currency) used.add(e.currency);
+      });
+      setSelectedCurrencies(used.size > 0 ? Array.from(used) : ["SEK"]);
+    }
     setNotes(data.notes ?? "");
   }, [data, dirty]);
 
-  const total = useMemo(() => sumCash(cash), [cash]);
+  const totals = useMemo(() => totalsByCurrency(cash), [cash]);
+  const activeCurrencies = selectedCurrencies.length > 0 ? selectedCurrencies : ["SEK" as Currency];
 
   const toggleItem = (key: ChecklistKey) => {
     setChecklist((c) => ({ ...c, [key]: !c[key] }));
     setDirty(true);
   };
 
-  const setCashField = (key: CashKey, value: string) => {
-    const n = value === "" ? 0 : Number(value);
-    setCash((c) => ({ ...c, [key]: Number.isFinite(n) ? n : 0 }));
+  const toggleCurrency = (cur: Currency) => {
+    setSelectedCurrencies((prev) => {
+      const has = prev.includes(cur);
+      if (has) {
+        // Tillåt inte tom lista
+        if (prev.length === 1) return prev;
+        const next = prev.filter((c) => c !== cur);
+        // Flytta kategorier som använde valutan till första kvarvarande
+        setCash((cash) => {
+          const fallback = next[0];
+          const updated: CashBreakdown = { ...cash };
+          (Object.keys(updated) as CashKey[]).forEach((key) => {
+            if (updated[key].currency === cur) {
+              updated[key] = { ...updated[key], currency: fallback };
+            }
+          });
+          return updated;
+        });
+        return next;
+      }
+      return [...prev, cur];
+    });
+    setDirty(true);
+  };
+
+  const updateCashField = <K extends keyof CashCategoryEntry>(
+    catKey: CashKey,
+    field: K,
+    value: CashCategoryEntry[K],
+  ) => {
+    setCash((c) => ({ ...c, [catKey]: { ...c[catKey], [field]: value } }));
     setDirty(true);
   };
 
@@ -111,6 +166,7 @@ const EveningRoundSummaryForm = ({
       await summaryHook.update.mutateAsync({
         checklist,
         cash_breakdown: cash,
+        selected_currencies: selectedCurrencies,
         notes: notes.trim() ? notes.trim() : null,
       });
       setDirty(false);
@@ -234,38 +290,168 @@ const EveningRoundSummaryForm = ({
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
-        <div className="flex items-center justify-between">
+      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
+        <div>
           <h2 className="text-base font-semibold">Kassaredovisning</h2>
-          <span className="text-sm font-medium tabular-nums">
-            Totalt: {total.toLocaleString("sv-SE")} kr
-          </span>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Välj vilka valutor du behöver, fyll sedan i per kategori.
+          </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {(Object.keys(CASH_LABELS) as CashKey[]).map((key) => (
-            <div key={key} className="space-y-1.5">
-              <Label htmlFor={`cash-${key}`}>{CASH_LABELS[key]}</Label>
-              <div className="relative">
-                <Input
-                  id={`cash-${key}`}
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  step="1"
-                  value={cash[key] === 0 ? "" : String(cash[key])}
-                  placeholder="0"
-                  onChange={(e) => setCashField(key, e.target.value)}
-                  className="pr-10"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                  kr
-                </span>
+
+        {/* Valutaval */}
+        <div className="space-y-2">
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+            Valutor
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {CURRENCIES.map((cur) => {
+              const checked = selectedCurrencies.includes(cur);
+              return (
+                <label
+                  key={cur}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-3 py-2 cursor-pointer transition-colors ${
+                    checked
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:bg-accent/40"
+                  }`}
+                >
+                  <Checkbox
+                    checked={checked}
+                    onCheckedChange={() => toggleCurrency(cur)}
+                    aria-label={cur}
+                  />
+                  <span className="text-sm font-medium">{cur}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Per kategori */}
+        <div className="space-y-3">
+          {(Object.keys(CASH_LABELS) as CashKey[]).map((key) => {
+            const entry = cash[key] ?? DEFAULT_CASH_ENTRY;
+            const subtotal = categorySubtotal(entry);
+            return (
+              <div
+                key={key}
+                className="rounded-xl border border-border bg-background p-3 sm:p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold">{CASH_LABELS[key]}</h3>
+                  <span className="text-sm font-medium tabular-nums">
+                    {formatAmount(subtotal)} {entry.currency}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`qty-${key}`} className="text-xs">
+                      Antal
+                    </Label>
+                    <Input
+                      id={`qty-${key}`}
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step="1"
+                      value={entry.quantity === 0 ? "" : String(entry.quantity)}
+                      placeholder="0"
+                      onChange={(e) =>
+                        updateCashField(
+                          key,
+                          "quantity",
+                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`amt-${key}`} className="text-xs">
+                      Belopp
+                    </Label>
+                    <Input
+                      id={`amt-${key}`}
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      step="0.01"
+                      value={entry.amount === 0 ? "" : String(entry.amount)}
+                      placeholder="0"
+                      onChange={(e) =>
+                        updateCashField(
+                          key,
+                          "amount",
+                          e.target.value === "" ? 0 : Number(e.target.value) || 0,
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1.5 col-span-2 sm:col-span-1">
+                    <Label htmlFor={`cur-${key}`} className="text-xs">
+                      Valuta
+                    </Label>
+                    <Select
+                      value={entry.currency}
+                      onValueChange={(v) => updateCashField(key, "currency", v as Currency)}
+                    >
+                      <SelectTrigger id={`cur-${key}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeCurrencies.map((cur) => (
+                          <SelectItem key={cur} value={cur}>
+                            {cur}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`note-${key}`} className="text-xs">
+                    Anteckning
+                  </Label>
+                  <Input
+                    id={`note-${key}`}
+                    value={entry.notes}
+                    onChange={(e) => updateCashField(key, "notes", e.target.value)}
+                    placeholder="Valfritt"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+
+        {/* Totaler */}
+        <div className="rounded-xl border border-border bg-muted/40 p-3 sm:p-4 space-y-2">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            Total per valuta
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {activeCurrencies.map((cur) => (
+              <div key={cur} className="text-sm">
+                <span className="font-semibold tabular-nums">
+                  {formatAmount(totals[cur])}
+                </span>{" "}
+                <span className="text-muted-foreground">{cur}</span>
+              </div>
+            ))}
+          </div>
+          <div className="pt-2 border-t border-border">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+              Grand Total
+            </div>
+            <div className="text-sm font-semibold tabular-nums break-words">
+              {activeCurrencies
+                .map((cur) => `${formatAmount(totals[cur])} ${cur}`)
+                .join(" + ")}
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-1.5">
-          <Label htmlFor="summary-notes">Anteckningar</Label>
+          <Label htmlFor="summary-notes">Övriga anteckningar</Label>
           <Textarea
             id="summary-notes"
             value={notes}
