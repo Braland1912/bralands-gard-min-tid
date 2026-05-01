@@ -536,13 +536,13 @@ const AdminTimeLog = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <label className="text-sm font-medium text-foreground">In</label>
-              <Input type="datetime-local" value={addClockIn} onChange={(e) => setAddClockIn(e.target.value)} className="h-12 text-base" />
+              <Input type="datetime-local" value={addClockIn} onChange={(e) => setAddClockIn(e.target.value)} placeholder="ÅÅÅÅ-MM-DD HH:MM" className="input-datetime h-12" />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <label className="text-sm font-medium text-foreground">Ut (valfritt)</label>
-              <Input type="datetime-local" value={addClockOut} onChange={(e) => setAddClockOut(e.target.value)} className="h-12 text-base" />
+              <Input type="datetime-local" value={addClockOut} onChange={(e) => setAddClockOut(e.target.value)} placeholder="ÅÅÅÅ-MM-DD HH:MM" className="input-datetime h-12" />
             </div>
           </div>
           <DialogFooter>
