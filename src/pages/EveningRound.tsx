@@ -407,7 +407,7 @@ const EveningRound = () => {
               { id: "bokade", label: `Upptagen (${counts.booked})` },
               { id: "lediga", label: `Lediga (${counts.free})` },
               { id: "har", label: `På plats (${counts.here})` },
-              { id: "utcheckad", label: `Utcheckad (${counts.out})` },
+              
               { id: "inte_har", label: `Ej kommit (${counts.not})` },
               { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
             ] as { id: Filter; label: string }[]
