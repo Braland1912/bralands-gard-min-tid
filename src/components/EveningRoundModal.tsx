@@ -187,7 +187,7 @@ const EveningRoundModal = ({
       await onSave({
         place_label: place,
         guest_name: name.trim(),
-        registration_number: reg.trim() || null,
+        registration_number: accommodation === "tent" ? null : (reg.trim() || null),
         arrival_date: arrival,
         departure_date: departure,
         payment_method: method === "none" ? null : method,
