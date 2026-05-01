@@ -304,7 +304,7 @@ const EveningRound = () => {
           </div>
           {!round && selectedDate !== today && (
             <p className="text-xs text-muted-foreground">
-              Ingen runda finns för valt datum. {isAdmin ? "Skapa via knappen ovan." : "Be admin skapa en."}
+              Ingen runda finns för valt datum.
             </p>
           )}
         </div>
