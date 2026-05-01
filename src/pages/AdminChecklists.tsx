@@ -360,9 +360,9 @@ const AdminChecklists = () => {
             Ny mall
           </Button>
         </div>
+        <EveningRoundChecklistPicker />
 
         
-
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
