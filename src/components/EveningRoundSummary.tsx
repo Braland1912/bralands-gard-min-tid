@@ -380,12 +380,7 @@ const EveningRoundSummaryForm = ({
                   {entries.map((entry, idx) => {
                     const rowId = entry.id ?? `${key}-${idx}`;
                     const showQuantity = key === "ved" || key === "tvattmaskin" || key === "torktumlare";
-                    const notesPlaceholder =
-                      key === "kiosk"
-                        ? "T.ex. 3 glassar, chips och öl"
-                        : key === "other"
-                          ? "Beskriv vad det avser"
-                          : "Valfritt – t.ex. ”kontant”, ”Swish”…";
+                    const useTextareaNotes = key === "kiosk" || key === "other";
                     return (
                       <li
                         key={rowId}
@@ -488,16 +483,15 @@ const EveningRoundSummaryForm = ({
                         </div>
                         <div className="space-y-1.5">
                           <Label htmlFor={`note-${rowId}`} className="text-xs">
-                            {key === "kiosk" || key === "other" ? "Vad avser det?" : "Anteckning"}
+                            Anteckning
                           </Label>
-                          {key === "kiosk" || key === "other" ? (
+                          {useTextareaNotes ? (
                             <Textarea
                               id={`note-${rowId}`}
                               value={entry.notes}
                               onChange={(e) =>
                                 updateCashField(key, rowId, "notes", e.target.value)
                               }
-                              placeholder={notesPlaceholder}
                               rows={2}
                             />
                           ) : (
@@ -507,7 +501,6 @@ const EveningRoundSummaryForm = ({
                               onChange={(e) =>
                                 updateCashField(key, rowId, "notes", e.target.value)
                               }
-                              placeholder={notesPlaceholder}
                             />
                           )}
                         </div>
