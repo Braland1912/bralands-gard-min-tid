@@ -497,6 +497,8 @@ const EveningRound = () => {
             <EveningRoundSummaryForm
               eveningRoundId={round?.id}
               workerId={worker?.id}
+              roundDate={date}
+              showQuickStart={!isAdmin && selectedDate === today}
             />
           </TabsContent>
 
