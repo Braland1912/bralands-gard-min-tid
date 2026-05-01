@@ -245,22 +245,26 @@ const EveningRoundExportDialog = () => {
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="export-from">Från</Label>
               <Input
                 id="export-from"
                 type="date"
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
+                placeholder="ÅÅÅÅ-MM-DD"
+                className="input-datetime"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 min-w-0">
               <Label htmlFor="export-to">Till</Label>
               <Input
                 id="export-to"
                 type="date"
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
+                placeholder="ÅÅÅÅ-MM-DD"
+                className="input-datetime"
               />
             </div>
           </div>
