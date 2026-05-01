@@ -201,6 +201,7 @@ const EveningRoundModal = ({
               : OTHER_CODE
             : nationality.trim() || null,
         payment_other_note: isOther ? otherNote.trim() : null,
+        accommodation_type: accommodation,
       });
       onOpenChange(false);
     } catch (e: any) {
