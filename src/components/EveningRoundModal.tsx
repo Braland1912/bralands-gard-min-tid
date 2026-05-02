@@ -550,6 +550,14 @@ const EveningRoundModal = ({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5 min-w-0">
                     <Label htmlFor="arr">Ankomst</Label>
+                    <Input
+                      id="arr"
+                      type="date"
+                      value={arrival}
+                      onChange={(e) => setArrival(e.target.value)}
+                      placeholder="ÅÅÅÅ-MM-DD"
+                      className="input-datetime"
+                    />
                     <div className="flex flex-wrap gap-1.5">
                       {arrPresets.map((p) => (
                         <button
@@ -567,29 +575,9 @@ const EveningRoundModal = ({
                         </button>
                       ))}
                     </div>
-                    <Input
-                      id="arr"
-                      type="date"
-                      value={arrival}
-                      onChange={(e) => setArrival(e.target.value)}
-                      placeholder="ÅÅÅÅ-MM-DD"
-                      className="input-datetime"
-                    />
                   </div>
                   <div className="space-y-1.5 min-w-0">
                     <Label htmlFor="dep">Avresa</Label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {depPresets.map((p) => (
-                        <button
-                          key={p.label}
-                          type="button"
-                          onClick={() => setDeparture(p.value)}
-                          className={cn(chipBase, departure === p.value ? chipActive : chipIdle)}
-                        >
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
                     <Input
                       id="dep"
                       type="date"
@@ -605,6 +593,18 @@ const EveningRoundModal = ({
                           "border-destructive focus-visible:ring-destructive bg-destructive/5",
                       )}
                     />
+                    <div className="flex flex-wrap gap-1.5">
+                      {depPresets.map((p) => (
+                        <button
+                          key={p.label}
+                          type="button"
+                          onClick={() => setDeparture(p.value)}
+                          className={cn(chipBase, departure === p.value ? chipActive : chipIdle)}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
                     {dateError && (
                       <p
                         id="dep-error"
