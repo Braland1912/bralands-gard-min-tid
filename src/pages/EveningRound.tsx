@@ -236,10 +236,6 @@ const EveningRound = () => {
             <div className="flex flex-wrap items-center gap-2">
               <AdminExtraPlacesDialog currentRoundId={round?.id} />
               <EveningRoundExportDialog />
-              <Badge className="gap-1">
-                <Shield className="h-3 w-3" />
-                ADMIN
-              </Badge>
             </div>
           )}
         </header>
