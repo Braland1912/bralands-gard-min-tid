@@ -539,6 +539,7 @@ const EveningRoundModal = ({
                 { label: "1 natt", value: addDaysLocal(arrival || today, 1) },
                 { label: "2 nätter", value: addDaysLocal(arrival || today, 2) },
                 { label: "3 nätter", value: addDaysLocal(arrival || today, 3) },
+                { label: "4 nätter", value: addDaysLocal(arrival || today, 4) },
                 { label: "1 vecka", value: addDaysLocal(arrival || today, 7) },
               ];
               const chipBase =
