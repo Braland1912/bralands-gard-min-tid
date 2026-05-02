@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Shield, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
+import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -36,6 +35,7 @@ import QuickReserveCard from "@/components/QuickReserveCard";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
+import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
 
@@ -236,10 +236,6 @@ const EveningRound = () => {
             <div className="flex flex-wrap items-center gap-2">
               <AdminExtraPlacesDialog currentRoundId={round?.id} />
               <EveningRoundExportDialog />
-              <Badge className="gap-1">
-                <Shield className="h-3 w-3" />
-                ADMIN
-              </Badge>
             </div>
           )}
         </header>
@@ -492,13 +488,17 @@ const EveningRound = () => {
           </TabsContent>
 
           <TabsContent value="redovisning" className="mt-0">
-            <EveningRoundSummaryForm
-              eveningRoundId={round?.id}
-              workerId={worker?.id}
-              roundDate={date}
-              showQuickStart={!isAdmin && selectedDate === today}
-              showChecklist={false}
-            />
+            {isAdmin ? (
+              <AdminDailySummaries roundDate={date} eveningRoundId={round?.id} />
+            ) : (
+              <EveningRoundSummaryForm
+                eveningRoundId={round?.id}
+                workerId={worker?.id}
+                roundDate={date}
+                showQuickStart={selectedDate === today}
+                showChecklist={false}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="checklista" className="mt-0 space-y-4">
