@@ -488,13 +488,17 @@ const EveningRound = () => {
           </TabsContent>
 
           <TabsContent value="redovisning" className="mt-0">
-            <EveningRoundSummaryForm
-              eveningRoundId={round?.id}
-              workerId={worker?.id}
-              roundDate={date}
-              showQuickStart={!isAdmin && selectedDate === today}
-              showChecklist={false}
-            />
+            {isAdmin ? (
+              <AdminDailySummaries roundDate={date} eveningRoundId={round?.id} />
+            ) : (
+              <EveningRoundSummaryForm
+                eveningRoundId={round?.id}
+                workerId={worker?.id}
+                roundDate={date}
+                showQuickStart={selectedDate === today}
+                showChecklist={false}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="checklista" className="mt-0 space-y-4">
