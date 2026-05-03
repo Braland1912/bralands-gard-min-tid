@@ -124,6 +124,13 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
             )
           )}
         </div>
+        {guest.status === "not_here" && (
+          <div className="mt-1">
+            <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+              Reserverad
+            </Badge>
+          </div>
+        )}
         <div className="text-base font-semibold leading-tight mt-0.5">
           {guest.accommodation_type === "tent" ? (
             <span className="inline-flex items-center gap-1.5">
