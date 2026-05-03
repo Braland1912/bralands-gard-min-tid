@@ -162,11 +162,13 @@ const AdminChecklists = () => {
   };
 
   const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
+    skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
     setNewItemText("");
+    setAutoSaveState("idle");
   };
 
   const handleOpenExisting = (tpl: Template) => {
