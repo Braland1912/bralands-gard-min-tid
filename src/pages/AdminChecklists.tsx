@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { Plus, Trash2, ListChecks, Pencil, Copy } from "lucide-react";
+import { Plus, Trash2, ListChecks, Pencil, Copy, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -162,11 +162,13 @@ const AdminChecklists = () => {
   };
 
   const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
+    skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
     setNewItemText("");
+    setAutoSaveState("idle");
   };
 
   const handleOpenExisting = (tpl: Template) => {
@@ -175,13 +177,17 @@ const AdminChecklists = () => {
   };
 
   const handleAddItem = () => {
-    const text = newItemText.trim();
-    if (!text) return;
+    const newId = `tmp-${Date.now()}-${Math.random()}`;
     setEditItems((prev) => [
       ...prev,
-      { id: `tmp-${Date.now()}-${Math.random()}`, template_id: editing!.id, text, sort_order: prev.length },
+      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length },
     ]);
     setNewItemText("");
+    // focus next render
+    setTimeout(() => {
+      const el = document.querySelector<HTMLTextAreaElement>(`[data-item-id="${newId}"]`);
+      el?.focus();
+    }, 50);
   };
 
   const updateItemText = (id: string, text: string) => {
@@ -208,93 +214,73 @@ const AdminChecklists = () => {
     });
   };
 
-  const saveTemplate = useMutation({
-    mutationFn: async () => {
-      if (!editing) return;
-      const name = editName.trim() || "Namnlös mall";
+  const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const skipNextSaveRef = useRef(false);
 
-      // Dubblettkontroll: jämför namn + punkter mot andra mallar
-      const currentItems = editItems
-        .map((i) => i.text.trim())
-        .filter((t) => t.length > 0);
-      const currentSig = currentItems.slice().sort().join("|").toLowerCase();
-      const currentName = name.toLowerCase();
+  const persistTemplate = async () => {
+    if (!editing) return;
+    const name = editName.trim() || "Namnlös mall";
 
-      const otherTemplates = templates.filter((t) => t.id !== editing.id);
-      for (const t of otherTemplates) {
-        if (t.name.trim().toLowerCase() !== currentName) continue;
-        const otherItems = allItems
-          .filter((i) => i.template_id === t.id)
-          .map((i) => i.text.trim())
-          .filter((x) => x.length > 0);
-        const otherSig = otherItems.slice().sort().join("|").toLowerCase();
-        if (otherSig === currentSig) {
-          throw new Error("DUPLICATE");
-        }
-      }
+    const { error: nameErr } = await supabase
+      .from("checklist_templates")
+      .update({ name, updated_at: new Date().toISOString() })
+      .eq("id", editing.id);
+    if (nameErr) throw nameErr;
 
-      const { error: nameErr } = await supabase
-        .from("checklist_templates")
-        .update({ name, updated_at: new Date().toISOString() })
-        .eq("id", editing.id);
-      if (nameErr) throw nameErr;
+    const { error: delErr } = await supabase
+      .from("checklist_template_items")
+      .delete()
+      .eq("template_id", editing.id);
+    if (delErr) throw delErr;
 
-      // Replace all items: delete + insert
-      const { error: delErr } = await supabase
-        .from("checklist_template_items")
-        .delete()
-        .eq("template_id", editing.id);
-      if (delErr) throw delErr;
+    const filtered = editItems
+      .map((i, idx) => ({ text: i.text.trim(), sort_order: idx, template_id: editing.id }))
+      .filter((i) => i.text.length > 0);
 
-      const filtered = editItems.map((i, idx) => ({ text: i.text.trim(), sort_order: idx, template_id: editing.id }))
-        .filter((i) => i.text.length > 0);
+    if (filtered.length > 0) {
+      const { error: insErr } = await supabase.from("checklist_template_items").insert(filtered);
+      if (insErr) throw insErr;
+    }
 
-      if (filtered.length > 0) {
-        const { error: insErr } = await supabase.from("checklist_template_items").insert(filtered);
-        if (insErr) throw insErr;
-      }
-
-      // Sync shift type links
-      const { error: delLinkErr } = await supabase
+    const { error: delLinkErr } = await supabase
+      .from("checklist_template_shift_types")
+      .delete()
+      .eq("template_id", editing.id);
+    if (delLinkErr) throw delLinkErr;
+    if (editShiftTypes.length > 0) {
+      const { error: linkErr } = await supabase
         .from("checklist_template_shift_types")
-        .delete()
-        .eq("template_id", editing.id);
-      if (delLinkErr) throw delLinkErr;
-      if (editShiftTypes.length > 0) {
-        const { error: linkErr } = await supabase
-          .from("checklist_template_shift_types")
-          .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
-        if (linkErr) throw linkErr;
+        .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
+      if (linkErr) throw linkErr;
+    }
+  };
+
+  // Autosave debounce
+  useEffect(() => {
+    if (!editing) return;
+    if (skipNextSaveRef.current) {
+      skipNextSaveRef.current = false;
+      return;
+    }
+    if (nameTaken) return;
+    setAutoSaveState("saving");
+    const t = setTimeout(async () => {
+      try {
+        await persistTemplate();
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
+          queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] }),
+          queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] }),
+        ]);
+        setAutoSaveState("saved");
+      } catch {
+        setAutoSaveState("error");
+        toast({ title: "Kunde inte spara automatiskt", variant: "destructive" });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
-      queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
-      queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] });
-      setEditing(null);
-      toast({
-        title: "Mall sparad",
-        description: "Namn, punkter och passtyper är uppdaterade.",
-      });
-    },
-    onError: (err: any) => {
-      const isItemDup = err?.message === "DUPLICATE";
-      const isNameDup = err?.code === "23505";
-      toast({
-        title: isNameDup
-          ? "Namnet används redan"
-          : isItemDup
-            ? "Dubblett av befintlig mall"
-            : "Kunde inte spara",
-        description: isNameDup
-          ? "En annan mall har redan detta namn. Välj ett unikt namn."
-          : isItemDup
-            ? "En annan mall har redan samma namn och samma punkter. Ändra namn eller någon punkt."
-            : undefined,
-        variant: "destructive",
-      });
-    },
-  });
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editName, editItems, editShiftTypes, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
@@ -434,6 +420,11 @@ const AdminChecklists = () => {
           {/* Header */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border bg-card">
             <SheetTitle className="text-base font-semibold pr-8">Redigera mall</SheetTitle>
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5 pr-8">
+              {autoSaveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Sparar…</>)}
+              {autoSaveState === "saved" && (<><Check className="h-3 w-3 text-primary" />Sparat</>)}
+              {autoSaveState === "error" && (<span className="text-destructive">Kunde inte spara</span>)}
+            </div>
           </div>
 
           {/* Scrollable body */}
@@ -464,6 +455,7 @@ const AdminChecklists = () => {
                       {editItems.map((item) => (
                         <SortableItem key={item.id} id={item.id}>
                           <Textarea
+                            data-item-id={item.id}
                             value={item.text}
                             onChange={(e) => updateItemText(item.id, e.target.value)}
                             placeholder="Punkt..."
@@ -496,23 +488,14 @@ const AdminChecklists = () => {
                 </DndContext>
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <Input
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddItem();
-                    }
-                  }}
-                  placeholder="Lägg till ny punkt..."
-                />
-                <Button variant="outline" onClick={handleAddItem} className="shrink-0">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Lägg till
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={handleAddItem}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-1.5" />
+                Ny punkt
+              </Button>
             </div>
 
             <div className="space-y-2">
@@ -560,10 +543,14 @@ const AdminChecklists = () => {
             </Button>
             <Button
               className="flex-1"
-              onClick={() => saveTemplate.mutate()}
-              disabled={saveTemplate.isPending || nameTaken}
+              onClick={() => setEditing(null)}
+              disabled={autoSaveState === "saving" || nameTaken}
             >
-              {saveTemplate.isPending ? "Sparar..." : "Klar"}
+              {autoSaveState === "saving" ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sparar...</>
+              ) : (
+                <><Check className="h-4 w-4 mr-2" />Klar</>
+              )}
             </Button>
           </div>
         </SheetContent>
