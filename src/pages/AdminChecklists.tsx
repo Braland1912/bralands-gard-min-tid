@@ -450,6 +450,7 @@ const AdminChecklists = () => {
                       {editItems.map((item) => (
                         <SortableItem key={item.id} id={item.id}>
                           <Textarea
+                            data-item-id={item.id}
                             value={item.text}
                             onChange={(e) => updateItemText(item.id, e.target.value)}
                             placeholder="Punkt..."
@@ -482,23 +483,14 @@ const AdminChecklists = () => {
                 </DndContext>
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <Input
-                  value={newItemText}
-                  onChange={(e) => setNewItemText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddItem();
-                    }
-                  }}
-                  placeholder="Lägg till ny punkt..."
-                />
-                <Button variant="outline" onClick={handleAddItem} className="shrink-0">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Lägg till
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={handleAddItem}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-1.5" />
+                Ny punkt
+              </Button>
             </div>
 
             <div className="space-y-2">
