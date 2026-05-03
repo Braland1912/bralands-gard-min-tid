@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Plus, Trash2, ListChecks, Pencil, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -462,10 +463,23 @@ const AdminChecklists = () => {
                     <div className="space-y-2">
                       {editItems.map((item) => (
                         <SortableItem key={item.id} id={item.id}>
-                          <Input
+                          <Textarea
                             value={item.text}
                             onChange={(e) => updateItemText(item.id, e.target.value)}
                             placeholder="Punkt..."
+                            rows={1}
+                            className="min-h-[40px] resize-none overflow-hidden py-2"
+                            onInput={(e) => {
+                              const el = e.currentTarget;
+                              el.style.height = "auto";
+                              el.style.height = el.scrollHeight + "px";
+                            }}
+                            ref={(el) => {
+                              if (el) {
+                                el.style.height = "auto";
+                                el.style.height = el.scrollHeight + "px";
+                              }
+                            }}
                           />
                           <Button
                             variant="ghost"
