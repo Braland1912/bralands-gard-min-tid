@@ -542,10 +542,14 @@ const AdminChecklists = () => {
             </Button>
             <Button
               className="flex-1"
-              onClick={() => saveTemplate.mutate()}
-              disabled={saveTemplate.isPending || nameTaken}
+              onClick={() => setEditing(null)}
+              disabled={autoSaveState === "saving" || nameTaken}
             >
-              {saveTemplate.isPending ? "Sparar..." : "Klar"}
+              {autoSaveState === "saving" ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sparar...</>
+              ) : (
+                <><Check className="h-4 w-4 mr-2" />Klar</>
+              )}
             </Button>
           </div>
         </SheetContent>
