@@ -177,13 +177,17 @@ const AdminChecklists = () => {
   };
 
   const handleAddItem = () => {
-    const text = newItemText.trim();
-    if (!text) return;
+    const newId = `tmp-${Date.now()}-${Math.random()}`;
     setEditItems((prev) => [
       ...prev,
-      { id: `tmp-${Date.now()}-${Math.random()}`, template_id: editing!.id, text, sort_order: prev.length },
+      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length },
     ]);
     setNewItemText("");
+    // focus next render
+    setTimeout(() => {
+      const el = document.querySelector<HTMLTextAreaElement>(`[data-item-id="${newId}"]`);
+      el?.focus();
+    }, 50);
   };
 
   const updateItemText = (id: string, text: string) => {
