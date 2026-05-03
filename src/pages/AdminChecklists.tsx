@@ -420,6 +420,11 @@ const AdminChecklists = () => {
           {/* Header */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border bg-card">
             <SheetTitle className="text-base font-semibold pr-8">Redigera mall</SheetTitle>
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5 pr-8">
+              {autoSaveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Sparar…</>)}
+              {autoSaveState === "saved" && (<><Check className="h-3 w-3 text-primary" />Sparat</>)}
+              {autoSaveState === "error" && (<span className="text-destructive">Kunde inte spara</span>)}
+            </div>
           </div>
 
           {/* Scrollable body */}
