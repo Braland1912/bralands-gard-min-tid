@@ -27,8 +27,8 @@ const statusColors: Record<GuestStatus, string> = {
   not_here: "text-destructive",
 };
 const statusLabels: Record<GuestStatus, string> = {
-  here: "Här",
-  not_here: "Inte här",
+  here: "På plats",
+  not_here: "Ej kommit",
 };
 
 const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName }: Props) => {
@@ -153,8 +153,8 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
       </div>
 
       <div className="flex items-center gap-2">
-        <StatusBtn s="here" Icon={Check} label="Här" />
-        <StatusBtn s="not_here" Icon={X} label="Inte här" />
+        <StatusBtn s="here" Icon={Check} label="På plats" />
+        <StatusBtn s="not_here" Icon={X} label="Ej kommit" />
         <span className={`text-sm font-medium ${statusColors[guest.status]}`}>
           {statusLabels[guest.status]}
         </span>

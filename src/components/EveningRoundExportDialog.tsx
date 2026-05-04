@@ -43,8 +43,8 @@ const monthAgoLocal = () => {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  here: "Här",
-  not_here: "Inte här",
+  here: "På plats",
+  not_here: "Ej kommit",
 };
 
 const csvEscape = (val: unknown): string => {
