@@ -171,8 +171,8 @@ export const useEveningRoundGuests = (
       const datePart = formatDateLabel(date);
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
-          here: "Markerad som Här",
-          not_here: "Markerad som Inte här",
+          here: "Markerad som På plats",
+          not_here: "Markerad som Ej kommit",
         };
         toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
           description: buildDescription([guestPart, datePart]),
