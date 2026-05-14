@@ -560,6 +560,24 @@ const EveningRound = () => {
         }}
       />
 
+      <EveningRoundExtendDialog
+        open={!!extendingGuest}
+        onOpenChange={(o) => !o && setExtendingGuest(null)}
+        guest={extendingGuest}
+        viewDate={today}
+        onExtended={() => {
+          // Hoppa till idag så den förlängda gästen syns direkt
+          setSelectedDate(today);
+        }}
+      />
+
+      <EveningRoundExtendSearch
+        open={extendSearchOpen}
+        onOpenChange={setExtendSearchOpen}
+        viewDate={today}
+        onPick={(g) => setExtendingGuest(g)}
+      />
+
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
