@@ -467,6 +467,7 @@ const EveningRound = () => {
                   onStatusChange={handleStatus}
                   onEdit={openEdit}
                   ownerName={ownerName}
+                  onExtend={isAdmin ? setExtendingGuest : undefined}
                 />
               );
             }
