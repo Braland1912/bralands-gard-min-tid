@@ -161,6 +161,21 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
         <span className={`text-sm font-medium ${statusColors[guest.status]}`}>
           {statusLabels[guest.status]}
         </span>
+        {onExtend && !readOnly && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="ml-auto h-8 gap-1.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExtend(guest);
+            }}
+          >
+            <CalendarPlus2 className="h-3.5 w-3.5" />
+            Förläng
+          </Button>
+        )}
       </div>
 
       <div className="text-sm text-muted-foreground">
