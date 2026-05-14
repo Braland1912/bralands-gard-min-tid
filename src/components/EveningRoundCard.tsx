@@ -34,7 +34,7 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Ej kommit",
 };
 
-const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName }: Props) => {
+const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName, onExtend }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
   const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
