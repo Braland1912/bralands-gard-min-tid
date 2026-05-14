@@ -1,5 +1,6 @@
-import { Check, X } from "lucide-react";
+import { Check, X, CalendarPlus2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   type EveningRoundGuest,
   type GuestStatus,
@@ -15,6 +16,8 @@ interface Props {
   readOnly?: boolean;
   /** Visas som "Gick: Eva" om angivet. */
   ownerName?: string | null;
+  /** Om angiven visas en "Förläng"-knapp på kortet. */
+  onExtend?: (guest: EveningRoundGuest) => void;
 }
 
 const formatDate = (iso: string) => {
@@ -31,7 +34,7 @@ const statusLabels: Record<GuestStatus, string> = {
   not_here: "Ej kommit",
 };
 
-const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName }: Props) => {
+const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, ownerName, onExtend }: Props) => {
   const isUnpaid = !guest.payment_method || !guest.payment_amount;
   const parsedNat = parseNationality(guest.nationality);
   const nat = getNationality(guest.nationality);
@@ -158,6 +161,21 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
         <span className={`text-sm font-medium ${statusColors[guest.status]}`}>
           {statusLabels[guest.status]}
         </span>
+        {onExtend && !readOnly && (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="ml-auto h-8 gap-1.5"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExtend(guest);
+            }}
+          >
+            <CalendarPlus2 className="h-3.5 w-3.5" />
+            Förläng
+          </Button>
+        )}
       </div>
 
       <div className="text-sm text-muted-foreground">

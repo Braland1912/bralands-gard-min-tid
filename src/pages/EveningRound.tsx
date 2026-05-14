@@ -26,6 +26,8 @@ import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
 import EveningRoundSummaryForm from "@/components/EveningRoundSummary";
 import EveningRoundHistory from "@/components/EveningRoundHistory";
+import EveningRoundExtendDialog from "@/components/EveningRoundExtendDialog";
+import EveningRoundExtendSearch from "@/components/EveningRoundExtendSearch";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,6 +106,8 @@ const EveningRound = () => {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
   const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
+  const [extendingGuest, setExtendingGuest] = useState<EveningRoundGuest | null>(null);
+  const [extendSearchOpen, setExtendSearchOpen] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -386,30 +390,40 @@ const EveningRound = () => {
           />
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              { id: "alla", label: `Alla (${counts.booked + counts.free})` },
-              { id: "bokade", label: `Upptagen (${counts.booked})` },
-              { id: "lediga", label: `Lediga (${counts.free})` },
-              { id: "har", label: `På plats (${counts.here})` },
-              
-              { id: "inte_har", label: `Ej kommit (${counts.not})` },
-              { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
-            ] as { id: Filter; label: string }[]
-          ).map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                filter === c.id
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-muted-foreground border-border hover:bg-accent"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+            {(
+              [
+                { id: "alla", label: `Alla (${counts.booked + counts.free})` },
+                { id: "bokade", label: `Upptagen (${counts.booked})` },
+                { id: "lediga", label: `Lediga (${counts.free})` },
+                { id: "har", label: `På plats (${counts.here})` },
+                { id: "inte_har", label: `Ej kommit (${counts.not})` },
+                { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
+              ] as { id: Filter; label: string }[]
+            ).map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setFilter(c.id)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  filter === c.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border hover:bg-accent"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setExtendSearchOpen(true)}
+          >
+            <Calendar className="h-4 w-4" />
+            Förläng tidigare gäst
+          </Button>
         </div>
 
 
@@ -428,6 +442,7 @@ const EveningRound = () => {
                     onStatusChange={handleStatus}
                     onEdit={openEdit}
                     ownerName={ownerName}
+                    onExtend={setExtendingGuest}
                   />
                 );
               })}
@@ -452,6 +467,7 @@ const EveningRound = () => {
                   onStatusChange={handleStatus}
                   onEdit={openEdit}
                   ownerName={ownerName}
+                  onExtend={setExtendingGuest}
                 />
               );
             }
@@ -542,6 +558,24 @@ const EveningRound = () => {
           const created = await addPlace.mutateAsync(label);
           return created.label;
         }}
+      />
+
+      <EveningRoundExtendDialog
+        open={!!extendingGuest}
+        onOpenChange={(o) => !o && setExtendingGuest(null)}
+        guest={extendingGuest}
+        viewDate={today}
+        onExtended={() => {
+          // Hoppa till idag så den förlängda gästen syns direkt
+          setSelectedDate(today);
+        }}
+      />
+
+      <EveningRoundExtendSearch
+        open={extendSearchOpen}
+        onOpenChange={setExtendSearchOpen}
+        viewDate={today}
+        onPick={(g) => setExtendingGuest(g)}
       />
 
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
