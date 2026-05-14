@@ -1,5 +1,6 @@
-import { Check, X } from "lucide-react";
+import { Check, X, CalendarPlus2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   type EveningRoundGuest,
   type GuestStatus,
@@ -15,6 +16,8 @@ interface Props {
   readOnly?: boolean;
   /** Visas som "Gick: Eva" om angivet. */
   ownerName?: string | null;
+  /** Om angiven visas en "Förläng"-knapp på kortet. */
+  onExtend?: (guest: EveningRoundGuest) => void;
 }
 
 const formatDate = (iso: string) => {
