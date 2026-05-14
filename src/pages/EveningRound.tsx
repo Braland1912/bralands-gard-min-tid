@@ -26,6 +26,8 @@ import EveningRoundModal from "@/components/EveningRoundModal";
 import EveningRoundExportDialog from "@/components/EveningRoundExportDialog";
 import EveningRoundSummaryForm from "@/components/EveningRoundSummary";
 import EveningRoundHistory from "@/components/EveningRoundHistory";
+import EveningRoundExtendDialog from "@/components/EveningRoundExtendDialog";
+import EveningRoundExtendSearch from "@/components/EveningRoundExtendSearch";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
