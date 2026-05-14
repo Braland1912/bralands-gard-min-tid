@@ -106,6 +106,8 @@ const EveningRound = () => {
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
   const [pickPlaceOpen, setPickPlaceOpen] = useState(false);
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
+  const [extendingGuest, setExtendingGuest] = useState<EveningRoundGuest | null>(null);
+  const [extendSearchOpen, setExtendSearchOpen] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
