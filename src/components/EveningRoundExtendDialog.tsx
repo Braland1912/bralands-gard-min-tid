@@ -204,23 +204,63 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
           </div>
 
           {extraNights > 0 && (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-1 text-sm">
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-3 text-sm">
               <div className="font-medium">
                 Förlängning: +{extraNights} {extraNights === 1 ? "natt" : "nätter"} (totalt {newTotalNights})
               </div>
-              {suggestedAmount !== null ? (
-                <div className="text-muted-foreground">
-                  Föreslaget restbelopp:{" "}
-                  <span className="font-semibold text-foreground">
-                    {suggestedAmount} {guest.payment_currency ?? "SEK"}
-                  </span>{" "}
-                  ({Math.round(pricePerNight!)} {guest.payment_currency ?? "SEK"}/natt × {extraNights})
+
+              <div className="space-y-1.5">
+                <Label htmlFor="extend-amount">Restbelopp ({currency})</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="extend-amount"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="1"
+                    value={amount}
+                    onChange={(e) => {
+                      setAmount(e.target.value);
+                      setAmountTouched(true);
+                    }}
+                    placeholder={suggestedAmount !== null ? String(suggestedAmount) : "0"}
+                  />
+                  {amountTouched && suggestedAmount !== null && parsedAmount !== suggestedAmount && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAmount(String(suggestedAmount));
+                        setAmountTouched(false);
+                      }}
+                    >
+                      Återställ
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                <div className="text-muted-foreground">
-                  Inget pris per natt registrerat — fyll i nytt belopp manuellt på kortet.
-                </div>
-              )}
+                {suggestedAmount !== null ? (
+                  <p className="text-xs text-muted-foreground">
+                    Förslag: {suggestedAmount} {currency} ({Math.round(pricePerNight!)} {currency}/natt × {extraNights}). Justera vid behov.
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Inget pris per natt registrerat — fyll i belopp manuellt eller lämna tomt.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="extend-note">Betalningsnotering (valfri)</Label>
+                <Textarea
+                  id="extend-note"
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  placeholder="T.ex. ska Swisha imorgon, betalat 200 kontant…"
+                  rows={2}
+                />
+              </div>
+
               <div className="text-xs text-muted-foreground">
                 Kortet markeras som <span className="font-semibold">EJ BETALT</span> tills ny betalning registreras.
               </div>
