@@ -390,8 +390,8 @@ const EveningRound = () => {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {(
               [
                 { id: "alla", label: `Alla (${counts.booked + counts.free})` },
@@ -405,7 +405,7 @@ const EveningRound = () => {
               <button
                 key={c.id}
                 onClick={() => setFilter(c.id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                className={`w-full px-3 py-2 rounded-full text-sm font-medium border transition-colors text-center truncate ${
                   filter === c.id
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card text-muted-foreground border-border hover:bg-accent"
@@ -418,7 +418,7 @@ const EveningRound = () => {
           <Button
             variant="outline"
             size="sm"
-            className="gap-1.5"
+            className="w-full gap-1.5"
             onClick={() => setExtendSearchOpen(true)}
           >
             <Calendar className="h-4 w-4" />
