@@ -85,6 +85,19 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
   const suggestedAmount =
     pricePerNight !== null ? Math.round(pricePerNight * extraNights) : null;
   const newTotalNights = originalNights + extraNights;
+  const currency = guest.payment_currency ?? "SEK";
+
+  // Synka föreslaget belopp in i fältet tills användaren börjat redigera
+  useEffect(() => {
+    if (!amountTouched) {
+      setAmount(suggestedAmount !== null && extraNights > 0 ? String(suggestedAmount) : "");
+    }
+  }, [suggestedAmount, extraNights, amountTouched]);
+
+  const parsedAmount = (() => {
+    const n = parseFloat(amount.replace(",", "."));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  })();
 
   const handleSave = async () => {
     if (!newDeparture || newDeparture <= guest.departure_date) {
@@ -95,15 +108,20 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
       toast.error("Nytt avresedatum måste vara efter visat datum");
       return;
     }
+    if (amount.trim() !== "" && parsedAmount === null) {
+      toast.error("Ogiltigt restbelopp");
+      return;
+    }
     setSaving(true);
     try {
-      const suggestionText =
-        suggestedAmount !== null
-          ? `Förlängd ${guest.departure_date} → ${newDeparture}. Föreslaget restbelopp: ${suggestedAmount} ${guest.payment_currency ?? "SEK"}.`
-          : `Förlängd ${guest.departure_date} → ${newDeparture}. Restbelopp att fakturera.`;
-      const newNotes = guest.notes
-        ? `${guest.notes}\n${suggestionText}`
-        : suggestionText;
+      const trimmedNote = paymentNote.trim();
+      const amountText =
+        parsedAmount !== null
+          ? `Restbelopp: ${parsedAmount} ${currency}`
+          : "Restbelopp att fakturera";
+      const baseLine = `Förlängd ${guest.departure_date} → ${newDeparture}. ${amountText}.`;
+      const fullLine = trimmedNote ? `${baseLine} Notering: ${trimmedNote}` : baseLine;
+      const newNotes = guest.notes ? `${guest.notes}\n${fullLine}` : fullLine;
 
       const { error } = await supabase
         .from("evening_round_guests")
@@ -112,9 +130,9 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
           status: "here",
           // Nollställ betalning så den dyker upp som EJ BETALT med restbelopp att hantera
           payment_method: null,
-          payment_amount: null,
-          payment_currency: null,
-          payment_other_note: null,
+          payment_amount: parsedAmount,
+          payment_currency: parsedAmount !== null ? currency : null,
+          payment_other_note: trimmedNote || null,
           notes: newNotes,
         })
         .eq("id", guest.id);
@@ -123,8 +141,8 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
 
       toast.success("Gästen förlängd", {
         description:
-          suggestedAmount !== null
-            ? `Nytt avresedatum: ${newDeparture}. Föreslaget restbelopp: ${suggestedAmount} ${guest.payment_currency ?? "SEK"}.`
+          parsedAmount !== null
+            ? `Nytt avresedatum: ${newDeparture}. Restbelopp: ${parsedAmount} ${currency}.`
             : `Nytt avresedatum: ${newDeparture}. Markerad som EJ BETALT.`,
       });
 
