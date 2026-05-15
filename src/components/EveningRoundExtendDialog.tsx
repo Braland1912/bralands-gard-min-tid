@@ -76,16 +76,15 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
     }
   }, [open, guest, minDeparture]);
 
-  if (!guest) return null;
-
-  const originalNights = Math.max(1, daysBetween(guest.arrival_date, guest.departure_date));
-  const extraNights = newDeparture ? Math.max(0, daysBetween(guest.departure_date, newDeparture)) : 0;
+  const originalNights = guest ? Math.max(1, daysBetween(guest.arrival_date, guest.departure_date)) : 0;
+  const extraNights =
+    guest && newDeparture ? Math.max(0, daysBetween(guest.departure_date, newDeparture)) : 0;
   const pricePerNight =
-    guest.payment_amount && originalNights > 0 ? guest.payment_amount / originalNights : null;
+    guest && guest.payment_amount && originalNights > 0 ? guest.payment_amount / originalNights : null;
   const suggestedAmount =
     pricePerNight !== null ? Math.round(pricePerNight * extraNights) : null;
   const newTotalNights = originalNights + extraNights;
-  const currency = guest.payment_currency ?? "SEK";
+  const currency = guest?.payment_currency ?? "SEK";
 
   // Synka föreslaget belopp in i fältet tills användaren börjat redigera
   useEffect(() => {
@@ -93,6 +92,8 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
       setAmount(suggestedAmount !== null && extraNights > 0 ? String(suggestedAmount) : "");
     }
   }, [suggestedAmount, extraNights, amountTouched]);
+
+  if (!guest) return null;
 
   const parsedAmount = (() => {
     const n = parseFloat(amount.replace(",", "."));
