@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import {
   PAYMENT_LABELS,
@@ -54,6 +55,9 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
   const today = todayLocal();
   const minDeparture = useMemo(() => shiftIso(viewDate, 1), [viewDate]);
   const [newDeparture, setNewDeparture] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [paymentNote, setPaymentNote] = useState<string>("");
+  const [amountTouched, setAmountTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
@@ -67,6 +71,8 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
       const defaultDate =
         guest.departure_date >= minDeparture ? shiftIso(guest.departure_date, 1) : minDeparture;
       setNewDeparture(defaultDate);
+      setPaymentNote("");
+      setAmountTouched(false);
     }
   }, [open, guest, minDeparture]);
 
@@ -79,6 +85,19 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
   const suggestedAmount =
     pricePerNight !== null ? Math.round(pricePerNight * extraNights) : null;
   const newTotalNights = originalNights + extraNights;
+  const currency = guest.payment_currency ?? "SEK";
+
+  // Synka föreslaget belopp in i fältet tills användaren börjat redigera
+  useEffect(() => {
+    if (!amountTouched) {
+      setAmount(suggestedAmount !== null && extraNights > 0 ? String(suggestedAmount) : "");
+    }
+  }, [suggestedAmount, extraNights, amountTouched]);
+
+  const parsedAmount = (() => {
+    const n = parseFloat(amount.replace(",", "."));
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  })();
 
   const handleSave = async () => {
     if (!newDeparture || newDeparture <= guest.departure_date) {
@@ -89,15 +108,20 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
       toast.error("Nytt avresedatum måste vara efter visat datum");
       return;
     }
+    if (amount.trim() !== "" && parsedAmount === null) {
+      toast.error("Ogiltigt restbelopp");
+      return;
+    }
     setSaving(true);
     try {
-      const suggestionText =
-        suggestedAmount !== null
-          ? `Förlängd ${guest.departure_date} → ${newDeparture}. Föreslaget restbelopp: ${suggestedAmount} ${guest.payment_currency ?? "SEK"}.`
-          : `Förlängd ${guest.departure_date} → ${newDeparture}. Restbelopp att fakturera.`;
-      const newNotes = guest.notes
-        ? `${guest.notes}\n${suggestionText}`
-        : suggestionText;
+      const trimmedNote = paymentNote.trim();
+      const amountText =
+        parsedAmount !== null
+          ? `Restbelopp: ${parsedAmount} ${currency}`
+          : "Restbelopp att fakturera";
+      const baseLine = `Förlängd ${guest.departure_date} → ${newDeparture}. ${amountText}.`;
+      const fullLine = trimmedNote ? `${baseLine} Notering: ${trimmedNote}` : baseLine;
+      const newNotes = guest.notes ? `${guest.notes}\n${fullLine}` : fullLine;
 
       const { error } = await supabase
         .from("evening_round_guests")
@@ -106,9 +130,9 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
           status: "here",
           // Nollställ betalning så den dyker upp som EJ BETALT med restbelopp att hantera
           payment_method: null,
-          payment_amount: null,
-          payment_currency: null,
-          payment_other_note: null,
+          payment_amount: parsedAmount,
+          payment_currency: parsedAmount !== null ? currency : null,
+          payment_other_note: trimmedNote || null,
           notes: newNotes,
         })
         .eq("id", guest.id);
@@ -117,8 +141,8 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
 
       toast.success("Gästen förlängd", {
         description:
-          suggestedAmount !== null
-            ? `Nytt avresedatum: ${newDeparture}. Föreslaget restbelopp: ${suggestedAmount} ${guest.payment_currency ?? "SEK"}.`
+          parsedAmount !== null
+            ? `Nytt avresedatum: ${newDeparture}. Restbelopp: ${parsedAmount} ${currency}.`
             : `Nytt avresedatum: ${newDeparture}. Markerad som EJ BETALT.`,
       });
 
@@ -180,23 +204,63 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
           </div>
 
           {extraNights > 0 && (
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-1 text-sm">
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-3 text-sm">
               <div className="font-medium">
                 Förlängning: +{extraNights} {extraNights === 1 ? "natt" : "nätter"} (totalt {newTotalNights})
               </div>
-              {suggestedAmount !== null ? (
-                <div className="text-muted-foreground">
-                  Föreslaget restbelopp:{" "}
-                  <span className="font-semibold text-foreground">
-                    {suggestedAmount} {guest.payment_currency ?? "SEK"}
-                  </span>{" "}
-                  ({Math.round(pricePerNight!)} {guest.payment_currency ?? "SEK"}/natt × {extraNights})
+
+              <div className="space-y-1.5">
+                <Label htmlFor="extend-amount">Restbelopp ({currency})</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="extend-amount"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="1"
+                    value={amount}
+                    onChange={(e) => {
+                      setAmount(e.target.value);
+                      setAmountTouched(true);
+                    }}
+                    placeholder={suggestedAmount !== null ? String(suggestedAmount) : "0"}
+                  />
+                  {amountTouched && suggestedAmount !== null && parsedAmount !== suggestedAmount && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAmount(String(suggestedAmount));
+                        setAmountTouched(false);
+                      }}
+                    >
+                      Återställ
+                    </Button>
+                  )}
                 </div>
-              ) : (
-                <div className="text-muted-foreground">
-                  Inget pris per natt registrerat — fyll i nytt belopp manuellt på kortet.
-                </div>
-              )}
+                {suggestedAmount !== null ? (
+                  <p className="text-xs text-muted-foreground">
+                    Förslag: {suggestedAmount} {currency} ({Math.round(pricePerNight!)} {currency}/natt × {extraNights}). Justera vid behov.
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Inget pris per natt registrerat — fyll i belopp manuellt eller lämna tomt.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="extend-note">Betalningsnotering (valfri)</Label>
+                <Textarea
+                  id="extend-note"
+                  value={paymentNote}
+                  onChange={(e) => setPaymentNote(e.target.value)}
+                  placeholder="T.ex. ska Swisha imorgon, betalat 200 kontant…"
+                  rows={2}
+                />
+              </div>
+
               <div className="text-xs text-muted-foreground">
                 Kortet markeras som <span className="font-semibold">EJ BETALT</span> tills ny betalning registreras.
               </div>
