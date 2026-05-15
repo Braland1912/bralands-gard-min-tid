@@ -55,6 +55,9 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
   const today = todayLocal();
   const minDeparture = useMemo(() => shiftIso(viewDate, 1), [viewDate]);
   const [newDeparture, setNewDeparture] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
+  const [paymentNote, setPaymentNote] = useState<string>("");
+  const [amountTouched, setAmountTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
 
@@ -68,6 +71,8 @@ const EveningRoundExtendDialog = ({ open, onOpenChange, guest, viewDate, onExten
       const defaultDate =
         guest.departure_date >= minDeparture ? shiftIso(guest.departure_date, 1) : minDeparture;
       setNewDeparture(defaultDate);
+      setPaymentNote("");
+      setAmountTouched(false);
     }
   }, [open, guest, minDeparture]);
 
