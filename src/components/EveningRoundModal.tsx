@@ -161,9 +161,13 @@ const EveningRoundModal = ({
   }, [open, guest, defaultDate]);
 
   const place = pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
-  const showPlacePicker =
-    place == null && Array.isArray(availablePlaces) && availablePlaces.length > 0;
-  const takenSet = new Set(takenPlaces ?? []);
+  const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0;
+  const showPlacePicker = place == null && hasPlaceOptions;
+  const canEditPlace = !!guest && hasPlaceOptions;
+  const showEditPlacePicker = editingPlace && hasPlaceOptions;
+  const takenSet = new Set(
+    (takenPlaces ?? []).filter((p) => !guest || p !== guest.place_label),
+  );
   const isCash = method === "K";
   const isOther = method === "O";
 
