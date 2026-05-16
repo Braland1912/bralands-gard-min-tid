@@ -287,6 +287,53 @@ const EveningRoundModal = ({
           </DialogHeader>
 
           <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
+            {showEditPlacePicker && (
+              <div className="space-y-2 rounded-xl border border-border bg-muted/40 p-3">
+                <div className="flex items-center justify-between">
+                  <Label>Välj ny plats</Label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingPlace(false);
+                      setPickedPlace(null);
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground underline"
+                  >
+                    Avbryt
+                  </button>
+                </div>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {availablePlaces!.map((p) => {
+                    const taken = takenSet.has(p);
+                    const isCurrent = guest?.place_label === p && !pickedPlace;
+                    const isPicked = pickedPlace === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        disabled={taken}
+                        onClick={() => {
+                          setPickedPlace(p);
+                          setEditingPlace(false);
+                        }}
+                        className={
+                          taken
+                            ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
+                            : isPicked || isCurrent
+                              ? "h-10 rounded-lg border border-primary bg-primary text-primary-foreground text-xs font-semibold"
+                              : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                        }
+                      >
+                        {p}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Upptagna platser är gråa. Nuvarande plats är markerad.
+                </p>
+              </div>
+            )}
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
