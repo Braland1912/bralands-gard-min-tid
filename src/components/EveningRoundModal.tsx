@@ -122,10 +122,12 @@ const EveningRoundModal = ({
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
   const [creatingPlace, setCreatingPlace] = useState(false);
   const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
+  const [editingPlace, setEditingPlace] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setPickedPlace(null);
+    setEditingPlace(false);
     setNewPlaceLabel("");
     if (guest) {
       setName(guest.guest_name);
