@@ -242,11 +242,27 @@ const EveningRoundModal = ({
               <div className="min-w-0 flex-1">
                 <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
                 <DialogDescription>
-                  {place != null
-                    ? `Plats ${place}`
-                    : showPlacePicker
-                      ? "Välj plats (valfritt – kan väljas senare)"
-                      : ""}
+                  {place != null ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span>Plats {place}</span>
+                      {canEditPlace && !editingPlace && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingPlace(true);
+                            setPickedPlace(null);
+                          }}
+                          className="text-xs text-primary underline underline-offset-2"
+                        >
+                          Ändra plats
+                        </button>
+                      )}
+                    </span>
+                  ) : showPlacePicker ? (
+                    "Välj plats (valfritt – kan väljas senare)"
+                  ) : (
+                    ""
+                  )}
                 </DialogDescription>
               </div>
               {guest && onDelete && (
