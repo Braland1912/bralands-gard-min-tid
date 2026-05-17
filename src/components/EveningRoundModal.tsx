@@ -329,7 +329,7 @@ const EveningRoundModal = ({
                 <div className="grid grid-cols-6 gap-1.5">
                   {availablePlaces!.map((p) => {
                     const taken = takenSet.has(p);
-                    const isCurrent = guest?.place_label === p && !pickedPlace;
+                    const isCurrent = guest?.place_label === p && !pickedPlace && !placeCleared;
                     const isPicked = pickedPlace === p;
                     return (
                       <button
@@ -338,6 +338,7 @@ const EveningRoundModal = ({
                         disabled={taken}
                         onClick={() => {
                           setPickedPlace(p);
+                          setPlaceCleared(false);
                           setEditingPlace(false);
                         }}
                         className={
@@ -353,6 +354,85 @@ const EveningRoundModal = ({
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPickedPlace(null);
+                    setPlaceCleared(true);
+                    setEditingPlace(false);
+                  }}
+                  className="w-full h-10 rounded-lg border border-dashed border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                >
+                  Ingen plats (markera som ej kommit)
+                </button>
+                {onAddPlace && (
+                  <div className="space-y-1 pt-1">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newPlaceLabel}
+                        onChange={(e) => setNewPlaceLabel(e.target.value)}
+                        placeholder="Ny plats t.ex. Stuga 1"
+                        maxLength={60}
+                        className="h-9"
+                        onKeyDown={async (e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const label = newPlaceLabel.trim();
+                            if (!label || creatingPlace) return;
+                            setCreatingPlace(true);
+                            try {
+                              const created = await onAddPlace(label);
+                              setPickedPlace(created);
+                              setPlaceCleared(false);
+                              setEditingPlace(false);
+                              setNewPlaceLabel("");
+                            } catch {
+                              /* hook visar toast */
+                            } finally {
+                              setCreatingPlace(false);
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!newPlaceLabel.trim() || creatingPlace}
+                        onClick={async () => {
+                          const label = newPlaceLabel.trim();
+                          if (!label) return;
+                          setCreatingPlace(true);
+                          try {
+                            const created = await onAddPlace(label);
+                            setPickedPlace(created);
+                            setPlaceCleared(false);
+                            setEditingPlace(false);
+                            setNewPlaceLabel("");
+                          } catch {
+                            /* hook visar toast */
+                          } finally {
+                            setCreatingPlace(false);
+                          }
+                        }}
+                      >
+                        Skapa
+                      </Button>
+                    </div>
+                    <div
+                      className={`text-[11px] text-right tabular-nums ${
+                        newPlaceLabel.length >= 60
+                          ? "text-destructive font-medium"
+                          : newPlaceLabel.length >= 50
+                            ? "text-amber-600"
+                            : "text-muted-foreground"
+                      }`}
+                      aria-live="polite"
+                    >
+                      {newPlaceLabel.length} / 60 tecken
+                    </div>
+                  </div>
+                )}
                 <p className="text-[11px] text-muted-foreground">
                   Upptagna platser är gråa. Nuvarande plats är markerad.
                 </p>
