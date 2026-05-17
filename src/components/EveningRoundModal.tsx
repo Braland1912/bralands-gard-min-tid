@@ -228,7 +228,11 @@ const EveningRoundModal = ({
             : nationality.trim() || null,
         payment_other_note: isOther ? otherNote.trim() : null,
         accommodation_type: accommodation,
-        ...(!guest ? { status: place == null ? "not_here" : "here" } : {}),
+        ...(!guest
+          ? { status: place == null ? ("not_here" as const) : ("here" as const) }
+          : placeCleared
+            ? { status: "not_here" as const }
+            : {}),
       });
       onOpenChange(false);
     } catch (e: any) {
