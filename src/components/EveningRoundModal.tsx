@@ -166,7 +166,7 @@ const EveningRoundModal = ({
     ? null
     : pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
   const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0;
-  const showPlacePicker = place == null && hasPlaceOptions && !guest;
+  const showPlacePicker = place == null && hasPlaceOptions && !guest && !editingPlace;
   const canEditPlace = !!guest && hasPlaceOptions;
   const showEditPlacePicker = editingPlace && hasPlaceOptions;
   const takenSet = new Set(
