@@ -969,7 +969,7 @@ const AdminSchedule = () => {
                         updateNote.mutate({ id: currentShiftRow.id, note: next });
                       }
                     }}
-                    placeholder="T.ex. Läkarbesök, ledig, semester..."
+                    placeholder="T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15, kan jobba till 12..."
                     className="min-h-[88px] text-base"
                   />
                 </div>
