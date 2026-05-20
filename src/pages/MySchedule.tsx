@@ -860,7 +860,7 @@ const MySchedule = () => {
               id="self-busy-note"
               value={busyNote}
               onChange={(e) => setBusyNote(e.target.value)}
-              placeholder="T.ex. Läkarbesök, ledig, semester..."
+              placeholder="T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15, kan jobba till 12..."
               className="min-h-[120px] text-base"
               autoFocus
             />
