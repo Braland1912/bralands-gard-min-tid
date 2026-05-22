@@ -327,7 +327,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       <EveningRoundWidget />
 
       {/* Stat grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         {stats.map((s) => {
           const Icon = s.icon;
           const Wrapper: any = s.onClick ? "button" : "div";
@@ -335,22 +335,24 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             <Wrapper
               key={s.key}
               onClick={s.onClick}
-              className={`text-left border rounded-2xl p-4 ${s.tint} ${
+              className={`text-left border rounded-xl px-3 py-2.5 ${s.tint} ${
                 s.onClick ? "transition-all duration-150 hover:scale-[1.02] active:scale-[0.99] cursor-pointer" : ""
               }`}
             >
-              <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${s.iconBg} mb-3`}>
-                <Icon className={`h-4 w-4 ${s.iconColor}`} />
+              <div className="flex items-center gap-2.5">
+                <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${s.iconBg}`}>
+                  <Icon className={`h-3.5 w-3.5 ${s.iconColor}`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] text-muted-foreground font-medium leading-tight truncate">{s.label}</p>
+                  <p className={`text-lg font-semibold tabular-nums leading-tight ${s.valueColor}`}>{s.value}</p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground font-medium">{s.label}</p>
-              <p className={`text-2xl font-semibold tabular-nums mt-0.5 ${s.valueColor}`}>{s.value}</p>
-              {s.onClick && (
-                <p className="text-[11px] text-muted-foreground mt-1.5">Hantera →</p>
-              )}
             </Wrapper>
           );
         })}
       </div>
+
 
       {/* Section: Currently clocked in (teal) */}
       <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.active.tint}`}>
