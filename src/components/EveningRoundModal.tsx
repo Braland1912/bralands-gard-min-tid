@@ -58,6 +58,15 @@ import {
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
+const PLACE_SUGGESTIONS = [
+  "Vid solcellerna",
+  "Vid lekplatsen",
+  "Vid fotbollsplanen",
+  "Vid lilla dasset",
+  "Uppe vid jaktornet",
+  "Nedanför jaktornet",
+];
+
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
@@ -533,6 +542,18 @@ const EveningRoundModal = ({
                     >
                       {newPlaceLabel.length} / 60 tecken
                     </div>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {PLACE_SUGGESTIONS.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setNewPlaceLabel(s)}
+                          className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
                 <p className="text-[11px] text-muted-foreground">
@@ -637,6 +658,18 @@ const EveningRoundModal = ({
                           aria-live="polite"
                         >
                           {newPlaceLabel.length} / 60 tecken
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {PLACE_SUGGESTIONS.map((s) => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setNewPlaceLabel(s)}
+                              className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                            >
+                              {s}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     )}
