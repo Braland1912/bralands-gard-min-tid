@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo-braland.svg";
 import { useToast } from "@/hooks/use-toast";
+import VersionTag from "@/components/VersionTag";
 
 const MemberLogin = () => {
   const [email, setEmail] = useState("");
