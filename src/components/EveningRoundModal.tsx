@@ -57,13 +57,6 @@ import {
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
-import { STANDARD_PLACES } from "@/lib/place-label";
-
-const isFixedPlace = (label: string | null | undefined): boolean => {
-  if (!label) return false;
-  const l = label.trim().toLowerCase();
-  return STANDARD_PLACES.some((p) => p.toLowerCase() === l);
-};
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
