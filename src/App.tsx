@@ -22,6 +22,7 @@ import NotFound from "./pages/NotFound";
 import AppHeader from "./components/AppHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import InstallAppModal from "./components/InstallAppModal";
+import UpdateBanner from "./components/UpdateBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +40,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <UpdateBanner />
         <InstallAppModal />
         <DesktopSidebar />
         <AppHeader />

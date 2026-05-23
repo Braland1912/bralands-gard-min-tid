@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import EveningRoundWidget from "@/components/admin/EveningRoundWidget";
 import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
 import { sv } from "date-fns/locale";
+import VersionTag from "@/components/VersionTag";
 
 interface AdminOverviewProps {
   onNavigate: (tab: string) => void;
@@ -670,6 +671,8 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           )}
         </SheetContent>
       </Sheet>
+
+      <VersionTag className="text-center pt-2" />
     </div>
   );
 };
