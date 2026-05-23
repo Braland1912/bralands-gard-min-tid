@@ -213,7 +213,12 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       shiftIds: todayShiftIdsByUser.get(uid) ?? [],
     }))
     .filter((r) => r.worker)
-    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+    .sort((a, b) => {
+      const aFirst = SHIFT_ORDER[a.shifts[0]] ?? 99;
+      const bFirst = SHIFT_ORDER[b.shifts[0]] ?? 99;
+      if (aFirst !== bFirst) return aFirst - bFirst;
+      return a.worker.name.localeCompare(b.worker.name, "sv");
+    });
 
   // Compute checklist progress per user for today
   const checklistProgressByUser = new Map<string, { done: number; total: number }>();
