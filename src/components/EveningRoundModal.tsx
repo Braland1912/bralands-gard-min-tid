@@ -870,25 +870,30 @@ const EveningRoundModal = ({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Beskriv sällskapet: husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
-                rows={3}
-                className="min-h-[88px] resize-y"
-              />
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {NOTE_SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
-                    className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
+              <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2">
+                <div className="text-xs font-semibold text-foreground">
+                  Beskriv sällskapet
+                </div>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
+                  rows={3}
+                  className="min-h-[88px] resize-y bg-card"
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  {NOTE_SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
+                      className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             {(() => {
