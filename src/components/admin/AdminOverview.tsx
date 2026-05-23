@@ -262,7 +262,12 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         .sort((a, b) => a.dayIdx - b.dayIdx),
     }))
     .filter((r) => r.worker)
-    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+    .sort((a, b) => {
+      const aFirst = a.days[0]?.dayIdx ?? 99;
+      const bFirst = b.days[0]?.dayIdx ?? 99;
+      if (aFirst !== bFirst) return aFirst - bFirst;
+      return a.worker.name.localeCompare(b.worker.name, "sv");
+    });
 
   // Apply name search filter (counters reflect filtered results)
   const filteredActiveEntries = (activeEntries as any[]).filter((e) => matchesSearch(e.worker_name));
