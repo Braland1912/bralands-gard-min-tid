@@ -282,6 +282,28 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   return (
     <div className="space-y-3 pb-24 md:pb-6">
 
+      {/* Väntande rättelser – visas endast när det finns några */}
+      {hasPendingCorrections && (
+        <button
+          type="button"
+          onClick={() => onNavigate("rattelser")}
+          className="w-full text-left border rounded-xl px-3 py-2.5 bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)] transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-[hsl(8_55%_92%)]">
+              <AlertTriangle className="h-4 w-4 text-[hsl(8_55%_42%)]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight">Väntande rättelser</p>
+              <p className="text-lg font-semibold tabular-nums leading-tight text-[hsl(8_55%_35%)]">
+                {pendingCorrections.length}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </div>
+        </button>
+      )}
+
       {/* Kvällsrundan – snabb status */}
       <EveningRoundWidget />
 
