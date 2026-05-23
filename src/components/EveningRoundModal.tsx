@@ -68,6 +68,20 @@ const PLACE_SUGGESTIONS = [
   "Nedanför jaktornet",
 ];
 
+/**
+ * Lägg till ett platsförslag i slutet av befintlig text istället för att
+ * skriva över den. Lägger in ett mellanslag som separator vid behov och
+ * klipper på max-längden (60 tecken).
+ */
+const appendSuggestion = (current: string, suggestion: string): string => {
+  const base = current.trim();
+  if (!base) return suggestion.slice(0, 60);
+  const sep = /[,–\-]\s*$/.test(base) ? " " : " ";
+  const lowerBase = base.toLowerCase();
+  if (lowerBase.includes(suggestion.toLowerCase())) return base;
+  return `${base}${sep}${suggestion}`.slice(0, 60);
+};
+
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
@@ -483,7 +497,7 @@ const EveningRoundModal = ({
                       <Input
                         value={newPlaceLabel}
                         onChange={(e) => setNewPlaceLabel(e.target.value)}
-                        placeholder="T.ex. gult litet tält intill lekplatsen"
+                        placeholder="T.ex. gult litet tält, husbil, vit bil…"
                         maxLength={60}
                         className="h-9"
                         onKeyDown={async (e) => {
@@ -548,7 +562,7 @@ const EveningRoundModal = ({
                         <button
                           key={s}
                           type="button"
-                          onClick={() => setNewPlaceLabel(s)}
+                          onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
                           className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
                         >
                           {s}
@@ -604,7 +618,7 @@ const EveningRoundModal = ({
                           <Input
                             value={newPlaceLabel}
                             onChange={(e) => setNewPlaceLabel(e.target.value)}
-                            placeholder="T.ex. gult litet tält intill lekplatsen"
+                            placeholder="T.ex. gult litet tält, husbil, vit bil…"
                             maxLength={60}
                             className="h-9"
                             onKeyDown={async (e) => {
@@ -665,7 +679,7 @@ const EveningRoundModal = ({
                             <button
                               key={s}
                               type="button"
-                              onClick={() => setNewPlaceLabel(s)}
+                              onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
                               className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
                             >
                               {s}
