@@ -836,7 +836,7 @@ const EveningRoundModal = ({
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="T.ex. lugn gäst, husdjur…"
+                placeholder="Beskriv gästen: hund, mc, cykel, antal personer, husvagn, husbil, taktält, barn, vill paddla…"
               />
             </div>
             {(() => {
