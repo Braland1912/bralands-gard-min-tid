@@ -307,7 +307,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   ].filter(Boolean) as any[];
 
   return (
-    <div className="space-y-6 pb-24 md:pb-6">
+    <div className="space-y-3 pb-24 md:pb-6">
 
       {/* Kvällsrundan – snabb status */}
       <EveningRoundWidget />
@@ -390,7 +390,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
 
       {/* Section: Working today (amber) */}
       {showToday && (
-      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.today.tint}`}>
+      <section className={`border rounded-2xl p-3 space-y-2.5 ${SECTION_STYLE.today.tint}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.today.iconBg}`}>
@@ -422,9 +422,9 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                   <button
                     type="button"
                     onClick={() => setSelectedWorker({ worker: row.worker, shiftIds: row.shiftIds })}
-                    className="w-full text-left py-2.5 flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
+                    className="w-full text-left py-1.5 flex items-center gap-2.5 cursor-pointer hover:bg-muted/50 rounded-lg px-2 -mx-2 transition-colors"
                   >
-                    <Avatar className="h-9 w-9">
+                    <Avatar className="h-8 w-8">
                       <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.today.avatarBg} ${SECTION_STYLE.today.avatarText}`}>
                         {getInitials(row.worker.name)}
                       </AvatarFallback>
@@ -474,7 +474,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
 
       {/* Section: Working this week (sage) */}
       {showWeek && (
-      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.week.tint}`}>
+      <section className={`border rounded-2xl p-3 space-y-2.5 ${SECTION_STYLE.week.tint}`}>
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
             <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${SECTION_STYLE.week.iconBg}`}>
@@ -530,7 +530,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         ) : (
           <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
             {filteredWeekRows.map((row) => (
-              <li key={row.worker.id} className="py-2 flex items-center justify-between gap-3">
+              <li key={row.worker.id} className="py-1.5 flex items-center justify-between gap-3">
                 <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
                 </span>
@@ -573,7 +573,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 </div>
               </SheetHeader>
 
-              <div className="mt-5 space-y-6">
+              <div className="mt-4 space-y-4">
                 {(() => {
                   if (!todayChecklistData) return <Skeleton className="h-24 w-full rounded-xl" />;
                   const { lists, items } = todayChecklistData;
@@ -605,7 +605,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                       .sort((a, b) => a.sort_order - b.sort_order);
 
                     return (
-                      <section key={shift.id} className="space-y-3">
+                      <section key={shift.id} className="space-y-2">
                         {chip && (
                           <div className="flex items-center gap-2">
                             <span
@@ -635,7 +635,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                               const pct = total > 0 ? (done / total) * 100 : 0;
                               const complete = total > 0 && done === total;
                               return (
-                                <div key={list.id} className="border rounded-xl p-4 bg-background/50">
+                                <div key={list.id} className="border rounded-xl p-3 bg-background/50">
                                   <div className="flex items-center justify-between mb-2">
                                     <h4 className="text-sm font-semibold text-foreground">{list.name}</h4>
                                     <span className="text-xs text-muted-foreground tabular-nums">
@@ -677,7 +677,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 })()}
               </div>
 
-              <div className="mt-6">
+              <div className="mt-4">
                 <Button variant="outline" className="w-full" onClick={() => setSelectedWorker(null)}>
                   Stäng
                 </Button>
