@@ -57,13 +57,6 @@ import {
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
-import { STANDARD_PLACES } from "@/lib/place-label";
-
-const isFixedPlace = (label: string | null | undefined): boolean => {
-  if (!label) return false;
-  const l = label.trim().toLowerCase();
-  return STANDARD_PLACES.some((p) => p.toLowerCase() === l);
-};
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
@@ -191,16 +184,21 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
-  const fixedPlace = isFixedPlace(place);
-  const effectiveAccommodation: AccommodationType = fixedPlace ? "vehicle" : accommodation;
+  
+  // Boende-väljaren visas bara när man skapar en ny plats (ingen plats vald än,
+  // och inte redigerar befintlig gäst). Annars defaultar vi alltid till fordon.
+  const showAccommodationPicker = !place && !guest;
+  const effectiveAccommodation: AccommodationType = showAccommodationPicker
+    ? accommodation
+    : "vehicle";
 
   // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
   // så att Spara skickar rätt värde även om användaren tidigare valt tält.
   useEffect(() => {
-    if (fixedPlace && accommodation !== "vehicle") {
+    if (!showAccommodationPicker && accommodation !== "vehicle") {
       setAccommodation("vehicle");
     }
-  }, [fixedPlace, accommodation]);
+  }, [showAccommodationPicker, accommodation]);
 
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
@@ -650,7 +648,7 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            {!fixedPlace && (
+            {showAccommodationPicker && (
               <div className="space-y-1.5">
                 <Label>Boende</Label>
                 <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
