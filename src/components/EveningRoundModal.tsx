@@ -655,7 +655,7 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            {!fixedPlace && (
+            {showAccommodationPicker && (
               <div className="space-y-1.5">
                 <Label>Boende</Label>
                 <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
