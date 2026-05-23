@@ -356,7 +356,7 @@ const EveningRound = () => {
             <ul className="space-y-1">
               {adminSessions.map((s) => (
                 <li key={s.id} className="text-sm flex items-center justify-between gap-2">
-                  <span className="font-medium">{s.worker_name ?? "Okänd"}</span>
+                  <span className="font-medium">{s.worker_name ?? "Administratör"}</span>
                   <span className="text-muted-foreground text-xs">
                     {s.session_start
                       ? new Date(s.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })
