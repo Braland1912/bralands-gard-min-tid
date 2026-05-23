@@ -40,6 +40,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <UpdateBanner />
         <InstallAppModal />
         <DesktopSidebar />
         <AppHeader />
