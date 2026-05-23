@@ -277,39 +277,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const showToday = scope === "today" || scope === "all";
   const showWeek = scope === "week" || scope === "all";
 
-  const stats = [
-    showToday && {
-      key: "today",
-      label: "Jobbar idag",
-      value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
-      icon: Users,
-      tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
-      iconBg: "bg-[hsl(38_60%_90%)]",
-      iconColor: "text-[hsl(32_55%_38%)]",
-      valueColor: "text-[hsl(32_55%_30%)]",
-    },
-    showWeek && {
-      key: "week",
-      label: "Jobbar i veckan",
-      value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
-      icon: CalendarDays,
-      tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
-      iconBg: "bg-[hsl(150_25%_90%)]",
-      iconColor: "text-[hsl(150_30%_32%)]",
-      valueColor: "text-[hsl(150_30%_25%)]",
-    },
-    {
-      key: "corrections",
-      label: "Väntande rättelser",
-      value: loadingCorrections ? "…" : pendingCorrections.length,
-      icon: AlertTriangle,
-      onClick: () => onNavigate("rattelser"),
-      tint: "bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)]",
-      iconBg: "bg-[hsl(8_55%_92%)]",
-      iconColor: "text-[hsl(8_55%_42%)]",
-      valueColor: "text-[hsl(8_55%_35%)]",
-    },
-  ].filter(Boolean) as any[];
+  const hasPendingCorrections = !loadingCorrections && pendingCorrections.length > 0;
 
   return (
     <div className="space-y-3 pb-24 md:pb-6">
