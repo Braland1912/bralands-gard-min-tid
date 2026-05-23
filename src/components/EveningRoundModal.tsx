@@ -883,7 +883,7 @@ const EveningRoundModal = ({
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setNotes((prev) => appendSuggestion(prev, s))}
+                    onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
                     className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
                   >
                     {s}
