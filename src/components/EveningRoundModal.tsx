@@ -68,6 +68,21 @@ const PLACE_SUGGESTIONS = [
   "Nedanför jaktornet",
 ];
 
+const NOTE_SUGGESTIONS = [
+  "Husvagn",
+  "Husbil",
+  "Taktält",
+  "Tält",
+  "Bil",
+  "MC",
+  "Cyklister",
+  "Vandrare",
+  "Hund",
+  "Barn",
+  "Frågor om paddling",
+  "Frågor om fiske",
+];
+
 /**
  * Lägg till ett platsförslag i slutet av befintlig text istället för att
  * skriva över den. Lägger in ett mellanslag som separator vid behov och
