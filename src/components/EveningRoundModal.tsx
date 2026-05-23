@@ -68,18 +68,38 @@ const PLACE_SUGGESTIONS = [
   "Nedanför jaktornet",
 ];
 
+const NOTE_SUGGESTIONS = [
+  "Husvagn",
+  "Husbil",
+  "Taktält",
+  "Tält",
+  "Bil",
+  "MC",
+  "Cyklister",
+  "Vandrare",
+  "Hund",
+  "Barn",
+  "Frågor om paddling",
+  "Frågor om fiske",
+];
+
 /**
- * Lägg till ett platsförslag i slutet av befintlig text istället för att
- * skriva över den. Lägger in ett mellanslag som separator vid behov och
- * klipper på max-längden (60 tecken).
+ * Lägg till ett förslag i slutet av befintlig text istället för att skriva
+ * över den. Använder kommaseparator för anteckningar (flera taggar), mellan-
+ * slag för platsetiketter. Hoppar över om förslaget redan finns.
  */
-const appendSuggestion = (current: string, suggestion: string): string => {
+const appendSuggestion = (
+  current: string,
+  suggestion: string,
+  opts: { maxLen?: number; separator?: string } = {},
+): string => {
+  const { maxLen = 60, separator = " " } = opts;
   const base = current.trim();
-  if (!base) return suggestion.slice(0, 60);
-  const sep = /[,–\-]\s*$/.test(base) ? " " : " ";
+  if (!base) return suggestion.slice(0, maxLen);
   const lowerBase = base.toLowerCase();
   if (lowerBase.includes(suggestion.toLowerCase())) return base;
-  return `${base}${sep}${suggestion}`.slice(0, 60);
+  const sep = /[,–\-]\s*$/.test(base) ? " " : separator;
+  return `${base}${sep}${suggestion}`.slice(0, maxLen);
 };
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
@@ -854,10 +874,22 @@ const EveningRoundModal = ({
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Beskriv gästen: hund, mc, cykel, antal personer, husvagn, husbil, taktält, barn, vill paddla…"
+                placeholder="Beskriv sällskapet: husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
                 rows={3}
                 className="min-h-[88px] resize-y"
               />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {NOTE_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
+                    className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
             {(() => {
               const today = todayLocal();
