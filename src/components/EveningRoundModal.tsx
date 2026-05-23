@@ -869,10 +869,22 @@ const EveningRoundModal = ({
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Beskriv gästen: hund, mc, cykel, antal personer, husvagn, husbil, taktält, barn, vill paddla…"
+                placeholder="Beskriv sällskapet: husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
                 rows={3}
                 className="min-h-[88px] resize-y"
               />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {NOTE_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setNotes((prev) => appendSuggestion(prev, s))}
+                    className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
             {(() => {
               const today = todayLocal();
