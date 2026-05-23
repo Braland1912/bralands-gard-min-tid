@@ -84,17 +84,22 @@ const NOTE_SUGGESTIONS = [
 ];
 
 /**
- * Lägg till ett platsförslag i slutet av befintlig text istället för att
- * skriva över den. Lägger in ett mellanslag som separator vid behov och
- * klipper på max-längden (60 tecken).
+ * Lägg till ett förslag i slutet av befintlig text istället för att skriva
+ * över den. Använder kommaseparator för anteckningar (flera taggar), mellan-
+ * slag för platsetiketter. Hoppar över om förslaget redan finns.
  */
-const appendSuggestion = (current: string, suggestion: string): string => {
+const appendSuggestion = (
+  current: string,
+  suggestion: string,
+  opts: { maxLen?: number; separator?: string } = {},
+): string => {
+  const { maxLen = 60, separator = " " } = opts;
   const base = current.trim();
-  if (!base) return suggestion.slice(0, 60);
-  const sep = /[,–\-]\s*$/.test(base) ? " " : " ";
+  if (!base) return suggestion.slice(0, maxLen);
   const lowerBase = base.toLowerCase();
   if (lowerBase.includes(suggestion.toLowerCase())) return base;
-  return `${base}${sep}${suggestion}`.slice(0, 60);
+  const sep = /[,–\-]\s*$/.test(base) ? " " : separator;
+  return `${base}${sep}${suggestion}`.slice(0, maxLen);
 };
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
