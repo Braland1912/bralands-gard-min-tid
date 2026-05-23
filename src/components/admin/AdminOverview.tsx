@@ -262,7 +262,12 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         .sort((a, b) => a.dayIdx - b.dayIdx),
     }))
     .filter((r) => r.worker)
-    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+    .sort((a, b) => {
+      const aFirst = a.days[0]?.dayIdx ?? 99;
+      const bFirst = b.days[0]?.dayIdx ?? 99;
+      if (aFirst !== bFirst) return aFirst - bFirst;
+      return a.worker.name.localeCompare(b.worker.name, "sv");
+    });
 
   // Apply name search filter (counters reflect filtered results)
   const filteredActiveEntries = (activeEntries as any[]).filter((e) => matchesSearch(e.worker_name));
@@ -534,17 +539,27 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
                 </span>
-                <span className="text-xs text-muted-foreground text-right">
-                  {row.days.map((d, i) => (
-                    <span key={d.dayIdx}>
-                      {i > 0 && <span className="mx-1 opacity-50">·</span>}
-                      {DAY_NAMES[d.dayIdx]}{" "}
-                      <span className="text-sm leading-none">
-                        {d.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join("")}
-                      </span>
-                    </span>
+                <div className="flex flex-wrap gap-x-2 gap-y-1 justify-end">
+                  {row.days.map((d) => (
+                    <div key={d.dayIdx} className="flex items-center gap-1">
+                      <span className="text-[11px] text-muted-foreground">{DAY_NAMES[d.dayIdx]}</span>
+                      {d.shifts.map((t, idx) => {
+                        const chip = SHIFT_CHIP[t];
+                        if (!chip) return null;
+                        return (
+                          <span
+                            key={`${t}-${idx}`}
+                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${chip.bg} ${chip.border} ${chip.text}`}
+                            aria-label={`Pass: ${chip.label}`}
+                          >
+                            <span className="leading-none">{chip.emoji}</span>
+                            <span className="leading-none">{chip.label}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
                   ))}
-                </span>
+                </div>
               </li>
             ))}
           </ul>
