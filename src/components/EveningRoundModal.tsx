@@ -268,20 +268,26 @@ const EveningRoundModal = ({
                         </button>
                       )}
                     </span>
-                  ) : guest && placeCleared && !editingPlace ? (
+                  ) : guest && place == null && !editingPlace ? (
                     <span className="inline-flex items-center gap-2">
-                      <span className="text-muted-foreground">Ingen plats · markeras som ej kommit</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingPlace(true);
-                          setPickedPlace(null);
-                        }}
-                        className="text-xs text-primary underline underline-offset-2"
-                      >
-                        Välj plats
-                      </button>
+                      <span className="text-muted-foreground">
+                        {placeCleared ? "Ingen plats · markeras som ej kommit" : "Ingen plats vald"}
+                      </span>
+                      {hasPlaceOptions && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingPlace(true);
+                            setPickedPlace(null);
+                            setPlaceCleared(false);
+                          }}
+                          className="text-xs text-primary underline underline-offset-2"
+                        >
+                          Välj plats
+                        </button>
+                      )}
                     </span>
+
                   ) : showPlacePicker || showEditPlacePicker ? (
                     "Välj plats (valfritt – kan väljas senare)"
                   ) : (
