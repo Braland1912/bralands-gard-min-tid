@@ -254,6 +254,7 @@ export type Database = {
           evening_round_id: string
           id: string
           notes: string | null
+          selected_currencies: string[]
           updated_at: string
           updated_by: string | null
           worker_id: string
@@ -266,6 +267,7 @@ export type Database = {
           evening_round_id: string
           id?: string
           notes?: string | null
+          selected_currencies?: string[]
           updated_at?: string
           updated_by?: string | null
           worker_id: string
@@ -278,6 +280,7 @@ export type Database = {
           evening_round_id?: string
           id?: string
           notes?: string | null
+          selected_currencies?: string[]
           updated_at?: string
           updated_by?: string | null
           worker_id?: string
