@@ -46,7 +46,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, MoreVertical, Trash2, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronsUpDown, MoreVertical, Trash2, X } from "lucide-react";
 import {
   type EveningRoundGuest,
   type GuestInput,
