@@ -191,7 +191,7 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
-  const fixedPlace = isFixedPlace(place);
+  void isFixedPlace;
   // Boende-väljaren visas bara när man skapar en ny plats (ingen plats vald än,
   // och inte redigerar befintlig gäst). Annars defaultar vi alltid till fordon.
   const showAccommodationPicker = !place && !guest;
