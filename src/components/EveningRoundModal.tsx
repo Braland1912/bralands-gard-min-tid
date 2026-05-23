@@ -473,7 +473,7 @@ const EveningRoundModal = ({
                       <Input
                         value={newPlaceLabel}
                         onChange={(e) => setNewPlaceLabel(e.target.value)}
-                        placeholder="Ny plats t.ex. Stuga 1"
+                        placeholder="T.ex. tält vid sjön, plats bakom stuga 2"
                         maxLength={60}
                         className="h-9"
                         onKeyDown={async (e) => {
@@ -582,7 +582,7 @@ const EveningRoundModal = ({
                           <Input
                             value={newPlaceLabel}
                             onChange={(e) => setNewPlaceLabel(e.target.value)}
-                            placeholder="Ny plats t.ex. Stuga 1"
+                            placeholder="T.ex. tält vid sjön, plats bakom stuga 2"
                             maxLength={60}
                             className="h-9"
                             onKeyDown={async (e) => {
