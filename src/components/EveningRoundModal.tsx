@@ -205,6 +205,11 @@ const EveningRoundModal = ({
       setError("Välj en plats");
       return;
     }
+    if (guest && place == null && status === "here") {
+      setError("Välj en plats för att markera som på plats");
+      if (hasPlaceOptions) setEditingPlace(true);
+      return;
+    }
     const amt = amount.trim() === "" ? null : Number(amount);
     if (amt != null && (Number.isNaN(amt) || amt < 0)) {
       setError("Ogiltigt belopp");
