@@ -57,6 +57,13 @@ import {
   PAYMENT_LABELS,
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
+import { STANDARD_PLACES } from "@/lib/place-label";
+
+const isFixedPlace = (label: string | null | undefined): boolean => {
+  if (!label) return false;
+  const l = label.trim().toLowerCase();
+  return STANDARD_PLACES.some((p) => p.toLowerCase() === l);
+};
 
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
@@ -184,6 +191,16 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
+  const fixedPlace = isFixedPlace(place);
+  const effectiveAccommodation: AccommodationType = fixedPlace ? "vehicle" : accommodation;
+
+  // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
+  // så att Spara skickar rätt värde även om användaren tidigare valt tält.
+  useEffect(() => {
+    if (fixedPlace && accommodation !== "vehicle") {
+      setAccommodation("vehicle");
+    }
+  }, [fixedPlace, accommodation]);
 
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
@@ -633,37 +650,39 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <Label>Boende</Label>
-              <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setAccommodation("vehicle")}
-                  className={cn(
-                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
-                    accommodation === "vehicle"
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  Fordon
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccommodation("tent")}
-                  className={cn(
-                    "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
-                    accommodation === "tent"
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  Tält
-                </button>
+            {!fixedPlace && (
+              <div className="space-y-1.5">
+                <Label>Boende</Label>
+                <div className="inline-flex w-full rounded-xl border border-border bg-muted p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setAccommodation("vehicle")}
+                    className={cn(
+                      "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                      accommodation === "vehicle"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Fordon
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccommodation("tent")}
+                    className={cn(
+                      "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                      accommodation === "tent"
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Tält
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className={cn("grid gap-3", accommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
-              {accommodation !== "tent" && (
+            )}
+            <div className={cn("grid gap-3", effectiveAccommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
+              {effectiveAccommodation !== "tent" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="reg">Reg.nummer</Label>
                   <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
