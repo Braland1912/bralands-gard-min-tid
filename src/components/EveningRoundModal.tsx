@@ -121,6 +121,7 @@ const EveningRoundModal = ({
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<Currency>("SEK");
   const [otherNote, setOtherNote] = useState<string>("");
+  const [unpaidReason, setUnpaidReason] = useState<string>("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +149,8 @@ const EveningRoundModal = ({
       setMethod(guest.payment_method ?? "none");
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
-      setOtherNote(guest.payment_other_note ?? "");
+      setOtherNote(guest.payment_method === "O" ? (guest.payment_other_note ?? "") : "");
+      setUnpaidReason(!guest.payment_method ? (guest.payment_other_note ?? "") : "");
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
     } else {
@@ -163,6 +165,7 @@ const EveningRoundModal = ({
       setAmount("");
       setCurrency("SEK");
       setOtherNote("");
+      setUnpaidReason("");
       setAccommodation("vehicle");
       setStatus("here");
     }
@@ -219,6 +222,10 @@ const EveningRoundModal = ({
       setError("Beskriv betalningsmetoden");
       return;
     }
+    if (method === "none" && !unpaidReason.trim()) {
+      setError("Ange varför ingen betalning skett");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -238,7 +245,11 @@ const EveningRoundModal = ({
               ? `${OTHER_CODE}:${nationalityOther.trim()}`
               : OTHER_CODE
             : nationality.trim() || null,
-        payment_other_note: isOther ? otherNote.trim() : null,
+        payment_other_note: isOther
+          ? otherNote.trim()
+          : method === "none"
+            ? unpaidReason.trim()
+            : null,
         accommodation_type: accommodation,
         ...(!guest
           ? { status: place == null ? ("not_here" as const) : ("here" as const) }
@@ -907,6 +918,30 @@ const EveningRoundModal = ({
                   placeholder="T.ex. faktura, presentkort…"
                   maxLength={120}
                 />
+              </div>
+            )}
+            {method === "none" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="unpaid-reason">Varför ingen betalning?</Label>
+                <Input
+                  id="unpaid-reason"
+                  value={unpaidReason}
+                  onChange={(e) => setUnpaidReason(e.target.value)}
+                  placeholder="T.ex. var ej för, ville inte, betalar imorgon…"
+                  maxLength={160}
+                />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["Var ej för", "Ville inte", "Betalar imorgon", "Avresa idag"].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setUnpaidReason(r)}
+                      className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             {isCash && (
