@@ -833,11 +833,13 @@ const EveningRoundModal = ({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
-              <Input
+              <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Beskriv gästen: hund, mc, cykel, antal personer, husvagn, husbil, taktält, barn, vill paddla…"
+                rows={3}
+                className="min-h-[88px] resize-y"
               />
             </div>
             {(() => {
