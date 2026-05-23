@@ -191,6 +191,16 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
+  const fixedPlace = isFixedPlace(place);
+  const effectiveAccommodation: AccommodationType = fixedPlace ? "vehicle" : accommodation;
+
+  // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
+  // så att Spara skickar rätt värde även om användaren tidigare valt tält.
+  useEffect(() => {
+    if (fixedPlace && accommodation !== "vehicle") {
+      setAccommodation("vehicle");
+    }
+  }, [fixedPlace, accommodation]);
 
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
