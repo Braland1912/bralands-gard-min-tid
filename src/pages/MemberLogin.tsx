@@ -70,6 +70,7 @@ const MemberLogin = () => {
             Tillbaka
           </Button>
         </form>
+        <VersionTag className="text-center" />
       </Card>
     </div>
   );
