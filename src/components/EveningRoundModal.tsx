@@ -72,6 +72,8 @@ interface Props {
   takenPlaces?: string[];
   /** Skapa en ny extra plats (namngiven). Returnerar etiketten som skapades. */
   onAddPlace?: (label: string) => Promise<string>;
+  /** Öppna förläng-flödet för befintlig gäst. */
+  onExtend?: (guest: EveningRoundGuest) => void;
 }
 
 const todayLocal = () => {
