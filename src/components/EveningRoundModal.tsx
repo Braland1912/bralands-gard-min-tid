@@ -943,6 +943,7 @@ const EveningRoundModal = ({
                   ))}
                 </div>
               </div>
+            )}
             {isCash && (
               <div className="grid grid-cols-[1fr_110px] gap-3">
                 <div className="space-y-1.5">
