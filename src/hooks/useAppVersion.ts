@@ -4,6 +4,7 @@ import { APP_VERSION } from "@/lib/app-version";
 interface VersionState {
   current: string;
   latest: string | null;
+  notes: string | null;
   hasUpdate: boolean;
 }
 
@@ -15,6 +16,7 @@ const POLL_INTERVAL_MS = 2 * 60 * 1000; // 2 min
  */
 export function useAppVersion(): VersionState {
   const [latest, setLatest] = useState<string | null>(null);
+  const [notes, setNotes] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,9 +27,10 @@ export function useAppVersion(): VersionState {
           cache: "no-store",
         });
         if (!res.ok) return;
-        const data = (await res.json()) as { version?: string };
+        const data = (await res.json()) as { version?: string; notes?: string };
         if (cancelled || !data.version) return;
         setLatest(data.version);
+        setNotes(typeof data.notes === "string" && data.notes.trim() ? data.notes.trim() : null);
       } catch {
         // offline / dev – ignorera tyst
       }
@@ -50,6 +53,7 @@ export function useAppVersion(): VersionState {
   return {
     current: APP_VERSION,
     latest,
+    notes,
     hasUpdate: !!latest && latest !== APP_VERSION && APP_VERSION !== "dev",
   };
 }

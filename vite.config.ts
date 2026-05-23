@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import fs from "fs";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -13,6 +14,23 @@ const APP_VERSION = (() => {
   )}${pad(d.getMinutes())}`;
 })();
 
+// Korta release notes som visas i uppdateringsbannern. Redigeras i
+// public/release-notes.txt – första raden används som "Vad är nytt".
+const readReleaseNotes = (): string => {
+  try {
+    const raw = fs.readFileSync(
+      path.resolve(__dirname, "public/release-notes.txt"),
+      "utf8",
+    );
+    return raw.split("\n").map((l) => l.trim()).find((l) => l.length > 0) ?? "";
+  } catch {
+    return "";
+  }
+};
+
+const buildVersionPayload = () =>
+  JSON.stringify({ version: APP_VERSION, notes: readReleaseNotes() });
+
 // Emitterar /version.json i bygget och serverar den i dev så
 // klienten kan polla efter ny version.
 const appVersionPlugin = () => ({
@@ -22,14 +40,14 @@ const appVersionPlugin = () => ({
     this.emitFile({
       type: "asset",
       fileName: "version.json",
-      source: JSON.stringify({ version: APP_VERSION }),
+      source: buildVersionPayload(),
     });
   },
   configureServer(server: any) {
     server.middlewares.use("/version.json", (_req: any, res: any) => {
       res.setHeader("Content-Type", "application/json");
       res.setHeader("Cache-Control", "no-store");
-      res.end(JSON.stringify({ version: APP_VERSION }));
+      res.end(buildVersionPayload());
     });
   },
 });
