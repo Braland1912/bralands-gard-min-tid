@@ -262,7 +262,12 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         .sort((a, b) => a.dayIdx - b.dayIdx),
     }))
     .filter((r) => r.worker)
-    .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+    .sort((a, b) => {
+      const aFirst = a.days[0]?.dayIdx ?? 99;
+      const bFirst = b.days[0]?.dayIdx ?? 99;
+      if (aFirst !== bFirst) return aFirst - bFirst;
+      return a.worker.name.localeCompare(b.worker.name, "sv");
+    });
 
   // Apply name search filter (counters reflect filtered results)
   const filteredActiveEntries = (activeEntries as any[]).filter((e) => matchesSearch(e.worker_name));
@@ -272,42 +277,32 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const showToday = scope === "today" || scope === "all";
   const showWeek = scope === "week" || scope === "all";
 
-  const stats = [
-    showToday && {
-      key: "today",
-      label: "Jobbar idag",
-      value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
-      icon: Users,
-      tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
-      iconBg: "bg-[hsl(38_60%_90%)]",
-      iconColor: "text-[hsl(32_55%_38%)]",
-      valueColor: "text-[hsl(32_55%_30%)]",
-    },
-    showWeek && {
-      key: "week",
-      label: "Jobbar i veckan",
-      value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
-      icon: CalendarDays,
-      tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
-      iconBg: "bg-[hsl(150_25%_90%)]",
-      iconColor: "text-[hsl(150_30%_32%)]",
-      valueColor: "text-[hsl(150_30%_25%)]",
-    },
-    {
-      key: "corrections",
-      label: "Väntande rättelser",
-      value: loadingCorrections ? "…" : pendingCorrections.length,
-      icon: AlertTriangle,
-      onClick: () => onNavigate("rattelser"),
-      tint: "bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)]",
-      iconBg: "bg-[hsl(8_55%_92%)]",
-      iconColor: "text-[hsl(8_55%_42%)]",
-      valueColor: "text-[hsl(8_55%_35%)]",
-    },
-  ].filter(Boolean) as any[];
+  const hasPendingCorrections = !loadingCorrections && pendingCorrections.length > 0;
 
   return (
     <div className="space-y-3 pb-24 md:pb-6">
+
+      {/* Väntande rättelser – visas endast när det finns några */}
+      {hasPendingCorrections && (
+        <button
+          type="button"
+          onClick={() => onNavigate("rattelser")}
+          className="w-full text-left border rounded-xl px-3 py-2.5 bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)] transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 bg-[hsl(8_55%_92%)]">
+              <AlertTriangle className="h-4 w-4 text-[hsl(8_55%_42%)]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight">Väntande rättelser</p>
+              <p className="text-lg font-semibold tabular-nums leading-tight text-[hsl(8_55%_35%)]">
+                {pendingCorrections.length}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+          </div>
+        </button>
+      )}
 
       {/* Kvällsrundan – snabb status */}
       <EveningRoundWidget />
@@ -360,32 +355,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         )}
       </div>
 
-      {/* Stat grid */}
-      <div className="grid grid-cols-3 gap-2">
-        {stats.map((s) => {
-          const Icon = s.icon;
-          const Wrapper: any = s.onClick ? "button" : "div";
-          return (
-            <Wrapper
-              key={s.key}
-              onClick={s.onClick}
-              className={`text-left border rounded-xl px-3 py-2.5 ${s.tint} ${
-                s.onClick ? "transition-all duration-150 hover:scale-[1.02] active:scale-[0.99] cursor-pointer" : ""
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${s.iconBg}`}>
-                  <Icon className={`h-3.5 w-3.5 ${s.iconColor}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] text-muted-foreground font-medium leading-tight truncate">{s.label}</p>
-                  <p className={`text-lg font-semibold tabular-nums leading-tight ${s.valueColor}`}>{s.value}</p>
-                </div>
-              </div>
-            </Wrapper>
-          );
-        })}
-      </div>
 
 
       {/* Section: Working today (amber) */}
@@ -534,17 +503,27 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
                 <span className="text-sm font-medium text-foreground truncate shrink-0">
                   {getShortName(row.worker.name)}
                 </span>
-                <span className="text-xs text-muted-foreground text-right">
-                  {row.days.map((d, i) => (
-                    <span key={d.dayIdx}>
-                      {i > 0 && <span className="mx-1 opacity-50">·</span>}
-                      {DAY_NAMES[d.dayIdx]}{" "}
-                      <span className="text-sm leading-none">
-                        {d.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join("")}
-                      </span>
-                    </span>
+                <div className="flex flex-wrap gap-x-2 gap-y-1 justify-end">
+                  {row.days.map((d) => (
+                    <div key={d.dayIdx} className="flex items-center gap-1">
+                      <span className="text-[11px] text-muted-foreground">{DAY_NAMES[d.dayIdx]}</span>
+                      {d.shifts.map((t, idx) => {
+                        const chip = SHIFT_CHIP[t];
+                        if (!chip) return null;
+                        return (
+                          <span
+                            key={`${t}-${idx}`}
+                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${chip.bg} ${chip.border} ${chip.text}`}
+                            aria-label={`Pass: ${chip.label}`}
+                          >
+                            <span className="leading-none">{chip.emoji}</span>
+                            <span className="leading-none">{chip.label}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
                   ))}
-                </span>
+                </div>
               </li>
             ))}
           </ul>
