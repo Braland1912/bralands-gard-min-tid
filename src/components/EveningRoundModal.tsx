@@ -105,7 +105,9 @@ const EveningRoundModal = ({
   availablePlaces,
   takenPlaces,
   onAddPlace,
+  onExtend,
 }: Props) => {
+  const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [reg, setReg] = useState("");
