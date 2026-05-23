@@ -920,6 +920,29 @@ const EveningRoundModal = ({
                 />
               </div>
             )}
+            {method === "none" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="unpaid-reason">Varför ingen betalning?</Label>
+                <Input
+                  id="unpaid-reason"
+                  value={unpaidReason}
+                  onChange={(e) => setUnpaidReason(e.target.value)}
+                  placeholder="T.ex. var ej för, ville inte, betalar imorgon…"
+                  maxLength={160}
+                />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["Var ej för", "Ville inte", "Betalar imorgon", "Avresa idag"].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setUnpaidReason(r)}
+                      className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
             {isCash && (
               <div className="grid grid-cols-[1fr_110px] gap-3">
                 <div className="space-y-1.5">
