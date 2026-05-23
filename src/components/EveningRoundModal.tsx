@@ -562,7 +562,7 @@ const EveningRoundModal = ({
                         <button
                           key={s}
                           type="button"
-                          onClick={() => setNewPlaceLabel(s)}
+                          onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
                           className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
                         >
                           {s}
@@ -679,7 +679,7 @@ const EveningRoundModal = ({
                             <button
                               key={s}
                               type="button"
-                              onClick={() => setNewPlaceLabel(s)}
+                              onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
                               className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
                             >
                               {s}
