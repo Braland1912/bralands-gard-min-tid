@@ -579,6 +579,9 @@ const EveningRoundModal = ({
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Du kan lämna platsen tom och välja den när gästen kommer.
+                </p>
                 {place != null ? (
                   <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
                     <span className="text-sm">Plats <strong>{place}</strong></span>
@@ -613,7 +616,10 @@ const EveningRoundModal = ({
                       })}
                     </div>
                     {onAddPlace && (
-                      <div className="space-y-1 pt-1">
+                      <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2 mt-2">
+                        <div className="text-xs font-semibold text-foreground">
+                          Skapa ny plats
+                        </div>
                         <div className="flex gap-2">
                           <Input
                             value={newPlaceLabel}
@@ -674,7 +680,7 @@ const EveningRoundModal = ({
                         >
                           {newPlaceLabel.length} / 60 tecken
                         </div>
-                        <div className="flex flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-wrap gap-1.5">
                           {PLACE_SUGGESTIONS.map((s) => (
                             <button
                               key={s}
@@ -690,9 +696,6 @@ const EveningRoundModal = ({
                     )}
                   </>
                 )}
-                <p className="text-[11px] text-muted-foreground">
-                  Du kan lämna platsen tom och välja den när gästen kommer.
-                </p>
               </div>
             )}
 
