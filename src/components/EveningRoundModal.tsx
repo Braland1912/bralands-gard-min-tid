@@ -68,6 +68,20 @@ const PLACE_SUGGESTIONS = [
   "Nedanför jaktornet",
 ];
 
+/**
+ * Lägg till ett platsförslag i slutet av befintlig text istället för att
+ * skriva över den. Lägger in ett mellanslag som separator vid behov och
+ * klipper på max-längden (60 tecken).
+ */
+const appendSuggestion = (current: string, suggestion: string): string => {
+  const base = current.trim();
+  if (!base) return suggestion.slice(0, 60);
+  const sep = /[,–\-]\s*$/.test(base) ? " " : " ";
+  const lowerBase = base.toLowerCase();
+  if (lowerBase.includes(suggestion.toLowerCase())) return base;
+  return `${base}${sep}${suggestion}`.slice(0, 60);
+};
+
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
