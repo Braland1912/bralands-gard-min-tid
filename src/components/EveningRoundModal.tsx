@@ -46,10 +46,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, MoreVertical, Trash2, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronsUpDown, MoreVertical, Trash2, X } from "lucide-react";
 import {
   type EveningRoundGuest,
   type GuestInput,
+  type GuestStatus,
   type PaymentMethod,
   type Currency,
   type AccommodationType,
@@ -71,6 +72,8 @@ interface Props {
   takenPlaces?: string[];
   /** Skapa en ny extra plats (namngiven). Returnerar etiketten som skapades. */
   onAddPlace?: (label: string) => Promise<string>;
+  /** Öppna förläng-flödet för befintlig gäst. */
+  onExtend?: (guest: EveningRoundGuest) => void;
 }
 
 const todayLocal = () => {
@@ -102,7 +105,9 @@ const EveningRoundModal = ({
   availablePlaces,
   takenPlaces,
   onAddPlace,
+  onExtend,
 }: Props) => {
+  const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [reg, setReg] = useState("");
@@ -145,6 +150,7 @@ const EveningRoundModal = ({
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
       setOtherNote(guest.payment_other_note ?? "");
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
+      setStatus(guest.status);
     } else {
       setName("");
       setReg("");
@@ -158,6 +164,7 @@ const EveningRoundModal = ({
       setCurrency("SEK");
       setOtherNote("");
       setAccommodation("vehicle");
+      setStatus("here");
     }
     setError(null);
   }, [open, guest, defaultDate]);
@@ -232,7 +239,7 @@ const EveningRoundModal = ({
           ? { status: place == null ? ("not_here" as const) : ("here" as const) }
           : placeCleared
             ? { status: "not_here" as const }
-            : {}),
+            : { status }),
       });
       onOpenChange(false);
     } catch (e: any) {
@@ -317,6 +324,56 @@ const EveningRoundModal = ({
           </DialogHeader>
 
           <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
+            {guest && (
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 p-2">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setStatus("here")}
+                    aria-pressed={status === "here"}
+                    className={cn(
+                      "h-9 px-3 rounded-lg border text-sm font-medium inline-flex items-center gap-1.5 transition-colors",
+                      status === "here"
+                        ? "border-emerald-600 text-emerald-700 bg-emerald-50"
+                        : "border-border text-muted-foreground hover:bg-accent",
+                    )}
+                  >
+                    <Check className="h-4 w-4" />
+                    På plats
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("not_here")}
+                    aria-pressed={status === "not_here"}
+                    className={cn(
+                      "h-9 px-3 rounded-lg border text-sm font-medium inline-flex items-center gap-1.5 transition-colors",
+                      status === "not_here"
+                        ? "border-destructive text-destructive bg-destructive/10"
+                        : "border-border text-muted-foreground hover:bg-accent",
+                    )}
+                  >
+                    <X className="h-4 w-4" />
+                    Ej kommit
+                  </button>
+                </div>
+                {onExtend && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto h-9 gap-1.5"
+                    onClick={() => {
+                      onExtend(guest);
+                      onOpenChange(false);
+                    }}
+                  >
+                    <CalendarPlus2 className="h-4 w-4" />
+                    Förläng
+                  </Button>
+                )}
+              </div>
+            )}
+
             {showEditPlacePicker && (
               <div className="space-y-2 rounded-xl border border-border bg-muted/40 p-3">
                 <div className="flex items-center justify-between">

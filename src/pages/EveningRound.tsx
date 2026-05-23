@@ -558,6 +558,7 @@ const EveningRound = () => {
           const created = await addPlace.mutateAsync(label);
           return created.label;
         }}
+        onExtend={(g) => setExtendingGuest(g)}
       />
 
       <EveningRoundExtendDialog
