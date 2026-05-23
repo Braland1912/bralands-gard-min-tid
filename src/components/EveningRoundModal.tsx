@@ -121,6 +121,7 @@ const EveningRoundModal = ({
   const [amount, setAmount] = useState<string>("");
   const [currency, setCurrency] = useState<Currency>("SEK");
   const [otherNote, setOtherNote] = useState<string>("");
+  const [unpaidReason, setUnpaidReason] = useState<string>("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +149,8 @@ const EveningRoundModal = ({
       setMethod(guest.payment_method ?? "none");
       setAmount(guest.payment_amount != null ? String(guest.payment_amount) : "");
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
-      setOtherNote(guest.payment_other_note ?? "");
+      setOtherNote(guest.payment_method === "O" ? (guest.payment_other_note ?? "") : "");
+      setUnpaidReason(!guest.payment_method ? (guest.payment_other_note ?? "") : "");
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
     } else {
@@ -163,6 +165,7 @@ const EveningRoundModal = ({
       setAmount("");
       setCurrency("SEK");
       setOtherNote("");
+      setUnpaidReason("");
       setAccommodation("vehicle");
       setStatus("here");
     }
@@ -219,6 +222,10 @@ const EveningRoundModal = ({
       setError("Beskriv betalningsmetoden");
       return;
     }
+    if (method === "none" && !unpaidReason.trim()) {
+      setError("Ange varför ingen betalning skett");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -238,7 +245,11 @@ const EveningRoundModal = ({
               ? `${OTHER_CODE}:${nationalityOther.trim()}`
               : OTHER_CODE
             : nationality.trim() || null,
-        payment_other_note: isOther ? otherNote.trim() : null,
+        payment_other_note: isOther
+          ? otherNote.trim()
+          : method === "none"
+            ? unpaidReason.trim()
+            : null,
         accommodation_type: accommodation,
         ...(!guest
           ? { status: place == null ? ("not_here" as const) : ("here" as const) }
