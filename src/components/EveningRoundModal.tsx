@@ -205,6 +205,11 @@ const EveningRoundModal = ({
       setError("Välj en plats");
       return;
     }
+    if (guest && place == null && status === "here") {
+      setError("Välj en plats för att markera som på plats");
+      if (hasPlaceOptions) setEditingPlace(true);
+      return;
+    }
     const amt = amount.trim() === "" ? null : Number(amount);
     if (amt != null && (Number.isNaN(amt) || amt < 0)) {
       setError("Ogiltigt belopp");
@@ -329,7 +334,15 @@ const EveningRoundModal = ({
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
-                    onClick={() => setStatus("here")}
+                    onClick={() => {
+                      if (place == null) {
+                        setError("Välj en plats för att markera som på plats");
+                        if (hasPlaceOptions) setEditingPlace(true);
+                        return;
+                      }
+                      setError(null);
+                      setStatus("here");
+                    }}
                     aria-pressed={status === "here"}
                     className={cn(
                       "h-9 px-3 rounded-lg border text-sm font-medium inline-flex items-center gap-1.5 transition-colors",
