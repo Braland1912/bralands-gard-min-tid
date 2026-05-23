@@ -927,11 +927,11 @@ const EveningRoundModal = ({
                   id="unpaid-reason"
                   value={unpaidReason}
                   onChange={(e) => setUnpaidReason(e.target.value)}
-                  placeholder="T.ex. var ej för, ville inte, betalar imorgon…"
+                  placeholder="T.ex. var ej där, har ej kommit, ville inte…"
                   maxLength={160}
                 />
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["Var ej för", "Ville inte", "Betalar imorgon", "Avresa idag"].map((r) => (
+                  {["Var ej där", "Har ej kommit, bara reserverat", "Ville inte av någon anledning"].map((r) => (
                     <button
                       key={r}
                       type="button"
