@@ -239,7 +239,7 @@ const EveningRoundModal = ({
           ? { status: place == null ? ("not_here" as const) : ("here" as const) }
           : placeCleared
             ? { status: "not_here" as const }
-            : {}),
+            : { status }),
       });
       onOpenChange(false);
     } catch (e: any) {
