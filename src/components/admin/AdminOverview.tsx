@@ -273,23 +273,11 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   const showWeek = scope === "week" || scope === "all";
 
   const stats = [
-    {
-      key: "active",
-      label: "Instämplade nu",
-      value: loadingActive ? "…" : filteredActiveEntries.length,
-      icon: Clock,
-      // teal
-      tint: "bg-[hsl(183_25%_96%)] border-[hsl(183_25%_88%)]",
-      iconBg: "bg-[hsl(183_25%_90%)]",
-      iconColor: "text-[hsl(183_25%_35%)]",
-      valueColor: "text-[hsl(183_25%_28%)]",
-    },
     showToday && {
       key: "today",
       label: "Jobbar idag",
       value: loadingToday || loadingWorkers ? "…" : filteredTodayWorkers.length,
       icon: Users,
-      // soft amber
       tint: "bg-[hsl(38_60%_96%)] border-[hsl(38_60%_88%)]",
       iconBg: "bg-[hsl(38_60%_90%)]",
       iconColor: "text-[hsl(32_55%_38%)]",
@@ -300,7 +288,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       label: "Jobbar i veckan",
       value: loadingWeek || loadingWorkers ? "…" : filteredWeekRows.length,
       icon: CalendarDays,
-      // soft sage
       tint: "bg-[hsl(150_25%_96%)] border-[hsl(150_25%_88%)]",
       iconBg: "bg-[hsl(150_25%_90%)]",
       iconColor: "text-[hsl(150_30%_32%)]",
@@ -312,7 +299,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       value: loadingCorrections ? "…" : pendingCorrections.length,
       icon: AlertTriangle,
       onClick: () => onNavigate("rattelser"),
-      // soft rose
       tint: "bg-[hsl(8_55%_97%)] border-[hsl(8_55%_88%)]",
       iconBg: "bg-[hsl(8_55%_92%)]",
       iconColor: "text-[hsl(8_55%_42%)]",
@@ -326,8 +312,56 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       {/* Kvällsrundan – snabb status */}
       <EveningRoundWidget />
 
+      {/* Instämplade nu – combined card with names */}
+      <div className={`border rounded-xl px-3 py-2.5 ${SECTION_STYLE.active.tint}`}>
+        <div className="flex items-center gap-2.5">
+          <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${SECTION_STYLE.active.iconBg}`}>
+            <Clock className={`h-3.5 w-3.5 ${SECTION_STYLE.active.iconColor}`} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] text-muted-foreground font-medium leading-tight">Instämplade nu</p>
+            <p className={`text-lg font-semibold tabular-nums leading-tight ${SECTION_STYLE.active.avatarText}`}>
+              {loadingActive ? "…" : filteredActiveEntries.length}
+            </p>
+          </div>
+        </div>
+        {!loadingActive && filteredActiveEntries.length > 0 && (
+          <ul className="mt-2.5 flex flex-wrap gap-1.5">
+            {filteredActiveEntries.map((entry) => {
+              const since = entry.clock_in ? new Date(entry.clock_in) : null;
+              const hoursSince = since ? (Date.now() - since.getTime()) / 3600000 : 0;
+              const warning = hoursSince > 5;
+              return (
+                <li
+                  key={entry.id}
+                  className="flex items-center gap-1.5 rounded-lg border border-[hsl(183_25%_88%)] bg-background/70 px-2 py-1"
+                  title={since ? `Sedan ${format(since, "HH:mm", { locale: sv })}` : entry.worker_name}
+                >
+                  <span className={`h-5 w-5 rounded-md flex items-center justify-center text-[10px] font-semibold ${SECTION_STYLE.active.avatarBg} ${SECTION_STYLE.active.avatarText}`}>
+                    {getInitials(entry.worker_name || "?")}
+                  </span>
+                  <span className="text-xs font-medium text-foreground truncate max-w-[120px]">
+                    {getShortName(entry.worker_name || "?")}
+                  </span>
+                  {warning && <span aria-label="Långt pass">⚠️</span>}
+                  <span className="relative flex h-1.5 w-1.5 ml-0.5">
+                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${SECTION_STYLE.active.dot}`} />
+                    <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${SECTION_STYLE.active.dot}`} />
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {!loadingActive && filteredActiveEntries.length === 0 && (
+          <p className="mt-1 text-xs text-muted-foreground italic">
+            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är instämplad just nu."}
+          </p>
+        )}
+      </div>
+
       {/* Stat grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {stats.map((s) => {
           const Icon = s.icon;
           const Wrapper: any = s.onClick ? "button" : "div";
@@ -353,70 +387,6 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         })}
       </div>
 
-
-      {/* Section: Currently clocked in (teal) */}
-      <section className={`border rounded-2xl p-5 space-y-4 ${SECTION_STYLE.active.tint}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${SECTION_STYLE.active.iconBg}`}>
-              <Clock className={`h-3.5 w-3.5 ${SECTION_STYLE.active.iconColor}`} />
-            </div>
-            <h3 className="text-base font-semibold text-foreground">Instämplade nu</h3>
-          </div>
-          <span className="text-xs text-muted-foreground tabular-nums">
-            {loadingActive ? "" : `${filteredActiveEntries.length} st`}
-          </span>
-        </div>
-
-        {loadingActive ? (
-          <div className="space-y-2">
-            {[1, 2].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}
-          </div>
-        ) : filteredActiveEntries.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">
-            {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är instämplad just nu."}
-          </p>
-        ) : (
-          <ul className={`divide-y ${SECTION_STYLE.active.divide}`}>
-            {filteredActiveEntries.map((entry) => {
-              const since = entry.clock_in ? new Date(entry.clock_in) : null;
-              const hoursSince = since ? (Date.now() - since.getTime()) / 3600000 : 0;
-              const warning = hoursSince > 5;
-              return (
-                <li key={entry.id} className="py-2.5 flex items-center gap-3">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className={`text-xs font-semibold ${SECTION_STYLE.active.avatarBg} ${SECTION_STYLE.active.avatarText}`}>
-                      {getInitials(entry.worker_name || "?")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {entry.worker_name}
-                      </p>
-                      {warning && (
-                        <span title="Instämplad mer än 5 timmar" aria-label="Långt pass">
-                          ⚠️
-                        </span>
-                      )}
-                    </div>
-                    {since && (
-                      <p className="text-xs text-muted-foreground">
-                        Sedan {format(since, "HH:mm", { locale: sv })} ·{" "}
-                        {formatDistanceToNowStrict(since, { locale: sv })}
-                      </p>
-                    )}
-                  </div>
-                  <span className="relative flex h-2 w-2">
-                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${SECTION_STYLE.active.dot}`} />
-                    <span className={`relative inline-flex rounded-full h-2 w-2 ${SECTION_STYLE.active.dot}`} />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
 
       {/* Section: Working today (amber) */}
       {showToday && (
