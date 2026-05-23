@@ -985,99 +985,108 @@ const EveningRoundModal = ({
                 </div>
               );
             })()}
-            <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
-              <div className="space-y-1.5">
-                <Label>Betalningsmetod</Label>
-                <Select value={method} onValueChange={(v) => setMethod(v as any)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Välj…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Ingen</SelectItem>
-                    {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
-                      <SelectItem key={m} value={m}>
-                        {PAYMENT_LABELS[m]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {!isCash && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="amt">Belopp (kr)</Label>
-                  <Input
-                    id="amt"
-                    type="number"
-                    inputMode="numeric"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
+            <div className="space-y-1.5">
+              <Label>Betalning</Label>
+              <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-3">
+                <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Betalningsmetod</Label>
+                    <Select value={method} onValueChange={(v) => setMethod(v as any)}>
+                      <SelectTrigger className="bg-card">
+                        <SelectValue placeholder="Välj…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Ingen</SelectItem>
+                        {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {PAYMENT_LABELS[m]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {!isCash && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="amt" className="text-xs font-semibold">Belopp (kr)</Label>
+                      <Input
+                        id="amt"
+                        type="number"
+                        inputMode="numeric"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-card"
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            {isOther && (
-              <div className="space-y-1.5">
-                <Label htmlFor="other-note">Beskrivning av betalning</Label>
-                <Input
-                  id="other-note"
-                  value={otherNote}
-                  onChange={(e) => setOtherNote(e.target.value)}
-                  placeholder="T.ex. faktura, presentkort…"
-                  maxLength={120}
-                />
-              </div>
-            )}
-            {method === "none" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="unpaid-reason">Varför ingen betalning?</Label>
-                <Input
-                  id="unpaid-reason"
-                  value={unpaidReason}
-                  onChange={(e) => setUnpaidReason(e.target.value)}
-                  placeholder="T.ex. var ej där, har ej kommit, ville inte…"
-                  maxLength={160}
-                />
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["Var ej där", "Har ej kommit, bara reserverat", "Ville inte av någon anledning"].map((r) => (
-                    <button
-                      key={r}
-                      type="button"
-                      onClick={() => setUnpaidReason(r)}
-                      className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted transition-colors"
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {isCash && (
-              <div className="grid grid-cols-[1fr_110px] gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="amt">Belopp</Label>
-                  <Input
-                    id="amt"
-                    type="number"
-                    inputMode="numeric"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Valuta</Label>
-                  <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                {isOther && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="other-note" className="text-xs font-semibold">Beskrivning av betalning</Label>
+                    <Input
+                      id="other-note"
+                      value={otherNote}
+                      onChange={(e) => setOtherNote(e.target.value)}
+                      placeholder="T.ex. faktura, presentkort…"
+                      maxLength={120}
+                      className="bg-card"
+                    />
+                  </div>
+                )}
+                {method === "none" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="unpaid-reason" className="text-xs font-semibold">Varför ingen betalning?</Label>
+                    <Input
+                      id="unpaid-reason"
+                      value={unpaidReason}
+                      onChange={(e) => setUnpaidReason(e.target.value)}
+                      placeholder="T.ex. var ej där, har ej kommit, ville inte…"
+                      maxLength={160}
+                      className="bg-card"
+                    />
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {["Var ej där", "Har ej kommit, bara reserverat", "Ville inte av någon anledning"].map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setUnpaidReason(r)}
+                          className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                        >
+                          {r}
+                        </button>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    </div>
+                  </div>
+                )}
+                {isCash && (
+                  <div className="grid grid-cols-[1fr_110px] gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="amt" className="text-xs font-semibold">Belopp</Label>
+                      <Input
+                        id="amt"
+                        type="number"
+                        inputMode="numeric"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="bg-card"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Valuta</Label>
+                      <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+                        <SelectTrigger className="bg-card">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CURRENCIES.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
