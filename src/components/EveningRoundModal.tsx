@@ -50,6 +50,7 @@ import { CalendarPlus2, Check, ChevronsUpDown, MoreVertical, Trash2, X } from "l
 import {
   type EveningRoundGuest,
   type GuestInput,
+  type GuestStatus,
   type PaymentMethod,
   type Currency,
   type AccommodationType,
