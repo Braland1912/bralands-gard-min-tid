@@ -58,6 +58,15 @@ import {
 } from "@/hooks/useEveningRoundGuests";
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
+const PLACE_SUGGESTIONS = [
+  "Vid solcellerna",
+  "Vid lekplatsen",
+  "Vid fotbollsplanen",
+  "Vid lilla dasset",
+  "Uppe vid jaktornet",
+  "Nedanför jaktornet",
+];
+
 const CURRENCIES: Currency[] = ["SEK", "EUR", "NOK"];
 
 interface Props {
