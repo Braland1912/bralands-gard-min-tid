@@ -671,6 +671,8 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           )}
         </SheetContent>
       </Sheet>
+
+      <VersionTag className="text-center pt-2" />
     </div>
   );
 };
