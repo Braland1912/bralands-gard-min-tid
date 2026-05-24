@@ -6,6 +6,7 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, LogOut, Clock, CalendarDays, Home, Moon } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
+import VersionTag from "@/components/VersionTag";
 
 const AppHeader = () => {
   const location = useLocation();
@@ -126,6 +127,11 @@ const AppHeader = () => {
                   <LogOut className="h-4 w-4" />
                   Logga ut
                 </button>
+              </div>
+
+              {/* Version */}
+              <div className="border-t border-border px-4 py-2">
+                <VersionTag />
               </div>
             </div>
           )}
