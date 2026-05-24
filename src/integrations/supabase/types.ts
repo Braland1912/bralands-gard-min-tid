@@ -679,6 +679,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_team_workers: {
+        Args: never
+        Returns: {
+          can_see_team: boolean
+          id: string
+          name: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

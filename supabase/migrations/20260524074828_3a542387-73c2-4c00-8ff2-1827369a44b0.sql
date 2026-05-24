@@ -1,0 +1,1 @@
+revoke execute on function public.get_team_workers() from public, anon;

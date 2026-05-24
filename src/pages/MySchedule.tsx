@@ -100,12 +100,13 @@ const MySchedule = () => {
   const { data: allWorkers = [] } = useQuery({
     queryKey: ["all-workers-schedule"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("workers").select("*");
+      const { data, error } = await supabase.rpc("get_team_workers");
       if (error) throw error;
-      return data;
+      return data ?? [];
     },
     enabled: !!user,
   });
+
 
   const { data: schedules = [], isLoading: schedulesLoading } = useQuery({
     queryKey: ["schedules", format(weekStart, "yyyy-MM-dd"), format(weekEnd, "yyyy-MM-dd")],
