@@ -742,27 +742,59 @@ const MySchedule = () => {
                 <p className="text-sm text-muted-foreground italic">Inga andra är schemalagda denna vecka.</p>
               ) : (
                 <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-                  {rows.map((row) => (
-                    <li
-                      key={row.worker.id}
-                      className="py-2 px-3 flex items-center justify-between gap-3"
-                    >
-                      <span className="text-sm font-medium text-foreground truncate shrink-0">
-                        {getShortName(row.worker.name)}
-                      </span>
-                      <span className="text-xs text-muted-foreground text-right">
-                        {row.days.map((d, i) => (
-                          <span key={d.dayIdx}>
-                            {i > 0 && <span className="mx-1 opacity-50">·</span>}
-                            {DAY_NAMES[d.dayIdx]}{" "}
-                            <span className="text-sm leading-none">
-                              {d.shifts.map((t) => SHIFT_EMOJI[t] ?? "").join("")}
-                            </span>
+                  {rows.map((row) => {
+                    // Detect "hela veckan" same single shift (e.g. busy alla dagar)
+                    const allDays = row.days.length === 7;
+                    const flatTypes = row.days.flatMap((d) => d.shifts);
+                    const uniqueTypes = Array.from(new Set(flatTypes));
+                    const isUniformWeek =
+                      allDays &&
+                      uniqueTypes.length === 1 &&
+                      row.days.every((d) => d.shifts.length === 1);
+                    const uniformCfg = isUniformWeek ? SHIFT_CONFIG[uniqueTypes[0] as ShiftType] : null;
+
+                    return (
+                      <li
+                        key={row.worker.id}
+                        className="py-2 px-3 flex items-center justify-between gap-2"
+                      >
+                        <span className="text-sm font-medium text-foreground truncate shrink-0">
+                          {getShortName(row.worker.name)}
+                        </span>
+                        {uniformCfg ? (
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${uniformCfg.bg} ${uniformCfg.border} ${uniformCfg.text} shrink-0`}
+                            aria-label={`Hela veckan: ${uniformCfg.label}`}
+                          >
+                            <span className="leading-none">{uniformCfg.emoji}</span>
+                            <span className="leading-none">Hela veckan · {uniformCfg.label}</span>
                           </span>
-                        ))}
-                      </span>
-                    </li>
-                  ))}
+                        ) : (
+                          <div className="flex flex-wrap gap-x-2 gap-y-1 justify-end">
+                            {row.days.map((d) => (
+                              <div key={d.dayIdx} className="flex items-center gap-1">
+                                <span className="text-[11px] text-muted-foreground">{DAY_NAMES[d.dayIdx]}</span>
+                                {d.shifts.map((t, idx) => {
+                                  const cfg = SHIFT_CONFIG[t as ShiftType];
+                                  if (!cfg) return null;
+                                  return (
+                                    <span
+                                      key={`${t}-${idx}`}
+                                      className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${cfg.bg} ${cfg.border} ${cfg.text}`}
+                                      aria-label={`Pass: ${cfg.label}`}
+                                    >
+                                      <span className="leading-none">{cfg.emoji}</span>
+                                      <span className="leading-none">{cfg.label}</span>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
