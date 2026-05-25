@@ -285,6 +285,23 @@ const EveningRoundModal = ({
       setError("Ange varför ingen betalning skett");
       return;
     }
+    // Ej betalt får bara kombineras med "ej här" om det är en reservation
+    // (ankomst i framtiden). Annars måste betalning registreras.
+    const effectiveStatus: GuestStatus = !guest
+      ? place == null
+        ? "not_here"
+        : "here"
+      : placeCleared
+        ? "not_here"
+        : status;
+    if (
+      method === "none" &&
+      effectiveStatus === "not_here" &&
+      arrival <= todayLocal()
+    ) {
+      setError("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
+      return;
+    }
 
     setSaving(true);
     try {
