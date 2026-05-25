@@ -115,8 +115,13 @@ const EveningRound = () => {
     // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
     const set = new Set<string>(STANDARD_PLACES);
     extras.forEach((l) => set.add(l));
+    // Inkludera även temporära platser som har en gäst kvar för dagen,
+    // även om extra-place-raden tillhör en tidigare runda.
+    guests.forEach((g) => {
+      if (g.place_label) set.add(g.place_label);
+    });
     return Array.from(set);
-  }, [extraPlaces]);
+  }, [extraPlaces, guests]);
 
   const today = todayLocal();
   const yesterday = shiftDate(today, -1);
