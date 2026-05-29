@@ -115,6 +115,57 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemo
         </button>
       </div>
 
+      {prepaidGuests.length > 0 && onAssignPrepaid && (
+        <Popover open={assignOpen} onOpenChange={setAssignOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="w-full rounded-xl border border-sky-200 bg-sky-50 text-sky-800 text-xs font-semibold py-2 flex items-center justify-center gap-1.5 hover:bg-sky-100 transition-colors"
+            >
+              <UserCheck className="h-3.5 w-3.5" />
+              Tilldela förbetald ({prepaidGuests.length})
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-72 p-2 max-h-72 overflow-y-auto">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground px-2 py-1">
+              Välj förbetald gäst
+            </div>
+            <div className="flex flex-col gap-1">
+              {prepaidGuests.map((g) => {
+                const label =
+                  g.guest_name ||
+                  g.registration_number ||
+                  (g.accommodation_type === "tent" ? "Tält" : "Gäst");
+                return (
+                  <button
+                    key={g.id}
+                    type="button"
+                    disabled={assigning}
+                    onClick={async () => {
+                      setAssigning(true);
+                      try {
+                        await onAssignPrepaid(g.id);
+                        setAssignOpen(false);
+                      } finally {
+                        setAssigning(false);
+                      }
+                    }}
+                    className="text-left rounded-lg px-2 py-2 hover:bg-accent disabled:opacity-50 flex items-center justify-between gap-2"
+                  >
+                    <span className="text-sm font-medium truncate">{label}</span>
+                    {g.payment_amount && (
+                      <span className="text-[11px] text-muted-foreground shrink-0">
+                        {g.payment_amount} {g.payment_currency ?? "kr"}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+
       {isExtra && (
         <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <AlertDialogContent>
