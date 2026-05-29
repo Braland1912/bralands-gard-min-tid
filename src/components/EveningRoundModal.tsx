@@ -250,6 +250,7 @@ const EveningRoundModal = ({
       setVehicleType("motorhome");
       setHasElectricity(true);
       setTrailerReg("");
+      setTentPersons(2);
 
     }
     setError(null);
