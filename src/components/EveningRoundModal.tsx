@@ -532,8 +532,9 @@ const EveningRoundModal = ({
 
           <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
             {guest && (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/30 p-2">
-                <div className="flex items-center gap-1.5">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</Label>
+                <div className={`grid ${onExtend ? "grid-cols-3" : "grid-cols-2"} gap-1.5`}>
                   <button
                     type="button"
                     onClick={() => {
@@ -549,7 +550,7 @@ const EveningRoundModal = ({
                     }}
                     aria-pressed={status === "here"}
                     className={cn(
-                      "h-9 px-3 rounded-lg border text-sm font-medium inline-flex items-center gap-1.5 transition-colors",
+                      "h-10 px-2 rounded-lg border text-sm font-medium inline-flex items-center justify-center gap-1.5 transition-colors",
                       status === "here"
                         ? "border-emerald-600 text-emerald-700 bg-emerald-50"
                         : "border-border text-muted-foreground hover:bg-accent",
@@ -563,7 +564,7 @@ const EveningRoundModal = ({
                     onClick={() => setStatus("not_here")}
                     aria-pressed={status === "not_here"}
                     className={cn(
-                      "h-9 px-3 rounded-lg border text-sm font-medium inline-flex items-center gap-1.5 transition-colors",
+                      "h-10 px-2 rounded-lg border text-sm font-medium inline-flex items-center justify-center gap-1.5 transition-colors",
                       status === "not_here"
                         ? "border-destructive text-destructive bg-destructive/10"
                         : "border-border text-muted-foreground hover:bg-accent",
@@ -572,22 +573,20 @@ const EveningRoundModal = ({
                     <X className="h-4 w-4" />
                     Ej kommit
                   </button>
+                  {onExtend && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onExtend(guest);
+                        onOpenChange(false);
+                      }}
+                      className="h-10 px-2 rounded-lg border border-border text-sm font-medium inline-flex items-center justify-center gap-1.5 text-muted-foreground hover:bg-accent transition-colors"
+                    >
+                      <CalendarPlus2 className="h-4 w-4" />
+                      Förläng
+                    </button>
+                  )}
                 </div>
-                {onExtend && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="ml-auto h-9 gap-1.5"
-                    onClick={() => {
-                      onExtend(guest);
-                      onOpenChange(false);
-                    }}
-                  >
-                    <CalendarPlus2 className="h-4 w-4" />
-                    Förläng
-                  </Button>
-                )}
               </div>
             )}
 
