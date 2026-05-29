@@ -922,6 +922,7 @@ const EveningRoundModal = ({
                             type="button"
                             variant="outline"
                             size="sm"
+                            className="h-10 sm:w-auto w-full"
                             disabled={!newPlaceLabel.trim() || creatingPlace}
                             onClick={async () => {
                               const label = newPlaceLabel.trim();
