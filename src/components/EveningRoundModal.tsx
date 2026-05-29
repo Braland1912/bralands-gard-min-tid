@@ -1055,6 +1055,37 @@ const EveningRoundModal = ({
                 </div>
               </div>
             )}
+            {effectiveAccommodation === "vehicle" && (
+              <div className="space-y-1.5">
+                <Label>El</Label>
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setHasElectricity(true)}
+                    className={cn(
+                      "h-9 rounded-lg text-sm font-medium transition-colors",
+                      hasElectricity
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Med el
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHasElectricity(false)}
+                    className={cn(
+                      "h-9 rounded-lg text-sm font-medium transition-colors",
+                      !hasElectricity
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Utan el
+                  </button>
+                </div>
+              </div>
+            )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
