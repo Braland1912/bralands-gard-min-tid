@@ -118,8 +118,14 @@ interface Props {
   onDelete?: (id: string) => Promise<unknown> | void;
   availablePlaces?: string[];
   takenPlaces?: string[];
+  /** Extra (tillfälliga) platser för denna runda. */
+  extraPlaces?: { id: string; label: string }[];
   /** Skapa en ny extra plats (namngiven). Returnerar etiketten som skapades. */
   onAddPlace?: (label: string) => Promise<string>;
+  /** Byt namn på en extra plats. */
+  onRenamePlace?: (id: string, newLabel: string) => Promise<unknown>;
+  /** Ta bort en extra plats (gästens platsetikett nollas). */
+  onDeletePlace?: (id: string) => Promise<unknown>;
   /** Öppna förläng-flödet för befintlig gäst. */
   onExtend?: (guest: EveningRoundGuest) => void;
   /**
