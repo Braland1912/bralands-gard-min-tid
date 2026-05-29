@@ -183,8 +183,10 @@ const EveningRoundModal = ({
   const [creatingPlace, setCreatingPlace] = useState(false);
   const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
   const [editingPlace, setEditingPlace] = useState(false);
-  const [placeCleared, setPlaceCleared] = useState(false);
   const [tempDescription, setTempDescription] = useState("");
+  const [vehicleType, setVehicleType] = useState<VehicleType>("car");
+  const [trailerReg, setTrailerReg] = useState("");
+
 
   useEffect(() => {
     if (!open) return;
