@@ -109,6 +109,7 @@ const EveningRound = () => {
   const [extendingGuest, setExtendingGuest] = useState<EveningRoundGuest | null>(null);
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
