@@ -29,6 +29,7 @@ export interface EveningRoundGuest {
   temp_description: string | null;
   vehicle_type: VehicleType | null;
   trailer_registration: string | null;
+  has_electricity: boolean | null;
 }
 
 export interface GuestInput {
