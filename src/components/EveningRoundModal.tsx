@@ -1017,20 +1017,6 @@ const EveningRoundModal = ({
                   >
                     Tält
                   </button>
-                  {mode !== "prepaid" && (
-                    <button
-                      type="button"
-                      onClick={() => setAccommodation("temporary")}
-                      className={cn(
-                        "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
-                        accommodation === "temporary"
-                          ? "bg-card text-foreground shadow-sm"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      Tillfällig
-                    </button>
-                  )}
                 </div>
               </div>
             )}
