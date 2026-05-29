@@ -857,13 +857,49 @@ const EveningRoundModal = ({
                 </p>
               </div>
             )}
+            {effectiveAccommodation === "vehicle" && (
+              <div className="space-y-1.5">
+                <Label>Fordonstyp</Label>
+                <div className="grid grid-cols-4 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
+                  {(Object.keys(VEHICLE_TYPE_LABELS) as VehicleType[]).map((vt) => (
+                    <button
+                      key={vt}
+                      type="button"
+                      onClick={() => setVehicleType(vt)}
+                      className={cn(
+                        "h-9 rounded-lg text-sm font-medium transition-colors",
+                        vehicleType === vt
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {VEHICLE_TYPE_LABELS[vt]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="reg">Reg.nummer</Label>
+                  <Label htmlFor="reg">
+                    {vehicleType === "caravan" ? "Reg.nr dragbil" : "Reg.nummer"}
+                  </Label>
                   <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
                 </div>
               )}
+              {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="trailer-reg">Reg.nr husvagn</Label>
+                  <Input
+                    id="trailer-reg"
+                    value={trailerReg}
+                    onChange={(e) => setTrailerReg(e.target.value)}
+                    placeholder="XYZ789"
+                  />
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <Label>Nationalitet</Label>
                 <Popover open={natOpen} onOpenChange={setNatOpen}>
