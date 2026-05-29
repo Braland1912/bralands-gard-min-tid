@@ -156,6 +156,7 @@ export type Database = {
           evening_round_id: string
           guest_name: string
           id: string
+          is_prepaid: boolean
           nationality: string | null
           notes: string | null
           payment_amount: number | null
@@ -165,6 +166,7 @@ export type Database = {
           place_label: string | null
           registration_number: string | null
           status: string
+          temp_description: string | null
           updated_at: string
         }
         Insert: {
@@ -175,6 +177,7 @@ export type Database = {
           evening_round_id: string
           guest_name: string
           id?: string
+          is_prepaid?: boolean
           nationality?: string | null
           notes?: string | null
           payment_amount?: number | null
@@ -184,6 +187,7 @@ export type Database = {
           place_label?: string | null
           registration_number?: string | null
           status?: string
+          temp_description?: string | null
           updated_at?: string
         }
         Update: {
@@ -194,6 +198,7 @@ export type Database = {
           evening_round_id?: string
           guest_name?: string
           id?: string
+          is_prepaid?: boolean
           nationality?: string | null
           notes?: string | null
           payment_amount?: number | null
@@ -203,6 +208,7 @@ export type Database = {
           place_label?: string | null
           registration_number?: string | null
           status?: string
+          temp_description?: string | null
           updated_at?: string
         }
         Relationships: [
