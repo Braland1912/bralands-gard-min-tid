@@ -7,8 +7,24 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { UserCheck, MapPinPlus, CreditCard, ChevronRight } from "lucide-react";
-import type { EveningRoundGuest } from "@/hooks/useEveningRoundGuests";
+import {
+  UserCheck,
+  MapPinPlus,
+  CreditCard,
+  ChevronRight,
+  ChevronDown,
+  Calendar,
+  Car,
+  Tent,
+  Globe,
+  StickyNote,
+  Zap,
+} from "lucide-react";
+import {
+  type EveningRoundGuest,
+  VEHICLE_TYPE_LABELS,
+  formatDateLabel,
+} from "@/hooks/useEveningRoundGuests";
 
 interface Props {
   open: boolean;
