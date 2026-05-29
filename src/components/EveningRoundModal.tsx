@@ -1091,6 +1091,24 @@ const EveningRoundModal = ({
                 </div>
               </div>
             )}
+            {effectiveAccommodation === "tent" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="tent-persons">Antal personer</Label>
+                <Input
+                  id="tent-persons"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  value={tentPersons}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setTentPersons(Number.isFinite(v) && v > 0 ? v : 1);
+                  }}
+                  className="bg-card"
+                />
+              </div>
+            )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
