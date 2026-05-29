@@ -68,6 +68,7 @@ const App = () => (
           } />
           <Route path="/evening-round" element={<EveningRound />} />
           <Route path="/evening-round/help" element={<EveningRoundHelp />} />
+          <Route path="/help" element={<Help />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />
