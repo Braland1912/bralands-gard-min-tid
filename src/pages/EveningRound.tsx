@@ -166,12 +166,12 @@ const EveningRound = () => {
   }, [guests]);
 
   const incomingGuestsAll = useMemo(
-    () => guests.filter((g) => !g.place_label && g.is_prepaid && g.accommodation_type !== "temporary"),
+    () => guests.filter((g) => !g.place_label && g.is_prepaid),
     [guests],
   );
 
   const temporaryGuests = useMemo(
-    () => guests.filter((g) => !g.place_label && g.accommodation_type === "temporary"),
+    () => guests.filter((g) => !g.place_label && g.accommodation_type === "temporary" && !g.is_prepaid),
     [guests],
   );
 
