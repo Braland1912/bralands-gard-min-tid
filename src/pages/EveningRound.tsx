@@ -314,8 +314,13 @@ const EveningRound = () => {
             </button>
           </div>
           {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
-          {!isAdmin && worker && selectedDate === today && activeTab === "rundan" && (
-            <div className="flex items-center gap-2 text-xs">
+          {!isAdmin && worker && selectedDate === today && (
+            <div
+              className={`flex items-center gap-2 text-xs transition-opacity ${
+                activeTab === "rundan" ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+              aria-hidden={activeTab !== "rundan"}
+            >
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
                   Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
