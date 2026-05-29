@@ -118,8 +118,14 @@ interface Props {
   onAddPlace?: (label: string) => Promise<string>;
   /** Öppna förläng-flödet för befintlig gäst. */
   onExtend?: (guest: EveningRoundGuest) => void;
+  /**
+   * Specialläge:
+   * - `prepaid`: registrera gäst som betalat i förväg, utan plats
+   * - `temporary`: skapa en tillfällig plats (tält/fordon på gräs)
+   * - `normal` (default): vanligt flöde med platsval
+   */
+  mode?: "normal" | "prepaid" | "temporary";
 }
-
 const todayLocal = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
