@@ -1120,7 +1120,7 @@ const EveningRoundModal = ({
                     />
                   </div>
                 )}
-                {method === "none" && (
+                {method === "none" && mode !== "prepaid" && (
                   <div className="space-y-1.5">
                     <Label htmlFor="unpaid-reason" className="text-xs font-semibold">Varför ingen betalning?</Label>
                     <Input
@@ -1145,6 +1145,7 @@ const EveningRoundModal = ({
                     </div>
                   </div>
                 )}
+
                 {isCash && (
                   <div className="grid grid-cols-[1fr_110px] gap-3">
                     <div className="space-y-1.5">
