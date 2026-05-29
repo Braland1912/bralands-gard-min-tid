@@ -431,7 +431,9 @@ const EveningRoundModal = ({
       });
       onOpenChange(false);
     } catch (e: any) {
-      setError(e?.message ?? "Kunde inte spara");
+      const msg = e?.message ?? "Kunde inte spara";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
