@@ -55,8 +55,11 @@ import {
   type PaymentMethod,
   type Currency,
   type AccommodationType,
+  type VehicleType,
   PAYMENT_LABELS,
+  VEHICLE_TYPE_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
 const PLACE_SUGGESTIONS = [
