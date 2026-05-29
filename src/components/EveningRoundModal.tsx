@@ -618,6 +618,8 @@ const EveningRoundModal = ({
                           setPickedPlace(p);
                           setPlaceCleared(false);
                           setEditingPlace(false);
+                          setStatus("here");
+                          setError(null);
                         }}
                         className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
                           current
