@@ -366,6 +366,12 @@ const EveningRoundModal = ({
             : null,
         accommodation_type: effectiveAccommodation,
         temp_description: effectiveAccommodation === "temporary" ? tempDescription.trim() : null,
+        vehicle_type: effectiveAccommodation === "vehicle" ? vehicleType : null,
+        trailer_registration:
+          effectiveAccommodation === "vehicle" && vehicleType === "caravan"
+            ? (trailerReg.trim() || null)
+            : null,
+
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
           ? { status: effectiveStatus }
