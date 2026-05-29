@@ -156,6 +156,7 @@ const EveningRoundModal = ({
   takenPlaces,
   onAddPlace,
   onExtend,
+  mode = "normal",
 }: Props) => {
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
@@ -180,6 +181,7 @@ const EveningRoundModal = ({
   const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
   const [editingPlace, setEditingPlace] = useState(false);
   const [placeCleared, setPlaceCleared] = useState(false);
+  const [tempDescription, setTempDescription] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -203,6 +205,7 @@ const EveningRoundModal = ({
       setUnpaidReason(!guest.payment_method ? (guest.payment_other_note ?? "") : "");
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
+      setTempDescription(guest.temp_description ?? "");
     } else {
       setName("");
       setReg("");
@@ -216,16 +219,22 @@ const EveningRoundModal = ({
       setCurrency("SEK");
       setOtherNote("");
       setUnpaidReason("");
-      setAccommodation("vehicle");
+      setAccommodation(mode === "temporary" ? "temporary" : "vehicle");
       setStatus("here");
+      setTempDescription("");
     }
     setError(null);
-  }, [open, guest, defaultDate]);
+  }, [open, guest, defaultDate, mode]);
+
+  // I prepaid/temporary-läge skippas hela platsväljaren – gästen sparas utan plats.
+  const skipPlacePicker = mode === "prepaid" || mode === "temporary";
 
   const place = placeCleared
     ? null
-    : pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
-  const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0;
+    : skipPlacePicker
+      ? null
+      : pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
+  const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0 && !skipPlacePicker;
   const showPlacePicker = place == null && hasPlaceOptions && !guest && !editingPlace;
   const canEditPlace = !!guest && hasPlaceOptions;
   const showEditPlacePicker = editingPlace && hasPlaceOptions;
@@ -234,21 +243,24 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
-  
-  // Boende-väljaren visas bara när man skapar en ny plats (ingen plats vald än,
-  // och inte redigerar befintlig gäst). Annars defaultar vi alltid till fordon.
-  const showAccommodationPicker = !place && !guest;
-  const effectiveAccommodation: AccommodationType = showAccommodationPicker
-    ? accommodation
-    : "vehicle";
+
+  // Boende-väljaren visas när ingen fast plats är vald (skapande av ny plats
+  // eller specialläge). I `temporary`-läge är boendet låst till "temporary".
+  const showAccommodationPicker = !place && mode !== "temporary";
+  const isTemporary = accommodation === "temporary" || mode === "temporary";
+  const effectiveAccommodation: AccommodationType = isTemporary
+    ? "temporary"
+    : showAccommodationPicker
+      ? accommodation
+      : "vehicle";
 
   // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
   // så att Spara skickar rätt värde även om användaren tidigare valt tält.
   useEffect(() => {
-    if (!showAccommodationPicker && accommodation !== "vehicle") {
+    if (place && accommodation !== "vehicle" && mode === "normal") {
       setAccommodation("vehicle");
     }
-  }, [showAccommodationPicker, accommodation]);
+  }, [place, accommodation, mode]);
 
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
