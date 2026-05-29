@@ -857,7 +857,7 @@ const EveningRoundModal = ({
                                 <button
                                   type="button"
                                   disabled={taken}
-                                  onClick={() => setPickedPlace(ep.label)}
+                                  onClick={() => { setPickedPlace(ep.label); setStatus("here"); setError(null); }}
                                   className={`h-9 pl-3 pr-2 inline-flex items-center ${
                                     taken ? "cursor-not-allowed" : "hover:opacity-90"
                                   }`}
