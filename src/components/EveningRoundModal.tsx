@@ -1018,22 +1018,22 @@ const EveningRoundModal = ({
                   Beskriv sällskapet
                   {effectiveAccommodation === "tent" && (
                     <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv tältet med färg och storlek
+                      Beskriv tältet med färg och storlek. T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…
                     </span>
                   )}
                   {effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (
                     <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv husbilen med färg och storlek
+                      Beskriv husbilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
                     </span>
                   )}
                   {effectiveAccommodation === "vehicle" && vehicleType === "car" && (
                     <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv bilen med färg och storlek
+                      Beskriv bilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
                     </span>
                   )}
                   {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
                     <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv husvagnen med färg och storlek
+                      Beskriv husvagnen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
                     </span>
                   )}
                 </div>
@@ -1048,8 +1048,8 @@ const EveningRoundModal = ({
                       ? "T.ex. hund, barn, frågar om paddling/fiske…"
                       : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
                   }
-                  rows={3}
-                  className="min-h-[88px] resize-y bg-card"
+                  rows={2}
+                  className="min-h-[56px] resize-y bg-card"
                 />
                 <div className="flex flex-wrap gap-1.5">
                   {NOTE_SUGGESTIONS.filter((s) => {
