@@ -618,6 +618,9 @@ const EveningRoundModal = ({
                     Avbryt
                   </button>
                 </div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Fasta platser
+                </div>
                 <div className="grid grid-cols-6 gap-1.5">
                   {standardList.map((p) => {
                     const taken = takenSet.has(p);
@@ -835,7 +838,11 @@ const EveningRoundModal = ({
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-6 gap-1.5">
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Fasta platser
+                      </div>
+                      <div className="grid grid-cols-6 gap-1.5">
                       {standardList.map((p) => {
                         const taken = takenSet.has(p);
                         return (
@@ -854,6 +861,7 @@ const EveningRoundModal = ({
                           </button>
                         );
                       })}
+                      </div>
                     </div>
                     {extrasList.length > 0 && (
                       <div className="space-y-1.5 mt-2">
