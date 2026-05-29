@@ -208,14 +208,14 @@ const EveningRound = () => {
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
     const not = guests.filter((g) => g.status === "not_here").length;
-    // Bokade = gäster som ligger på en känd plats (synliga i listan).
-    // Unassigned visas i sin egen sektion och räknas separat.
     const assignedGuestIds = new Set(
       guests.filter((g) => g.place_label && allPlaces.includes(g.place_label)).map((g) => g.id),
     );
     const booked = assignedGuestIds.size;
     const free = Math.max(0, allPlaces.length - booked);
-    return { here, not, free, booked };
+    const vehicles = guests.filter((g) => g.accommodation_type === "vehicle").length;
+    const tents = guests.filter((g) => g.accommodation_type === "tent").length;
+    return { here, not, free, booked, vehicles, tents };
   }, [guests, allPlaces]);
 
   const openAdd = (place: string) => {
