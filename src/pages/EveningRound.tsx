@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
+import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
@@ -116,6 +117,7 @@ const EveningRound = () => {
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -608,12 +610,7 @@ const EveningRound = () => {
                   variant="outline"
                   size="sm"
                   className="gap-1.5"
-                  onClick={() => {
-                    setEditing(null);
-                    setSelectedPlace(null);
-                    setAddMode("temporary");
-                    setModalOpen(true);
-                  }}
+                  onClick={() => setAddPlaceChoiceOpen(true)}
                 >
                   <MapPinPlus className="h-4 w-4" />
                   Lägg till plats
@@ -712,12 +709,7 @@ const EveningRound = () => {
           <Button
             variant="outline"
             className="w-full gap-1.5"
-            onClick={() => {
-              setEditing(null);
-              setSelectedPlace(null);
-              setAddMode("temporary");
-              setModalOpen(true);
-            }}
+            onClick={() => setAddPlaceChoiceOpen(true)}
           >
             <MapPinPlus className="h-4 w-4" />
             Lägg till plats
@@ -865,17 +857,6 @@ const EveningRound = () => {
         onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
         onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
-        prepaidGuests={incomingGuestsAll}
-        onAssignPrepaidTemporary={async (guestId, description) => {
-          await updateGuest.mutateAsync({
-            id: guestId,
-            status: "here",
-            accommodation_type: "temporary",
-            temp_description: description,
-            place_label: null,
-          });
-          toast.success("Förbetald gäst kopplad till tillfällig plats");
-        }}
       />
 
       <EveningRoundExtendDialog
@@ -894,6 +875,29 @@ const EveningRound = () => {
         onOpenChange={setExtendSearchOpen}
         viewDate={today}
         onPick={(g) => setExtendingGuest(g)}
+      />
+
+      <AddPlaceChoiceDialog
+        open={addPlaceChoiceOpen}
+        onOpenChange={setAddPlaceChoiceOpen}
+        prepaidGuests={incomingGuestsAll}
+        onPickNewGuest={() => {
+          setAddPlaceChoiceOpen(false);
+          setEditing(null);
+          setSelectedPlace(null);
+          setAddMode("temporary");
+          setModalOpen(true);
+        }}
+        onPickPrepaid={(g) => {
+          setAddPlaceChoiceOpen(false);
+          // Öppna temporary-modalen i edit-läge för den förbetalda gästen.
+          // mode="temporary" tvingar fram tillfällig plats; spara uppdaterar gästen
+          // till status=here och accommodation_type=temporary med beskrivning.
+          setEditing(g);
+          setSelectedPlace(null);
+          setAddMode("temporary");
+          setModalOpen(true);
+        }}
       />
 
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
