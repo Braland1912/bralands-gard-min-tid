@@ -659,10 +659,13 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
         availablePlaces={allPlaces}
         takenPlaces={Array.from(guestsByPlace.keys())}
+        extraPlaces={extraPlaces.map((p) => ({ id: p.id, label: p.label }))}
         onAddPlace={async (label) => {
           const created = await addPlace.mutateAsync(label);
           return created.label;
         }}
+        onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
+        onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
       />
 
