@@ -803,6 +803,8 @@ const MySchedule = () => {
         })()}
       </div>
 
+      <SwapShiftSection workerId={worker?.id} userId={user?.id} />
+
       <Sheet
         open={!!openShift}
         onOpenChange={(o) => {
