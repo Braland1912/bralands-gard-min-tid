@@ -338,21 +338,11 @@ const EveningRound = () => {
 
         <Tabs defaultValue="rundan" className="space-y-4">
           <TabsList className="w-full grid grid-cols-4">
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(null);
-                setSelectedPlace(null);
-                setAddMode("prepaid");
-                setModalOpen(true);
-              }}
-              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Registrera förbetald gäst"
-            >
-              <CreditCard className="h-4 w-4" />
-              Förbetald
-            </button>
             <TabsTrigger value="rundan">Rundan</TabsTrigger>
+            <TabsTrigger value="forbetalda" className="gap-1.5">
+              <CreditCard className="h-4 w-4" />
+              <span>Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
+            </TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
             <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
