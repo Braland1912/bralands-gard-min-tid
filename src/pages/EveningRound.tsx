@@ -727,21 +727,21 @@ const EveningRound = () => {
                       <button
                         type="button"
                         onClick={() => openEdit(g)}
-                        className="w-full text-left rounded-2xl border border-border bg-card p-3 hover:bg-accent transition-colors flex items-start gap-3"
+                        className="w-full text-left rounded-2xl border border-sky-200 bg-sky-50/50 p-3 hover:bg-sky-100 transition-colors flex items-start gap-3"
                       >
-                        <div className="h-9 w-9 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <div className="h-9 w-9 shrink-0 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center">
                           <MapPinPlus className="h-4 w-4" />
                         </div>
                         <div className="flex-1 min-w-0 space-y-1">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="font-semibold truncate">{name}</div>
+                            <div className="font-semibold truncate text-sky-950">{name}</div>
                             {g.payment_method && g.payment_amount && (
-                              <div className="text-xs font-medium text-muted-foreground shrink-0">
+                              <div className="text-xs font-medium text-sky-800/80 shrink-0">
                                 {g.payment_amount} {g.payment_currency ?? "kr"}
                               </div>
                             )}
                           </div>
-                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-2 gap-y-0.5">
+                          <div className="text-xs text-sky-900/70 flex flex-wrap gap-x-2 gap-y-0.5">
                             <span>
                               {formatLocalDate(g.arrival_date, "short")} → {formatLocalDate(g.departure_date, "short")}
                             </span>
@@ -751,9 +751,9 @@ const EveningRound = () => {
                             {g.has_electricity && <span>· El</span>}
                           </div>
                           {g.notes && (
-                            <div className="text-xs text-muted-foreground line-clamp-2">{g.notes}</div>
+                            <div className="text-xs text-sky-900/70 line-clamp-2">{g.notes}</div>
                           )}
-                          <div className="text-[11px] font-medium text-primary">Tryck för att tilldela plats</div>
+                          <div className="text-[11px] font-medium text-sky-700">Tryck för att tilldela plats</div>
                         </div>
                       </button>
                     </li>
