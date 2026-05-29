@@ -33,6 +33,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import QuickReserveCard from "@/components/QuickReserveCard";
+import { toast } from "sonner";
 
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
@@ -256,6 +257,16 @@ const EveningRound = () => {
   };
 
   const handleStatus = (id: string, status: GuestStatus) => {
+    // Kräv att en plats är vald innan man markerar som "på plats".
+    // Tillfälliga platser och förbetalda hanteras separat (tempbeskrivning / tilldelning).
+    if (status === "here") {
+      const g = guests.find((x) => x.id === id);
+      if (g && !g.place_label && g.accommodation_type !== "temporary") {
+        toast.error("Välj en plats först för att markera som på plats");
+        openEdit(g);
+        return;
+      }
+    }
     updateGuest.mutate({ id, status });
   };
 
