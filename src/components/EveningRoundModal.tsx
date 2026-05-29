@@ -1025,14 +1025,18 @@ const EveningRoundModal = ({
                     effectiveAccommodation === "tent"
                       ? "T.ex. taktält, hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
                       : effectiveAccommodation === "vehicle"
-                      ? "T.ex. husvagn, husbil, MC, hund, barn, frågar om paddling/fiske…"
+                      ? "T.ex. hund, barn, frågar om paddling/fiske…"
                       : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
                   }
                   rows={3}
                   className="min-h-[88px] resize-y bg-card"
                 />
                 <div className="flex flex-wrap gap-1.5">
-                  {NOTE_SUGGESTIONS.filter((s) => !(effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält"))).map((s) => (
+                  {NOTE_SUGGESTIONS.filter((s) => {
+                    if (effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält" || s === "MC")) return false;
+                    if (effectiveAccommodation === "vehicle" && (s === "Husvagn" || s === "Husbil" || s === "MC")) return false;
+                    return true;
+                  }).map((s) => (
                     <button
                       key={s}
                       type="button"
