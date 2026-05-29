@@ -295,6 +295,9 @@ const EveningRound = () => {
           )}
         </header>
 
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Datum
+        </div>
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
