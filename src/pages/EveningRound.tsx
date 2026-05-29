@@ -401,11 +401,11 @@ const EveningRound = () => {
         )}
 
         <Tabs defaultValue="forbetalda" className="space-y-4">
-          <TabsList className="w-full grid grid-cols-7 gap-1 h-auto p-1">
-            <TabsTrigger value="forbetalda" className="col-span-3 px-1.5 text-xs sm:text-sm whitespace-nowrap gap-1.5">
-              <span className="truncate">Förbetalda</span>
+          <TabsList className="w-full grid grid-cols-4 gap-1 h-auto p-1">
+            <TabsTrigger value="forbetalda" className="relative px-1 text-xs sm:text-sm">
+              Förbetalda
               {incomingGuestsAll.length > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[0.65rem] font-semibold leading-none">
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-primary text-primary-foreground text-[0.6rem] font-semibold leading-none">
                   {incomingGuestsAll.length}
                 </span>
               )}
