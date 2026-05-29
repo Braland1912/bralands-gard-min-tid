@@ -48,7 +48,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, MapPin, MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, CreditCard, MapPin, MoreVertical, Pencil, Trash2, UserCheck, X } from "lucide-react";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import {
   type EveningRoundGuest,
@@ -137,6 +137,13 @@ interface Props {
    * - `normal` (default): vanligt flöde med platsval
    */
   mode?: "normal" | "prepaid" | "temporary";
+  /** Omatchade förbetalda gäster (utan plats) — visas i temporary-läget för snabb tilldelning. */
+  prepaidGuests?: EveningRoundGuest[];
+  /**
+   * Anropas när användaren tilldelar en förbetald gäst i temporary-vyn.
+   * Får gästens id och den beskrivning som är ifylld i formuläret.
+   */
+  onAssignPrepaidTemporary?: (guestId: string, tempDescription: string) => Promise<unknown> | unknown;
 }
 const todayLocal = () => {
   const d = new Date();
@@ -172,7 +179,10 @@ const EveningRoundModal = ({
   onDeletePlace,
   onExtend,
   mode = "normal",
+  prepaidGuests = [],
+  onAssignPrepaidTemporary,
 }: Props) => {
+  const [assigningPrepaid, setAssigningPrepaid] = useState<string | null>(null);
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -978,6 +988,69 @@ const EveningRoundModal = ({
             {mode === "temporary" && (
               <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
                 Tillfällig plats: ingen platsnummer (1–21 / E1–E6). Beskriv var sällskapet står.
+              </div>
+            )}
+
+            {mode === "temporary" && !guest && prepaidGuests.length > 0 && onAssignPrepaidTemporary && (
+              <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-sky-900">
+                  <UserCheck className="h-3.5 w-3.5" />
+                  Koppla en förbetald gäst ({prepaidGuests.length})
+                </div>
+                <p className="text-[11px] text-sky-800/80 leading-snug">
+                  Är detta en gäst som redan har betalat i förväg? Tryck på namnet — då markeras gästen som på plats med din beskrivning ovan.
+                </p>
+                <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto">
+                  {prepaidGuests.map((g) => {
+                    const label =
+                      g.guest_name ||
+                      g.registration_number ||
+                      (g.accommodation_type === "tent" ? "Tält" : "Gäst");
+                    const isAssigning = assigningPrepaid === g.id;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        disabled={!!assigningPrepaid}
+                        onClick={async () => {
+                          if (!tempDescription.trim()) {
+                            setError("Skriv en kort beskrivning av platsen först");
+                            return;
+                          }
+                          setError(null);
+                          setAssigningPrepaid(g.id);
+                          try {
+                            await onAssignPrepaidTemporary(g.id, tempDescription.trim());
+                            onOpenChange(false);
+                          } catch (e: any) {
+                            setError(e?.message ?? "Kunde inte koppla gästen");
+                          } finally {
+                            setAssigningPrepaid(null);
+                          }
+                        }}
+                        className="text-left rounded-lg border border-sky-200 bg-card px-3 py-2 hover:bg-sky-100/60 disabled:opacity-50 flex items-center justify-between gap-2 transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium truncate text-foreground">{label}</div>
+                          {(g.registration_number || g.nationality) && (
+                            <div className="text-[11px] text-muted-foreground truncate">
+                              {[g.registration_number, g.nationality].filter(Boolean).join(" · ")}
+                            </div>
+                          )}
+                        </div>
+                        {g.payment_amount != null && (
+                          <span className="text-[11px] text-sky-800 shrink-0 inline-flex items-center gap-0.5">
+                            <CreditCard className="h-3 w-3" />
+                            {g.payment_amount} {g.payment_currency ?? "kr"}
+                          </span>
+                        )}
+                        {isAssigning && (
+                          <span className="text-[11px] text-muted-foreground shrink-0">…</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
             {showAccommodationPicker && (
