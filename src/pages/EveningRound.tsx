@@ -137,8 +137,8 @@ const EveningRound = () => {
   const datePresets: { id: string; label: string; value: string }[] = [
     { id: "yesterday", label: "Igår", value: yesterday },
     { id: "today", label: "Idag", value: today },
-    { id: "tomorrow", label: "Imorgon", value: tomorrow },
   ];
+
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login", { replace: true });
