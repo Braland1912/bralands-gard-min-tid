@@ -92,9 +92,6 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
       };
 
   return (
-    <div {...wrapperProps}>
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
   return (
     <div {...wrapperProps}>
       <div className="min-w-0">
