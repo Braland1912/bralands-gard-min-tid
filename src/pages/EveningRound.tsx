@@ -888,6 +888,29 @@ const EveningRound = () => {
         onPick={(g) => setExtendingGuest(g)}
       />
 
+      <AddPlaceChoiceDialog
+        open={addPlaceChoiceOpen}
+        onOpenChange={setAddPlaceChoiceOpen}
+        prepaidGuests={incomingGuestsAll}
+        onPickNewGuest={() => {
+          setAddPlaceChoiceOpen(false);
+          setEditing(null);
+          setSelectedPlace(null);
+          setAddMode("temporary");
+          setModalOpen(true);
+        }}
+        onPickPrepaid={(g) => {
+          setAddPlaceChoiceOpen(false);
+          // Öppna temporary-modalen i edit-läge för den förbetalda gästen.
+          // mode="temporary" tvingar fram tillfällig plats; spara uppdaterar gästen
+          // till status=here och accommodation_type=temporary med beskrivning.
+          setEditing(g);
+          setSelectedPlace(null);
+          setAddMode("temporary");
+          setModalOpen(true);
+        }}
+      />
+
       <Dialog open={pickPlaceOpen} onOpenChange={setPickPlaceOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
