@@ -814,9 +814,11 @@ const EveningRoundModal = ({
             {showPlacePicker && (
               <div className="space-y-2">
                 <Label>Plats</Label>
-                <p className="text-[11px] text-muted-foreground">
-                  Du kan lämna platsen tom och fylla i den senare – antingen när gästen kommer, eller när du hittar dem ute på fältet under rundan efter att betalningen är registrerad.
-                </p>
+                {!autoExpandPlacePicker && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Du kan lämna platsen tom och fylla i den senare – antingen när gästen kommer, eller när du hittar dem ute på fältet under rundan efter att betalningen är registrerad.
+                  </p>
+                )}
                 {place != null ? (
                   <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
                     <span className="text-sm">Plats <strong>{place}</strong></span>
