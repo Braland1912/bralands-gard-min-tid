@@ -30,6 +30,7 @@ export interface EveningRoundGuest {
   vehicle_type: VehicleType | null;
   trailer_registration: string | null;
   has_electricity: boolean | null;
+  tent_persons: number | null;
 }
 
 export interface GuestInput {
@@ -51,6 +52,7 @@ export interface GuestInput {
   vehicle_type?: VehicleType | null;
   trailer_registration?: string | null;
   has_electricity?: boolean | null;
+  tent_persons?: number | null;
 }
 
 export const VEHICLE_TYPE_LABELS: Record<VehicleType, string> = {
@@ -158,6 +160,7 @@ export const useEveningRoundGuests = (
           vehicle_type: input.vehicle_type ?? null,
           trailer_registration: input.trailer_registration ?? null,
           has_electricity: input.has_electricity ?? null,
+          tent_persons: input.tent_persons ?? null,
         } as any)
 
         .select("*")

@@ -168,6 +168,7 @@ export type Database = {
           registration_number: string | null
           status: string
           temp_description: string | null
+          tent_persons: number | null
           trailer_registration: string | null
           updated_at: string
           vehicle_type: string | null
@@ -192,6 +193,7 @@ export type Database = {
           registration_number?: string | null
           status?: string
           temp_description?: string | null
+          tent_persons?: number | null
           trailer_registration?: string | null
           updated_at?: string
           vehicle_type?: string | null
@@ -216,6 +218,7 @@ export type Database = {
           registration_number?: string | null
           status?: string
           temp_description?: string | null
+          tent_persons?: number | null
           trailer_registration?: string | null
           updated_at?: string
           vehicle_type?: string | null

@@ -63,6 +63,7 @@ import {
 } from "@/hooks/useEveningRoundGuests";
 
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
+import { computeStayPrice } from "@/lib/evening-round-pricing";
 
 const PLACE_SUGGESTIONS = [
   "Vid solcellerna",
@@ -200,6 +201,7 @@ const EveningRoundModal = ({
   const [vehicleType, setVehicleType] = useState<VehicleType>("motorhome");
   const [hasElectricity, setHasElectricity] = useState<boolean>(true);
   const [trailerReg, setTrailerReg] = useState("");
+  const [tentPersons, setTentPersons] = useState<number>(2);
 
 
   useEffect(() => {
@@ -228,6 +230,7 @@ const EveningRoundModal = ({
       setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
       setHasElectricity(guest.has_electricity ?? true);
       setTrailerReg(guest.trailer_registration ?? "");
+      setTentPersons(guest.tent_persons ?? 2);
 
     } else {
       setName("");
@@ -248,6 +251,7 @@ const EveningRoundModal = ({
       setVehicleType("motorhome");
       setHasElectricity(true);
       setTrailerReg("");
+      setTentPersons(2);
 
     }
     setError(null);
@@ -425,6 +429,7 @@ const EveningRoundModal = ({
             ? (trailerReg.trim() || null)
             : null,
         has_electricity: effectiveAccommodation === "vehicle" ? hasElectricity : null,
+        tent_persons: effectiveAccommodation === "tent" ? tentPersons : null,
 
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
@@ -1086,6 +1091,24 @@ const EveningRoundModal = ({
                 </div>
               </div>
             )}
+            {effectiveAccommodation === "tent" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="tent-persons">Antal personer</Label>
+                <Input
+                  id="tent-persons"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={20}
+                  value={tentPersons}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setTentPersons(Number.isFinite(v) && v > 0 ? v : 1);
+                  }}
+                  className="bg-card"
+                />
+              </div>
+            )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
@@ -1375,7 +1398,25 @@ const EveningRoundModal = ({
                 <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold">Betalningsmetod</Label>
-                    <Select value={method} onValueChange={(v) => setMethod(v as any)}>
+                    <Select
+                      value={method}
+                      onValueChange={(v) => {
+                        const next = v as PaymentMethod | "none";
+                        setMethod(next);
+                        if (next !== "none" && currency === "SEK" && !amount.trim()) {
+                          const suggested = computeStayPrice({
+                            arrival,
+                            departure,
+                            accommodation: effectiveAccommodation === "tent" ? "tent" : "vehicle",
+                            hasElectricity,
+                            tentPersons,
+                          });
+                          if (suggested && (effectiveAccommodation === "tent" || effectiveAccommodation === "vehicle")) {
+                            setAmount(String(suggested));
+                          }
+                        }
+                      }}
+                    >
                       <SelectTrigger className="bg-card">
                         <SelectValue placeholder="Välj…" />
                       </SelectTrigger>
