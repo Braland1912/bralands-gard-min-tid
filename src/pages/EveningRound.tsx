@@ -137,8 +137,8 @@ const EveningRound = () => {
   const datePresets: { id: string; label: string; value: string }[] = [
     { id: "yesterday", label: "Igår", value: yesterday },
     { id: "today", label: "Idag", value: today },
-    { id: "tomorrow", label: "Imorgon", value: tomorrow },
   ];
+
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login", { replace: true });
@@ -355,8 +355,8 @@ const EveningRound = () => {
           })}
           <button
             onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
-            disabled={selectedDate >= tomorrow}
-            className="h-8 w-8 shrink-0 rounded-lg border border-border bg-card hover:bg-accent flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-8 w-8 shrink-0 rounded-lg border border-border bg-card hover:bg-accent flex items-center justify-center"
+
             aria-label="Nästa dag"
           >
             <ChevronRight className="h-4 w-4" />
