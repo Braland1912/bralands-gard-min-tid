@@ -360,7 +360,7 @@ const EveningRound = () => {
         )}
 
         <Tabs defaultValue="forbetalda" className="space-y-4">
-          <TabsList className="w-full grid grid-cols-7">
+          <TabsList className="w-full grid grid-cols-7 gap-1 h-auto p-1">
             <TabsTrigger value="forbetalda" className="col-span-3 px-1.5 text-xs sm:text-sm whitespace-nowrap gap-1.5">
               <span className="truncate">Förbetalda</span>
               {incomingGuestsAll.length > 0 && (
