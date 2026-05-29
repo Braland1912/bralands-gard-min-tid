@@ -196,11 +196,6 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
             </div>
           )}
         </div>
-        {ownerName && (
-          <span className="text-[11px] font-medium text-muted-foreground bg-background border border-border rounded-full px-2 py-0.5">
-            Gick: {ownerName}
-          </span>
-        )}
       </div>
     </div>
   );
