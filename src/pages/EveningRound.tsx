@@ -367,13 +367,18 @@ const EveningRound = () => {
         )}
 
         <Tabs defaultValue="forbetalda" className="space-y-4">
-          <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="forbetalda" className="px-1.5 text-xs sm:text-sm whitespace-nowrap">
-              <span className="truncate">Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
+          <TabsList className="w-full grid grid-cols-7">
+            <TabsTrigger value="forbetalda" className="col-span-3 px-1.5 text-xs sm:text-sm whitespace-nowrap gap-1.5">
+              <span className="truncate">Förbetalda</span>
+              {incomingGuestsAll.length > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[0.65rem] font-semibold leading-none">
+                  {incomingGuestsAll.length}
+                </span>
+              )}
             </TabsTrigger>
-            <TabsTrigger value="rundan" className="px-1.5 text-xs sm:text-sm">Rundan</TabsTrigger>
-            <TabsTrigger value="redovisning" className="px-1.5 text-xs sm:text-sm">Redovisning</TabsTrigger>
-            <TabsTrigger value="checklista" className="px-1.5 text-xs sm:text-sm">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
+            <TabsTrigger value="rundan" className="px-1 text-xs sm:text-sm">Rundan</TabsTrigger>
+            <TabsTrigger value="redovisning" className="px-1 text-xs sm:text-sm">Ekonomi</TabsTrigger>
+            <TabsTrigger value="checklista" className="px-1 text-xs sm:text-sm">{isAdmin ? "Historik" : "Lista"}</TabsTrigger>
           </TabsList>
 
 
