@@ -118,8 +118,14 @@ interface Props {
   onAddPlace?: (label: string) => Promise<string>;
   /** Öppna förläng-flödet för befintlig gäst. */
   onExtend?: (guest: EveningRoundGuest) => void;
+  /**
+   * Specialläge:
+   * - `prepaid`: registrera gäst som betalat i förväg, utan plats
+   * - `temporary`: skapa en tillfällig plats (tält/fordon på gräs)
+   * - `normal` (default): vanligt flöde med platsval
+   */
+  mode?: "normal" | "prepaid" | "temporary";
 }
-
 const todayLocal = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -150,6 +156,7 @@ const EveningRoundModal = ({
   takenPlaces,
   onAddPlace,
   onExtend,
+  mode = "normal",
 }: Props) => {
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
@@ -174,6 +181,7 @@ const EveningRoundModal = ({
   const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
   const [editingPlace, setEditingPlace] = useState(false);
   const [placeCleared, setPlaceCleared] = useState(false);
+  const [tempDescription, setTempDescription] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -197,6 +205,7 @@ const EveningRoundModal = ({
       setUnpaidReason(!guest.payment_method ? (guest.payment_other_note ?? "") : "");
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
+      setTempDescription(guest.temp_description ?? "");
     } else {
       setName("");
       setReg("");
@@ -210,16 +219,22 @@ const EveningRoundModal = ({
       setCurrency("SEK");
       setOtherNote("");
       setUnpaidReason("");
-      setAccommodation("vehicle");
+      setAccommodation(mode === "temporary" ? "temporary" : "vehicle");
       setStatus("here");
+      setTempDescription("");
     }
     setError(null);
-  }, [open, guest, defaultDate]);
+  }, [open, guest, defaultDate, mode]);
+
+  // I prepaid/temporary-läge skippas hela platsväljaren – gästen sparas utan plats.
+  const skipPlacePicker = mode === "prepaid" || mode === "temporary";
 
   const place = placeCleared
     ? null
-    : pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
-  const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0;
+    : skipPlacePicker
+      ? null
+      : pickedPlace ?? guest?.place_label ?? placeLabel ?? null;
+  const hasPlaceOptions = Array.isArray(availablePlaces) && availablePlaces.length > 0 && !skipPlacePicker;
   const showPlacePicker = place == null && hasPlaceOptions && !guest && !editingPlace;
   const canEditPlace = !!guest && hasPlaceOptions;
   const showEditPlacePicker = editingPlace && hasPlaceOptions;
@@ -228,21 +243,24 @@ const EveningRoundModal = ({
   );
   const isCash = method === "K";
   const isOther = method === "O";
-  
-  // Boende-väljaren visas bara när man skapar en ny plats (ingen plats vald än,
-  // och inte redigerar befintlig gäst). Annars defaultar vi alltid till fordon.
-  const showAccommodationPicker = !place && !guest;
-  const effectiveAccommodation: AccommodationType = showAccommodationPicker
-    ? accommodation
-    : "vehicle";
+
+  // Boende-väljaren visas när ingen fast plats är vald (skapande av ny plats
+  // eller specialläge). I `temporary`-läge är boendet låst till "temporary".
+  const showAccommodationPicker = !place && mode !== "temporary";
+  const isTemporary = accommodation === "temporary" || mode === "temporary";
+  const effectiveAccommodation: AccommodationType = isTemporary
+    ? "temporary"
+    : showAccommodationPicker
+      ? accommodation
+      : "vehicle";
 
   // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
   // så att Spara skickar rätt värde även om användaren tidigare valt tält.
   useEffect(() => {
-    if (!showAccommodationPicker && accommodation !== "vehicle") {
+    if (place && accommodation !== "vehicle" && mode === "normal") {
       setAccommodation("vehicle");
     }
-  }, [showAccommodationPicker, accommodation]);
+  }, [place, accommodation, mode]);
 
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
@@ -263,13 +281,18 @@ const EveningRoundModal = ({
       setError("Avresa måste vara efter ankomst");
       return;
     }
-    if (place == null && !hasPlaceOptions) {
+    // I prepaid/temporary-läge är platsen avsiktligen tom – hoppa över platsvalidering
+    if (!skipPlacePicker && place == null && !hasPlaceOptions) {
       setError("Välj en plats");
       return;
     }
-    if (guest && place == null && status === "here") {
+    if (!skipPlacePicker && guest && place == null && status === "here" && effectiveAccommodation !== "temporary") {
       setError("Välj en plats för att markera som på plats");
       if (hasPlaceOptions) setEditingPlace(true);
+      return;
+    }
+    if (effectiveAccommodation === "temporary" && !tempDescription.trim()) {
+      setError("Beskriv den tillfälliga platsen (t.ex. gult tält vid lekplatsen)");
       return;
     }
     const amt = amount.trim() === "" ? null : Number(amount);
@@ -287,9 +310,10 @@ const EveningRoundModal = ({
     }
     // Ej betalt får bara kombineras med "ej här" om det är en reservation
     // (ankomst i framtiden). Annars måste betalning registreras.
+    // Förbetalda gäster (mode=prepaid) räknas alltid som "ej här" tills plats tilldelas.
     const effectiveStatus: GuestStatus = !guest
-      ? place == null
-        ? "not_here"
+      ? (place == null || effectiveAccommodation === "temporary")
+        ? (effectiveAccommodation === "temporary" ? "here" : "not_here")
         : "here"
       : placeCleared
         ? "not_here"
@@ -297,7 +321,8 @@ const EveningRoundModal = ({
     if (
       method === "none" &&
       effectiveStatus === "not_here" &&
-      arrival <= todayLocal()
+      arrival <= todayLocal() &&
+      mode !== "prepaid"
     ) {
       setError("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
       return;
@@ -308,7 +333,7 @@ const EveningRoundModal = ({
       await onSave({
         place_label: place,
         guest_name: name.trim(),
-        registration_number: accommodation === "tent" ? null : (reg.trim() || null),
+        registration_number: effectiveAccommodation === "tent" ? null : (reg.trim() || null),
         arrival_date: arrival,
         departure_date: departure,
         payment_method: method === "none" ? null : method,
@@ -326,9 +351,11 @@ const EveningRoundModal = ({
           : method === "none"
             ? unpaidReason.trim()
             : null,
-        accommodation_type: accommodation,
+        accommodation_type: effectiveAccommodation,
+        temp_description: effectiveAccommodation === "temporary" ? tempDescription.trim() : null,
+        ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
-          ? { status: place == null ? ("not_here" as const) : ("here" as const) }
+          ? { status: effectiveStatus }
           : placeCleared
             ? { status: "not_here" as const }
             : { status }),
@@ -348,7 +375,15 @@ const EveningRoundModal = ({
           <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
-                <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
+                <DialogTitle>
+                  {guest
+                    ? "Redigera gäst"
+                    : mode === "prepaid"
+                      ? "Förbetald gäst"
+                      : mode === "temporary"
+                        ? "Tillfällig plats"
+                        : "Lägg till gäst"}
+                </DialogTitle>
                 <DialogDescription>
                   {place != null ? (
                     <span className="inline-flex items-center gap-2">
@@ -736,6 +771,11 @@ const EveningRoundModal = ({
               </div>
             )}
 
+            {mode === "temporary" && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+                Tillfällig plats: ingen platsnummer (1–21 / E1–E6). Beskriv var sällskapet står.
+              </div>
+            )}
             {showAccommodationPicker && (
               <div className="space-y-1.5">
                 <Label>Boende</Label>
@@ -764,11 +804,42 @@ const EveningRoundModal = ({
                   >
                     Tält
                   </button>
+                  {mode !== "prepaid" && (
+                    <button
+                      type="button"
+                      onClick={() => setAccommodation("temporary")}
+                      className={cn(
+                        "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                        accommodation === "temporary"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      Tillfällig
+                    </button>
+                  )}
                 </div>
               </div>
             )}
-            <div className={cn("grid gap-3", effectiveAccommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
-              {effectiveAccommodation !== "tent" && (
+            {effectiveAccommodation === "temporary" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="temp-desc">Beskrivning av platsen</Label>
+                <Textarea
+                  id="temp-desc"
+                  value={tempDescription}
+                  onChange={(e) => setTempDescription(e.target.value)}
+                  placeholder="T.ex. gult 4-mannatält på gräset vid lekplatsen, två vuxna + barn…"
+                  rows={3}
+                  maxLength={500}
+                  className="min-h-[80px] resize-y"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Beskriv typ av tält/fordon, var de står och antal personer.
+                </p>
+              </div>
+            )}
+            <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
+              {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="reg">Reg.nummer</Label>
                   <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />

@@ -94,10 +94,26 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
   return (
     <div {...wrapperProps}>
       <div className="min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="text-xs font-medium text-muted-foreground">
-            {guest.place_label ? `Plats ${guest.place_label}` : "Ingen plats vald"}
+            {guest.accommodation_type === "temporary"
+              ? "Tillfällig plats"
+              : guest.place_label
+                ? `Plats ${guest.place_label}`
+                : guest.is_prepaid
+                  ? "Förbetald · ingen plats än"
+                  : "Ingen plats vald"}
           </div>
+          {guest.is_prepaid && !guest.place_label && (
+            <Badge className="bg-sky-100 text-sky-800 hover:bg-sky-100 border-sky-200">
+              Förbetald
+            </Badge>
+          )}
+          {guest.accommodation_type === "temporary" && (
+            <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100 border-amber-200">
+              Tillfällig
+            </Badge>
+          )}
           {isOtherNat ? (
             <span
               className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground"
@@ -127,15 +143,19 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
             )
           )}
         </div>
-        {guest.status === "not_here" && (
+        {guest.status === "not_here" && guest.accommodation_type !== "temporary" && !guest.is_prepaid && (
           <div className="mt-1">
             <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
               Reserverad
             </Badge>
           </div>
         )}
-        <div className="text-base font-semibold leading-tight mt-0.5">
-          {guest.accommodation_type === "tent" ? (
+        <div className="text-base font-semibold leading-tight mt-1">
+          {guest.accommodation_type === "temporary" ? (
+            <span className="text-sm font-normal text-foreground">
+              {guest.guest_name || <span className="text-muted-foreground italic">Inget namn</span>}
+            </span>
+          ) : guest.accommodation_type === "tent" ? (
             <span className="inline-flex items-center gap-1.5">
               <span className="text-xs font-medium uppercase tracking-wide bg-primary/10 text-primary rounded px-1.5 py-0.5">
                 Tält
@@ -145,9 +165,14 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
               )}
             </span>
           ) : (
-            guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>
+            guest.registration_number || guest.guest_name || <span className="text-muted-foreground italic">Inget reg.nr</span>
           )}
         </div>
+        {guest.accommodation_type === "temporary" && guest.temp_description && (
+          <div className="text-xs text-foreground/80 mt-1 line-clamp-3 whitespace-pre-line">
+            {guest.temp_description}
+          </div>
+        )}
         {guest.notes && (
           <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
             {guest.notes}
