@@ -431,7 +431,9 @@ const EveningRoundModal = ({
       });
       onOpenChange(false);
     } catch (e: any) {
-      setError(e?.message ?? "Kunde inte spara");
+      const msg = e?.message ?? "Kunde inte spara";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -527,7 +529,9 @@ const EveningRoundModal = ({
                     type="button"
                     onClick={() => {
                       if (place == null) {
-                        setError("Välj en plats för att markera som på plats");
+                        const msg = "Välj en plats för att markera som på plats";
+                        setError(msg);
+                        toast.error(msg);
                         if (hasPlaceOptions) setEditingPlace(true);
                         return;
                       }
