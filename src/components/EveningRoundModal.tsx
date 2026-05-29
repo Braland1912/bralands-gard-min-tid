@@ -1021,6 +1021,21 @@ const EveningRoundModal = ({
                       Beskriv tältet med färg och storlek
                     </span>
                   )}
+                  {effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (
+                    <span className="block font-normal text-muted-foreground mt-0.5">
+                      Beskriv husbilen med färg och storlek
+                    </span>
+                  )}
+                  {effectiveAccommodation === "vehicle" && vehicleType === "car" && (
+                    <span className="block font-normal text-muted-foreground mt-0.5">
+                      Beskriv bilen med färg och storlek
+                    </span>
+                  )}
+                  {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
+                    <span className="block font-normal text-muted-foreground mt-0.5">
+                      Beskriv husvagnen med färg och storlek
+                    </span>
+                  )}
                 </div>
                 <Textarea
                   id="notes"
