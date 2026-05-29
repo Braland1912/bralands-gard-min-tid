@@ -1252,22 +1252,6 @@ const EveningRoundModal = ({
                     )}
                   </div>
                 )}
-                <Textarea
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder={
-                    mode === "prepaid"
-                      ? "T.ex. meddelande från gästen via Campio…"
-                      : effectiveAccommodation === "tent"
-                      ? "T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
-                      : effectiveAccommodation === "vehicle"
-                      ? "T.ex. hund, barn, frågar om paddling/fiske…"
-                      : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
-                  }
-                  rows={4}
-                  className="min-h-[96px] resize-y bg-card"
-                />
                 {mode !== "prepaid" && (
                   <div className="flex flex-wrap gap-1.5">
                     {NOTE_SUGGESTIONS.filter((s) => {
@@ -1289,6 +1273,22 @@ const EveningRoundModal = ({
                     ))}
                   </div>
                 )}
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder={
+                    mode === "prepaid"
+                      ? "T.ex. meddelande från gästen via Campio…"
+                      : effectiveAccommodation === "tent"
+                      ? "T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
+                      : effectiveAccommodation === "vehicle"
+                      ? "T.ex. hund, barn, frågar om paddling/fiske…"
+                      : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
+                  }
+                  rows={4}
+                  className="min-h-[96px] resize-y bg-card"
+                />
               </div>
             </div>
             {(() => {
