@@ -36,7 +36,9 @@ const addDays = (iso: string, days: number) => {
   return `${yy}-${mm}-${dd}`;
 };
 
-const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemoveExtraPlace }: Props) => {
+const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemoveExtraPlace, prepaidGuests = [], onAssignPrepaid }: Props) => {
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [assigning, setAssigning] = useState(false);
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const isExtra = !!onRemoveExtraPlace;
