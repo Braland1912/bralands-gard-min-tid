@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square } from "lucide-react";
+import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square, MapPin, Tent, CreditCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -108,6 +108,7 @@ const EveningRound = () => {
   const [newPlaceLabel, setNewPlaceLabel] = useState("");
   const [extendingGuest, setExtendingGuest] = useState<EveningRoundGuest | null>(null);
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
+  const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
 
   const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -164,8 +165,18 @@ const EveningRound = () => {
     return m;
   }, [guests]);
 
-  const unassignedGuests = useMemo(
-    () => guests.filter((g) => !g.place_label),
+  const incomingGuests = useMemo(
+    () => guests.filter((g) => !g.place_label && g.is_prepaid && g.accommodation_type !== "temporary"),
+    [guests],
+  );
+
+  const temporaryGuests = useMemo(
+    () => guests.filter((g) => !g.place_label && g.accommodation_type === "temporary"),
+    [guests],
+  );
+
+  const otherUnassignedGuests = useMemo(
+    () => guests.filter((g) => !g.place_label && !g.is_prepaid && g.accommodation_type !== "temporary"),
     [guests],
   );
 
