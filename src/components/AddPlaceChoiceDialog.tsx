@@ -51,10 +51,14 @@ const AddPlaceChoiceDialog = ({
 }: Props) => {
   const hasPrepaid = prepaidGuests.length > 0;
   const [tab, setTab] = useState<"prepaid" | "new">(hasPrepaid ? "prepaid" : "new");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // När dialogen öppnas, defaulta till förbetald om det finns sådana, annars ny gäst.
   useEffect(() => {
-    if (open) setTab(hasPrepaid ? "prepaid" : "new");
+    if (open) {
+      setTab(hasPrepaid ? "prepaid" : "new");
+      setExpandedId(null);
+    }
   }, [open, hasPrepaid]);
 
   return (
