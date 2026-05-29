@@ -865,6 +865,17 @@ const EveningRound = () => {
         onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
         onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
+        prepaidGuests={incomingGuestsAll}
+        onAssignPrepaidTemporary={async (guestId, description) => {
+          await updateGuest.mutateAsync({
+            id: guestId,
+            status: "here",
+            accommodation_type: "temporary",
+            temp_description: description,
+            place_label: null,
+          });
+          toast.success("Förbetald gäst kopplad till tillfällig plats");
+        }}
       />
 
       <EveningRoundExtendDialog
