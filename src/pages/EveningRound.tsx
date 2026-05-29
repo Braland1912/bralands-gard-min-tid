@@ -41,7 +41,7 @@ import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
 
-type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt" | "fordon" | "talt";
 
 const todayLocal = () => {
   const d = new Date();
@@ -194,6 +194,8 @@ const EveningRound = () => {
       if (filter === "har" && g?.status !== "here") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (filter === "ej_betalt" && (!g || (g.payment_method && g.payment_amount))) return false;
+      if (filter === "fordon" && g?.accommodation_type !== "vehicle") return false;
+      if (filter === "talt" && g?.accommodation_type !== "tent") return false;
       if (s) {
         const matchesPlace = p.toLowerCase().includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
@@ -206,14 +208,14 @@ const EveningRound = () => {
   const counts = useMemo(() => {
     const here = guests.filter((g) => g.status === "here").length;
     const not = guests.filter((g) => g.status === "not_here").length;
-    // Bokade = gäster som ligger på en känd plats (synliga i listan).
-    // Unassigned visas i sin egen sektion och räknas separat.
     const assignedGuestIds = new Set(
       guests.filter((g) => g.place_label && allPlaces.includes(g.place_label)).map((g) => g.id),
     );
     const booked = assignedGuestIds.size;
     const free = Math.max(0, allPlaces.length - booked);
-    return { here, not, free, booked };
+    const vehicles = guests.filter((g) => g.accommodation_type === "vehicle").length;
+    const tents = guests.filter((g) => g.accommodation_type === "tent").length;
+    return { here, not, free, booked, vehicles, tents };
   }, [guests, allPlaces]);
 
   const openAdd = (place: string) => {
@@ -418,6 +420,8 @@ const EveningRound = () => {
                 { id: "har", label: `På plats (${counts.here})` },
                 { id: "inte_har", label: `Ej kommit (${counts.not})` },
                 { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
+                { id: "fordon", label: `Fordon (${counts.vehicles})` },
+                { id: "talt", label: `Tält (${counts.tents})` },
               ] as { id: Filter; label: string }[]
             ).map((c) => (
               <button
