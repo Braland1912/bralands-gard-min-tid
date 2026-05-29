@@ -234,7 +234,7 @@ const EveningRoundModal = ({
       setCurrency((guest.payment_currency as Currency) ?? "SEK");
       setOtherNote(guest.payment_method === "O" ? (guest.payment_other_note ?? "") : "");
       setUnpaidReason(!guest.payment_method ? (guest.payment_other_note ?? "") : "");
-      setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
+      setAccommodation(mode === "temporary" ? "temporary" : ((guest.accommodation_type as AccommodationType) ?? "vehicle"));
       setStatus(guest.status);
       setTempDescription(guest.temp_description ?? "");
       setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
