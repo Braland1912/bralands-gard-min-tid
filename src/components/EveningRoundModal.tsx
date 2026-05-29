@@ -861,6 +861,7 @@ const EveningRoundModal = ({
                           </button>
                         );
                       })}
+                      </div>
                     </div>
                     {extrasList.length > 0 && (
                       <div className="space-y-1.5 mt-2">
