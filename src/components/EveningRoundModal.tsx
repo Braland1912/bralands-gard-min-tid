@@ -48,7 +48,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { CalendarPlus2, Check, ChevronsUpDown, MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, MapPin, MoreVertical, Pencil, Trash2, X } from "lucide-react";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import {
   type EveningRoundGuest,
@@ -606,100 +606,78 @@ const EveningRoundModal = ({
                     Avbryt
                   </button>
                 </div>
-                <div className="grid grid-cols-6 gap-1.5">
-                  {standardList.map((p) => {
-                    const taken = takenSet.has(p);
-                    const isCurrent = guest?.place_label === p && !pickedPlace && !placeCleared;
-                    const isPicked = pickedPlace === p;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        disabled={taken}
-                        onClick={() => {
-                          setPickedPlace(p);
-                          setPlaceCleared(false);
-                          setEditingPlace(false);
-                        }}
-                        className={
-                          taken
-                            ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
-                            : isPicked || isCurrent
-                              ? "h-10 rounded-lg border border-primary bg-primary text-primary-foreground text-xs font-semibold"
-                              : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                        }
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
-                </div>
-                {extrasList.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="text-[11px] font-medium text-muted-foreground">Tillfälliga platser</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {extrasList.map((ep) => {
-                        const taken = takenSet.has(ep.label);
-                        const isCurrent = guest?.place_label === ep.label && !pickedPlace && !placeCleared;
-                        const isPicked = pickedPlace === ep.label;
-                        const selected = isPicked || isCurrent;
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <select
+                    value={pickedPlace ?? (guest?.place_label && !placeCleared ? guest.place_label : "")}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      setPickedPlace(v);
+                      setPlaceCleared(false);
+                      setEditingPlace(false);
+                    }}
+                    className="w-full h-11 pl-9 pr-9 rounded-xl border border-border bg-background text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Välj plats"
+                  >
+                    <option value="" disabled>
+                      Välj plats…
+                    </option>
+                    <optgroup label="Standardplatser">
+                      {standardList.map((p) => {
+                        const taken = takenSet.has(p);
                         return (
-                          <div
-                            key={ep.id}
-                            className={cn(
-                              "inline-flex items-center rounded-lg border text-xs font-semibold overflow-hidden",
-                              taken
-                                ? "border-border bg-muted text-muted-foreground opacity-50"
-                                : selected
-                                  ? "border-primary bg-primary text-primary-foreground"
-                                  : "border-border bg-card",
-                            )}
-                          >
-                            <button
-                              type="button"
-                              disabled={taken}
-                              onClick={() => {
-                                setPickedPlace(ep.label);
-                                setPlaceCleared(false);
-                                setEditingPlace(false);
-                              }}
-                              className={cn(
-                                "h-9 px-3",
-                                taken ? "cursor-not-allowed" : "hover:opacity-90",
-                              )}
-                            >
-                              {ep.label}
-                            </button>
-                            {onRenamePlace && (
-                              <button
-                                type="button"
-                                onClick={() => handleRenameExtra(ep.id, ep.label)}
-                                className={cn(
-                                  "h-9 w-7 grid place-items-center border-l border-border/60",
-                                  selected ? "text-primary-foreground/90" : "text-muted-foreground hover:text-foreground",
-                                )}
-                                aria-label={`Byt namn på ${ep.label}`}
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                            {onDeletePlace && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteExtra(ep.id, ep.label)}
-                                className={cn(
-                                  "h-9 w-7 grid place-items-center border-l border-border/60",
-                                  selected ? "text-primary-foreground/90" : "text-destructive/80 hover:text-destructive",
-                                )}
-                                aria-label={`Ta bort ${ep.label}`}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                          </div>
+                          <option key={p} value={p} disabled={taken}>
+                            {p}{taken ? " · upptagen" : ""}
+                          </option>
                         );
                       })}
-                    </div>
+                    </optgroup>
+                    {extrasList.length > 0 && (
+                      <optgroup label="Tillfälliga platser">
+                        {extrasList.map((ep) => {
+                          const taken = takenSet.has(ep.label);
+                          return (
+                            <option key={ep.id} value={ep.label} disabled={taken}>
+                              {ep.label}{taken ? " · upptagen" : ""}
+                            </option>
+                          );
+                        })}
+                      </optgroup>
+                    )}
+                  </select>
+                </div>
+                {extrasList.length > 0 && (onRenamePlace || onDeletePlace) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {extrasList.map((ep) => (
+                      <div
+                        key={ep.id}
+                        className="inline-flex items-center rounded-lg border border-border bg-card text-xs font-medium overflow-hidden"
+                      >
+                        <span className="h-8 px-2.5 inline-flex items-center text-muted-foreground">{ep.label}</span>
+                        {onRenamePlace && (
+                          <button
+                            type="button"
+                            onClick={() => handleRenameExtra(ep.id, ep.label)}
+                            className="h-8 w-7 grid place-items-center border-l border-border/60 text-muted-foreground hover:text-foreground"
+                            aria-label={`Byt namn på ${ep.label}`}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        {onDeletePlace && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteExtra(ep.id, ep.label)}
+                            className="h-8 w-7 grid place-items-center border-l border-border/60 text-destructive/80 hover:text-destructive"
+                            aria-label={`Ta bort ${ep.label}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
                 <button
@@ -818,74 +796,75 @@ const EveningRoundModal = ({
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-6 gap-1.5">
-                      {standardList.map((p) => {
-                        const taken = takenSet.has(p);
-                        return (
-                          <button
-                            key={p}
-                            type="button"
-                            disabled={taken}
-                            onClick={() => setPickedPlace(p)}
-                            className={
-                              taken
-                                ? "h-10 rounded-lg border border-border bg-muted text-muted-foreground text-xs font-medium opacity-50 cursor-not-allowed"
-                                : "h-10 rounded-lg border border-border bg-card text-xs font-semibold hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                            }
-                          >
-                            {p}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {extrasList.length > 0 && (
-                      <div className="space-y-1 mt-2">
-                        <div className="text-[11px] font-medium text-muted-foreground">Tillfälliga platser</div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {extrasList.map((ep) => {
-                            const taken = takenSet.has(ep.label);
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v) setPickedPlace(v);
+                        }}
+                        className="w-full h-11 pl-9 pr-9 rounded-xl border border-border bg-background text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
+                        aria-label="Välj plats"
+                      >
+                        <option value="" disabled>
+                          Välj plats…
+                        </option>
+                        <optgroup label="Standardplatser">
+                          {standardList.map((p) => {
+                            const taken = takenSet.has(p);
                             return (
-                              <div
-                                key={ep.id}
-                                className={cn(
-                                  "inline-flex items-center rounded-lg border text-xs font-semibold overflow-hidden",
-                                  taken
-                                    ? "border-border bg-muted text-muted-foreground opacity-50"
-                                    : "border-border bg-card",
-                                )}
-                              >
-                                <button
-                                  type="button"
-                                  disabled={taken}
-                                  onClick={() => setPickedPlace(ep.label)}
-                                  className={cn("h-9 px-3", taken ? "cursor-not-allowed" : "hover:opacity-90")}
-                                >
-                                  {ep.label}
-                                </button>
-                                {onRenamePlace && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRenameExtra(ep.id, ep.label)}
-                                    className="h-9 w-7 grid place-items-center border-l border-border/60 text-muted-foreground hover:text-foreground"
-                                    aria-label={`Byt namn på ${ep.label}`}
-                                  >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
-                                {onDeletePlace && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteExtra(ep.id, ep.label)}
-                                    className="h-9 w-7 grid place-items-center border-l border-border/60 text-destructive/80 hover:text-destructive"
-                                    aria-label={`Ta bort ${ep.label}`}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
-                              </div>
+                              <option key={p} value={p} disabled={taken}>
+                                {p}{taken ? " · upptagen" : ""}
+                              </option>
                             );
                           })}
-                        </div>
+                        </optgroup>
+                        {extrasList.length > 0 && (
+                          <optgroup label="Tillfälliga platser">
+                            {extrasList.map((ep) => {
+                              const taken = takenSet.has(ep.label);
+                              return (
+                                <option key={ep.id} value={ep.label} disabled={taken}>
+                                  {ep.label}{taken ? " · upptagen" : ""}
+                                </option>
+                              );
+                            })}
+                          </optgroup>
+                        )}
+                      </select>
+                    </div>
+                    {extrasList.length > 0 && (onRenamePlace || onDeletePlace) && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {extrasList.map((ep) => (
+                          <div
+                            key={ep.id}
+                            className="inline-flex items-center rounded-lg border border-border bg-card text-xs font-medium overflow-hidden"
+                          >
+                            <span className="h-8 px-2.5 inline-flex items-center text-muted-foreground">{ep.label}</span>
+                            {onRenamePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleRenameExtra(ep.id, ep.label)}
+                                className="h-8 w-7 grid place-items-center border-l border-border/60 text-muted-foreground hover:text-foreground"
+                                aria-label={`Byt namn på ${ep.label}`}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {onDeletePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteExtra(ep.id, ep.label)}
+                                className="h-8 w-7 grid place-items-center border-l border-border/60 text-destructive/80 hover:text-destructive"
+                                aria-label={`Ta bort ${ep.label}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                     {onAddPlace && (
