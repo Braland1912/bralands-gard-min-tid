@@ -337,11 +337,26 @@ const EveningRound = () => {
         </div>
 
         <Tabs defaultValue="rundan" className="space-y-4">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-4">
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(null);
+                setSelectedPlace(null);
+                setAddMode("prepaid");
+                setModalOpen(true);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Registrera förbetald gäst"
+            >
+              <CreditCard className="h-4 w-4" />
+              Förbetald
+            </button>
             <TabsTrigger value="rundan">Rundan</TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
             <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="rundan" className="space-y-4 mt-0">
 
@@ -591,21 +606,6 @@ const EveningRound = () => {
 
         <div className="fixed right-4 md:right-8 md:bottom-8 z-20 bottom-[calc(5rem+env(safe-area-inset-bottom))] flex flex-col items-end gap-2">
           <Button
-            size="sm"
-            variant="secondary"
-            className="rounded-full shadow-md gap-1.5 pr-4"
-            aria-label="Registrera förbetald gäst"
-            onClick={() => {
-              setEditing(null);
-              setSelectedPlace(null);
-              setAddMode("prepaid");
-              setModalOpen(true);
-            }}
-          >
-            <CreditCard className="h-4 w-4" />
-            Förbetald
-          </Button>
-          <Button
             size="lg"
             aria-label="Lägg till gäst på plats"
             className="rounded-full shadow-lg h-14 w-14 p-0"
@@ -619,6 +619,7 @@ const EveningRound = () => {
             <Plus className="h-6 w-6" />
           </Button>
         </div>
+
           </TabsContent>
 
           <TabsContent value="redovisning" className="mt-0">
