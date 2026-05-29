@@ -55,8 +55,11 @@ import {
   type PaymentMethod,
   type Currency,
   type AccommodationType,
+  type VehicleType,
   PAYMENT_LABELS,
+  VEHICLE_TYPE_LABELS,
 } from "@/hooks/useEveningRoundGuests";
+
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
 
 const PLACE_SUGGESTIONS = [
@@ -181,7 +184,11 @@ const EveningRoundModal = ({
   const [accommodation, setAccommodation] = useState<AccommodationType>("vehicle");
   const [editingPlace, setEditingPlace] = useState(false);
   const [placeCleared, setPlaceCleared] = useState(false);
+
   const [tempDescription, setTempDescription] = useState("");
+  const [vehicleType, setVehicleType] = useState<VehicleType>("car");
+  const [trailerReg, setTrailerReg] = useState("");
+
 
   useEffect(() => {
     if (!open) return;
@@ -206,6 +213,9 @@ const EveningRoundModal = ({
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
       setTempDescription(guest.temp_description ?? "");
+      setVehicleType((guest.vehicle_type as VehicleType) ?? "car");
+      setTrailerReg(guest.trailer_registration ?? "");
+
     } else {
       setName("");
       setReg("");
@@ -222,6 +232,9 @@ const EveningRoundModal = ({
       setAccommodation(mode === "temporary" ? "temporary" : "vehicle");
       setStatus("here");
       setTempDescription("");
+      setVehicleType("car");
+      setTrailerReg("");
+
     }
     setError(null);
   }, [open, guest, defaultDate, mode]);
@@ -353,6 +366,12 @@ const EveningRoundModal = ({
             : null,
         accommodation_type: effectiveAccommodation,
         temp_description: effectiveAccommodation === "temporary" ? tempDescription.trim() : null,
+        vehicle_type: effectiveAccommodation === "vehicle" ? vehicleType : null,
+        trailer_registration:
+          effectiveAccommodation === "vehicle" && vehicleType === "caravan"
+            ? (trailerReg.trim() || null)
+            : null,
+
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
           ? { status: effectiveStatus }
@@ -838,13 +857,49 @@ const EveningRoundModal = ({
                 </p>
               </div>
             )}
+            {effectiveAccommodation === "vehicle" && (
+              <div className="space-y-1.5">
+                <Label>Fordonstyp</Label>
+                <div className="grid grid-cols-4 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
+                  {(Object.keys(VEHICLE_TYPE_LABELS) as VehicleType[]).map((vt) => (
+                    <button
+                      key={vt}
+                      type="button"
+                      onClick={() => setVehicleType(vt)}
+                      className={cn(
+                        "h-9 rounded-lg text-sm font-medium transition-colors",
+                        vehicleType === vt
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      {VEHICLE_TYPE_LABELS[vt]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="reg">Reg.nummer</Label>
+                  <Label htmlFor="reg">
+                    {vehicleType === "caravan" ? "Reg.nr dragbil" : "Reg.nummer"}
+                  </Label>
                   <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
                 </div>
               )}
+              {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="trailer-reg">Reg.nr husvagn</Label>
+                  <Input
+                    id="trailer-reg"
+                    value={trailerReg}
+                    onChange={(e) => setTrailerReg(e.target.value)}
+                    placeholder="XYZ789"
+                  />
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <Label>Nationalitet</Label>
                 <Popover open={natOpen} onOpenChange={setNatOpen}>

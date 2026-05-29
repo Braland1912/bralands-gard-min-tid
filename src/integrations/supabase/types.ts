@@ -167,7 +167,9 @@ export type Database = {
           registration_number: string | null
           status: string
           temp_description: string | null
+          trailer_registration: string | null
           updated_at: string
+          vehicle_type: string | null
         }
         Insert: {
           accommodation_type?: string
@@ -188,7 +190,9 @@ export type Database = {
           registration_number?: string | null
           status?: string
           temp_description?: string | null
+          trailer_registration?: string | null
           updated_at?: string
+          vehicle_type?: string | null
         }
         Update: {
           accommodation_type?: string
@@ -209,7 +213,9 @@ export type Database = {
           registration_number?: string | null
           status?: string
           temp_description?: string | null
+          trailer_registration?: string | null
           updated_at?: string
+          vehicle_type?: string | null
         }
         Relationships: [
           {

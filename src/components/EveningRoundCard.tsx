@@ -165,8 +165,19 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
               )}
             </span>
           ) : (
-            guest.registration_number || guest.guest_name || <span className="text-muted-foreground italic">Inget reg.nr</span>
+            <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
+
+              {guest.registration_number ? (
+                <span className="text-sm font-normal">{guest.registration_number}</span>
+              ) : (
+                guest.guest_name || <span className="text-muted-foreground italic">Inget reg.nr</span>
+              )}
+              {guest.trailer_registration && (
+                <span className="text-xs font-normal text-muted-foreground">+ {guest.trailer_registration}</span>
+              )}
+            </span>
           )}
+
         </div>
         {guest.accommodation_type === "temporary" && guest.temp_description && (
           <div className="text-xs text-foreground/80 mt-1 line-clamp-3 whitespace-pre-line">

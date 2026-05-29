@@ -7,6 +7,7 @@ export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
 export type Currency = "SEK" | "EUR" | "NOK";
 export type AccommodationType = "vehicle" | "tent" | "temporary";
+export type VehicleType = "car" | "mc" | "motorhome" | "caravan";
 
 export interface EveningRoundGuest {
   id: string;
@@ -26,6 +27,8 @@ export interface EveningRoundGuest {
   accommodation_type: AccommodationType;
   is_prepaid: boolean;
   temp_description: string | null;
+  vehicle_type: VehicleType | null;
+  trailer_registration: string | null;
 }
 
 export interface GuestInput {
@@ -44,7 +47,17 @@ export interface GuestInput {
   accommodation_type?: AccommodationType;
   is_prepaid?: boolean;
   temp_description?: string | null;
+  vehicle_type?: VehicleType | null;
+  trailer_registration?: string | null;
 }
+
+export const VEHICLE_TYPE_LABELS: Record<VehicleType, string> = {
+  car: "Bil",
+  mc: "MC",
+  motorhome: "Husbil",
+  caravan: "Husvagn",
+};
+
 
 const todayLocalIso = () => {
   const d = new Date();
@@ -140,7 +153,10 @@ export const useEveningRoundGuests = (
           accommodation_type: input.accommodation_type ?? "vehicle",
           is_prepaid: input.is_prepaid ?? false,
           temp_description: input.temp_description ?? null,
+          vehicle_type: input.vehicle_type ?? null,
+          trailer_registration: input.trailer_registration ?? null,
         } as any)
+
         .select("*")
         .single();
       if (error) throw error;
