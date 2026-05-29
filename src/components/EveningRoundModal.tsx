@@ -375,7 +375,15 @@ const EveningRoundModal = ({
           <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
-                <DialogTitle>{guest ? "Redigera gäst" : "Lägg till gäst"}</DialogTitle>
+                <DialogTitle>
+                  {guest
+                    ? "Redigera gäst"
+                    : mode === "prepaid"
+                      ? "Förbetald gäst"
+                      : mode === "temporary"
+                        ? "Tillfällig plats"
+                        : "Lägg till gäst"}
+                </DialogTitle>
                 <DialogDescription>
                   {place != null ? (
                     <span className="inline-flex items-center gap-2">
