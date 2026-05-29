@@ -943,7 +943,7 @@ const EveningRoundModal = ({
                           <Input
                             value={newPlaceLabel}
                             onChange={(e) => setNewPlaceLabel(e.target.value)}
-                            placeholder="T.ex. gult litet tält, husbil, vit bil…"
+                            placeholder="T.ex. vid hörnet mellan solcellerna och fotbollsplanen, ett gult litet tält…"
                             maxLength={60}
                             className="h-10 flex-1 text-sm"
                             onKeyDown={async (e) => {
