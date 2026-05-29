@@ -50,6 +50,7 @@ export interface GuestInput {
   temp_description?: string | null;
   vehicle_type?: VehicleType | null;
   trailer_registration?: string | null;
+  has_electricity?: boolean | null;
 }
 
 export const VEHICLE_TYPE_LABELS: Record<VehicleType, string> = {
