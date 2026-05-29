@@ -110,7 +110,7 @@ const EveningRound = () => {
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
 
-  const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
+  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
     const extras = extraPlaces.map((p) => p.label);
     // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
@@ -659,10 +659,13 @@ const EveningRound = () => {
         onDelete={(id) => deleteGuest.mutateAsync(id)}
         availablePlaces={allPlaces}
         takenPlaces={Array.from(guestsByPlace.keys())}
+        extraPlaces={extraPlaces.map((p) => ({ id: p.id, label: p.label }))}
         onAddPlace={async (label) => {
           const created = await addPlace.mutateAsync(label);
           return created.label;
         }}
+        onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
+        onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
       />
 
