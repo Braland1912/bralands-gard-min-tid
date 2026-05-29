@@ -292,38 +292,38 @@ const EveningRoundModal = ({
     };
     setError(null);
     if (!arrival || !departure) {
-      setError("Ange ankomst och avresa");
+      fail("Ange ankomst och avresa");
       return;
     }
     if (departure <= arrival) {
-      setError("Avresa måste vara efter ankomst");
+      fail("Avresa måste vara efter ankomst");
       return;
     }
     // I prepaid/temporary-läge är platsen avsiktligen tom – hoppa över platsvalidering
     if (!skipPlacePicker && place == null && !hasPlaceOptions) {
-      setError("Välj en plats");
+      fail("Välj en plats");
       return;
     }
     if (!skipPlacePicker && guest && place == null && status === "here" && effectiveAccommodation !== "temporary") {
-      setError("Välj en plats för att markera som på plats");
+      fail("Välj en plats för att markera som på plats");
       if (hasPlaceOptions) setEditingPlace(true);
       return;
     }
     if (effectiveAccommodation === "temporary" && !tempDescription.trim()) {
-      setError("Beskriv den tillfälliga platsen (t.ex. gult tält vid lekplatsen)");
+      fail("Beskriv den tillfälliga platsen (t.ex. gult tält vid lekplatsen)");
       return;
     }
     const amt = amount.trim() === "" ? null : Number(amount);
     if (amt != null && (Number.isNaN(amt) || amt < 0)) {
-      setError("Ogiltigt belopp");
+      fail("Ogiltigt belopp");
       return;
     }
     if (isOther && !otherNote.trim()) {
-      setError("Beskriv betalningsmetoden");
+      fail("Beskriv betalningsmetoden");
       return;
     }
     if (method === "none" && !unpaidReason.trim()) {
-      setError("Ange varför ingen betalning skett");
+      fail("Ange varför ingen betalning skett");
       return;
     }
     // Ej betalt får bara kombineras med "ej här" om det är en reservation
@@ -342,7 +342,7 @@ const EveningRoundModal = ({
       arrival <= todayLocal() &&
       mode !== "prepaid"
     ) {
-      setError("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
+      fail("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
       return;
     }
 
