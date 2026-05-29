@@ -726,7 +726,10 @@ const EveningRoundModal = ({
                   Ingen plats (markera som ej kommit)
                 </button>
                 {onAddPlace && (
-                  <div className="space-y-1 pt-1">
+                  <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2 mt-2">
+                    <div className="text-xs font-semibold text-foreground">
+                      Skapa tillfällig plats
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {PLACE_SUGGESTIONS.map((s) => (
                         <button
