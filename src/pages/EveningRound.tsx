@@ -187,10 +187,19 @@ const EveningRound = () => {
     [guests],
   );
 
+  // Räkna bara obetalda gäster som anlände idag (vald dag), så att kvarvarande
+  // flernattersgäster med oavslutad betalning inte fortsätter trigga varningen
+  // varje dag de bor kvar.
   const unpaidCount = useMemo(
-    () => guests.filter((g) => !g.payment_method || !g.payment_amount).length,
-    [guests],
+    () =>
+      guests.filter(
+        (g) =>
+          g.arrival_date === selectedDate &&
+          (!g.payment_method || !g.payment_amount),
+      ).length,
+    [guests, selectedDate],
   );
+
 
   const incomingGuests = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -287,9 +296,41 @@ const EveningRound = () => {
           </header>
         )}
 
-        <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <h1 className="text-xl font-semibold tracking-tight">Kvällsrundan</h1>
+          {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
+          {!isAdmin && worker && selectedDate === today && (
+            <div className="flex items-center gap-2 text-xs">
+              {session?.session_start && !session?.session_end && (
+                <span className="font-medium text-emerald-700">
+                  Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {session?.session_start && session?.session_end && (
+                <span className="text-muted-foreground">
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  {"–"}
+                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {!session?.session_start && (
+                <span className="text-muted-foreground">Inte ute än</span>
+              )}
+              {session?.session_start && !session?.session_end ? (
+                <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => endSession.mutate()}>
+                  <Square className="h-3.5 w-3.5" />
+                  Avsluta
+                </Button>
+              ) : (
+                <Button size="sm" className="h-8 gap-1.5" onClick={() => startSession.mutate()}>
+                  <Play className="h-3.5 w-3.5" />
+                  {session?.session_end ? "Starta om" : "Börja rundan"}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
 
         <div className="flex items-center gap-1.5">
           <button
@@ -377,39 +418,7 @@ const EveningRound = () => {
 
           <TabsContent value="rundan" className="space-y-4 mt-0">
 
-        {/* Session-loggning för medarbetare */}
-        {!isAdmin && worker && selectedDate === today && (
-          <div className="rounded-xl border border-border bg-card px-3 py-2 flex items-center justify-between gap-2">
-            <div className="text-xs min-w-0 truncate">
-              {session?.session_start && !session?.session_end && (
-                <span className="font-medium text-emerald-700">
-                  Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              )}
-              {session?.session_start && session?.session_end && (
-                <span className="text-muted-foreground">
-                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                  {"–"}
-                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              )}
-              {!session?.session_start && (
-                <span className="text-muted-foreground">Inte ute än</span>
-              )}
-            </div>
-            {session?.session_start && !session?.session_end ? (
-              <Button size="sm" variant="outline" className="h-8 gap-1.5 shrink-0" onClick={() => endSession.mutate()}>
-                <Square className="h-3.5 w-3.5" />
-                Avsluta
-              </Button>
-            ) : (
-              <Button size="sm" className="h-8 gap-1.5 shrink-0" onClick={() => startSession.mutate()}>
-                <Play className="h-3.5 w-3.5" />
-                {session?.session_end ? "Starta om" : "Börja rundan"}
-              </Button>
-            )}
-          </div>
-        )}
+
 
         {incomingGuests.length > 0 && (
           <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
@@ -794,7 +803,7 @@ const EveningRound = () => {
                 eveningRoundId={round?.id}
                 workerId={worker?.id}
                 roundDate={date}
-                showQuickStart={selectedDate === today}
+                showQuickStart={false}
                 showChecklist={false}
               />
             )}
@@ -809,7 +818,7 @@ const EveningRound = () => {
                   eveningRoundId={round?.id}
                   workerId={worker?.id}
                   roundDate={date}
-                  showQuickStart={selectedDate === today}
+                  showQuickStart={false}
                   showCashSection={false}
                 />
                 {roundShiftId ? (
