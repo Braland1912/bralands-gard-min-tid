@@ -250,7 +250,7 @@ export const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   R: "Roadsurfers",
   B: "Bank",
   K: "Kontant",
-  Z: "Zettle",
+  Z: "Kortläsare",
   F: "Frikort",
   O: "Övrigt",
 };
