@@ -1037,6 +1037,7 @@ const EveningRoundModal = ({
                     if (effectiveAccommodation === "vehicle" && (s === "Husvagn" || s === "Husbil" || s === "MC")) return false;
                     if (effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
                     if (effectiveAccommodation === "vehicle" && vehicleType === "car" && (s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
+                    if (effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
                     return true;
                   }).map((s) => (
                     <button
