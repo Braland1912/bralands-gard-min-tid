@@ -594,7 +594,7 @@ const EveningRoundModal = ({
                   </button>
                 </div>
                 <div className="grid grid-cols-6 gap-1.5">
-                  {availablePlaces!.map((p) => {
+                  {standardList.map((p) => {
                     const taken = takenSet.has(p);
                     const isCurrent = guest?.place_label === p && !pickedPlace && !placeCleared;
                     const isPicked = pickedPlace === p;
@@ -621,6 +621,74 @@ const EveningRoundModal = ({
                     );
                   })}
                 </div>
+                {extrasList.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-[11px] font-medium text-muted-foreground">Tillfälliga platser</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {extrasList.map((ep) => {
+                        const taken = takenSet.has(ep.label);
+                        const isCurrent = guest?.place_label === ep.label && !pickedPlace && !placeCleared;
+                        const isPicked = pickedPlace === ep.label;
+                        const selected = isPicked || isCurrent;
+                        return (
+                          <div
+                            key={ep.id}
+                            className={cn(
+                              "inline-flex items-center rounded-lg border text-xs font-semibold overflow-hidden",
+                              taken
+                                ? "border-border bg-muted text-muted-foreground opacity-50"
+                                : selected
+                                  ? "border-primary bg-primary text-primary-foreground"
+                                  : "border-border bg-card",
+                            )}
+                          >
+                            <button
+                              type="button"
+                              disabled={taken}
+                              onClick={() => {
+                                setPickedPlace(ep.label);
+                                setPlaceCleared(false);
+                                setEditingPlace(false);
+                              }}
+                              className={cn(
+                                "h-9 px-3",
+                                taken ? "cursor-not-allowed" : "hover:opacity-90",
+                              )}
+                            >
+                              {ep.label}
+                            </button>
+                            {onRenamePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleRenameExtra(ep.id, ep.label)}
+                                className={cn(
+                                  "h-9 w-7 grid place-items-center border-l border-border/60",
+                                  selected ? "text-primary-foreground/90" : "text-muted-foreground hover:text-foreground",
+                                )}
+                                aria-label={`Byt namn på ${ep.label}`}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {onDeletePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteExtra(ep.id, ep.label)}
+                                className={cn(
+                                  "h-9 w-7 grid place-items-center border-l border-border/60",
+                                  selected ? "text-primary-foreground/90" : "text-destructive/80 hover:text-destructive",
+                                )}
+                                aria-label={`Ta bort ${ep.label}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => {
