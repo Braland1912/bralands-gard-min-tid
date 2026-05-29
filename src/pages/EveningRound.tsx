@@ -280,24 +280,17 @@ const EveningRound = () => {
   return (
     <div className="min-h-screen bg-background pb-36 md:pb-8">
       <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-4">
-        <header className="flex items-center justify-between gap-2">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Kvällsrundan</h1>
-            <p className="text-sm text-muted-foreground">
-              {formatLocalDate(date, "long")}
-            </p>
-          </div>
-          {isAdmin && (
-            <div className="flex flex-wrap items-center gap-2">
-              <AdminExtraPlacesDialog currentRoundId={round?.id} />
-              <EveningRoundExportDialog />
-            </div>
-          )}
-        </header>
+        {isAdmin && (
+          <header className="flex items-center justify-end gap-2">
+            <AdminExtraPlacesDialog currentRoundId={round?.id} />
+            <EveningRoundExportDialog />
+          </header>
+        )}
 
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Datum
+        <div className="flex items-baseline justify-between gap-2">
+          <h1 className="text-xl font-semibold tracking-tight">Kvällsrundan</h1>
         </div>
+
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}

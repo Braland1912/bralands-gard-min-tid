@@ -476,21 +476,8 @@ const MySchedule = () => {
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-[480px] mx-auto px-4 py-6 pb-nav-safe md:pb-6 space-y-5">
-        {checklistStatus?.hasShifts && checklistStatus.total > 0 && (
-          checklistStatus.unchecked > 0 ? (
-            <div className="rounded-xl border border-yellow-300 bg-yellow-50 px-3 py-2.5">
-              <div className="text-xs text-yellow-800 leading-snug">
-                Du har <span className="font-semibold">{checklistStatus.unchecked}</span> obockade punkter på dagens pass. Glöm inte att bocka av allt innan du stämplar ut.
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border border-green-300 bg-green-50 px-3 py-2.5">
-              <div className="text-xs text-green-800 leading-snug">
-                Bra jobbat! Alla punkter på dagens pass är avbockade.
-              </div>
-            </div>
-          )
-        )}
+
+
 
         {/* MIN VECKA */}
         <div className="space-y-4">
