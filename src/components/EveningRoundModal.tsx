@@ -618,6 +618,8 @@ const EveningRoundModal = ({
                           setPickedPlace(p);
                           setPlaceCleared(false);
                           setEditingPlace(false);
+                          setStatus("here");
+                          setError(null);
                         }}
                         className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
                           current
@@ -660,6 +662,8 @@ const EveningRoundModal = ({
                                 setPickedPlace(ep.label);
                                 setPlaceCleared(false);
                                 setEditingPlace(false);
+                                setStatus("here");
+                                setError(null);
                               }}
                               className={`h-9 pl-3 pr-2 inline-flex items-center ${
                                 selectable ? "hover:opacity-90" : "cursor-not-allowed"
@@ -821,7 +825,7 @@ const EveningRoundModal = ({
                             key={p}
                             type="button"
                             disabled={taken}
-                            onClick={() => setPickedPlace(p)}
+                            onClick={() => { setPickedPlace(p); setStatus("here"); setError(null); }}
                             className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
                               taken
                                 ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
@@ -853,7 +857,7 @@ const EveningRoundModal = ({
                                 <button
                                   type="button"
                                   disabled={taken}
-                                  onClick={() => setPickedPlace(ep.label)}
+                                  onClick={() => { setPickedPlace(ep.label); setStatus("here"); setError(null); }}
                                   className={`h-9 pl-3 pr-2 inline-flex items-center ${
                                     taken ? "cursor-not-allowed" : "hover:opacity-90"
                                   }`}
