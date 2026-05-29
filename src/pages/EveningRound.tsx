@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, ChevronDown, Play, Square, MapPin, MapPinPlus, Tent, CreditCard, SlidersHorizontal, X } from "lucide-react";
+import { Search, Plus, AlertTriangle, Calendar as CalendarIcon, ChevronLeft, ChevronRight, ChevronDown, Play, Square, MapPin, MapPinPlus, Tent, CreditCard, SlidersHorizontal, X } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
