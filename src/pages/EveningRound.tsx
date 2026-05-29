@@ -895,11 +895,12 @@ const EveningRound = () => {
         }}
         onPickPrepaid={(g) => {
           setAddPlaceChoiceOpen(false);
-          // Öppna gästen i edit-läge utan plats — användaren väljer eller
-          // skapar en tillfällig plats via platsväljaren.
+          // Öppna gästen i edit-läge utan plats — expandera platsväljaren direkt
+          // så att användaren kan välja eller skapa en tillfällig plats utan extra klick.
           setEditing(g);
           setSelectedPlace(null);
           setAddMode("normal");
+          setAutoExpandPlacePicker(true);
           setModalOpen(true);
         }}
       />
