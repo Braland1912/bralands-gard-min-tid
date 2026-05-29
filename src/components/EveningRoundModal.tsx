@@ -186,7 +186,7 @@ const EveningRoundModal = ({
   const [placeCleared, setPlaceCleared] = useState(false);
 
   const [tempDescription, setTempDescription] = useState("");
-  const [vehicleType, setVehicleType] = useState<VehicleType>("car");
+  const [vehicleType, setVehicleType] = useState<VehicleType>("motorhome");
   const [trailerReg, setTrailerReg] = useState("");
 
 
@@ -213,7 +213,7 @@ const EveningRoundModal = ({
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
       setTempDescription(guest.temp_description ?? "");
-      setVehicleType((guest.vehicle_type as VehicleType) ?? "car");
+      setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
       setTrailerReg(guest.trailer_registration ?? "");
 
     } else {
@@ -232,7 +232,7 @@ const EveningRoundModal = ({
       setAccommodation(mode === "temporary" ? "temporary" : "vehicle");
       setStatus("here");
       setTempDescription("");
-      setVehicleType("car");
+      setVehicleType("motorhome");
       setTrailerReg("");
 
     }
