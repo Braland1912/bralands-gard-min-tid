@@ -1035,6 +1035,20 @@ const EveningRoundModal = ({
                   maxLength={500}
                   className="min-h-[56px] resize-y"
                 />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {PLACE_SUGGESTIONS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() =>
+                        setTempDescription((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))
+                      }
+                      className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
                 <p className="text-[11px] text-muted-foreground">
                   Beskriv typ av tält/fordon, var de står och antal personer.
                 </p>
