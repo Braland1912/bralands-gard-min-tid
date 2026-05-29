@@ -1296,8 +1296,8 @@ const EveningRoundModal = ({
                       ? "T.ex. hund, barn, frågar om paddling/fiske…"
                       : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
                   }
-                  rows={2}
-                  className="min-h-[56px] resize-y bg-card"
+                  rows={4}
+                  className="min-h-[96px] resize-y bg-card"
                 />
                 <div className="flex flex-wrap gap-1.5">
                   {NOTE_SUGGESTIONS.filter((s) => {
