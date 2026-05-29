@@ -1020,37 +1020,6 @@ const EveningRoundModal = ({
                 </div>
               </div>
             )}
-            {effectiveAccommodation === "temporary" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="temp-desc">Beskrivning av platsen och sällskapet</Label>
-                <p className="text-[12px] font-medium text-foreground">
-                  Viktigt: beskriv tydligt så andra i teamet förstår var sällskapet står och vilka de är.
-                </p>
-                <Textarea
-                  id="temp-desc"
-                  value={tempDescription}
-                  onChange={(e) => setTempDescription(e.target.value)}
-                  placeholder="T.ex. gult 4-mannatält på gräset vid lekplatsen, två vuxna + barn…"
-                  rows={2}
-                  maxLength={500}
-                  className="min-h-[56px] resize-y"
-                />
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {PLACE_SUGGESTIONS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() =>
-                        setTempDescription((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))
-                      }
-                      className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
             {effectiveAccommodation === "vehicle" && (
               <div className="space-y-1.5">
                 <Label>Fordonstyp</Label>
