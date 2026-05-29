@@ -415,7 +415,7 @@ const EveningRound = () => {
           <p className="text-xs text-muted-foreground -mt-2">Ingen runda finns för valt datum.</p>
         )}
 
-        <Tabs defaultValue="forbetalda" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="w-full grid grid-cols-4 gap-1 h-auto p-1">
             <TabsTrigger value="forbetalda" className="relative px-1 text-xs sm:text-sm">
               Förbetalda
