@@ -771,6 +771,11 @@ const EveningRoundModal = ({
               </div>
             )}
 
+            {mode === "temporary" && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+                Tillfällig plats: ingen platsnummer (1–21 / E1–E6). Beskriv var sällskapet står.
+              </div>
+            )}
             {showAccommodationPicker && (
               <div className="space-y-1.5">
                 <Label>Boende</Label>
@@ -799,11 +804,42 @@ const EveningRoundModal = ({
                   >
                     Tält
                   </button>
+                  {mode !== "prepaid" && (
+                    <button
+                      type="button"
+                      onClick={() => setAccommodation("temporary")}
+                      className={cn(
+                        "flex-1 h-9 rounded-lg text-sm font-medium transition-colors",
+                        accommodation === "temporary"
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground",
+                      )}
+                    >
+                      Tillfällig
+                    </button>
+                  )}
                 </div>
               </div>
             )}
+            {effectiveAccommodation === "temporary" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="temp-desc">Beskrivning av platsen</Label>
+                <Textarea
+                  id="temp-desc"
+                  value={tempDescription}
+                  onChange={(e) => setTempDescription(e.target.value)}
+                  placeholder="T.ex. gult 4-mannatält på gräset vid lekplatsen, två vuxna + barn…"
+                  rows={3}
+                  maxLength={500}
+                  className="min-h-[80px] resize-y"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Beskriv typ av tält/fordon, var de står och antal personer.
+                </p>
+              </div>
+            )}
             <div className={cn("grid gap-3", effectiveAccommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
-              {effectiveAccommodation !== "tent" && (
+              {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="reg">Reg.nummer</Label>
                   <Input id="reg" value={reg} onChange={(e) => setReg(e.target.value)} placeholder="ABC123" />
