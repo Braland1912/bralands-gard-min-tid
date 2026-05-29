@@ -860,8 +860,8 @@ const EveningRoundModal = ({
             {effectiveAccommodation === "vehicle" && (
               <div className="space-y-1.5">
                 <Label>Fordonstyp</Label>
-                <div className="grid grid-cols-4 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
-                  {(Object.keys(VEHICLE_TYPE_LABELS) as VehicleType[]).map((vt) => (
+                <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
+                  {(["motorhome", "car", "caravan"] as VehicleType[]).map((vt) => (
                     <button
                       key={vt}
                       type="button"
