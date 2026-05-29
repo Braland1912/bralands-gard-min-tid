@@ -584,35 +584,6 @@ const EveningRound = () => {
         })()}
 
 
-        {incomingGuests.length > 0 && (
-          <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-sky-900">
-                Inkommande · förbetalda ({incomingGuests.length})
-              </div>
-              <div className="text-[11px] text-sky-800/80">Tryck för att tilldela plats</div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {incomingGuests.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => openEdit(g)}
-                  className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
-                >
-                  <MapPinPlus className="h-3.5 w-3.5 text-sky-700" aria-label="Tilldela plats" />
-                  <span className="sr-only">Tilldela plats</span>
-                  <span className="font-semibold">{g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst")}</span>
-                  {g.payment_method && g.payment_amount && (
-                    <span className="text-muted-foreground">
-                      · {g.payment_amount} {g.payment_currency ?? "kr"}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {temporaryGuests.length > 0 && (
           <div className="space-y-2">
