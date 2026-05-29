@@ -1,0 +1,2 @@
+ALTER TABLE public.evening_round_guests DROP CONSTRAINT evening_round_guests_accommodation_type_check;
+ALTER TABLE public.evening_round_guests ADD CONSTRAINT evening_round_guests_accommodation_type_check CHECK (accommodation_type = ANY (ARRAY['vehicle'::text, 'tent'::text, 'temporary'::text]));
