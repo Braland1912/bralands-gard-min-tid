@@ -608,12 +608,7 @@ const EveningRound = () => {
                   variant="outline"
                   size="sm"
                   className="gap-1.5"
-                  onClick={() => {
-                    setEditing(null);
-                    setSelectedPlace(null);
-                    setAddMode("temporary");
-                    setModalOpen(true);
-                  }}
+                  onClick={() => setAddPlaceChoiceOpen(true)}
                 >
                   <MapPinPlus className="h-4 w-4" />
                   Lägg till plats
@@ -712,12 +707,7 @@ const EveningRound = () => {
           <Button
             variant="outline"
             className="w-full gap-1.5"
-            onClick={() => {
-              setEditing(null);
-              setSelectedPlace(null);
-              setAddMode("temporary");
-              setModalOpen(true);
-            }}
+            onClick={() => setAddPlaceChoiceOpen(true)}
           >
             <MapPinPlus className="h-4 w-4" />
             Lägg till plats
