@@ -118,6 +118,7 @@ const EveningRound = () => {
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
   const [filterOpen, setFilterOpen] = useState(false);
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
+  const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
