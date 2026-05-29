@@ -679,6 +679,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_team: { Args: never; Returns: boolean }
       get_team_workers: {
         Args: never
         Returns: {
@@ -696,6 +697,7 @@ export type Database = {
         Returns: boolean
       }
       is_my_worker: { Args: { _worker_id: string }; Returns: boolean }
+      is_round_owner: { Args: { _round_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
