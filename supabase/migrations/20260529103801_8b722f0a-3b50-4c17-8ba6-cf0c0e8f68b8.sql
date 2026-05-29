@@ -1,0 +1,1 @@
+ALTER TABLE public.evening_round_guests ADD COLUMN has_electricity boolean;

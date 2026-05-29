@@ -198,6 +198,7 @@ const EveningRoundModal = ({
 
   const [tempDescription, setTempDescription] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("motorhome");
+  const [hasElectricity, setHasElectricity] = useState<boolean>(true);
   const [trailerReg, setTrailerReg] = useState("");
 
 
@@ -225,6 +226,7 @@ const EveningRoundModal = ({
       setStatus(guest.status);
       setTempDescription(guest.temp_description ?? "");
       setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
+      setHasElectricity(guest.has_electricity ?? true);
       setTrailerReg(guest.trailer_registration ?? "");
 
     } else {
@@ -244,6 +246,7 @@ const EveningRoundModal = ({
       setStatus("here");
       setTempDescription("");
       setVehicleType("motorhome");
+      setHasElectricity(true);
       setTrailerReg("");
 
     }
@@ -421,6 +424,7 @@ const EveningRoundModal = ({
           effectiveAccommodation === "vehicle" && vehicleType === "caravan"
             ? (trailerReg.trim() || null)
             : null,
+        has_electricity: effectiveAccommodation === "vehicle" ? hasElectricity : null,
 
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
@@ -1048,6 +1052,37 @@ const EveningRoundModal = ({
                       {VEHICLE_TYPE_LABELS[vt]}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+            {effectiveAccommodation === "vehicle" && (
+              <div className="space-y-1.5">
+                <Label>El</Label>
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-border bg-muted p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setHasElectricity(true)}
+                    className={cn(
+                      "h-9 rounded-lg text-sm font-medium transition-colors",
+                      hasElectricity
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Med el
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHasElectricity(false)}
+                    className={cn(
+                      "h-9 rounded-lg text-sm font-medium transition-colors",
+                      !hasElectricity
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Utan el
+                  </button>
                 </div>
               </div>
             )}

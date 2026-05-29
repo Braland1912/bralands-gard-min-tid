@@ -155,6 +155,7 @@ export type Database = {
           departure_date: string
           evening_round_id: string
           guest_name: string
+          has_electricity: boolean | null
           id: string
           is_prepaid: boolean
           nationality: string | null
@@ -178,6 +179,7 @@ export type Database = {
           departure_date: string
           evening_round_id: string
           guest_name: string
+          has_electricity?: boolean | null
           id?: string
           is_prepaid?: boolean
           nationality?: string | null
@@ -201,6 +203,7 @@ export type Database = {
           departure_date?: string
           evening_round_id?: string
           guest_name?: string
+          has_electricity?: boolean | null
           id?: string
           is_prepaid?: boolean
           nationality?: string | null
