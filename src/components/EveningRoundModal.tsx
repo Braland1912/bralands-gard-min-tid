@@ -618,6 +618,9 @@ const EveningRoundModal = ({
                     Avbryt
                   </button>
                 </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Upptagna platser är gråa. Nuvarande plats är markerad.
+                </p>
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   Fasta platser
                 </div>
