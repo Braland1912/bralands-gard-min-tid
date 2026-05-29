@@ -420,6 +420,8 @@ const EveningRound = () => {
                 { id: "har", label: `På plats (${counts.here})` },
                 { id: "inte_har", label: `Ej kommit (${counts.not})` },
                 { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
+                { id: "fordon", label: `Fordon (${counts.vehicles})` },
+                { id: "talt", label: `Tält (${counts.tents})` },
               ] as { id: Filter; label: string }[]
             ).map((c) => (
               <button
