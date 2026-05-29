@@ -838,7 +838,7 @@ const EveningRoundModal = ({
                 </p>
               </div>
             )}
-            <div className={cn("grid gap-3", effectiveAccommodation === "tent" ? "grid-cols-1" : "grid-cols-2")}>
+            <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
               {effectiveAccommodation !== "tent" && effectiveAccommodation !== "temporary" && (
                 <div className="space-y-1.5">
                   <Label htmlFor="reg">Reg.nummer</Label>
