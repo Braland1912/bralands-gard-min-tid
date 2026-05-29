@@ -671,21 +671,6 @@ const EveningRound = () => {
           })}
         </div>
 
-        <div className="fixed right-4 md:right-8 md:bottom-8 z-20 bottom-[calc(5rem+env(safe-area-inset-bottom))] flex flex-col items-end gap-2">
-          <Button
-            size="lg"
-            aria-label="Lägg till gäst på plats"
-            className="rounded-full shadow-lg h-14 w-14 p-0"
-            onClick={() => {
-              setEditing(null);
-              setSelectedPlace(null);
-              setAddMode("normal");
-              setPickPlaceOpen(true);
-            }}
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </div>
 
           </TabsContent>
 
