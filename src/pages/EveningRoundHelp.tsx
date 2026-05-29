@@ -20,7 +20,17 @@ const EveningRoundHelp = () => {
       <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6 print:p-0 print:max-w-none">
         {/* Topp-knappar */}
         <div className="flex items-center justify-between no-print">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              // navigate(-1) failar om sidan öppnats direkt (ingen history).
+              // Vi går alltid tillbaka till hjälp-hubben i så fall.
+              if (window.history.length > 1) navigate(-1);
+              else navigate("/help");
+            }}
+            className="gap-1.5"
+          >
             <ArrowLeft className="h-4 w-4" />
             Tillbaka
           </Button>

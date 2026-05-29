@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays, Home, Moon } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
 
@@ -57,6 +57,7 @@ const AppHeader = () => {
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
     { label: "Tidrapport", icon: Clock, path: "/my-time" },
     { label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
+    { label: "Hjälp", icon: LifeBuoy, path: "/help" },
   ];
 
   return (
