@@ -599,6 +599,10 @@ const EveningRound = () => {
                 onQuickReserve={(input) => addGuest.mutateAsync(input)}
                 onOpenFull={openAdd}
                 onRemoveExtraPlace={extra ? () => deletePlace.mutate(extra.id) : undefined}
+                prepaidGuests={incomingGuestsAll}
+                onAssignPrepaid={(guestId) =>
+                  updateGuest.mutateAsync({ id: guestId, place_label: p, status: "here" })
+                }
               />
             );
           })}
