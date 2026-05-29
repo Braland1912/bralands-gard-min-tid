@@ -302,11 +302,19 @@ const EveningRound = () => {
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <div className="flex-1 text-center">
-              <div className="text-sm font-semibold capitalize">
+            <label className="flex-1 text-center cursor-pointer relative">
+              <div className="text-sm font-semibold capitalize hover:text-primary transition-colors inline-flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
                 {formatLocalDate(date, "long")}
               </div>
-            </div>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value || todayLocal())}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                aria-label="Välj annat datum"
+              />
+            </label>
             <button
               onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
               disabled={selectedDate >= tomorrow}
@@ -333,16 +341,6 @@ const EveningRound = () => {
                 </button>
               );
             })}
-            <div className="relative ml-auto">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value || todayLocal())}
-                className="pl-8 pr-3 py-1.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Välj annat datum"
-              />
-            </div>
           </div>
           {!round && selectedDate !== today && (
             <p className="text-xs text-muted-foreground">
