@@ -427,10 +427,22 @@ const EveningRound = () => {
 
 
         {unpaidCount > 0 && (
-          <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
+          <button
+            type="button"
+            onClick={() => setFilter(filter === "ej_betalt" ? "alla" : "ej_betalt")}
+            aria-pressed={filter === "ej_betalt"}
+            className={`w-full flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+              filter === "ej_betalt"
+                ? "border-destructive bg-destructive/20 text-destructive"
+                : "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15"
+            }`}
+          >
             <AlertTriangle className="h-4 w-4" />
-            {unpaidCount} ej betalt
-          </div>
+            <span>{unpaidCount} ej betalt</span>
+            <span className="ml-auto text-xs font-normal opacity-80">
+              {filter === "ej_betalt" ? "Visar bara dessa · tryck för att rensa" : "Tryck för att filtrera"}
+            </span>
+          </button>
         )}
 
         <div className="relative">
