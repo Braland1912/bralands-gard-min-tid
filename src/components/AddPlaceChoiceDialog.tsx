@@ -91,34 +91,113 @@ const AddPlaceChoiceDialog = ({
                     g.guest_name ||
                     g.registration_number ||
                     (g.accommodation_type === "tent" ? "Tält" : "Gäst");
+                  const isOpen = expandedId === g.id;
+                  const vehicleLabel =
+                    g.accommodation_type === "tent"
+                      ? `Tält${g.tent_persons ? ` (${g.tent_persons} pers)` : ""}`
+                      : g.vehicle_type
+                      ? VEHICLE_TYPE_LABELS[g.vehicle_type]
+                      : "Fordon";
                   return (
-                    <button
+                    <div
                       key={g.id}
-                      type="button"
-                      onClick={() => onPickPrepaid(g)}
-                      className="w-full text-left rounded-xl border border-sky-200 bg-card hover:bg-sky-50 p-3 transition-colors flex items-center gap-3"
+                      className="rounded-xl border border-sky-200 bg-card overflow-hidden"
                     >
-                      <div className="h-9 w-9 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
-                        <UserCheck className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold text-foreground truncate">
-                          {label}
+                      <button
+                        type="button"
+                        onClick={() => setExpandedId(isOpen ? null : g.id)}
+                        className="w-full text-left p-3 hover:bg-sky-50 transition-colors flex items-center gap-3"
+                      >
+                        <div className="h-9 w-9 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+                          {g.accommodation_type === "tent" ? (
+                            <Tent className="h-4 w-4" />
+                          ) : (
+                            <UserCheck className="h-4 w-4" />
+                          )}
                         </div>
-                        {(g.registration_number || g.nationality) && (
-                          <div className="text-[11px] text-muted-foreground truncate">
-                            {[g.registration_number, g.nationality].filter(Boolean).join(" · ")}
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-semibold text-foreground truncate">
+                            {label}
                           </div>
+                          {(g.registration_number || g.nationality) && (
+                            <div className="text-[11px] text-muted-foreground truncate">
+                              {[g.registration_number, g.nationality].filter(Boolean).join(" · ")}
+                            </div>
+                          )}
+                        </div>
+                        {g.payment_amount != null && (
+                          <span className="text-[11px] text-sky-800 shrink-0 inline-flex items-center gap-0.5">
+                            <CreditCard className="h-3 w-3" />
+                            {g.payment_amount} {g.payment_currency ?? "kr"}
+                          </span>
                         )}
-                      </div>
-                      {g.payment_amount != null && (
-                        <span className="text-[11px] text-sky-800 shrink-0 inline-flex items-center gap-0.5">
-                          <CreditCard className="h-3 w-3" />
-                          {g.payment_amount} {g.payment_currency ?? "kr"}
-                        </span>
+                        <ChevronDown
+                          className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <div className="border-t border-sky-200 bg-sky-50/40 p-3 space-y-2">
+                          <div className="grid grid-cols-1 gap-1.5 text-xs text-foreground">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span>
+                                {formatDateLabel(g.arrival_date)} → {formatDateLabel(g.departure_date)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {g.accommodation_type === "tent" ? (
+                                <Tent className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              ) : (
+                                <Car className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              )}
+                              <span>
+                                {vehicleLabel}
+                                {g.registration_number ? ` · ${g.registration_number}` : ""}
+                                {g.trailer_registration ? ` + släp ${g.trailer_registration}` : ""}
+                              </span>
+                            </div>
+                            {g.has_electricity != null && (
+                              <div className="flex items-center gap-2">
+                                <Zap className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span>{g.has_electricity ? "Med el" : "Utan el"}</span>
+                              </div>
+                            )}
+                            {g.nationality && (
+                              <div className="flex items-center gap-2">
+                                <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span>{g.nationality}</span>
+                              </div>
+                            )}
+                            {g.payment_amount != null && (
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span>
+                                  Betalt {g.payment_amount} {g.payment_currency ?? "kr"}
+                                  {g.payment_method ? ` · ${g.payment_method}` : ""}
+                                </span>
+                              </div>
+                            )}
+                            {g.notes && (
+                              <div className="flex items-start gap-2">
+                                <StickyNote className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                                <span className="whitespace-pre-wrap">{g.notes}</span>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onPickPrepaid(g)}
+                            className="w-full mt-1 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold py-2 px-3 inline-flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <MapPinPlus className="h-4 w-4" />
+                            Koppla till plats
+                          </button>
+                        </div>
                       )}
-                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                    </button>
+                    </div>
                   );
                 })}
               </div>
