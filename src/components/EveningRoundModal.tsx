@@ -229,6 +229,7 @@ const EveningRoundModal = ({
       setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
       setHasElectricity(guest.has_electricity ?? true);
       setTrailerReg(guest.trailer_registration ?? "");
+      setTentPersons(guest.tent_persons ?? 2);
 
     } else {
       setName("");
