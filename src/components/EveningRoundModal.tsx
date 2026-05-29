@@ -825,7 +825,7 @@ const EveningRoundModal = ({
                             key={p}
                             type="button"
                             disabled={taken}
-                            onClick={() => setPickedPlace(p)}
+                            onClick={() => { setPickedPlace(p); setStatus("here"); setError(null); }}
                             className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
                               taken
                                 ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
