@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square, MapPin, Tent, CreditCard } from "lucide-react";
+import { Search, Plus, AlertTriangle, Calendar, ChevronLeft, ChevronRight, Play, Square, MapPin, MapPinPlus, Tent, CreditCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -510,7 +510,8 @@ const EveningRound = () => {
                   onClick={() => openEdit(g)}
                   className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
                 >
-                  <MapPin className="h-3.5 w-3.5 text-sky-700" />
+                  <MapPinPlus className="h-3.5 w-3.5 text-sky-700" aria-label="Tilldela plats" />
+                  <span className="sr-only">Tilldela plats</span>
                   <span className="font-semibold">{g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst")}</span>
                   {g.payment_method && g.payment_amount && (
                     <span className="text-muted-foreground">
