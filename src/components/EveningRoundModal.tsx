@@ -198,6 +198,7 @@ const EveningRoundModal = ({
 
   const [tempDescription, setTempDescription] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("motorhome");
+  const [hasElectricity, setHasElectricity] = useState<boolean>(true);
   const [trailerReg, setTrailerReg] = useState("");
 
 
