@@ -164,7 +164,9 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
                 <span className="text-sm font-normal text-muted-foreground">{guest.registration_number}</span>
               )}
             </span>
+          ) : (
             <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
+
               {guest.registration_number ? (
                 <span className="text-sm font-normal">{guest.registration_number}</span>
               ) : (
