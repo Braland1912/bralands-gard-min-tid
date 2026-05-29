@@ -183,6 +183,7 @@ const EveningRoundModal = ({
   mode = "normal",
   prepaidGuests: _prepaidGuests = [],
   onAssignPrepaidTemporary: _onAssignPrepaidTemporary,
+  autoExpandPlacePicker = false,
 }: Props) => {
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
