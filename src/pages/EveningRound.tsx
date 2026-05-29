@@ -891,6 +891,7 @@ const EveningRound = () => {
           setEditing(null);
           setSelectedPlace(null);
           setAddMode("normal");
+          setAutoExpandPlacePicker(true);
           setModalOpen(true);
         }}
         onPickPrepaid={(g) => {
