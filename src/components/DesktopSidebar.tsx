@@ -120,6 +120,7 @@ const DesktopSidebar = () => {
     if (item.id === "schema") return location.pathname === "/my-schedule";
     if (item.id === "tidrapport") return location.pathname === "/my-time";
     if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
+    if (item.id === "hjalp") return location.pathname.startsWith("/help") || location.pathname.startsWith("/evening-round/help");
     return false;
   };
 
