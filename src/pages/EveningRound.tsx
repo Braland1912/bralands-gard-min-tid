@@ -297,7 +297,7 @@ const EveningRound = () => {
         )}
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-xl font-semibold text-foreground">Kvällsrundan</h1>
+          <h1 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Kvällsrundan</h1>
           {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
           {!isAdmin && worker && selectedDate === today && (
             <div className="flex items-center gap-2 text-xs">
