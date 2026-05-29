@@ -815,45 +815,53 @@ const EveningRoundModal = ({
                   </div>
                 ) : (
                   <>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (v) setPickedPlace(v);
-                        }}
-                        className="w-full h-11 pl-9 pr-9 rounded-xl border border-border bg-background text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-primary"
-                        aria-label="Välj plats"
-                      >
-                        <option value="" disabled>
-                          Välj plats…
-                        </option>
-                        <optgroup label="Standardplatser">
-                          {standardList.map((p) => {
-                            const taken = takenSet.has(p);
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {standardList.map((p) => {
+                        const taken = takenSet.has(p);
+                        return (
+                          <button
+                            key={p}
+                            type="button"
+                            disabled={taken}
+                            onClick={() => setPickedPlace(p)}
+                            className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
+                              taken
+                                ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
+                                : "border-border bg-card text-foreground hover:bg-accent"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {extrasList.length > 0 && (
+                      <div className="space-y-1.5 mt-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Tillfälliga platser
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {extrasList.map((ep) => {
+                            const taken = takenSet.has(ep.label);
                             return (
-                              <option key={p} value={p} disabled={taken}>
-                                {p}{taken ? " · upptagen" : ""}
-                              </option>
+                              <button
+                                key={ep.id}
+                                type="button"
+                                disabled={taken}
+                                onClick={() => setPickedPlace(ep.label)}
+                                className={`h-9 px-3 rounded-full border text-xs font-medium transition-colors ${
+                                  taken
+                                    ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
+                                    : "border-border bg-card text-foreground hover:bg-accent"
+                                }`}
+                              >
+                                {ep.label}
+                              </button>
                             );
                           })}
-                        </optgroup>
-                        {extrasList.length > 0 && (
-                          <optgroup label="Tillfälliga platser">
-                            {extrasList.map((ep) => {
-                              const taken = takenSet.has(ep.label);
-                              return (
-                                <option key={ep.id} value={ep.label} disabled={taken}>
-                                  {ep.label}{taken ? " · upptagen" : ""}
-                                </option>
-                              );
-                            })}
-                          </optgroup>
-                        )}
-                      </select>
-                    </div>
+                        </div>
+                      </div>
+                    )}
                     {extrasList.length > 0 && (onRenamePlace || onDeletePlace) && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {extrasList.map((ep) => (
