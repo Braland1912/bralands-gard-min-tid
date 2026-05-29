@@ -153,7 +153,10 @@ export const useEveningRoundGuests = (
           accommodation_type: input.accommodation_type ?? "vehicle",
           is_prepaid: input.is_prepaid ?? false,
           temp_description: input.temp_description ?? null,
+          vehicle_type: input.vehicle_type ?? null,
+          trailer_registration: input.trailer_registration ?? null,
         } as any)
+
         .select("*")
         .single();
       if (error) throw error;
