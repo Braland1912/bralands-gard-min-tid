@@ -110,7 +110,7 @@ const EveningRound = () => {
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
 
-  const { data: extraPlaces = [], addPlace, deletePlace } = useEveningRoundExtraPlaces(round?.id);
+  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
     const extras = extraPlaces.map((p) => p.label);
     // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
