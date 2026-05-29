@@ -842,7 +842,10 @@ const EveningRound = () => {
       <EveningRoundModal
         mode={addMode}
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={(o) => {
+          setModalOpen(o);
+          if (!o) setAutoExpandPlacePicker(false);
+        }}
         placeLabel={selectedPlace}
         guest={editing}
         defaultDate={date}
@@ -858,6 +861,7 @@ const EveningRound = () => {
         onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
         onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
+        autoExpandPlacePicker={autoExpandPlacePicker}
       />
 
       <EveningRoundExtendDialog
