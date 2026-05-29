@@ -120,6 +120,7 @@ const EveningRound = () => {
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
   const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
   const [fastaCollapsed, setFastaCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("forbetalda");
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -313,7 +314,7 @@ const EveningRound = () => {
             </button>
           </div>
           {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
-          {!isAdmin && worker && selectedDate === today && (
+          {!isAdmin && worker && selectedDate === today && activeTab === "rundan" && (
             <div className="flex items-center gap-2 text-xs">
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
@@ -414,7 +415,7 @@ const EveningRound = () => {
           <p className="text-xs text-muted-foreground -mt-2">Ingen runda finns för valt datum.</p>
         )}
 
-        <Tabs defaultValue="forbetalda" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="w-full grid grid-cols-4 gap-1 h-auto p-1">
             <TabsTrigger value="forbetalda" className="relative px-1 text-xs sm:text-sm">
               Förbetalda
