@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, UserCheck } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,7 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { GuestInput } from "@/hooks/useEveningRoundGuests";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { EveningRoundGuest, GuestInput } from "@/hooks/useEveningRoundGuests";
 
 interface Props {
   placeLabel: string;
@@ -19,6 +20,10 @@ interface Props {
   onOpenFull: (place: string) => void;
   /** Visas endast för egna extra-platser. Om satt går platsen att ta bort. */
   onRemoveExtraPlace?: () => void;
+  /** Förbetalda gäster utan plats — kan tilldelas direkt här. */
+  prepaidGuests?: EveningRoundGuest[];
+  /** Tilldela en förbetald gäst denna plats. */
+  onAssignPrepaid?: (guestId: string) => Promise<unknown> | unknown;
 }
 
 const addDays = (iso: string, days: number) => {
