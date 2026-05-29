@@ -77,38 +77,57 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till plats"),
   });
 
-  const deletePlace = useMutation({
-    mutationFn: async (id: string) => {
-      // Hitta platsen i cachen för att veta dess label
+  const renamePlace = useMutation({
+    mutationFn: async ({ id, newLabel }: { id: string; newLabel: string }) => {
       const place = (query.data ?? []).find((p) => p.id === id);
       if (!place) throw new Error("Platsen hittades inte");
-
-      // Blockera om det finns gäster/bokningar kopplade till platsen i samma runda
-      const { data: linkedGuests, error: checkErr } = await supabase
+      const existing = [
+        ...STANDARD_PLACES,
+        ...(query.data ?? []).filter((p) => p.id !== id).map((p) => p.label),
+      ];
+      const result = validatePlaceLabel(newLabel, existing);
+      if (result.ok === false) throw new Error(result.error);
+      const value = result.value;
+      // Uppdatera kopplade gäster först så de följer med
+      const { error: guestErr } = await supabase
         .from("evening_round_guests")
-        .select("id, guest_name, status")
+        .update({ place_label: value })
         .eq("evening_round_id", place.evening_round_id)
         .eq("place_label", place.label);
-      if (checkErr) throw checkErr;
-
-      if (linkedGuests && linkedGuests.length > 0) {
-        const count = linkedGuests.length;
-        const names = linkedGuests
-          .map((g: any) => g.guest_name)
-          .filter((n: string) => n && n.trim().length > 0);
-        const namePart =
-          names.length > 0
-            ? ` (${names.slice(0, 2).join(", ")}${names.length > 2 ? ` +${names.length - 2}` : ""})`
-            : "";
-        throw new Error(
-          `Kan inte ta bort platsen "${place.label}" — ${count} ${
-            count === 1 ? "bokning är" : "bokningar är"
-          } kopplade${namePart}. Ta bort eller flytta ${
-            count === 1 ? "bokningen" : "bokningarna"
-          } först.`,
-        );
+      if (guestErr) throw guestErr;
+      const { data, error } = await supabase
+        .from("evening_round_extra_places")
+        .update({ label: value })
+        .eq("id", id)
+        .select("*")
+        .single();
+      if (error) {
+        if ((error as any).code === "23505") {
+          throw new Error(`Platsen "${value}" finns redan`);
+        }
+        throw error;
       }
+      return data;
+    },
+    onSuccess: (data) => {
+      toast.success(`Plats uppdaterad till ${data.label}`);
+      queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Kunde inte byta namn"),
+  });
 
+  const deletePlace = useMutation({
+    mutationFn: async (id: string) => {
+      const place = (query.data ?? []).find((p) => p.id === id);
+      if (!place) throw new Error("Platsen hittades inte");
+      // Nolla platsetikett på kopplade gäster (platsen tas bort men gästen finns kvar)
+      const { error: guestErr } = await supabase
+        .from("evening_round_guests")
+        .update({ place_label: null })
+        .eq("evening_round_id", place.evening_round_id)
+        .eq("place_label", place.label);
+      if (guestErr) throw guestErr;
       const { error } = await supabase
         .from("evening_round_extra_places")
         .delete()
@@ -116,7 +135,6 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
       if (error) throw error;
       return id;
     },
-    // Optimistisk uppdatering: ta bort kortet direkt, rulla tillbaka vid fel
     onMutate: async (id: string) => {
       const queryKey = ["evening-round-extra-places", eveningRoundId];
       await queryClient.cancelQueries({ queryKey });
@@ -140,8 +158,9 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
     },
   });
 
-  return { ...query, addPlace, deletePlace };
+  return { ...query, addPlace, deletePlace, renamePlace };
 };
