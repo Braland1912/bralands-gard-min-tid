@@ -118,6 +118,7 @@ const EveningRound = () => {
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
   const [filterOpen, setFilterOpen] = useState(false);
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
+  const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -841,7 +842,10 @@ const EveningRound = () => {
       <EveningRoundModal
         mode={addMode}
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={(o) => {
+          setModalOpen(o);
+          if (!o) setAutoExpandPlacePicker(false);
+        }}
         placeLabel={selectedPlace}
         guest={editing}
         defaultDate={date}
@@ -857,6 +861,7 @@ const EveningRound = () => {
         onRenamePlace={(id, newLabel) => renamePlace.mutateAsync({ id, newLabel })}
         onDeletePlace={(id) => deletePlace.mutateAsync(id)}
         onExtend={(g) => setExtendingGuest(g)}
+        autoExpandPlacePicker={autoExpandPlacePicker}
       />
 
       <EveningRoundExtendDialog
@@ -890,11 +895,12 @@ const EveningRound = () => {
         }}
         onPickPrepaid={(g) => {
           setAddPlaceChoiceOpen(false);
-          // Öppna gästen i edit-läge utan plats — användaren väljer eller
-          // skapar en tillfällig plats via platsväljaren.
+          // Öppna gästen i edit-läge utan plats — expandera platsväljaren direkt
+          // så att användaren kan välja eller skapa en tillfällig plats utan extra klick.
           setEditing(g);
           setSelectedPlace(null);
           setAddMode("normal");
+          setAutoExpandPlacePicker(true);
           setModalOpen(true);
         }}
       />

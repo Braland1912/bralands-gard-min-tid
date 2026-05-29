@@ -144,6 +144,8 @@ interface Props {
    * Får gästens id och den beskrivning som är ifylld i formuläret.
    */
   onAssignPrepaidTemporary?: (guestId: string, tempDescription: string) => Promise<unknown> | unknown;
+  /** Öppna direkt med platsväljaren expanderad (för befintliga gäster utan plats, t.ex. från header-flödet). */
+  autoExpandPlacePicker?: boolean;
 }
 const todayLocal = () => {
   const d = new Date();
@@ -181,6 +183,7 @@ const EveningRoundModal = ({
   mode = "normal",
   prepaidGuests: _prepaidGuests = [],
   onAssignPrepaidTemporary: _onAssignPrepaidTemporary,
+  autoExpandPlacePicker = false,
 }: Props) => {
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
@@ -216,7 +219,8 @@ const EveningRoundModal = ({
   useEffect(() => {
     if (!open) return;
     setPickedPlace(null);
-    setEditingPlace(false);
+    // Expandera platsväljaren direkt när vi öppnar en befintlig gäst utan plats via header-flödet.
+    setEditingPlace(autoExpandPlacePicker && !!guest && guest.place_label == null);
     setPlaceCleared(false);
     setNewPlaceLabel("");
     if (guest) {
@@ -264,7 +268,7 @@ const EveningRoundModal = ({
 
     }
     setError(null);
-  }, [open, guest, defaultDate, mode]);
+  }, [open, guest, defaultDate, mode, autoExpandPlacePicker]);
 
   // I prepaid/temporary-läge skippas hela platsväljaren – gästen sparas utan plats.
   const skipPlacePicker = mode === "prepaid" || mode === "temporary";
