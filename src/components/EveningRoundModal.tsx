@@ -424,6 +424,7 @@ const EveningRoundModal = ({
           effectiveAccommodation === "vehicle" && vehicleType === "caravan"
             ? (trailerReg.trim() || null)
             : null,
+        has_electricity: effectiveAccommodation === "vehicle" ? hasElectricity : null,
 
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
