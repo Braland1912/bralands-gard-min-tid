@@ -144,6 +144,8 @@ interface Props {
    * Får gästens id och den beskrivning som är ifylld i formuläret.
    */
   onAssignPrepaidTemporary?: (guestId: string, tempDescription: string) => Promise<unknown> | unknown;
+  /** Öppna direkt med platsväljaren expanderad (för befintliga gäster utan plats, t.ex. från header-flödet). */
+  autoExpandPlacePicker?: boolean;
 }
 const todayLocal = () => {
   const d = new Date();
