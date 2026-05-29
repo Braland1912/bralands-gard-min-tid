@@ -386,39 +386,7 @@ const EveningRound = () => {
 
           <TabsContent value="rundan" className="space-y-4 mt-0">
 
-        {/* Session-loggning för medarbetare */}
-        {!isAdmin && worker && selectedDate === today && (
-          <div className="rounded-xl border border-border bg-card px-3 py-2 flex items-center justify-between gap-2">
-            <div className="text-xs min-w-0 truncate">
-              {session?.session_start && !session?.session_end && (
-                <span className="font-medium text-emerald-700">
-                  Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              )}
-              {session?.session_start && session?.session_end && (
-                <span className="text-muted-foreground">
-                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                  {"–"}
-                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                </span>
-              )}
-              {!session?.session_start && (
-                <span className="text-muted-foreground">Inte ute än</span>
-              )}
-            </div>
-            {session?.session_start && !session?.session_end ? (
-              <Button size="sm" variant="outline" className="h-8 gap-1.5 shrink-0" onClick={() => endSession.mutate()}>
-                <Square className="h-3.5 w-3.5" />
-                Avsluta
-              </Button>
-            ) : (
-              <Button size="sm" className="h-8 gap-1.5 shrink-0" onClick={() => startSession.mutate()}>
-                <Play className="h-3.5 w-3.5" />
-                {session?.session_end ? "Starta om" : "Börja rundan"}
-              </Button>
-            )}
-          </div>
-        )}
+
 
         {incomingGuests.length > 0 && (
           <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
