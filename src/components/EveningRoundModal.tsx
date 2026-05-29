@@ -1398,7 +1398,25 @@ const EveningRoundModal = ({
                 <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold">Betalningsmetod</Label>
-                    <Select value={method} onValueChange={(v) => setMethod(v as any)}>
+                    <Select
+                      value={method}
+                      onValueChange={(v) => {
+                        const next = v as PaymentMethod | "none";
+                        setMethod(next);
+                        if (next !== "none" && currency === "SEK" && !amount.trim()) {
+                          const suggested = computeStayPrice({
+                            arrival,
+                            departure,
+                            accommodation: effectiveAccommodation === "tent" ? "tent" : "vehicle",
+                            hasElectricity,
+                            tentPersons,
+                          });
+                          if (suggested && (effectiveAccommodation === "tent" || effectiveAccommodation === "vehicle")) {
+                            setAmount(String(suggested));
+                          }
+                        }
+                      }}
+                    >
                       <SelectTrigger className="bg-card">
                         <SelectValue placeholder="Välj…" />
                       </SelectTrigger>
