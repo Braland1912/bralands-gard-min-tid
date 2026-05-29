@@ -428,6 +428,7 @@ const EveningRoundModal = ({
             ? (trailerReg.trim() || null)
             : null,
         has_electricity: effectiveAccommodation === "vehicle" ? hasElectricity : null,
+        tent_persons: effectiveAccommodation === "tent" ? tentPersons : null,
 
         ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
