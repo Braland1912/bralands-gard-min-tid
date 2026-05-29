@@ -48,7 +48,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, CreditCard, MapPin, MoreVertical, Pencil, Trash2, UserCheck, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, MapPin, MoreVertical, Pencil, Trash2, X } from "lucide-react";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import {
   type EveningRoundGuest,
@@ -179,10 +179,9 @@ const EveningRoundModal = ({
   onDeletePlace,
   onExtend,
   mode = "normal",
-  prepaidGuests = [],
-  onAssignPrepaidTemporary,
+  prepaidGuests: _prepaidGuests = [],
+  onAssignPrepaidTemporary: _onAssignPrepaidTemporary,
 }: Props) => {
-  const [assigningPrepaid, setAssigningPrepaid] = useState<string | null>(null);
   const [status, setStatus] = useState<GuestStatus>("here");
   const [pickedPlace, setPickedPlace] = useState<string | null>(null);
   const [name, setName] = useState("");
