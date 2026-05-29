@@ -1174,7 +1174,7 @@ const AdminSchedule = () => {
               : null;
             const canDelete = !!sheet.worker.user_id && !!currentShiftType;
             return (
-              <div className="sticky bottom-0 z-10 flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+              <div className="modal-footer">
                 {canDelete && (
                   <Button
                     variant="outline"

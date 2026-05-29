@@ -401,7 +401,7 @@ const MyTime = () => {
                   </div>
 
                   {/* Footer — sticky bottom */}
-                  <div className="sticky bottom-0 z-10 flex-shrink-0 flex gap-2 p-4 border-t border-border bg-card">
+                  <div className="modal-footer">
                     <Button type="button" variant="outline" className="flex-1" onClick={() => setOpen(false)}>
                       Avbryt
                     </Button>
