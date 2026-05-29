@@ -563,7 +563,7 @@ const EveningRound = () => {
                   className="gap-1.5"
                   onClick={() => setExtendSearchOpen(true)}
                 >
-                  <Calendar className="h-4 w-4" />
+                  <CalendarIcon className="h-4 w-4" />
                   Förläng tidigare
                 </Button>
                 <Button
