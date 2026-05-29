@@ -63,6 +63,7 @@ import {
 } from "@/hooks/useEveningRoundGuests";
 
 import { NATIONALITIES, OTHER_CODE, flagUrl, parseNationality } from "@/lib/nationalities";
+import { computeStayPrice } from "@/lib/evening-round-pricing";
 
 const PLACE_SUGGESTIONS = [
   "Vid solcellerna",
