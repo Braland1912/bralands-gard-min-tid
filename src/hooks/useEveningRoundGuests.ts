@@ -160,6 +160,7 @@ export const useEveningRoundGuests = (
           vehicle_type: input.vehicle_type ?? null,
           trailer_registration: input.trailer_registration ?? null,
           has_electricity: input.has_electricity ?? null,
+          tent_persons: input.tent_persons ?? null,
         } as any)
 
         .select("*")
