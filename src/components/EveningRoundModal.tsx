@@ -268,7 +268,7 @@ const EveningRoundModal = ({
 
     }
     setError(null);
-  }, [open, guest, defaultDate, mode]);
+  }, [open, guest, defaultDate, mode, autoExpandPlacePicker]);
 
   // I prepaid/temporary-läge skippas hela platsväljaren – gästen sparas utan plats.
   const skipPlacePicker = mode === "prepaid" || mode === "temporary";
