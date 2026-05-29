@@ -431,25 +431,93 @@ const EveningRound = () => {
               </button>
             ))}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full gap-1.5"
-            onClick={() => setExtendSearchOpen(true)}
-          >
-            <Calendar className="h-4 w-4" />
-            Förläng tidigare gäst
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setExtendSearchOpen(true)}
+            >
+              <Calendar className="h-4 w-4" />
+              Förläng tidigare
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => {
+                setEditing(null);
+                setSelectedPlace(null);
+                setAddMode("temporary");
+                setModalOpen(true);
+              }}
+            >
+              <Tent className="h-4 w-4" />
+              Tillfällig plats
+            </Button>
+          </div>
         </div>
 
 
-        {unassignedGuests.length > 0 && (
+        {incomingGuests.length > 0 && (
+          <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-sky-900">
+                Inkommande · förbetalda ({incomingGuests.length})
+              </div>
+              <div className="text-[11px] text-sky-800/80">Tryck för att tilldela plats</div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {incomingGuests.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => openEdit(g)}
+                  className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
+                >
+                  <MapPin className="h-3.5 w-3.5 text-sky-700" />
+                  <span className="font-semibold">{g.guest_name || g.registration_number || "Okänd"}</span>
+                  {g.payment_method && g.payment_amount && (
+                    <span className="text-muted-foreground">
+                      · {g.payment_amount} {g.payment_currency ?? "kr"}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {temporaryGuests.length > 0 && (
           <div className="space-y-2">
             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Utan plats ({unassignedGuests.length})
+              Tillfälliga platser ({temporaryGuests.length})
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {unassignedGuests.map((g) => {
+              {temporaryGuests.map((g) => {
+                const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
+                return (
+                  <EveningRoundCard
+                    key={g.id}
+                    guest={g}
+                    onStatusChange={handleStatus}
+                    onEdit={openEdit}
+                    ownerName={ownerName}
+                    onExtend={setExtendingGuest}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {otherUnassignedGuests.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Utan plats ({otherUnassignedGuests.length})
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {otherUnassignedGuests.map((g) => {
                 const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
                 return (
                   <EveningRoundCard
