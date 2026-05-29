@@ -165,7 +165,7 @@ const EveningRound = () => {
     return m;
   }, [guests]);
 
-  const incomingGuests = useMemo(
+  const incomingGuestsAll = useMemo(
     () => guests.filter((g) => !g.place_label && g.is_prepaid && g.accommodation_type !== "temporary"),
     [guests],
   );
@@ -184,6 +184,20 @@ const EveningRound = () => {
     () => guests.filter((g) => !g.payment_method || !g.payment_amount).length,
     [guests],
   );
+
+  const incomingGuests = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return incomingGuestsAll;
+    return incomingGuestsAll.filter((g) => {
+      return (
+        g.guest_name?.toLowerCase().includes(s) ||
+        g.registration_number?.toLowerCase().includes(s) ||
+        g.trailer_registration?.toLowerCase().includes(s) ||
+        g.temp_description?.toLowerCase().includes(s) ||
+        g.notes?.toLowerCase().includes(s)
+      );
+    });
+  }, [incomingGuestsAll, search]);
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
