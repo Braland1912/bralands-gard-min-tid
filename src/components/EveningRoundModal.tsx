@@ -213,6 +213,9 @@ const EveningRoundModal = ({
       setAccommodation((guest.accommodation_type as AccommodationType) ?? "vehicle");
       setStatus(guest.status);
       setTempDescription(guest.temp_description ?? "");
+      setVehicleType((guest.vehicle_type as VehicleType) ?? "car");
+      setTrailerReg(guest.trailer_registration ?? "");
+
     } else {
       setName("");
       setReg("");
