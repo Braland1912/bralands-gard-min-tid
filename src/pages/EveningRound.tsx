@@ -358,37 +358,65 @@ const EveningRound = () => {
 
         {/* Session-loggning för medarbetare */}
         {!isAdmin && worker && selectedDate === today && (
-          <div className="rounded-2xl border border-border bg-card p-3 flex items-center justify-between gap-3">
-            <div className="text-sm">
+          <div className="rounded-xl border border-border bg-card px-3 py-2 flex items-center justify-between gap-2">
+            <div className="text-xs min-w-0 truncate">
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
-                  Du är ute — Rundan pågår sedan{" "}
-                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {session?.session_start && session?.session_end && (
                 <span className="text-muted-foreground">
-                  Du var ute — Från{" "}
                   {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
-                  {" till "}
+                  {"–"}
                   {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                 </span>
               )}
               {!session?.session_start && (
-                <span className="text-muted-foreground">Du är inte ute än</span>
+                <span className="text-muted-foreground">Inte ute än</span>
               )}
             </div>
             {session?.session_start && !session?.session_end ? (
-              <Button size="sm" variant="outline" onClick={() => endSession.mutate()}>
-                <Square className="h-4 w-4" />
-                Slutade rundan
+              <Button size="sm" variant="outline" className="h-8 gap-1.5 shrink-0" onClick={() => endSession.mutate()}>
+                <Square className="h-3.5 w-3.5" />
+                Avsluta
               </Button>
             ) : (
-              <Button size="sm" onClick={() => startSession.mutate()}>
-                <Play className="h-4 w-4" />
+              <Button size="sm" className="h-8 gap-1.5 shrink-0" onClick={() => startSession.mutate()}>
+                <Play className="h-3.5 w-3.5" />
                 {session?.session_end ? "Starta om" : "Börja rundan"}
               </Button>
             )}
+          </div>
+        )}
+
+        {incomingGuests.length > 0 && (
+          <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wide text-sky-900">
+                Inkommande · förbetalda ({incomingGuests.length})
+              </div>
+              <div className="text-[11px] text-sky-800/80">Tryck för att tilldela plats</div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {incomingGuests.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => openEdit(g)}
+                  className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
+                >
+                  <MapPinPlus className="h-3.5 w-3.5 text-sky-700" aria-label="Tilldela plats" />
+                  <span className="sr-only">Tilldela plats</span>
+                  <span className="font-semibold">{g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst")}</span>
+                  {g.payment_method && g.payment_amount && (
+                    <span className="text-muted-foreground">
+                      · {g.payment_amount} {g.payment_currency ?? "kr"}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -556,35 +584,6 @@ const EveningRound = () => {
         })()}
 
 
-        {incomingGuests.length > 0 && (
-          <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-xs font-semibold uppercase tracking-wide text-sky-900">
-                Inkommande · förbetalda ({incomingGuests.length})
-              </div>
-              <div className="text-[11px] text-sky-800/80">Tryck för att tilldela plats</div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {incomingGuests.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => openEdit(g)}
-                  className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
-                >
-                  <MapPinPlus className="h-3.5 w-3.5 text-sky-700" aria-label="Tilldela plats" />
-                  <span className="sr-only">Tilldela plats</span>
-                  <span className="font-semibold">{g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst")}</span>
-                  {g.payment_method && g.payment_amount && (
-                    <span className="text-muted-foreground">
-                      · {g.payment_amount} {g.payment_currency ?? "kr"}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {temporaryGuests.length > 0 && (
           <div className="space-y-2">
