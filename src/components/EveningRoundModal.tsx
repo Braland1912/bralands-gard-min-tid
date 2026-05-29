@@ -1025,7 +1025,7 @@ const EveningRoundModal = ({
             )}
             {effectiveAccommodation === "temporary" && (
               <div className="space-y-1.5">
-                <Label htmlFor="temp-desc">Beskrivning av platsen</Label>
+                <Label htmlFor="temp-desc">Beskrivning av platsen och sällskapet</Label>
                 <Textarea
                   id="temp-desc"
                   value={tempDescription}
