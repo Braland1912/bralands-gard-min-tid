@@ -15,6 +15,7 @@ import MySchedule from "./pages/MySchedule";
 import AdminSchedule from "./pages/AdminSchedule";
 import AdminChecklists from "./pages/AdminChecklists";
 import EveningRound from "./pages/EveningRound";
+import EveningRoundHelp from "./pages/EveningRoundHelp";
 import MobileMenuTest from "./pages/MobileMenuTest";
 import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 
@@ -65,6 +66,7 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/evening-round" element={<EveningRound />} />
+          <Route path="/evening-round/help" element={<EveningRoundHelp />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />

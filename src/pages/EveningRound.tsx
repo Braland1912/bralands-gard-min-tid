@@ -297,7 +297,17 @@ const EveningRound = () => {
         )}
 
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Kvällsrundan</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Kvällsrundan</h1>
+            <button
+              onClick={() => navigate("/evening-round/help")}
+              className="h-6 w-6 rounded-full border border-border text-muted-foreground hover:bg-accent hover:text-foreground text-xs font-semibold flex items-center justify-center"
+              aria-label="Hjälp om Kvällsrundan"
+              title="Hjälp"
+            >
+              ?
+            </button>
+          </div>
           {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
           {!isAdmin && worker && selectedDate === today && (
             <div className="flex items-center gap-2 text-xs">
