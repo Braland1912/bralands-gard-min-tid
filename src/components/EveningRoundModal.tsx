@@ -286,6 +286,10 @@ const EveningRoundModal = ({
       : null;
 
   const handleSave = async () => {
+    const fail = (msg: string) => {
+      setError(msg);
+      toast.error(msg);
+    };
     setError(null);
     if (!arrival || !departure) {
       setError("Ange ankomst och avresa");
