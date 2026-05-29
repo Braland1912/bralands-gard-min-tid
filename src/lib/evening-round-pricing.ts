@@ -78,5 +78,5 @@ export const computeStayPrice = (params: {
     }
   }
   return total > 0 ? total : null;
-}
+};
 
