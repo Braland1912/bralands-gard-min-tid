@@ -1035,6 +1035,7 @@ const EveningRoundModal = ({
                   {NOTE_SUGGESTIONS.filter((s) => {
                     if (effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält" || s === "MC")) return false;
                     if (effectiveAccommodation === "vehicle" && (s === "Husvagn" || s === "Husbil" || s === "MC")) return false;
+                    if (effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
                     return true;
                   }).map((s) => (
                     <button
