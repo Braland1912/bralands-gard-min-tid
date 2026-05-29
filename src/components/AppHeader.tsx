@@ -57,6 +57,7 @@ const AppHeader = () => {
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
     { label: "Tidrapport", icon: Clock, path: "/my-time" },
     { label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
+    { label: "Hjälp", icon: LifeBuoy, path: "/help" },
   ];
 
   return (
