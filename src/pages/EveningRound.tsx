@@ -338,21 +338,11 @@ const EveningRound = () => {
 
         <Tabs defaultValue="rundan" className="space-y-4">
           <TabsList className="w-full grid grid-cols-4">
-            <button
-              type="button"
-              onClick={() => {
-                setEditing(null);
-                setSelectedPlace(null);
-                setAddMode("prepaid");
-                setModalOpen(true);
-              }}
-              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Registrera förbetald gäst"
-            >
-              <CreditCard className="h-4 w-4" />
-              Förbetald
-            </button>
             <TabsTrigger value="rundan">Rundan</TabsTrigger>
+            <TabsTrigger value="forbetalda" className="gap-1.5">
+              <CreditCard className="h-4 w-4" />
+              <span>Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
+            </TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
             <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
@@ -625,6 +615,84 @@ const EveningRound = () => {
           </Button>
         </div>
 
+          </TabsContent>
+
+          <TabsContent value="forbetalda" className="space-y-4 mt-0">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-semibold tracking-tight">Förbetalda gäster</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Lista över gäster som registrerats på förhand. Tryck på en gäst för att tilldela plats eller redigera.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setEditing(null);
+                    setSelectedPlace(null);
+                    setAddMode("prepaid");
+                    setModalOpen(true);
+                  }}
+                  className="gap-1.5 shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                  Ny förbetald
+                </Button>
+              </div>
+            </div>
+
+            {incomingGuestsAll.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+                <CreditCard className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-medium">Inga förbetalda gäster ännu</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Registrera en gäst i förväg så syns den här tills du tilldelar plats.
+                </p>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {incomingGuestsAll.map((g) => {
+                  const name = g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst");
+                  return (
+                    <li key={g.id}>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(g)}
+                        className="w-full text-left rounded-2xl border border-border bg-card p-3 hover:bg-accent transition-colors flex items-start gap-3"
+                      >
+                        <div className="h-9 w-9 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                          <MapPinPlus className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="font-semibold truncate">{name}</div>
+                            {g.payment_method && g.payment_amount && (
+                              <div className="text-xs font-medium text-muted-foreground shrink-0">
+                                {g.payment_amount} {g.payment_currency ?? "kr"}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground flex flex-wrap gap-x-2 gap-y-0.5">
+                            <span>
+                              {formatLocalDate(g.arrival_date, "short")} → {formatLocalDate(g.departure_date, "short")}
+                            </span>
+                            {g.accommodation_type === "tent" && <span>· Tält{g.tent_persons ? ` ${g.tent_persons} pers` : ""}</span>}
+                            {g.accommodation_type === "vehicle" && g.registration_number && <span>· {g.registration_number}</span>}
+                            {g.nationality && <span>· {g.nationality}</span>}
+                            {g.has_electricity && <span>· El</span>}
+                          </div>
+                          {g.notes && (
+                            <div className="text-xs text-muted-foreground line-clamp-2">{g.notes}</div>
+                          )}
+                          <div className="text-[11px] font-medium text-primary">Tryck för att tilldela plats</div>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </TabsContent>
 
           <TabsContent value="redovisning" className="mt-0">
