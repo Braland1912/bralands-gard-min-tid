@@ -281,13 +281,18 @@ const EveningRoundModal = ({
       setError("Avresa måste vara efter ankomst");
       return;
     }
-    if (place == null && !hasPlaceOptions) {
+    // I prepaid/temporary-läge är platsen avsiktligen tom – hoppa över platsvalidering
+    if (!skipPlacePicker && place == null && !hasPlaceOptions) {
       setError("Välj en plats");
       return;
     }
-    if (guest && place == null && status === "here") {
+    if (!skipPlacePicker && guest && place == null && status === "here" && effectiveAccommodation !== "temporary") {
       setError("Välj en plats för att markera som på plats");
       if (hasPlaceOptions) setEditingPlace(true);
+      return;
+    }
+    if (effectiveAccommodation === "temporary" && !tempDescription.trim()) {
+      setError("Beskriv den tillfälliga platsen (t.ex. gult tält vid lekplatsen)");
       return;
     }
     const amt = amount.trim() === "" ? null : Number(amount);
@@ -305,9 +310,10 @@ const EveningRoundModal = ({
     }
     // Ej betalt får bara kombineras med "ej här" om det är en reservation
     // (ankomst i framtiden). Annars måste betalning registreras.
+    // Förbetalda gäster (mode=prepaid) räknas alltid som "ej här" tills plats tilldelas.
     const effectiveStatus: GuestStatus = !guest
-      ? place == null
-        ? "not_here"
+      ? (place == null || effectiveAccommodation === "temporary")
+        ? (effectiveAccommodation === "temporary" ? "here" : "not_here")
         : "here"
       : placeCleared
         ? "not_here"
@@ -315,7 +321,8 @@ const EveningRoundModal = ({
     if (
       method === "none" &&
       effectiveStatus === "not_here" &&
-      arrival <= todayLocal()
+      arrival <= todayLocal() &&
+      mode !== "prepaid"
     ) {
       setError("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
       return;
@@ -326,7 +333,7 @@ const EveningRoundModal = ({
       await onSave({
         place_label: place,
         guest_name: name.trim(),
-        registration_number: accommodation === "tent" ? null : (reg.trim() || null),
+        registration_number: effectiveAccommodation === "tent" ? null : (reg.trim() || null),
         arrival_date: arrival,
         departure_date: departure,
         payment_method: method === "none" ? null : method,
@@ -344,9 +351,11 @@ const EveningRoundModal = ({
           : method === "none"
             ? unpaidReason.trim()
             : null,
-        accommodation_type: accommodation,
+        accommodation_type: effectiveAccommodation,
+        temp_description: effectiveAccommodation === "temporary" ? tempDescription.trim() : null,
+        ...(!guest && mode === "prepaid" ? { is_prepaid: true } : {}),
         ...(!guest
-          ? { status: place == null ? ("not_here" as const) : ("here" as const) }
+          ? { status: effectiveStatus }
           : placeCleared
             ? { status: "not_here" as const }
             : { status }),
