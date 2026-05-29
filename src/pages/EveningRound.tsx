@@ -314,7 +314,7 @@ const EveningRound = () => {
             </button>
           </div>
           {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
-          {!isAdmin && worker && selectedDate === today && (
+          {!isAdmin && worker && selectedDate === today && activeTab === "rundan" && (
             <div className="flex items-center gap-2 text-xs">
               {session?.session_start && !session?.session_end && (
                 <span className="font-medium text-emerald-700">
