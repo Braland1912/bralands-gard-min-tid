@@ -22,6 +22,7 @@ import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+import SwapShiftSection from "@/components/SwapShiftSection";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -801,6 +802,8 @@ const MySchedule = () => {
           );
         })()}
       </div>
+
+      <SwapShiftSection workerId={worker?.id} userId={user?.id} />
 
       <Sheet
         open={!!openShift}
