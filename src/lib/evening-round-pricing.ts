@@ -54,22 +54,29 @@ export const computeStayPrice = (params: {
   if (nights <= 0) return null;
 
   // Räkna pris per natt över hela vistelsen (säsongen kan skifta inom vistelsen)
-  let total = 0;
   const [ay, am, ad] = params.arrival.split("-").map(Number);
-  let billableNights = 0;
+  const rates: number[] = [];
   for (let i = 0; i < nights; i++) {
-    // Var 7:e natt gratis (boka 7 betala 6)
-    if (billableNights > 0 && billableNights % 7 === 6) {
-      // hoppa över denna natt – den är gratis
-    } else {
-      const d = new Date(ay, am - 1, ad + i);
-      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      total += nightlyRate(iso, params.accommodation, {
+    const d = new Date(ay, am - 1, ad + i);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    rates.push(
+      nightlyRate(iso, params.accommodation, {
         hasElectricity: params.hasElectricity,
         tentPersons: params.tentPersons,
-      });
+      }),
+    );
+  }
+  // Rabatt: var 7:e natt gratis – gör den billigaste natten i varje 7-block gratis
+  let total = 0;
+  for (let block = 0; block < rates.length; block += 7) {
+    const slice = rates.slice(block, block + 7);
+    const sum = slice.reduce((a, b) => a + b, 0);
+    if (slice.length === 7) {
+      total += sum - Math.min(...slice);
+    } else {
+      total += sum;
     }
-    billableNights++;
   }
   return total > 0 ? total : null;
-};
+}
+
