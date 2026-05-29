@@ -510,7 +510,8 @@ const EveningRound = () => {
                   onClick={() => openEdit(g)}
                   className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-card px-3 py-1.5 text-xs font-medium hover:bg-sky-100 transition-colors"
                 >
-                  <MapPin className="h-3.5 w-3.5 text-sky-700" />
+                  <MapPinPlus className="h-3.5 w-3.5 text-sky-700" aria-label="Tilldela plats" />
+                  <span className="sr-only">Tilldela plats</span>
                   <span className="font-semibold">{g.guest_name || g.registration_number || (g.accommodation_type === "tent" ? "Tält" : g.accommodation_type === "temporary" ? "Tillfällig" : "Gäst")}</span>
                   {g.payment_method && g.payment_amount && (
                     <span className="text-muted-foreground">
