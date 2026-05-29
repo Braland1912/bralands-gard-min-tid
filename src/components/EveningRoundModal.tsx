@@ -48,7 +48,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { CalendarPlus2, Check, ChevronsUpDown, MoreVertical, Pencil, Trash2, X } from "lucide-react";
+import { CalendarPlus2, Check, ChevronDown, ChevronsUpDown, MapPin, MoreVertical, Pencil, Trash2, X } from "lucide-react";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import {
   type EveningRoundGuest,
