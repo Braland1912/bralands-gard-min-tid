@@ -1026,7 +1026,7 @@ const EveningRoundModal = ({
                   className="min-h-[88px] resize-y bg-card"
                 />
                 <div className="flex flex-wrap gap-1.5">
-                  {NOTE_SUGGESTIONS.filter((s) => !(effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil"))).map((s) => (
+                  {NOTE_SUGGESTIONS.filter((s) => !(effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält"))).map((s) => (
                     <button
                       key={s}
                       type="button"
