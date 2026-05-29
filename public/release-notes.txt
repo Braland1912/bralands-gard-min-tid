@@ -1,1 +1,1 @@
-Ny hjälp-sektion! Du hittar nu guider under "Hjälp" i menyn, med en komplett instruktion till kvällsrundan (förbetalda, fasta platser, tillfälliga platser och daglig checklista).
+Förbättrad "Lägg till plats" på rundan! Nu kan du välja mellan två tabbar: koppla en förbetald gäst som dykt upp, eller registrera en helt ny gäst. Du kan också fälla ut varje förbetald gäst för att se alla detaljer (fordon, reg.nr, datum, betalning) så det blir enkelt att matcha rätt person ute på fält.
