@@ -1023,7 +1023,7 @@ const EveningRoundModal = ({
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={
                     effectiveAccommodation === "tent"
-                      ? "T.ex. taktält, hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
+                      ? "T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
                       : effectiveAccommodation === "vehicle"
                       ? "T.ex. hund, barn, frågar om paddling/fiske…"
                       : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
