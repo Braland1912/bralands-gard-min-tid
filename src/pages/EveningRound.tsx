@@ -296,9 +296,41 @@ const EveningRound = () => {
           </header>
         )}
 
-        <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <h1 className="text-xl font-semibold tracking-tight">Kvällsrundan</h1>
+          {/* Session-loggning för medarbetare — alltid synlig oavsett aktiv flik */}
+          {!isAdmin && worker && selectedDate === today && (
+            <div className="flex items-center gap-2 text-xs">
+              {session?.session_start && !session?.session_end && (
+                <span className="font-medium text-emerald-700">
+                  Ute sedan {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {session?.session_start && session?.session_end && (
+                <span className="text-muted-foreground">
+                  {new Date(session.session_start).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                  {"–"}
+                  {new Date(session.session_end).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {!session?.session_start && (
+                <span className="text-muted-foreground">Inte ute än</span>
+              )}
+              {session?.session_start && !session?.session_end ? (
+                <Button size="sm" variant="outline" className="h-8 gap-1.5" onClick={() => endSession.mutate()}>
+                  <Square className="h-3.5 w-3.5" />
+                  Avsluta
+                </Button>
+              ) : (
+                <Button size="sm" className="h-8 gap-1.5" onClick={() => startSession.mutate()}>
+                  <Play className="h-3.5 w-3.5" />
+                  {session?.session_end ? "Starta om" : "Börja rundan"}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
+
 
         <div className="flex items-center gap-1.5">
           <button
