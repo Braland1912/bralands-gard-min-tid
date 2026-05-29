@@ -1028,6 +1028,9 @@ const EveningRoundModal = ({
             {effectiveAccommodation === "temporary" && (
               <div className="space-y-1.5">
                 <Label htmlFor="temp-desc">Beskrivning av platsen och sällskapet</Label>
+                <p className="text-[12px] font-medium text-foreground">
+                  Viktigt: beskriv tydligt så andra i teamet förstår var sällskapet står och vilka de är.
+                </p>
                 <Textarea
                   id="temp-desc"
                   value={tempDescription}
@@ -1051,9 +1054,6 @@ const EveningRoundModal = ({
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Beskriv typ av tält/fordon, var de står och antal personer.
-                </p>
               </div>
             )}
             {effectiveAccommodation === "vehicle" && (
