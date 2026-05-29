@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
 export type Currency = "SEK" | "EUR" | "NOK";
-export type AccommodationType = "vehicle" | "tent";
+export type AccommodationType = "vehicle" | "tent" | "temporary";
 
 export interface EveningRoundGuest {
   id: string;
@@ -24,6 +24,8 @@ export interface EveningRoundGuest {
   nationality: string | null;
   payment_other_note: string | null;
   accommodation_type: AccommodationType;
+  is_prepaid: boolean;
+  temp_description: string | null;
 }
 
 export interface GuestInput {
@@ -40,6 +42,8 @@ export interface GuestInput {
   nationality?: string | null;
   payment_other_note?: string | null;
   accommodation_type?: AccommodationType;
+  is_prepaid?: boolean;
+  temp_description?: string | null;
 }
 
 const todayLocalIso = () => {
@@ -134,7 +138,9 @@ export const useEveningRoundGuests = (
           nationality: input.nationality ?? null,
           payment_other_note: input.payment_other_note ?? null,
           accommodation_type: input.accommodation_type ?? "vehicle",
-        })
+          is_prepaid: input.is_prepaid ?? false,
+          temp_description: input.temp_description ?? null,
+        } as any)
         .select("*")
         .single();
       if (error) throw error;
