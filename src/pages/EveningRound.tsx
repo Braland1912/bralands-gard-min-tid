@@ -885,17 +885,16 @@ const EveningRound = () => {
           setAddPlaceChoiceOpen(false);
           setEditing(null);
           setSelectedPlace(null);
-          setAddMode("temporary");
+          setAddMode("normal");
           setModalOpen(true);
         }}
         onPickPrepaid={(g) => {
           setAddPlaceChoiceOpen(false);
-          // Öppna temporary-modalen i edit-läge för den förbetalda gästen.
-          // mode="temporary" tvingar fram tillfällig plats; spara uppdaterar gästen
-          // till status=here och accommodation_type=temporary med beskrivning.
+          // Öppna gästen i edit-läge utan plats — användaren väljer eller
+          // skapar en tillfällig plats via platsväljaren.
           setEditing(g);
           setSelectedPlace(null);
-          setAddMode("temporary");
+          setAddMode("normal");
           setModalOpen(true);
         }}
       />
