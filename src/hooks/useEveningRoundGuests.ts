@@ -157,6 +157,7 @@ export const useEveningRoundGuests = (
           temp_description: input.temp_description ?? null,
           vehicle_type: input.vehicle_type ?? null,
           trailer_registration: input.trailer_registration ?? null,
+          has_electricity: input.has_electricity ?? null,
         } as any)
 
         .select("*")
