@@ -232,6 +232,9 @@ const EveningRoundModal = ({
       setAccommodation(mode === "temporary" ? "temporary" : "vehicle");
       setStatus("here");
       setTempDescription("");
+      setVehicleType("car");
+      setTrailerReg("");
+
     }
     setError(null);
   }, [open, guest, defaultDate, mode]);
