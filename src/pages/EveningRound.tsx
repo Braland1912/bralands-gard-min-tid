@@ -293,61 +293,55 @@ const EveningRound = () => {
           )}
         </header>
 
-        <div className="rounded-2xl border border-border bg-card p-3 space-y-3">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
-              className="h-9 w-9 rounded-xl border border-border bg-card hover:bg-accent flex items-center justify-center"
-              aria-label="Föregående dag"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <label className="flex-1 text-center cursor-pointer relative">
-              <div className="text-sm font-semibold capitalize hover:text-primary transition-colors inline-flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                {formatLocalDate(date, "long")}
-              </div>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value || todayLocal())}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-                aria-label="Välj annat datum"
-              />
-            </label>
-            <button
-              onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
-              disabled={selectedDate >= tomorrow}
-              className="h-9 w-9 rounded-xl border border-border bg-card hover:bg-accent flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Nästa dag"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {datePresets.map((p) => {
-              const active = selectedDate === p.value;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedDate(p.value)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                    active
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-foreground border-border hover:bg-accent"
-                  }`}
-                >
-                  {p.label}
-                </button>
-              );
-            })}
-          </div>
-          {!round && selectedDate !== today && (
-            <p className="text-xs text-muted-foreground">
-              Ingen runda finns för valt datum.
-            </p>
-          )}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setSelectedDate(shiftDate(selectedDate, -1))}
+            className="h-8 w-8 shrink-0 rounded-lg border border-border bg-card hover:bg-accent flex items-center justify-center"
+            aria-label="Föregående dag"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <label className="relative flex-1 min-w-0">
+            <div className="h-8 px-2 rounded-lg border border-border bg-card hover:bg-accent flex items-center justify-center gap-1.5 text-xs font-semibold capitalize cursor-pointer">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="truncate">{formatLocalDate(date, "long")}</span>
+            </div>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value || todayLocal())}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              aria-label="Välj annat datum"
+            />
+          </label>
+          {datePresets.map((p) => {
+            const active = selectedDate === p.value;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setSelectedDate(p.value)}
+                className={`h-8 px-2.5 shrink-0 rounded-lg text-xs font-medium border transition-colors ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-accent"
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setSelectedDate(shiftDate(selectedDate, 1))}
+            disabled={selectedDate >= tomorrow}
+            className="h-8 w-8 shrink-0 rounded-lg border border-border bg-card hover:bg-accent flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Nästa dag"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
+        {!round && selectedDate !== today && (
+          <p className="text-xs text-muted-foreground -mt-2">Ingen runda finns för valt datum.</p>
+        )}
 
         <Tabs defaultValue="forbetalda" className="space-y-4">
           <TabsList className="w-full grid grid-cols-4">
