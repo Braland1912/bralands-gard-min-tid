@@ -984,11 +984,6 @@ const EveningRoundModal = ({
               </div>
             )}
 
-            {mode === "temporary" && (
-              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
-                Tillfällig plats: ingen platsnummer (1–21 / E1–E6). Beskriv var sällskapet står.
-              </div>
-            )}
             {showAccommodationPicker && (
               <div className="space-y-1.5">
                 <Label>Boende</Label>
