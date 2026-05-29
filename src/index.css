@@ -170,6 +170,16 @@
   .input-datetime:not(:focus):invalid::-webkit-datetime-edit {
     color: hsl(var(--muted-foreground));
   }
+
+  /* Konsekvent sticky-footer för modaler/bottom-sheets.
+     Två lika stora knappar (Avbryt + Spara), iOS-vänlig 44px höjd,
+     samma radius som övriga primärknappar i appen. */
+  .modal-footer {
+    @apply sticky bottom-0 z-10 flex-shrink-0 flex gap-3 p-4 border-t border-border bg-card;
+  }
+  .modal-footer > button {
+    @apply flex-1 h-11 rounded-xl text-sm font-medium;
+  }
 }
 
 @layer utilities {
