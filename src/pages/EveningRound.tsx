@@ -185,6 +185,20 @@ const EveningRound = () => {
     [guests],
   );
 
+  const incomingGuests = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return incomingGuestsAll;
+    return incomingGuestsAll.filter((g) => {
+      return (
+        g.guest_name?.toLowerCase().includes(s) ||
+        g.registration_number?.toLowerCase().includes(s) ||
+        g.trailer_registration?.toLowerCase().includes(s) ||
+        g.temp_description?.toLowerCase().includes(s) ||
+        g.notes?.toLowerCase().includes(s)
+      );
+    });
+  }, [incomingGuestsAll, search]);
+
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
     return allPlaces.filter((p) => {
