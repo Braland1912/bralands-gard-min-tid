@@ -119,6 +119,7 @@ const EveningRound = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
   const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
+  const [fastaCollapsed, setFastaCollapsed] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
@@ -669,13 +670,8 @@ const EveningRound = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.length === 0 && (
-            <div className="col-span-full text-center text-sm text-muted-foreground py-8">
-              Inga platser matchade sökningen
-            </div>
-          )}
-          {filtered.map((p) => {
+        {(() => {
+          const renderPlaceCard = (p: string) => {
             const g = guestsByPlace.get(p);
             if (g) {
               const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
@@ -705,17 +701,66 @@ const EveningRound = () => {
                 }
               />
             );
-          })}
+          };
 
-          <Button
-            variant="outline"
-            className="w-full gap-1.5"
-            onClick={() => setAddPlaceChoiceOpen(true)}
-          >
-            <MapPinPlus className="h-4 w-4" />
-            Lägg till plats
-          </Button>
-        </div>
+          const standardFiltered = filtered.filter((p) => STANDARD_PLACES.includes(p));
+          const extraFiltered = filtered.filter((p) => !STANDARD_PLACES.includes(p));
+
+          return (
+            <div className="space-y-4">
+              {filtered.length === 0 && (
+                <div className="text-center text-sm text-muted-foreground py-8">
+                  Inga platser matchade sökningen
+                </div>
+              )}
+
+              {standardFiltered.length > 0 && (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setFastaCollapsed((v) => !v)}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Fasta platser ({standardFiltered.length})
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        fastaCollapsed ? "-rotate-90" : ""
+                      }`}
+                    />
+                  </button>
+                  {!fastaCollapsed && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {standardFiltered.map(renderPlaceCard)}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {extraFiltered.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Tillfälliga platser ({extraFiltered.length})
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {extraFiltered.map(renderPlaceCard)}
+                  </div>
+                </div>
+              )}
+
+              <Button
+                variant="outline"
+                className="w-full gap-1.5"
+                onClick={() => setAddPlaceChoiceOpen(true)}
+              >
+                <MapPinPlus className="h-4 w-4" />
+                Lägg till plats
+              </Button>
+            </div>
+          );
+        })()}
+
 
 
           </TabsContent>
