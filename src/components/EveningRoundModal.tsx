@@ -246,6 +246,7 @@ const EveningRoundModal = ({
       setStatus("here");
       setTempDescription("");
       setVehicleType("motorhome");
+      setHasElectricity(true);
       setTrailerReg("");
 
     }
