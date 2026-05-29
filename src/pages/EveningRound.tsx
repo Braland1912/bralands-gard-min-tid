@@ -348,13 +348,13 @@ const EveningRound = () => {
           )}
         </div>
 
-        <Tabs defaultValue="rundan" className="space-y-4">
+        <Tabs defaultValue="forbetalda" className="space-y-4">
           <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="rundan">Rundan</TabsTrigger>
             <TabsTrigger value="forbetalda" className="gap-1.5">
               <CreditCard className="h-4 w-4" />
               <span>Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
             </TabsTrigger>
+            <TabsTrigger value="rundan">Rundan</TabsTrigger>
             <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
             <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
