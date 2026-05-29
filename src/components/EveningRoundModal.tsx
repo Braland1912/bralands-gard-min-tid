@@ -848,9 +848,9 @@ const EveningRoundModal = ({
                   value={tempDescription}
                   onChange={(e) => setTempDescription(e.target.value)}
                   placeholder="T.ex. gult 4-mannatält på gräset vid lekplatsen, två vuxna + barn…"
-                  rows={3}
+                  rows={2}
                   maxLength={500}
-                  className="min-h-[80px] resize-y"
+                  className="min-h-[56px] resize-y"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Beskriv typ av tält/fordon, var de står och antal personer.
