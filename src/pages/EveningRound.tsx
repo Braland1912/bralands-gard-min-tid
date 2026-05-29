@@ -256,6 +256,16 @@ const EveningRound = () => {
   };
 
   const handleStatus = (id: string, status: GuestStatus) => {
+    // Kräv att en plats är vald innan man markerar som "på plats".
+    // Tillfälliga platser och förbetalda hanteras separat (tempbeskrivning / tilldelning).
+    if (status === "here") {
+      const g = guests.find((x) => x.id === id);
+      if (g && !g.place_label && g.accommodation_type !== "temporary") {
+        toast.error("Välj en plats först för att markera som på plats");
+        openEdit(g);
+        return;
+      }
+    }
     updateGuest.mutate({ id, status });
   };
 
