@@ -265,6 +265,41 @@ const EveningRoundModal = ({
   const takenSet = new Set(
     (takenPlaces ?? []).filter((p) => !guest || p !== guest.place_label),
   );
+  // Dela upp i standardplatser (1–21, E1–E6) och extra/tillfälliga platser.
+  const standardSet = new Set<string>(STANDARD_PLACES);
+  const standardList = (availablePlaces ?? []).filter((p) => standardSet.has(p));
+  const extrasList: { id: string; label: string }[] = extraPlaces
+    ? extraPlaces
+    : (availablePlaces ?? [])
+        .filter((p) => !standardSet.has(p))
+        .map((label) => ({ id: label, label }));
+
+  const handleRenameExtra = async (id: string, currentLabel: string) => {
+    if (!onRenamePlace) return;
+    const next = window.prompt("Byt namn på platsen", currentLabel);
+    if (next == null) return;
+    const trimmed = next.trim();
+    if (!trimmed || trimmed === currentLabel) return;
+    try {
+      await onRenamePlace(id, trimmed);
+      if (pickedPlace === currentLabel) setPickedPlace(trimmed);
+    } catch {
+      /* hook visar toast */
+    }
+  };
+  const handleDeleteExtra = async (id: string, currentLabel: string) => {
+    if (!onDeletePlace) return;
+    if (!window.confirm(`Ta bort platsen "${currentLabel}"? Kopplade gäster behåller sin info men förlorar platsetiketten.`)) return;
+    try {
+      await onDeletePlace(id);
+      if (pickedPlace === currentLabel) {
+        setPickedPlace(null);
+        setPlaceCleared(true);
+      }
+    } catch {
+      /* hook visar toast */
+    }
+  };
   const isCash = method === "K";
   const isOther = method === "O";
 
