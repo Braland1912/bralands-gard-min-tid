@@ -727,6 +727,18 @@ const EveningRoundModal = ({
                 </button>
                 {onAddPlace && (
                   <div className="space-y-1 pt-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {PLACE_SUGGESTIONS.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
+                          className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Input
                         value={newPlaceLabel}
@@ -791,18 +803,6 @@ const EveningRoundModal = ({
                       aria-live="polite"
                     >
                       {newPlaceLabel.length} / 60 tecken
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {PLACE_SUGGESTIONS.map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setNewPlaceLabel((prev) => appendSuggestion(prev, s))}
-                          className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-                        >
-                          {s}
-                        </button>
-                      ))}
                     </div>
                   </div>
                 )}
