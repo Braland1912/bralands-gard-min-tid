@@ -187,10 +187,19 @@ const EveningRound = () => {
     [guests],
   );
 
+  // Räkna bara obetalda gäster som anlände idag (vald dag), så att kvarvarande
+  // flernattersgäster med oavslutad betalning inte fortsätter trigga varningen
+  // varje dag de bor kvar.
   const unpaidCount = useMemo(
-    () => guests.filter((g) => !g.payment_method || !g.payment_amount).length,
-    [guests],
+    () =>
+      guests.filter(
+        (g) =>
+          g.arrival_date === selectedDate &&
+          (!g.payment_method || !g.payment_amount),
+      ).length,
+    [guests, selectedDate],
   );
+
 
   const incomingGuests = useMemo(() => {
     const s = search.trim().toLowerCase();
