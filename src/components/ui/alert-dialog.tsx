@@ -51,8 +51,8 @@ AlertDialogHeader.displayName = "AlertDialogHeader";
 const AlertDialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "grid grid-cols-2 gap-2 pt-2 sm:flex sm:flex-row sm:justify-end sm:gap-2 sm:pt-0",
-      "[&>button]:w-full [&>button]:rounded-lg sm:[&>button]:w-auto",
+      "grid grid-cols-2 gap-3 pt-3 sm:flex sm:flex-row sm:justify-end sm:gap-2 sm:pt-2",
+      "[&>button]:w-full [&>button]:h-11 [&>button]:rounded-xl [&>button]:text-sm [&>button]:font-medium [&>button]:px-4 sm:[&>button]:w-auto sm:[&>button]:px-6 sm:[&>button]:min-w-[7rem]",
       className,
     )}
     {...props}
@@ -106,7 +106,7 @@ const AlertDialogCancel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn(buttonVariants({ variant: "outline" }), "mt-2 sm:mt-0", className)}
+    className={cn(buttonVariants({ variant: "outline" }), className)}
     {...props}
   />
 ));
