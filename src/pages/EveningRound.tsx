@@ -803,7 +803,7 @@ const EveningRound = () => {
                 eveningRoundId={round?.id}
                 workerId={worker?.id}
                 roundDate={date}
-                showQuickStart={selectedDate === today}
+                showQuickStart={false}
                 showChecklist={false}
               />
             )}
