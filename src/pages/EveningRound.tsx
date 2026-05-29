@@ -430,59 +430,113 @@ const EveningRound = () => {
           />
         </div>
 
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {(
-              [
-                { id: "alla", label: `Alla (${counts.booked + counts.free})` },
-                { id: "bokade", label: `Upptagen (${counts.booked})` },
-                { id: "lediga", label: `Lediga (${counts.free})` },
-                { id: "har", label: `På plats (${counts.here})` },
-                { id: "inte_har", label: `Ej kommit (${counts.not})` },
-                { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
-                { id: "fordon", label: `Fordon (${counts.vehicles})` },
-                { id: "talt", label: `Tält (${counts.tents})` },
-              ] as { id: Filter; label: string }[]
-            ).map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setFilter(c.id)}
-                className={`w-full px-3 py-2 rounded-full text-sm font-medium border transition-colors text-center truncate ${
-                  filter === c.id
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:bg-accent"
+        {(() => {
+          const filterOptions: { id: Filter; label: string }[] = [
+            { id: "alla", label: `Alla (${counts.booked + counts.free})` },
+            { id: "bokade", label: `Upptagen (${counts.booked})` },
+            { id: "lediga", label: `Lediga (${counts.free})` },
+            { id: "har", label: `På plats (${counts.here})` },
+            { id: "inte_har", label: `Ej kommit (${counts.not})` },
+            { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
+            { id: "fordon", label: `Fordon (${counts.vehicles})` },
+            { id: "talt", label: `Tält (${counts.tents})` },
+          ];
+          const activeOption = filterOptions.find((o) => o.id === filter);
+          const isFiltering = filter !== "alla";
+          return (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFilterOpen((v) => !v)}
+                  aria-expanded={filterOpen}
+                  aria-controls="evening-round-filter-panel"
+                  className={`flex-1 inline-flex items-center justify-between gap-2 px-3 py-2 rounded-full text-sm font-medium border transition-colors ${
+                    isFiltering
+                      ? "bg-primary/10 text-primary border-primary/40"
+                      : "bg-card text-foreground border-border hover:bg-accent"
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-2 min-w-0">
+                    <SlidersHorizontal className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
+                      {isFiltering ? `Filter: ${activeOption?.label ?? ""}` : "Filtrera"}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 transition-transform ${filterOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {isFiltering && (
+                  <button
+                    type="button"
+                    onClick={() => setFilter("alla")}
+                    aria-label="Rensa filter"
+                    className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <div
+                id="evening-round-filter-panel"
+                className={`grid transition-all duration-200 ease-out ${
+                  filterOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 }`}
               >
-                {c.label}
-              </button>
-            ))}
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setExtendSearchOpen(true)}
-            >
-              <Calendar className="h-4 w-4" />
-              Förläng tidigare
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => {
-                setEditing(null);
-                setSelectedPlace(null);
-                setAddMode("temporary");
-                setModalOpen(true);
-              }}
-            >
-              <Tent className="h-4 w-4" />
-              Tillfällig plats
-            </Button>
-          </div>
-        </div>
+                <div className="overflow-hidden">
+                  <div className="rounded-2xl border border-border bg-card p-2 space-y-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {filterOptions.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => {
+                            setFilter(c.id);
+                            if (c.id === "alla") setFilterOpen(false);
+                          }}
+                          className={`w-full px-3 py-2 rounded-full text-sm font-medium border transition-colors text-center truncate ${
+                            filter === c.id
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-muted-foreground border-border hover:bg-accent"
+                          }`}
+                        >
+                          {c.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setExtendSearchOpen(true)}
+                >
+                  <Calendar className="h-4 w-4" />
+                  Förläng tidigare
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    setEditing(null);
+                    setSelectedPlace(null);
+                    setAddMode("temporary");
+                    setModalOpen(true);
+                  }}
+                >
+                  <Tent className="h-4 w-4" />
+                  Tillfällig plats
+                </Button>
+              </div>
+            </div>
+          );
+        })()}
 
 
         {incomingGuests.length > 0 && (
