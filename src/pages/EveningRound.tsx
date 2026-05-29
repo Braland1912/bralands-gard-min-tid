@@ -571,22 +571,36 @@ const EveningRound = () => {
           })}
         </div>
 
-        {(
-          <div className="fixed right-4 md:right-8 md:bottom-8 z-20 bottom-[calc(5rem+env(safe-area-inset-bottom))]">
-            <Button
-              size="lg"
-              aria-label="Lägg till gäst"
-              className="rounded-full shadow-lg h-14 w-14 p-0"
-              onClick={() => {
-                setEditing(null);
-                setSelectedPlace(null);
-                setModalOpen(true);
-              }}
-            >
-              <Plus className="h-6 w-6" />
-            </Button>
-          </div>
-        )}
+        <div className="fixed right-4 md:right-8 md:bottom-8 z-20 bottom-[calc(5rem+env(safe-area-inset-bottom))] flex flex-col items-end gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="rounded-full shadow-md gap-1.5 pr-4"
+            aria-label="Registrera förbetald gäst"
+            onClick={() => {
+              setEditing(null);
+              setSelectedPlace(null);
+              setAddMode("prepaid");
+              setModalOpen(true);
+            }}
+          >
+            <CreditCard className="h-4 w-4" />
+            Förbetald
+          </Button>
+          <Button
+            size="lg"
+            aria-label="Lägg till gäst på plats"
+            className="rounded-full shadow-lg h-14 w-14 p-0"
+            onClick={() => {
+              setEditing(null);
+              setSelectedPlace(null);
+              setAddMode("normal");
+              setPickPlaceOpen(true);
+            }}
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </div>
           </TabsContent>
 
           <TabsContent value="redovisning" className="mt-0">
@@ -631,6 +645,7 @@ const EveningRound = () => {
       </div>
 
       <EveningRoundModal
+        mode={addMode}
         open={modalOpen}
         onOpenChange={setModalOpen}
         placeLabel={selectedPlace}
