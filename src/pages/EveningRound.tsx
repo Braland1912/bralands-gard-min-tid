@@ -353,13 +353,12 @@ const EveningRound = () => {
 
         <Tabs defaultValue="forbetalda" className="space-y-4">
           <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="forbetalda" className="gap-1.5">
-              <CreditCard className="h-4 w-4" />
-              <span>Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
+            <TabsTrigger value="forbetalda" className="px-1.5 text-xs sm:text-sm whitespace-nowrap">
+              <span className="truncate">Förbetalda{incomingGuestsAll.length > 0 ? ` (${incomingGuestsAll.length})` : ""}</span>
             </TabsTrigger>
-            <TabsTrigger value="rundan">Rundan</TabsTrigger>
-            <TabsTrigger value="redovisning">Redovisning</TabsTrigger>
-            <TabsTrigger value="checklista">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
+            <TabsTrigger value="rundan" className="px-1.5 text-xs sm:text-sm">Rundan</TabsTrigger>
+            <TabsTrigger value="redovisning" className="px-1.5 text-xs sm:text-sm">Redovisning</TabsTrigger>
+            <TabsTrigger value="checklista" className="px-1.5 text-xs sm:text-sm">{isAdmin ? "Historik" : "Checklista"}</TabsTrigger>
           </TabsList>
 
 
