@@ -642,61 +642,60 @@ const EveningRoundModal = ({
                       {extrasList.map((ep) => {
                         const taken = takenSet.has(ep.label);
                         const current = (pickedPlace ?? (guest?.place_label && !placeCleared ? guest.place_label : "")) === ep.label;
+                        const selectable = !taken || current;
                         return (
-                          <button
+                          <div
                             key={ep.id}
-                            type="button"
-                            disabled={taken && !current}
-                            onClick={() => {
-                              setPickedPlace(ep.label);
-                              setPlaceCleared(false);
-                              setEditingPlace(false);
-                            }}
-                            className={`h-9 px-3 rounded-full border text-xs font-medium transition-colors ${
+                            className={`inline-flex items-center rounded-full border text-xs font-medium overflow-hidden transition-colors ${
                               current
                                 ? "border-primary bg-primary text-primary-foreground"
                                 : taken
-                                  ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
-                                  : "border-border bg-card text-foreground hover:bg-accent"
+                                  ? "border-border bg-muted text-muted-foreground/50"
+                                  : "border-border bg-card text-foreground"
                             }`}
                           >
-                            {ep.label}
-                          </button>
+                            <button
+                              type="button"
+                              disabled={!selectable}
+                              onClick={() => {
+                                setPickedPlace(ep.label);
+                                setPlaceCleared(false);
+                                setEditingPlace(false);
+                              }}
+                              className={`h-9 pl-3 pr-2 inline-flex items-center ${
+                                selectable ? "hover:opacity-90" : "cursor-not-allowed"
+                              }`}
+                            >
+                              {ep.label}
+                            </button>
+                            {onRenamePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleRenameExtra(ep.id, ep.label)}
+                                className={`h-9 w-8 grid place-items-center border-l ${
+                                  current ? "border-primary-foreground/30 text-primary-foreground/80 hover:text-primary-foreground" : "border-border/60 text-muted-foreground hover:text-foreground"
+                                }`}
+                                aria-label={`Byt namn på ${ep.label}`}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {onDeletePlace && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteExtra(ep.id, ep.label)}
+                                className={`h-9 w-8 grid place-items-center border-l ${
+                                  current ? "border-primary-foreground/30 text-primary-foreground/80 hover:text-primary-foreground" : "border-border/60 text-destructive/80 hover:text-destructive"
+                                }`}
+                                aria-label={`Ta bort ${ep.label}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
-                  </div>
-                )}
-                {extrasList.length > 0 && (onRenamePlace || onDeletePlace) && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {extrasList.map((ep) => (
-                      <div
-                        key={ep.id}
-                        className="inline-flex items-center rounded-lg border border-border bg-card text-xs font-medium overflow-hidden"
-                      >
-                        <span className="h-8 px-2.5 inline-flex items-center text-muted-foreground">{ep.label}</span>
-                        {onRenamePlace && (
-                          <button
-                            type="button"
-                            onClick={() => handleRenameExtra(ep.id, ep.label)}
-                            className="h-8 w-7 grid place-items-center border-l border-border/60 text-muted-foreground hover:text-foreground"
-                            aria-label={`Byt namn på ${ep.label}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                        {onDeletePlace && (
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteExtra(ep.id, ep.label)}
-                            className="h-8 w-7 grid place-items-center border-l border-border/60 text-destructive/80 hover:text-destructive"
-                            aria-label={`Ta bort ${ep.label}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
                   </div>
                 )}
                 <button
