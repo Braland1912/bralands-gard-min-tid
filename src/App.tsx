@@ -16,6 +16,7 @@ import AdminSchedule from "./pages/AdminSchedule";
 import AdminChecklists from "./pages/AdminChecklists";
 import EveningRound from "./pages/EveningRound";
 import EveningRoundHelp from "./pages/EveningRoundHelp";
+import Help from "./pages/Help";
 import MobileMenuTest from "./pages/MobileMenuTest";
 import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 
