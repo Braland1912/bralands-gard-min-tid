@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
+import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
@@ -116,6 +117,7 @@ const EveningRound = () => {
   const [extendSearchOpen, setExtendSearchOpen] = useState(false);
   const [addMode, setAddMode] = useState<"normal" | "prepaid" | "temporary">("normal");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
   const allPlaces = useMemo(() => {
