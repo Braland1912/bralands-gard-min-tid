@@ -334,6 +334,7 @@ const EveningRound = () => {
               />
             </PopoverContent>
           </Popover>
+          {datePresets.map((p) => {
             const active = selectedDate === p.value;
             return (
               <button
