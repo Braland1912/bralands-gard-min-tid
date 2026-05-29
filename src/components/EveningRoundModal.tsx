@@ -662,6 +662,8 @@ const EveningRoundModal = ({
                                 setPickedPlace(ep.label);
                                 setPlaceCleared(false);
                                 setEditingPlace(false);
+                                setStatus("here");
+                                setError(null);
                               }}
                               className={`h-9 pl-3 pr-2 inline-flex items-center ${
                                 selectable ? "hover:opacity-90" : "cursor-not-allowed"
