@@ -183,15 +183,6 @@ const EveningRoundCard = ({ guest, onStatusChange, onEdit, readOnly = false, own
           </div>
         )}
       </div>
-            guest.registration_number || <span className="text-muted-foreground italic">Inget reg.nr</span>
-          )}
-        </div>
-        {guest.notes && (
-          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-            {guest.notes}
-          </div>
-        )}
-      </div>
 
       <div className="flex items-center gap-2">
         <StatusBtn s="here" Icon={Check} label="På plats" />
