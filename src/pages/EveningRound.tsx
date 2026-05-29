@@ -194,6 +194,8 @@ const EveningRound = () => {
       if (filter === "har" && g?.status !== "here") return false;
       if (filter === "inte_har" && g?.status !== "not_here") return false;
       if (filter === "ej_betalt" && (!g || (g.payment_method && g.payment_amount))) return false;
+      if (filter === "fordon" && g?.accommodation_type !== "vehicle") return false;
+      if (filter === "talt" && g?.accommodation_type !== "tent") return false;
       if (s) {
         const matchesPlace = p.toLowerCase().includes(s);
         const matchesName = g?.guest_name.toLowerCase().includes(s);
