@@ -1021,7 +1021,13 @@ const EveningRoundModal = ({
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
+                  placeholder={
+                    effectiveAccommodation === "tent"
+                      ? "T.ex. taktält, hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
+                      : effectiveAccommodation === "vehicle"
+                      ? "T.ex. husvagn, husbil, MC, hund, barn, frågar om paddling/fiske…"
+                      : "T.ex. husvagn, husbil, taktält, hund, cyklister, vandrare, MC, barn, frågar om paddling/fiske…"
+                  }
                   rows={3}
                   className="min-h-[88px] resize-y bg-card"
                 />
