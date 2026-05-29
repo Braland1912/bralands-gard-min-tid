@@ -1227,35 +1227,39 @@ const EveningRoundModal = ({
             <div className="space-y-1.5">
               <Label htmlFor="notes">Anteckning</Label>
               <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2">
-                <div className="text-xs font-semibold text-foreground">
-                  Beskriv sällskapet
-                  {effectiveAccommodation === "tent" && (
-                    <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv tältet med färg och storlek. T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…
-                    </span>
-                  )}
-                  {effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (
-                    <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv husbilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
-                    </span>
-                  )}
-                  {effectiveAccommodation === "vehicle" && vehicleType === "car" && (
-                    <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv bilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
-                    </span>
-                  )}
-                  {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
-                    <span className="block font-normal text-muted-foreground mt-0.5">
-                      Beskriv husvagnen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
-                    </span>
-                  )}
-                </div>
+                {mode !== "prepaid" && (
+                  <div className="text-xs font-semibold text-foreground">
+                    Beskriv sällskapet
+                    {effectiveAccommodation === "tent" && (
+                      <span className="block font-normal text-muted-foreground mt-0.5">
+                        Beskriv tältet med färg och storlek. T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…
+                      </span>
+                    )}
+                    {effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (
+                      <span className="block font-normal text-muted-foreground mt-0.5">
+                        Beskriv husbilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
+                      </span>
+                    )}
+                    {effectiveAccommodation === "vehicle" && vehicleType === "car" && (
+                      <span className="block font-normal text-muted-foreground mt-0.5">
+                        Beskriv bilen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
+                      </span>
+                    )}
+                    {effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (
+                      <span className="block font-normal text-muted-foreground mt-0.5">
+                        Beskriv husvagnen med färg och storlek. T.ex. hund, barn, frågar om paddling/fiske…
+                      </span>
+                    )}
+                  </div>
+                )}
                 <Textarea
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={
-                    effectiveAccommodation === "tent"
+                    mode === "prepaid"
+                      ? "T.ex. meddelande från gästen via Campio…"
+                      : effectiveAccommodation === "tent"
                       ? "T.ex. hund, cyklister, vandrare, barn, frågar om paddling/fiske…"
                       : effectiveAccommodation === "vehicle"
                       ? "T.ex. hund, barn, frågar om paddling/fiske…"
@@ -1264,26 +1268,27 @@ const EveningRoundModal = ({
                   rows={4}
                   className="min-h-[96px] resize-y bg-card"
                 />
-                <div className="flex flex-wrap gap-1.5">
-                  {NOTE_SUGGESTIONS.filter((s) => {
-                    if (effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält" || s === "MC")) return false;
-                    if (effectiveAccommodation === "vehicle" && (s === "Husvagn" || s === "Husbil" || s === "MC")) return false;
-                    if (effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
-                    if (effectiveAccommodation === "vehicle" && vehicleType === "car" && (s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
-                    if (effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
-                    return true;
-                  }).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
-                      className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-
+                {mode !== "prepaid" && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {NOTE_SUGGESTIONS.filter((s) => {
+                      if (effectiveAccommodation === "tent" && (s === "Husvagn" || s === "Husbil" || s === "Taktält" || s === "MC")) return false;
+                      if (effectiveAccommodation === "vehicle" && (s === "Husvagn" || s === "Husbil" || s === "MC")) return false;
+                      if (effectiveAccommodation === "vehicle" && vehicleType === "motorhome" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
+                      if (effectiveAccommodation === "vehicle" && vehicleType === "car" && (s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
+                      if (effectiveAccommodation === "vehicle" && vehicleType === "caravan" && (s === "Taktält" || s === "Tält" || s === "Bil" || s === "Cyklister" || s === "Vandrare")) return false;
+                      return true;
+                    }).map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setNotes((prev) => appendSuggestion(prev, s, { maxLen: 500, separator: ", " }))}
+                        className="h-7 px-2.5 rounded-full border border-border bg-card text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             {(() => {
