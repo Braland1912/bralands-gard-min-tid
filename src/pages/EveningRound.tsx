@@ -219,12 +219,14 @@ const EveningRound = () => {
   const openAdd = (place: string) => {
     setEditing(null);
     setSelectedPlace(place);
+    setAddMode("normal");
     setModalOpen(true);
   };
 
   const openEdit = (g: EveningRoundGuest) => {
     setEditing(g);
     setSelectedPlace(g.place_label);
+    setAddMode("normal");
     setModalOpen(true);
   };
 
