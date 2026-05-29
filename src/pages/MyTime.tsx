@@ -285,19 +285,8 @@ const MyTime = () => {
           </div>
         </div>
 
-        {/* Today's checklists */}
-        {(todayShifts as any[]).filter((s) => todayChecklistMap[s.id]).length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-base font-semibold text-foreground">Dagens checklistor</h2>
-            {(todayShifts as any[])
-              .filter((s) => todayChecklistMap[s.id])
-              .map((s) => (
-                <div key={s.id} className="border border-border rounded-xl p-4">
-                  <ShiftChecklists shiftId={s.id} mode="worker" />
-                </div>
-              ))}
-          </div>
-        )}
+
+
 
         {/* Tabs: Tidrapport + Rättelser */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
