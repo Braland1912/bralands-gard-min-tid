@@ -547,8 +547,8 @@ const EveningRound = () => {
                     setModalOpen(true);
                   }}
                 >
-                  <Tent className="h-4 w-4" />
-                  Tillfällig plats
+                  <MapPinPlus className="h-4 w-4" />
+                  Lägg till plats
                 </Button>
               </div>
             </div>
