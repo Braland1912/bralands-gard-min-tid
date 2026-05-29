@@ -924,6 +924,9 @@ const EveningRoundModal = ({
                         <div className="text-xs font-semibold text-foreground">
                           Skapa tillfällig plats
                         </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Beskriv platsen och sällskapet noggrant. Välj snabbval för platsen.
+                        </p>
                         <div className="flex flex-wrap gap-1.5">
                           {PLACE_SUGGESTIONS.map((s) => (
                             <button
