@@ -164,7 +164,10 @@ const EveningRoundModal = ({
   onDelete,
   availablePlaces,
   takenPlaces,
+  extraPlaces,
   onAddPlace,
+  onRenamePlace,
+  onDeletePlace,
   onExtend,
   mode = "normal",
 }: Props) => {
