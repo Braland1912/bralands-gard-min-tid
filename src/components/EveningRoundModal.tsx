@@ -812,9 +812,6 @@ const EveningRoundModal = ({
                     </div>
                   </div>
                 )}
-                <p className="text-[11px] text-muted-foreground">
-                  Upptagna platser är gråa. Nuvarande plats är markerad.
-                </p>
               </div>
             )}
             {showPlacePicker && (
