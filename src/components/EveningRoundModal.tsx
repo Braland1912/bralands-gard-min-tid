@@ -715,13 +715,13 @@ const EveningRoundModal = ({
                 </button>
                 {onAddPlace && (
                   <div className="space-y-1 pt-1">
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                       <Input
                         value={newPlaceLabel}
                         onChange={(e) => setNewPlaceLabel(e.target.value)}
                         placeholder="T.ex. gult litet tält, husbil, vit bil…"
                         maxLength={60}
-                        className="h-9"
+                        className="h-10 flex-1 text-sm"
                         onKeyDown={async (e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
