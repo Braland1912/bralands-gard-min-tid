@@ -1016,6 +1016,11 @@ const EveningRoundModal = ({
               <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-2">
                 <div className="text-xs font-semibold text-foreground">
                   Beskriv sällskapet
+                  {effectiveAccommodation === "tent" && (
+                    <span className="block font-normal text-muted-foreground mt-0.5">
+                      Beskriv tältet med färg och storlek
+                    </span>
+                  )}
                 </div>
                 <Textarea
                   id="notes"
