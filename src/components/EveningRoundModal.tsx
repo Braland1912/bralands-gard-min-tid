@@ -527,7 +527,9 @@ const EveningRoundModal = ({
                     type="button"
                     onClick={() => {
                       if (place == null) {
-                        setError("Välj en plats för att markera som på plats");
+                        const msg = "Välj en plats för att markera som på plats";
+                        setError(msg);
+                        toast.error(msg);
                         if (hasPlaceOptions) setEditingPlace(true);
                         return;
                       }
