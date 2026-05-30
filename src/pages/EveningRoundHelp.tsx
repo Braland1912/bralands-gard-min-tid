@@ -89,10 +89,12 @@ const EveningRoundHelp = () => {
                   3
                 </span>
                 <span className="pt-0.5">
-                  <strong>Förbetald gäst dyker upp?</strong> Tryck{" "}
-                  <strong>Lägg till plats</strong>, välj fliken{" "}
-                  <strong>Förbetald</strong> och koppla rätt person. Då skapas
-                  en tillfällig plats automatiskt – ingen ny rad behövs.
+                  <strong>Tillfällig plats:</strong> står gästen utanför de fasta
+                  platserna (t.ex. på gräset)? Tryck{" "}
+                  <strong>Lägg till plats</strong>. Välj{" "}
+                  <strong>Ny gäst</strong> och ta betalt, eller{" "}
+                  <strong>Förbetald</strong> för att koppla en redan registrerad
+                  gäst. En tillfällig plats skapas automatiskt.
                 </span>
               </li>
               <li className="flex gap-3">
