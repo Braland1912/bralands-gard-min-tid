@@ -103,7 +103,7 @@ const AdminVersions = () => {
       <div>
         <h2 className="text-xl font-semibold tracking-tight">Versionshistorik</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Alla publicerade versioner, release-noter och vilka medarbetare som har fått notisen och uppdaterat.
+          Alla publicerade versioner, release-noter och vilka medarbetare som har sett versionenen och uppdaterat.
         </p>
       </div>
 
@@ -200,7 +200,7 @@ const AdminVersions = () => {
                           <span className="font-medium text-foreground">{stats.running.length}</span> kör
                         </span>
                         <span>
-                          <span className="font-medium text-foreground">{stats.notified.length}</span> har fått notis
+                          <span className="font-medium text-foreground">{stats.seen.length}</span> har sett versionen
                         </span>
                       </div>
                     </div>
@@ -230,13 +230,13 @@ const AdminVersions = () => {
                         </div>
                         <div>
                           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
-                            Sett notisen ({stats.notified.length})
+                            Sett versionen ({stats.seen.length})
                           </p>
-                          {stats.notified.length === 0 ? (
+                          {stats.seen.length === 0 ? (
                             <p className="text-xs text-muted-foreground italic">Ingen</p>
                           ) : (
                             <ul className="text-xs space-y-0.5">
-                              {stats.notified.map((w) => (
+                              {stats.seen.map((w) => (
                                 <li key={w.worker_id}>{w.worker_name}</li>
                               ))}
                             </ul>
