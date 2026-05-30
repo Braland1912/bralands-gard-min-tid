@@ -751,38 +751,19 @@ const EveningRoundModal = ({
                         </button>
                       ))}
                     </div>
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <Input
+                    <div className="space-y-2">
+                      <Textarea
                         value={newPlaceLabel}
                         onChange={(e) => setNewPlaceLabel(e.target.value)}
                         placeholder="T.ex. vid hörnet mellan solcellerna och fotbollsplanen, ett gult litet tält…"
                         maxLength={60}
-                        className="h-10 flex-1 text-sm"
-                        onKeyDown={async (e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            const label = newPlaceLabel.trim();
-                            if (!label || creatingPlace) return;
-                            setCreatingPlace(true);
-                            try {
-                              const created = await onAddPlace(label);
-                              setPickedPlace(created);
-                              setPlaceCleared(false);
-                              setEditingPlace(false);
-                              setNewPlaceLabel("");
-                            } catch {
-                              /* hook visar toast */
-                            } finally {
-                              setCreatingPlace(false);
-                            }
-                          }
-                        }}
+                        rows={2}
+                        className="min-h-[60px] text-sm resize-none"
                       />
                       <Button
                         type="button"
-                        variant="outline"
                         size="sm"
-                        className="h-10 sm:w-auto w-full"
+                        className="h-10 w-full"
                         disabled={!newPlaceLabel.trim() || creatingPlace}
                         onClick={async () => {
                           const label = newPlaceLabel.trim();
@@ -801,7 +782,7 @@ const EveningRoundModal = ({
                           }
                         }}
                       >
-                        Skapa
+                        Skapa tillfällig plats
                       </Button>
                     </div>
                     <div
@@ -939,36 +920,19 @@ const EveningRoundModal = ({
                             </button>
                           ))}
                         </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <Input
+                        <div className="space-y-2">
+                          <Textarea
                             value={newPlaceLabel}
                             onChange={(e) => setNewPlaceLabel(e.target.value)}
                             placeholder="T.ex. vid hörnet mellan solcellerna och fotbollsplanen, ett gult litet tält…"
                             maxLength={60}
-                            className="h-10 flex-1 text-sm"
-                            onKeyDown={async (e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                const label = newPlaceLabel.trim();
-                                if (!label || creatingPlace) return;
-                                setCreatingPlace(true);
-                                try {
-                                  const created = await onAddPlace(label);
-                                  setPickedPlace(created);
-                                  setNewPlaceLabel("");
-                                } catch {
-                                  /* hook visar toast */
-                                } finally {
-                                  setCreatingPlace(false);
-                                }
-                              }
-                            }}
+                            rows={2}
+                            className="min-h-[60px] text-sm resize-none"
                           />
                           <Button
                             type="button"
-                            variant="outline"
                             size="sm"
-                            className="h-10 sm:w-auto w-full"
+                            className="h-10 w-full"
                             disabled={!newPlaceLabel.trim() || creatingPlace}
                             onClick={async () => {
                               const label = newPlaceLabel.trim();
@@ -985,7 +949,7 @@ const EveningRoundModal = ({
                               }
                             }}
                           >
-                            Skapa
+                            Skapa tillfällig plats
                           </Button>
                         </div>
                         <div
