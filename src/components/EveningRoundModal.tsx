@@ -1427,7 +1427,6 @@ const EveningRoundModal = ({
                         onChange={(e) => setAmount(e.target.value)}
                         className="bg-card"
                       />
-                      <p className="text-[11px] text-muted-foreground">12% moms på gästnatt</p>
                     </div>
                   )}
                 </div>
