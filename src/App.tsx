@@ -44,6 +44,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <UpdateBanner />
+        <VersionTracker />
         <InstallAppModal />
         <DesktopSidebar />
         <AppHeader />
