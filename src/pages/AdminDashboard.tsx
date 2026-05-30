@@ -33,6 +33,7 @@ const mobileMoreTabs = [
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
+  { id: "versioner", label: "Versioner", icon: GitBranch },
 ];
 
 const AdminDashboard = () => {
