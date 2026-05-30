@@ -259,15 +259,29 @@ const EveningRoundHelp = () => {
           </h2>
 
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
-            <li><strong>Stämpla in</strong> och tryck <em>Starta</em> i Snabbstart-rutan.</li>
+            <li><strong>Stämpla in</strong> på tidrapporten.</li>
             <li><strong>Registrera dagens förbetalda</strong> som kommit in via mejl/telefon.</li>
             <li><strong>Kolla "Inkommande · förbetalda"</strong> – är någon redan här? Matcha mot plats.</li>
-            <li><strong>Gå runt platserna.</strong> Knacka på, hälsa, fråga: antal personer, antal nätter, släp?</li>
-            <li><strong>Registrera/uppdatera</strong> sällskapet på rätt plats.</li>
-            <li><strong>Beskriv sällskapet kort</strong> så nästa kollega känner igen dem.</li>
-            <li><strong>Ta betalt</strong> om de inte är förbetalda. Markera betalsätt och summa.</li>
+          </ol>
+
+          <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+              Tryck <em>Starta</em> i Snabbstart-rutan innan du går ut
+            </p>
+            <ol start={4} className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
+              <li><strong>Gå runt platserna.</strong> Knacka på, hälsa, fråga: antal personer, antal nätter, släp?</li>
+              <li><strong>Registrera/uppdatera</strong> sällskapet på rätt plats.</li>
+              <li><strong>Beskriv sällskapet kort</strong> så nästa kollega känner igen dem.</li>
+              <li><strong>Ta betalt</strong> om de inte är förbetalda. Markera betalsätt och summa.</li>
+            </ol>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-primary pt-1">
+              Tryck <em>Stoppa</em> i Snabbstart-rutan när rundan är klar
+            </p>
+          </div>
+
+          <ol start={8} className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
             <li>Öppna <strong>Ekonomi-fliken</strong> och gå igenom checklistan + redovisningen.</li>
-            <li>Tryck <strong>Stoppa</strong> i Snabbstart-rutan och stämpla ut.</li>
+            <li><strong>Stämpla ut</strong> på tidrapporten.</li>
           </ol>
         </section>
 
