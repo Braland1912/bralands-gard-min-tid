@@ -219,8 +219,8 @@ const EveningRoundModal = ({
   useEffect(() => {
     if (!open) return;
     setPickedPlace(null);
-    // Expandera platsväljaren direkt när vi öppnar en befintlig gäst utan plats via header-flödet.
-    setEditingPlace(autoExpandPlacePicker && !!guest && guest.place_label == null);
+    // Expandera platsväljaren direkt för befintlig gäst utan plats (oavsett om vi kom via header-flödet).
+    setEditingPlace(!!guest && guest.place_label == null);
     setPlaceCleared(false);
     setNewPlaceLabel("");
     if (guest) {
