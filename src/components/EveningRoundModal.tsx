@@ -1424,6 +1424,7 @@ const EveningRoundModal = ({
                         onChange={(e) => setAmount(e.target.value)}
                         className="bg-card"
                       />
+                      <p className="text-[11px] text-muted-foreground">12% moms på gästnatt</p>
                     </div>
                   )}
                 </div>
@@ -1478,6 +1479,7 @@ const EveningRoundModal = ({
                         onChange={(e) => setAmount(e.target.value)}
                         className="bg-card"
                       />
+                      <p className="text-[11px] text-muted-foreground">12% moms på gästnatt</p>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold">Valuta</Label>
