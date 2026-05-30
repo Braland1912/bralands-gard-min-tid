@@ -618,38 +618,42 @@ const EveningRoundModal = ({
                     Avbryt
                   </button>
                 </div>
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Fasta platser
-                </div>
-                <div className="grid grid-cols-6 gap-1.5">
-                  {standardList.map((p) => {
-                    const taken = takenSet.has(p);
-                    const current = (pickedPlace ?? (guest?.place_label && !placeCleared ? guest.place_label : "")) === p;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        disabled={taken && !current}
-                        onClick={() => {
-                          setPickedPlace(p);
-                          setPlaceCleared(false);
-                          setEditingPlace(false);
-                          setStatus("here");
-                          setError(null);
-                        }}
-                        className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
-                          current
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : taken
-                              ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
-                              : "border-border bg-card text-foreground hover:bg-accent"
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
-                </div>
+                {!autoExpandPlacePicker && (
+                  <>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Fasta platser
+                    </div>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {standardList.map((p) => {
+                        const taken = takenSet.has(p);
+                        const current = (pickedPlace ?? (guest?.place_label && !placeCleared ? guest.place_label : "")) === p;
+                        return (
+                          <button
+                            key={p}
+                            type="button"
+                            disabled={taken && !current}
+                            onClick={() => {
+                              setPickedPlace(p);
+                              setPlaceCleared(false);
+                              setEditingPlace(false);
+                              setStatus("here");
+                              setError(null);
+                            }}
+                            className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
+                              current
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : taken
+                                  ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
+                                  : "border-border bg-card text-foreground hover:bg-accent"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
                 {extrasList.length > 0 && (
                   <div className="space-y-1.5">
                     <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -822,31 +826,33 @@ const EveningRoundModal = ({
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-1.5">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        Fasta platser
+                    {!autoExpandPlacePicker && (
+                      <div className="space-y-1.5">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                          Fasta platser
+                        </div>
+                        <div className="grid grid-cols-6 gap-1.5">
+                        {standardList.map((p) => {
+                          const taken = takenSet.has(p);
+                          return (
+                            <button
+                              key={p}
+                              type="button"
+                              disabled={taken}
+                              onClick={() => { setPickedPlace(p); setStatus("here"); setError(null); }}
+                              className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
+                                taken
+                                  ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
+                                  : "border-border bg-card text-foreground hover:bg-accent"
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          );
+                        })}
+                        </div>
                       </div>
-                      <div className="grid grid-cols-6 gap-1.5">
-                      {standardList.map((p) => {
-                        const taken = takenSet.has(p);
-                        return (
-                          <button
-                            key={p}
-                            type="button"
-                            disabled={taken}
-                            onClick={() => { setPickedPlace(p); setStatus("here"); setError(null); }}
-                            className={`h-10 rounded-lg border text-sm font-semibold transition-colors ${
-                              taken
-                                ? "border-border bg-muted text-muted-foreground/50 cursor-not-allowed"
-                                : "border-border bg-card text-foreground hover:bg-accent"
-                            }`}
-                          >
-                            {p}
-                          </button>
-                        );
-                      })}
-                      </div>
-                    </div>
+                    )}
                     {extrasList.length > 0 && (
                       <div className="space-y-1.5 mt-2">
                         <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
