@@ -215,8 +215,9 @@ const EveningRoundHelp = () => {
               Tillfällig plats utan förbetalning
             </h3>
             <ol className="list-decimal pl-5 space-y-1 text-foreground">
-              <li>Tryck på <strong>Lägg till plats</strong>.</li>
-              <li>Välj <em>Tillfällig plats</em> – koppla inte till någon förbetald.</li>
+              <li>Tryck på <strong>Lägg till plats</strong> och välj fliken <strong>Ny gäst</strong>.</li>
+              <li>Skriv en kort beskrivning av platsen och tryck <strong>Skapa tillfällig plats</strong>.</li>
+
               <li>
                 <strong>För tält:</strong> fyll i antal personer (obligatoriskt
                 – det styr priset).
