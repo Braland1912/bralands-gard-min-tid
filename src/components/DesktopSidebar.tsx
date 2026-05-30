@@ -52,6 +52,7 @@ const adminItems: NavItem[] = [
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
   { id: "bjudin", label: "Bjud in", icon: Link2, dashboardTab: "bjudin", matchTab: "bjudin" },
   { id: "lon", label: "Löner", icon: DollarSign, dashboardTab: "lon", matchTab: "lon" },
+  { id: "versioner", label: "Versioner", icon: GitBranch, dashboardTab: "versioner", matchTab: "versioner" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
 ];
 
