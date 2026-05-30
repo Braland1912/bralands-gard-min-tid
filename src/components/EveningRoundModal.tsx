@@ -749,7 +749,7 @@ const EveningRoundModal = ({
                       ))}
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      …eller fortsätt beskriva platsen själv nedan.
+                      Fortsätt och beskriv sällskapet nedan.
                     </p>
                     <div className="space-y-2">
                       <Textarea
@@ -921,7 +921,7 @@ const EveningRoundModal = ({
                           ))}
                         </div>
                         <p className="text-[11px] text-muted-foreground">
-                          …eller fortsätt beskriva platsen själv nedan.
+                          Fortsätt och beskriv sällskapet nedan.
                         </p>
                         <div className="space-y-2">
                           <Textarea
