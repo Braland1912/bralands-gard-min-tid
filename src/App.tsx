@@ -25,6 +25,7 @@ import AppHeader from "./components/AppHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import InstallAppModal from "./components/InstallAppModal";
 import UpdateBanner from "./components/UpdateBanner";
+import VersionTracker from "./components/VersionTracker";
 
 const queryClient = new QueryClient({
   defaultOptions: {
