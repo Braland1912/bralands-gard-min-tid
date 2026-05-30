@@ -516,7 +516,7 @@ const EveningRoundModal = ({
                     </span>
 
                   ) : showPlacePicker || showEditPlacePicker ? (
-                    autoExpandPlacePicker ? "" : "Välj plats (valfritt – kan väljas senare)"
+                    autoExpandPlacePicker ? "" : "Välj plats"
                   ) : (
                     ""
                   )}
