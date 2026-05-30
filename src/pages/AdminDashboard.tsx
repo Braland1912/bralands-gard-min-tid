@@ -116,6 +116,8 @@ const AdminDashboard = () => {
         return <InvitationManager />;
       case "lon":
         return <SalaryReport />;
+      case "versioner":
+        return <AdminVersions />;
       default:
         return <AdminOverview onNavigate={handleOverviewNavigate} />;
     }
