@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_releases: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          notes: string | null
+          released_at: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          notes?: string | null
+          released_at?: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          notes?: string | null
+          released_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -662,6 +686,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      worker_app_status: {
+        Row: {
+          created_at: string
+          last_seen_at: string
+          latest_seen_version: string | null
+          notified_at: string | null
+          running_version: string | null
+          updated_at: string
+          user_id: string
+          worker_id: string
+          worker_name: string
+        }
+        Insert: {
+          created_at?: string
+          last_seen_at?: string
+          latest_seen_version?: string | null
+          notified_at?: string | null
+          running_version?: string | null
+          updated_at?: string
+          user_id: string
+          worker_id: string
+          worker_name: string
+        }
+        Update: {
+          created_at?: string
+          last_seen_at?: string
+          latest_seen_version?: string | null
+          notified_at?: string | null
+          running_version?: string | null
+          updated_at?: string
+          user_id?: string
+          worker_id?: string
+          worker_name?: string
         }
         Relationships: []
       }

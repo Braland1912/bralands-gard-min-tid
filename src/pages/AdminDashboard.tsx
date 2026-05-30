@@ -4,13 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon, GitBranch } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
 import AdminTeam from "@/components/admin/AdminTeam";
 import InvitationManager from "@/components/InvitationManager";
 import SalaryReport from "@/components/SalaryReport";
+import AdminVersions from "@/components/admin/AdminVersions";
 import ChangePasswordDialog from "@/components/ChangePasswordDialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
@@ -32,6 +33,7 @@ const mobileMoreTabs = [
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
+  { id: "versioner", label: "Versioner", icon: GitBranch },
 ];
 
 const AdminDashboard = () => {
@@ -114,6 +116,8 @@ const AdminDashboard = () => {
         return <InvitationManager />;
       case "lon":
         return <SalaryReport />;
+      case "versioner":
+        return <AdminVersions />;
       default:
         return <AdminOverview onNavigate={handleOverviewNavigate} />;
     }
