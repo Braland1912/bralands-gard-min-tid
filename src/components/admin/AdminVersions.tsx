@@ -76,16 +76,21 @@ const AdminVersions = () => {
   }, [releases]);
 
   const statsByVersion = useMemo(() => {
-    const map = new Map<string, { running: WorkerStatus[]; notified: WorkerStatus[] }>();
+    const map = new Map<string, { running: WorkerStatus[]; seen: WorkerStatus[] }>();
     for (const r of releases) {
-      map.set(r.version, { running: [], notified: [] });
+      map.set(r.version, { running: [], seen: [] });
     }
     for (const w of workerStatuses) {
       if (w.running_version && map.has(w.running_version)) {
         map.get(w.running_version)!.running.push(w);
       }
-      if (w.notified_at && w.latest_seen_version && map.has(w.latest_seen_version)) {
-        map.get(w.latest_seen_version)!.notified.push(w);
+      // En medarbetare har "sett" alla versioner som är <= deras latest_seen_version
+      if (w.latest_seen_version) {
+        for (const r of releases) {
+          if (compareVersions(w.latest_seen_version, r.version) >= 0) {
+            map.get(r.version)!.seen.push(w);
+          }
+        }
       }
     }
     return map;
