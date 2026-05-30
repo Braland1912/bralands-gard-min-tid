@@ -105,6 +105,7 @@ const EveningRoundHelp = () => {
                 </span>
               </li>
             </ol>
+          </div>
         </section>
 
 
