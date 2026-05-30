@@ -79,8 +79,9 @@ const EveningRoundHelp = () => {
                 <span className="pt-0.5">
                   <strong>Fast plats (standard):</strong> ute på fältet,
                   tryck direkt på platskortet (1–21 eller E1–E6) →{" "}
-                  <strong>Lägg till gäst</strong>. Fyll i uppgifter och ta
-                  betalt på plats.
+                  <strong>Lägg till gäst</strong> (eller{" "}
+                  <strong>Matcha mot förbetald</strong> om gästen redan är
+                  registrerad). Fyll i uppgifter och ta betalt på plats.
                 </span>
               </li>
               <li className="flex gap-3">
