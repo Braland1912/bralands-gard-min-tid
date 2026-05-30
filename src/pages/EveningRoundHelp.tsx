@@ -77,10 +77,10 @@ const EveningRoundHelp = () => {
                   2
                 </span>
                 <span className="pt-0.5">
-                  <strong>Ute på fältet:</strong> när du hittar gästen, tryck på{" "}
-                  <strong>Lägg till plats</strong> och välj{" "}
-                  <em>Tillfällig plats</em>. Koppla den till den förbetalda
-                  gästen i listan istället för att skapa en ny rad.
+                  <strong>Ute på fältet:</strong> när du hittar gästen, tryck{" "}
+                  <strong>Lägg till plats</strong>, välj fliken{" "}
+                  <strong>Förbetald</strong> och koppla rätt person. Då skapas
+                  en tillfällig plats automatiskt – ingen ny rad behövs.
                 </span>
               </li>
               <li className="flex gap-3">
@@ -95,11 +95,13 @@ const EveningRoundHelp = () => {
               </li>
             </ol>
             <p className="text-xs text-muted-foreground pt-1">
-              Detta är det vanligaste flödet. De andra flödena (ny gäst på fast
-              plats, tillfällig utan förbetalning, reserverad) finns längre ner.
+              Tips: <strong>"Lägg till plats"</strong> är bara för förbetalda
+              och tillfälliga platser. Fasta platser (1–21, E1–E6) tar du
+              direkt på platskortet i rundan.
             </p>
           </div>
         </section>
+
 
         {/* ============ 1. INTRO ============ */}
         <section className="space-y-4">
