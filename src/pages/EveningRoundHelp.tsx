@@ -169,9 +169,11 @@ const EveningRoundHelp = () => {
                 <strong>Platslistan</strong> – alla campingplatser 1–21 och E1–E6.
               </li>
               <li>
-                <strong>"Lägg till plats"</strong> – för att skapa en tillfällig
-                plats (tält/fordon på gräs) eller matcha förbetald.
+                <strong>"Lägg till plats"</strong> – endast för att matcha en
+                förbetald gäst eller skapa en tillfällig plats (tält/fordon på
+                gräs). Fasta platser går via platskortet.
               </li>
+
               <li>
                 <strong>Förbetalda-fliken</strong> – knappen <em>Ny förbetald</em>{" "}
                 för att registrera en ny förbokning.
