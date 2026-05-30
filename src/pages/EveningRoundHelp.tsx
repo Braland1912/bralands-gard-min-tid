@@ -58,7 +58,7 @@ const EveningRoundHelp = () => {
               Huvudflödet
             </p>
             <h2 className="text-xl font-bold text-foreground leading-tight">
-              Registrera förbetalda först – matcha sen mot plats på fältet
+              Så går rundan till
             </h2>
             <ol className="space-y-2.5 text-sm text-foreground">
               <li className="flex gap-3">
@@ -77,10 +77,10 @@ const EveningRoundHelp = () => {
                   2
                 </span>
                 <span className="pt-0.5">
-                  <strong>Ute på fältet:</strong> när du hittar gästen, tryck{" "}
-                  <strong>Lägg till plats</strong>, välj fliken{" "}
-                  <strong>Förbetald</strong> och koppla rätt person. Då skapas
-                  en tillfällig plats automatiskt – ingen ny rad behövs.
+                  <strong>Fast plats (standard):</strong> ute på fältet,
+                  tryck direkt på platskortet (1–21 eller E1–E6) →{" "}
+                  <strong>Lägg till gäst</strong>. Fyll i uppgifter och ta
+                  betalt på plats.
                 </span>
               </li>
               <li className="flex gap-3">
@@ -88,17 +88,23 @@ const EveningRoundHelp = () => {
                   3
                 </span>
                 <span className="pt-0.5">
-                  <strong>Beskriv tydligt</strong> var de står (t.ex.{" "}
-                  <em>"Vit husbil vid pilträdet bakom plats 15"</em>) så nästa
-                  kollega känner igen dem.
+                  <strong>Förbetald gäst dyker upp?</strong> Tryck{" "}
+                  <strong>Lägg till plats</strong>, välj fliken{" "}
+                  <strong>Förbetald</strong> och koppla rätt person. Då skapas
+                  en tillfällig plats automatiskt – ingen ny rad behövs.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="shrink-0 h-7 w-7 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center">
+                  4
+                </span>
+                <span className="pt-0.5">
+                  <strong>Beskriv tydligt</strong> var tillfälliga gäster står
+                  (t.ex. <em>"Vit husbil vid pilträdet bakom plats 15"</em>)
+                  så nästa kollega känner igen dem.
                 </span>
               </li>
             </ol>
-            <p className="text-xs text-muted-foreground pt-1">
-              Tips: <strong>"Lägg till plats"</strong> är bara för förbetalda
-              och tillfälliga platser. Fasta platser (1–21, E1–E6) tar du
-              direkt på platskortet i rundan.
-            </p>
           </div>
         </section>
 
