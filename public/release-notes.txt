@@ -1,1 +1,1 @@
-Hjälpsidan för kvällsrundan är uppdaterad och matchar nu det nya flödet: fasta platser via platskortet, "Lägg till plats" bara för förbetalda eller tillfälliga. Tryck Skriv ut för att få en utskriftsvänlig version.
+Nu kan alla medarbetare registrera förbetalda och tillfälliga gäster i kvällsrundan, även om du inte är ansvarig för rundan den dagen. Tidigare felmeddelande om behörighet är åtgärdat.
