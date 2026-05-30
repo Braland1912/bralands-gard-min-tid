@@ -849,7 +849,10 @@ const EveningRound = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="redovisning" className="mt-0">
+          <TabsContent value="redovisning" className="mt-0 space-y-3">
+            <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-[12px] text-muted-foreground">
+              Moms: gästnatt 12%, allt annat (kiosk m.m.) 6%.
+            </div>
             {isAdmin ? (
               <AdminDailySummaries roundDate={date} eveningRoundId={round?.id} />
             ) : (
