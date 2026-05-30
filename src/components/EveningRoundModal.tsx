@@ -213,7 +213,7 @@ const EveningRoundModal = ({
   const [vehicleType, setVehicleType] = useState<VehicleType>("motorhome");
   const [hasElectricity, setHasElectricity] = useState<boolean>(true);
   const [trailerReg, setTrailerReg] = useState("");
-  const [tentPersons, setTentPersons] = useState<number>(2);
+  const [tentPersons, setTentPersons] = useState<number>(1);
 
 
   useEffect(() => {
@@ -243,7 +243,7 @@ const EveningRoundModal = ({
       setVehicleType((guest.vehicle_type as VehicleType) ?? "motorhome");
       setHasElectricity(guest.has_electricity ?? true);
       setTrailerReg(guest.trailer_registration ?? "");
-      setTentPersons(guest.tent_persons ?? 2);
+      setTentPersons(guest.tent_persons ?? 1);
 
     } else {
       setName("");
@@ -264,7 +264,7 @@ const EveningRoundModal = ({
       setVehicleType("motorhome");
       setHasElectricity(true);
       setTrailerReg("");
-      setTentPersons(2);
+      setTentPersons(1);
 
     }
     setError(null);
@@ -1060,20 +1060,31 @@ const EveningRoundModal = ({
             )}
             {effectiveAccommodation === "tent" && (
               <div className="space-y-1.5">
-                <Label htmlFor="tent-persons">Antal personer</Label>
-                <Input
-                  id="tent-persons"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={20}
-                  value={tentPersons}
-                  onChange={(e) => {
-                    const v = parseInt(e.target.value, 10);
-                    setTentPersons(Number.isFinite(v) && v > 0 ? v : 1);
-                  }}
-                  className="bg-card"
-                />
+                <Label>
+                  Antal personer <span className="text-destructive">*</span>
+                </Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
+                    const active = tentPersons === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setTentPersons(n)}
+                        aria-pressed={active}
+                        className={cn(
+                          "h-10 w-10 rounded-full border text-sm font-semibold transition-colors",
+                          active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-card text-foreground hover:bg-accent",
+                        )}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-muted-foreground">Påverkar priset.</p>
               </div>
             )}
             <div className={cn("grid gap-3", (effectiveAccommodation === "tent" || effectiveAccommodation === "temporary") ? "grid-cols-1" : "grid-cols-2")}>
