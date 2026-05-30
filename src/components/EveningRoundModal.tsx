@@ -1376,7 +1376,10 @@ const EveningRoundModal = ({
               );
             })()}
             <div className="space-y-1.5">
-              <Label>Betalning</Label>
+              <div className="flex items-baseline justify-between gap-2">
+                <Label>Betalning</Label>
+                <span className="text-[11px] text-muted-foreground">12% moms på gästnatt</span>
+              </div>
               <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-3">
                 <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
                   <div className="space-y-1.5">
