@@ -163,7 +163,7 @@ const AdminVersions = () => {
         ) : (
           <div className="space-y-2">
             {releases.map((r) => {
-              const stats = statsByVersion.get(r.version) ?? { running: [], notified: [] };
+              const stats = statsByVersion.get(r.version) ?? { running: [], seen: [] };
               const isOpen = expanded === r.version;
               const isLatest = r.version === latestVersion;
               return (
