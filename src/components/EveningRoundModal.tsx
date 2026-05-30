@@ -516,7 +516,7 @@ const EveningRoundModal = ({
                     </span>
 
                   ) : showPlacePicker || showEditPlacePicker ? (
-                    autoExpandPlacePicker ? "" : "Välj plats"
+                    autoExpandPlacePicker ? "" : "Välj plats – matcha förbetald gäst med plats ute på rundan"
                   ) : (
                     ""
                   )}
