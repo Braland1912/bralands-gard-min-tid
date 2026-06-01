@@ -92,7 +92,7 @@ export default function SwapShiftSection({ workerId, userId }: SwapShiftSectionP
   };
 
   return (
-    <section className="px-4 pb-6">
+    <section>
       <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">

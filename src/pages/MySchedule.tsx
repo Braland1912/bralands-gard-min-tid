@@ -788,9 +788,11 @@ const MySchedule = () => {
             </div>
           );
         })()}
+
+        <SwapShiftSection workerId={worker?.id} userId={user?.id} />
       </div>
 
-      <SwapShiftSection workerId={worker?.id} userId={user?.id} />
+
 
       <Sheet
         open={!!openShift}
