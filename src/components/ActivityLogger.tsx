@@ -1,15 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ListChecks, Loader2, Coffee } from "lucide-react";
+import { ListChecks, Coffee, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import {
   useTaskCategories,
   useActivityLogs,
   useSwitchTask,
   useUpdateChecklistState,
+  useUpdateActivityNote,
   type TaskCategory,
   type ActivityLog,
   type ChecklistStateItem,
@@ -38,10 +39,13 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
   const { data: logs, isLoading: logsLoading } = useActivityLogs(timeEntryId);
   const switchTask = useSwitchTask();
   const updateChecklist = useUpdateChecklistState();
+  const updateNote = useUpdateActivityNote();
 
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const [noteCategory, setNoteCategory] = useState<TaskCategory | null>(null);
-  const [noteText, setNoteText] = useState("");
+  const noteInputRef = useRef<HTMLInputElement | null>(null);
+  const [noteDraft, setNoteDraft] = useState<string>("");
+  const [noteLogId, setNoteLogId] = useState<string | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const i = setInterval(() => setNowMs(Date.now()), 30000);
@@ -53,14 +57,64 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
     [logs],
   );
 
+  // Category for current open log
+  const openCategory = useMemo(
+    () => (openLog ? categories?.find((c) => c.id === openLog.category_id) : undefined),
+    [openLog, categories],
+  );
+
+  const needsNote = !!openLog && !!openCategory?.requires_note;
+
+  // Sync note draft when active requires_note log changes
+  useEffect(() => {
+    if (needsNote && openLog) {
+      if (noteLogId !== openLog.id) {
+        setNoteLogId(openLog.id);
+        setNoteDraft(openLog.note ?? "");
+      }
+    } else {
+      setNoteLogId(null);
+      setNoteDraft("");
+    }
+  }, [needsNote, openLog, noteLogId]);
+
+  const flushSave = (logId: string, value: string) => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    const trimmed = value.trim();
+    const current = logs?.find((l) => l.id === logId);
+    if (!current) return;
+    if ((current.note ?? "") === trimmed) return;
+    updateNote.mutate({ logId, note: trimmed, timeEntryId });
+  };
+
+  const handleNoteChange = (val: string) => {
+    setNoteDraft(val);
+    if (!noteLogId) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      if (noteLogId) flushSave(noteLogId, val);
+    }, 700);
+  };
+
   const handleChipClick = (cat: TaskCategory) => {
     if (!isOnline || switchTask.isPending) return;
     if (openLog?.category_id === cat.id) return; // no-op same chip
 
-    if (cat.requires_note) {
-      setNoteCategory(cat);
-      setNoteText("");
-      return;
+    // Block switching if currently on a requires_note task without note filled
+    if (openLog && openCategory?.requires_note) {
+      const trimmed = noteDraft.trim();
+      if (trimmed.length < 2) {
+        toast.error("Skriv en kort beskrivning först", {
+          description: `${openCategory.label} behöver en kort notering innan du byter uppgift.`,
+        });
+        noteInputRef.current?.focus();
+        return;
+      }
+      // Make sure the latest draft is persisted before switching
+      flushSave(openLog.id, noteDraft);
     }
 
     switchTask.mutate(
@@ -73,33 +127,6 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
       {
         onError: (e: any) => {
           toast.error("Kunde inte byta uppgift", { description: e?.message });
-        },
-      },
-    );
-  };
-
-  const submitNote = () => {
-    if (!noteCategory) return;
-    const trimmed = noteText.trim();
-    if (trimmed.length < 2) {
-      toast.error("Skriv en kort beskrivning");
-      return;
-    }
-    switchTask.mutate(
-      {
-        timeEntryId,
-        workerId,
-        category: noteCategory,
-        note: trimmed,
-        currentOpenId: openLog?.id ?? null,
-      },
-      {
-        onSuccess: () => {
-          setNoteCategory(null);
-          setNoteText("");
-        },
-        onError: (e: any) => {
-          toast.error("Kunde inte spara", { description: e?.message });
         },
       },
     );
@@ -134,7 +161,6 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
         Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
       </p>
 
-
       {/* Chips */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -161,7 +187,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
         </div>
       </div>
 
-      {/* Rast – avskild från jobb-chips */}
+      {/* Rast */}
       {breakCategory && (() => {
         const breakActive = openLog?.category_id === breakCategory.id;
         return (
@@ -186,40 +212,26 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
         );
       })()}
 
-      {/* Note input for requires_note */}
-      {noteCategory && (
+      {/* Inline note for active requires_note task */}
+      {needsNote && openLog && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-2">
-          <p className="text-sm font-medium text-foreground">
-            {noteCategory.label} – vad behövde gästen hjälp med?
-          </p>
-          <div className="flex gap-2">
-            <Input
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              placeholder="Kort beskrivning..."
-              autoFocus
-              disabled={switchTask.isPending}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") submitNote();
-              }}
-            />
-            <Button
-              onClick={submitNote}
-              disabled={switchTask.isPending || noteText.trim().length < 2}
-            >
-              {switchTask.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Spara"}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setNoteCategory(null);
-                setNoteText("");
-              }}
-              disabled={switchTask.isPending}
-            >
-              Avbryt
-            </Button>
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-primary" />
+            <p className="text-sm font-medium text-foreground">
+              {openCategory?.label} – vad behövde gästen hjälp med?
+            </p>
           </div>
+          <Input
+            ref={noteInputRef}
+            value={noteDraft}
+            onChange={(e) => handleNoteChange(e.target.value)}
+            onBlur={() => noteLogId && flushSave(noteLogId, noteDraft)}
+            placeholder="Kort beskrivning..."
+            disabled={!isOnline}
+          />
+          <p className="text-xs text-muted-foreground">
+            Sparas automatiskt. Behövs innan du byter uppgift eller stämplar ut.
+          </p>
         </div>
       )}
 
@@ -266,6 +278,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
               const isBreak = l.category_label === "Rast";
               const checkTotal = l.checklist_state?.length ?? 0;
               const checkDone = l.checklist_state?.filter((s) => s.done).length ?? 0;
+              const displayNote = isOpen && l.id === noteLogId ? noteDraft : l.note;
               return (
                 <li
                   key={l.id}
@@ -286,7 +299,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
                   </span>
                   <span className="flex-1 truncate">
                     {l.category_label}
-                    {l.note ? <span className="opacity-70"> · {l.note}</span> : null}
+                    {displayNote ? <span className="opacity-70"> · {displayNote}</span> : null}
                   </span>
                   {checkTotal > 0 && (
                     <span className="text-xs tabular-nums opacity-80 shrink-0">
