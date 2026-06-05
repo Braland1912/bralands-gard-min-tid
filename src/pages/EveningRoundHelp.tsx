@@ -336,6 +336,36 @@ const EveningRoundHelp = () => {
           </div>
         </section>
 
+        {/* ============ 6. NYTTIGA FRASER PÅ ENGELSKA ============ */}
+        <section className="space-y-3 keep-together">
+          <h2 className="text-lg font-semibold text-foreground">6. Nyttiga fraser på engelska</h2>
+          <div className="rounded-lg border border-border bg-card p-4 space-y-4 text-sm text-foreground">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary mb-2">Hälsningsfraser</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Hello, is everything working good for you?</li>
+                <li>Hello, are you having a good time?</li>
+                <li>Good evening!</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary mb-2">Om du ej sett betalning</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Have you managed to pay for the night?</li>
+                <li>Can I help you with the payment?</li>
+                <li>Can I see a receipt or confirmation of your payment?</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary mb-2">Om du sett deras betalning</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>I saw your payment and here is a confirmation tag…</li>
+                <li>I saw that you paid for the night, here is a confirmation tag…</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <footer className="pt-4 border-t border-border text-xs text-muted-foreground print:pt-2">
           Brålands Gård 2026 · Kvällsrundan – guide för medarbetare. Frågor? Hör av er.
         </footer>
