@@ -1392,6 +1392,11 @@ const EveningRoundModal = ({
                 <Label>Betalning</Label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">12% moms på gästnatt</p>
               </div>
+              {isReservation && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900 leading-snug">
+                  <span className="font-semibold">Reserverad plats</span> — gästen har <em>inte</em> förbetalt och har ännu inte dykt upp. Registrera betalning först när gästen är på plats.
+                </div>
+              )}
               <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-3">
                 <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
                   <div className="space-y-1.5">
