@@ -389,7 +389,12 @@ const Index = () => {
 
             {/* Active timer */}
             {activeEntry && !forgottenEntry && (
-              <ActiveTimer since={activeEntry.clock_in!} />
+              <ActiveTimer
+                since={activeEntry.clock_in!}
+                breakLogs={breakIntervals}
+                onBreak={onBreak}
+                activeBreakStart={openBreakLog?.started_at ?? null}
+              />
             )}
 
             {/* Activity logger – only when clocked in today */}
@@ -408,12 +413,15 @@ const Index = () => {
                 <span className="text-xs font-medium uppercase tracking-wide">Idag totalt</span>
               </div>
               <p className="text-lg font-semibold text-foreground">
-                {(todayHours + (activeEntry && !forgottenEntry && activeEntry.clock_in
-                  ? (Date.now() - new Date(activeEntry.clock_in).getTime()) / 3600000
-                  : 0
-                )).toFixed(1)} h
+                {(() => {
+                  const activeMin = activeEntry && !forgottenEntry && activeEntry.clock_in
+                    ? calcWorkedMinutes(activeEntry.clock_in, new Date(), breakIntervals)
+                    : 0;
+                  return (todayHours + activeMin / 60).toFixed(1);
+                })()} h
               </p>
             </div>
+
 
             {/* Checklist reminder banner — shown while clocked in if there are unchecked items today */}
             {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (
