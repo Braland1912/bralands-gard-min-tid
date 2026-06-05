@@ -315,6 +315,7 @@ const EveningRoundModal = ({
       if (pickedPlace === currentLabel) {
         setPickedPlace(null);
         setPlaceCleared(true);
+        setStatus("not_here");
       }
     } catch {
       /* hook visar toast */
