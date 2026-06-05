@@ -272,7 +272,7 @@ const EveningRoundHelp = () => {
               Tryck <em>Starta</em> i Snabbstart-rutan innan du går ut
             </p>
             <ol start={4} className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
-              <li><strong>Gå runt platserna.</strong> Knacka på, hälsa, fråga: antal personer, antal nätter, släp?</li>
+              <li><strong>Gå runt platserna.</strong> Knacka på, hälsa, fråga: antal nätter (och antal personer vid tält, det styr priset).</li>
               <li><strong>Registrera/uppdatera</strong> sällskapet på rätt plats.</li>
               <li><strong>Beskriv sällskapet kort</strong> så nästa kollega känner igen dem.</li>
               <li><strong>Ta betalt</strong> om de inte är förbetalda. Markera betalsätt och summa.</li>
