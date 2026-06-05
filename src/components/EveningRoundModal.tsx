@@ -323,6 +323,11 @@ const EveningRoundModal = ({
   };
   const isCash = method === "K";
   const isOther = method === "O";
+  const isReservation =
+    !!guest &&
+    guest.status === "not_here" &&
+    guest.accommodation_type !== "temporary" &&
+    !guest.is_prepaid;
 
   // Boende-väljaren visas när ingen fast plats är vald (skapande av ny plats
   // eller specialläge). I `temporary`-läge är boendet låst till "temporary".
