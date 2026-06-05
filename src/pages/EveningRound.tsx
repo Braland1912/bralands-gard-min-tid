@@ -120,6 +120,9 @@ const EveningRound = () => {
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
   const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
   const [fastaCollapsed, setFastaCollapsed] = useState(false);
+  const [tempGuestsCollapsed, setTempGuestsCollapsed] = useState(false);
+  const [unassignedCollapsed, setUnassignedCollapsed] = useState(false);
+  const [extraPlacesCollapsed, setExtraPlacesCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("forbetalda");
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
@@ -632,32 +635,57 @@ const EveningRound = () => {
 
         {temporaryGuests.length > 0 && (
           <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Tillfälliga platser ({temporaryGuests.length})
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {temporaryGuests.map((g) => {
-                const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
-                return (
-                  <EveningRoundCard
-                    key={g.id}
-                    guest={g}
-                    onStatusChange={handleStatus}
-                    onEdit={openEdit}
-                    ownerName={ownerName}
-                    onExtend={setExtendingGuest}
-                  />
-                );
-              })}
-            </div>
+            <button
+              type="button"
+              onClick={() => setTempGuestsCollapsed((v) => !v)}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Tillfälliga platser ({temporaryGuests.length})
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${
+                  tempGuestsCollapsed ? "-rotate-90" : ""
+                }`}
+              />
+            </button>
+            {!tempGuestsCollapsed && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {temporaryGuests.map((g) => {
+                  const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
+                  return (
+                    <EveningRoundCard
+                      key={g.id}
+                      guest={g}
+                      onStatusChange={handleStatus}
+                      onEdit={openEdit}
+                      ownerName={ownerName}
+                      onExtend={setExtendingGuest}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
         {otherUnassignedGuests.length > 0 && (
           <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Utan plats ({otherUnassignedGuests.length})
-            </div>
+            <button
+              type="button"
+              onClick={() => setUnassignedCollapsed((v) => !v)}
+              className="flex w-full items-center justify-between text-left"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Utan plats ({otherUnassignedGuests.length})
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform ${
+                  unassignedCollapsed ? "-rotate-90" : ""
+                }`}
+              />
+            </button>
+            {!unassignedCollapsed && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {otherUnassignedGuests.map((g) => {
                 const ownerName = ownersByRoundId?.get(g.evening_round_id) ?? null;
@@ -673,6 +701,7 @@ const EveningRound = () => {
                 );
               })}
             </div>
+            )}
           </div>
         )}
 
@@ -746,12 +775,25 @@ const EveningRound = () => {
 
               {extraFiltered.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Tillfälliga platser ({extraFiltered.length})
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {extraFiltered.map(renderPlaceCard)}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setExtraPlacesCollapsed((v) => !v)}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Tillfälliga platser ({extraFiltered.length})
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        extraPlacesCollapsed ? "-rotate-90" : ""
+                      }`}
+                    />
+                  </button>
+                  {!extraPlacesCollapsed && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {extraFiltered.map(renderPlaceCard)}
+                    </div>
+                  )}
                 </div>
               )}
 
