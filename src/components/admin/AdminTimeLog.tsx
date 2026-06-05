@@ -418,13 +418,27 @@ const AdminTimeLog = () => {
                     : null;
                   return (
                     <Card key={entry.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-foreground">{entry.worker_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleEntryExpanded(entry.id)}
+                          aria-expanded={expandedEntries.has(entry.id)}
+                          aria-label={expandedEntries.has(entry.id) ? "Dölj arbetslogg" : "Visa arbetslogg"}
+                          className="flex items-center gap-2 min-w-0 flex-1 text-left -m-1 p-1 rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                              expandedEntries.has(entry.id) && "rotate-180",
+                            )}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-foreground">{entry.worker_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
+                            </p>
+                          </div>
+                        </button>
                         <div className="flex items-center gap-2">
                           <div className="text-right mr-1">
                             {hours !== null ? (
@@ -447,6 +461,14 @@ const AdminTimeLog = () => {
                           </Button>
                         </div>
                       </div>
+                      {expandedEntries.has(entry.id) && entry.clock_in && (
+                        <EntryActivityLog
+                          timeEntryId={entry.id}
+                          clockIn={entry.clock_in}
+                          clockOut={entry.clock_out}
+                          enabled
+                        />
+                      )}
                     </Card>
                   );
                 })}
