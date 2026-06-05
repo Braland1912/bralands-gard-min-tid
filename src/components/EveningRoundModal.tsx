@@ -141,7 +141,7 @@ interface Props {
   /** Omatchade förbetalda gäster (utan plats) — visas i temporary-läget för snabb tilldelning. */
   prepaidGuests?: EveningRoundGuest[];
   /**
-   * Anropas när användaren tilldelar en förbetald gäst i temporary-vyn.
+   * Anropas när användaren matchar en förbetald gäst i temporary-vyn.
    * Får gästens id och den beskrivning som är ifylld i formuläret.
    */
   onAssignPrepaidTemporary?: (guestId: string, tempDescription: string) => Promise<unknown> | unknown;
