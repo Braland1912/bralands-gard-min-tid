@@ -775,12 +775,25 @@ const EveningRound = () => {
 
               {extraFiltered.length > 0 && (
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Tillfälliga platser ({extraFiltered.length})
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {extraFiltered.map(renderPlaceCard)}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setExtraPlacesCollapsed((v) => !v)}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Tillfälliga platser ({extraFiltered.length})
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        extraPlacesCollapsed ? "-rotate-90" : ""
+                      }`}
+                    />
+                  </button>
+                  {!extraPlacesCollapsed && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {extraFiltered.map(renderPlaceCard)}
+                    </div>
+                  )}
                 </div>
               )}
 
