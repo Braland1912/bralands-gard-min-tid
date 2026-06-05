@@ -623,7 +623,7 @@ const AdminSchedule = () => {
     note?: string | null,
   ) => {
     const cfg = SHIFT_MAP[shift];
-    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
+    const hasNote = !!note && note.trim().length > 0;
     return (
       <div
         role="button"
