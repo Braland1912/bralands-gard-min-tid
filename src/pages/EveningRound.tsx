@@ -447,7 +447,7 @@ const EveningRound = () => {
           <div className="space-y-2 rounded-2xl border border-sky-200 bg-sky-50/50 p-3">
             <div className="flex items-center justify-between">
               <div className="text-xs font-semibold uppercase tracking-wide text-sky-900">
-                Inkommande · förbetalda ({incomingGuests.length})
+                Förbetalda ({incomingGuests.length})
               </div>
               <div className="text-[11px] text-sky-800/80">Tryck för att matcha med plats</div>
             </div>
