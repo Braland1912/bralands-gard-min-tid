@@ -125,12 +125,6 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground leading-snug">
-        Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
-      </p>
-
   const workCategories = categories?.filter((c) => !c.is_break) ?? [];
   const breakCategory = categories?.find((c) => c.is_break);
 
@@ -139,6 +133,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
       <p className="text-sm text-muted-foreground leading-snug">
         Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
       </p>
+
 
       {/* Chips */}
       <div className="space-y-2">
