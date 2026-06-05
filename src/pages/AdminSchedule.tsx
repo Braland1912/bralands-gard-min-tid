@@ -938,7 +938,9 @@ const AdminSchedule = () => {
                             date: format(sheet.date, "yyyy-MM-dd"),
                             shiftType: opt.type,
                             shiftIndex: sheet.shiftIndex,
-                            note: opt.type === "busy" ? noteDraft : null,
+                            // For busy we pass the current draft; for other types we omit `note`
+                            // so the mutation preserves any existing note on the row.
+                            note: opt.type === "busy" ? noteDraft : undefined,
                           });
                         }}
                         className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
