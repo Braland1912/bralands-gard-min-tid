@@ -960,13 +960,14 @@ const AdminSchedule = () => {
                 </div>
               );
 
-              const BusyNoteEditor = currentShiftType === "busy" && currentShiftRow ? (
+              const isBusy = currentShiftType === "busy";
+              const NoteEditor = currentShiftRow ? (
                 <div className="space-y-2">
-                  <Label htmlFor="busy-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Skäl (valfritt)
+                  <Label htmlFor="shift-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {isBusy ? "Skäl (valfritt)" : "Notering till medarbetaren (valfritt)"}
                   </Label>
                   <Textarea
-                    id="busy-note"
+                    id="shift-note"
                     value={noteDraft}
                     onChange={(e) => setNoteDraft(e.target.value)}
                     onBlur={() => {
@@ -976,7 +977,12 @@ const AdminSchedule = () => {
                         updateNote.mutate({ id: currentShiftRow.id, note: next });
                       }
                     }}
-                    placeholder="T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15, kan jobba till 12..."
+                    disabled={typeof navigator !== "undefined" && !navigator.onLine}
+                    placeholder={
+                      isBusy
+                        ? "T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15..."
+                        : "T.ex. info om gästerna, något särskilt att tänka på..."
+                    }
                     className="min-h-[88px] text-base"
                   />
                 </div>
