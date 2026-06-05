@@ -114,6 +114,8 @@ const AdminDashboard = () => {
         return <TimeCorrectionRequests />;
       case "team":
         return <AdminTeam />;
+      case "uppgifter":
+        return <TaskCategoryManager />;
       case "bjudin":
         return <InvitationManager />;
       case "lon":
