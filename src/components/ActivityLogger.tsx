@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ListChecks, Loader2 } from "lucide-react";
+import { ListChecks, Loader2, Coffee } from "lucide-react";
 import { toast } from "sonner";
 import {
   useTaskCategories,
@@ -125,11 +125,15 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
     );
   }
 
+  const workCategories = categories?.filter((c) => !c.is_break) ?? [];
+  const breakCategory = categories?.find((c) => c.is_break);
+
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground leading-snug">
         Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
       </p>
+
 
       {/* Chips */}
       <div className="space-y-2">
@@ -137,7 +141,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
           Vad gör du nu?
         </p>
         <div className="flex flex-wrap gap-2">
-          {categories?.map((cat) => {
+          {workCategories.map((cat) => {
             const active = openLog?.category_id === cat.id;
             return (
               <Button
@@ -156,6 +160,31 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
           })}
         </div>
       </div>
+
+      {/* Rast – avskild från jobb-chips */}
+      {breakCategory && (() => {
+        const breakActive = openLog?.category_id === breakCategory.id;
+        return (
+          <div className="space-y-2 pt-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Paus
+            </p>
+            <Button
+              type="button"
+              disabled={!isOnline || switchTask.isPending || breakActive}
+              onClick={() => handleChipClick(breakCategory)}
+              className={`min-h-12 px-4 py-3 rounded-xl text-sm font-medium gap-2 border ${
+                breakActive
+                  ? "bg-amber-500 hover:bg-amber-500 text-white border-amber-500 shadow-sm"
+                  : "bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200"
+              }`}
+            >
+              <Coffee className="h-4 w-4" />
+              {breakActive ? "På rast" : "Rast"}
+            </Button>
+          </div>
+        );
+      })()}
 
       {/* Note input for requires_note */}
       {noteCategory && (
@@ -234,17 +263,23 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
           <ul className="space-y-1.5">
             {logs.map((l) => {
               const isOpen = l.ended_at === null;
+              const isBreak = l.category_label === "Rast";
               const checkTotal = l.checklist_state?.length ?? 0;
               const checkDone = l.checklist_state?.filter((s) => s.done).length ?? 0;
               return (
                 <li
                   key={l.id}
                   className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-                    isOpen
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "bg-muted/40 text-foreground"
+                    isBreak
+                      ? isOpen
+                        ? "bg-amber-100 text-amber-900 font-medium"
+                        : "bg-amber-50 text-amber-900"
+                      : isOpen
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "bg-muted/40 text-foreground"
                   }`}
                 >
+                  {isBreak && <Coffee className="h-3.5 w-3.5 shrink-0" />}
                   <span className="tabular-nums text-xs opacity-80 shrink-0">
                     {formatTime(l.started_at)}
                     {l.ended_at ? `–${formatTime(l.ended_at)}` : "–nu"}

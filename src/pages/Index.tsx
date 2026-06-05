@@ -16,7 +16,8 @@ import TodayScheduleChips from "@/components/TodayScheduleChips";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import ActivityLogger from "@/components/ActivityLogger";
-import { useCloseOpenActivityLog } from "@/hooks/useActivityLog";
+import { useCloseOpenActivityLog, useActivityLogs } from "@/hooks/useActivityLog";
+import { calcWorkedMinutes, sumBreakMinutes, isBreakLog, type BreakInterval } from "@/lib/workedTime";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -50,24 +51,59 @@ const LiveClock = () => {
   );
 };
 
-const ActiveTimer = ({ since }: { since: string }) => {
-  const [elapsed, setElapsed] = useState("");
+const ActiveTimer = ({
+  since,
+  breakLogs,
+  onBreak,
+  activeBreakStart,
+}: {
+  since: string;
+  breakLogs: BreakInterval[];
+  onBreak: boolean;
+  activeBreakStart: string | null;
+}) => {
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    const update = () => {
-      const ms = Date.now() - new Date(since).getTime();
-      const h = Math.floor(ms / 3600000);
-      const m = Math.floor((ms % 3600000) / 60000);
-      const s = Math.floor((ms % 60000) / 1000);
-      setElapsed(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`);
-    };
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [since]);
+    const i = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(i);
+  }, []);
+
+  const workedMin = calcWorkedMinutes(since, new Date(now), breakLogs);
+  const wh = Math.floor(workedMin / 60);
+  const wm = workedMin % 60;
+  // Show seconds when not on break for a "live" feel; freeze seconds during break.
+  const ws = onBreak ? 0 : Math.floor(((now - new Date(since).getTime()) / 1000) % 60);
+  const elapsed = `${wh.toString().padStart(2, "0")}:${wm.toString().padStart(2, "0")}:${ws.toString().padStart(2, "0")}`;
+
+  const breakSecs = activeBreakStart
+    ? Math.max(0, Math.floor((now - new Date(activeBreakStart).getTime()) / 1000))
+    : 0;
+  const bm = Math.floor(breakSecs / 60);
+  const bs = breakSecs % 60;
+  const breakElapsed = `${bm.toString().padStart(2, "0")}:${bs.toString().padStart(2, "0")}`;
+
   return (
-    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center space-y-1">
-      <p className="text-xs text-primary font-medium uppercase tracking-wide">Instämplad sedan {new Date(since).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}</p>
-      <p className="text-3xl font-semibold text-primary tabular-nums">{elapsed}</p>
+    <div className="space-y-2">
+      <div className={`border rounded-xl p-4 text-center space-y-1 transition-colors ${
+        onBreak
+          ? "bg-muted/40 border-border opacity-70"
+          : "bg-primary/5 border-primary/20"
+      }`}>
+        <p className={`text-xs font-medium uppercase tracking-wide ${onBreak ? "text-muted-foreground" : "text-primary"}`}>
+          Instämplad sedan {new Date(since).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
+          {onBreak && " · pausad"}
+        </p>
+        <p className={`text-3xl font-semibold tabular-nums ${onBreak ? "text-muted-foreground" : "text-primary"}`}>
+          {elapsed}
+        </p>
+      </div>
+      {onBreak && activeBreakStart && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-center gap-2 text-amber-900">
+          <Coffee className="h-4 w-4" />
+          <span className="text-sm font-medium">På rast:</span>
+          <span className="text-base font-semibold tabular-nums">{breakElapsed}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -154,6 +190,17 @@ const Index = () => {
       ? activeEntry
       : null
     : null;
+
+  // Activity logs for the active entry (used for break calculations)
+  const { data: activityLogs = [] } = useActivityLogs(activeEntry?.id);
+  const openBreakLog = activityLogs.find((l) => l.ended_at === null && isBreakLog(l));
+  const onBreak = !!openBreakLog;
+  const breakIntervals: BreakInterval[] = activityLogs.map((l) => ({
+    started_at: l.started_at,
+    ended_at: l.ended_at,
+    category_label: l.category_label,
+  }));
+
 
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
@@ -342,7 +389,12 @@ const Index = () => {
 
             {/* Active timer */}
             {activeEntry && !forgottenEntry && (
-              <ActiveTimer since={activeEntry.clock_in!} />
+              <ActiveTimer
+                since={activeEntry.clock_in!}
+                breakLogs={breakIntervals}
+                onBreak={onBreak}
+                activeBreakStart={openBreakLog?.started_at ?? null}
+              />
             )}
 
             {/* Activity logger – only when clocked in today */}
@@ -361,12 +413,15 @@ const Index = () => {
                 <span className="text-xs font-medium uppercase tracking-wide">Idag totalt</span>
               </div>
               <p className="text-lg font-semibold text-foreground">
-                {(todayHours + (activeEntry && !forgottenEntry && activeEntry.clock_in
-                  ? (Date.now() - new Date(activeEntry.clock_in).getTime()) / 3600000
-                  : 0
-                )).toFixed(1)} h
+                {(() => {
+                  const activeMin = activeEntry && !forgottenEntry && activeEntry.clock_in
+                    ? calcWorkedMinutes(activeEntry.clock_in, new Date(), breakIntervals)
+                    : 0;
+                  return (todayHours + activeMin / 60).toFixed(1);
+                })()} h
               </p>
             </div>
+
 
             {/* Checklist reminder banner — shown while clocked in if there are unchecked items today */}
             {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (

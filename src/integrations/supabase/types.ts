@@ -656,6 +656,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          is_break: boolean
           label: string
           requires_note: boolean
           sort_order: number
@@ -665,6 +666,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          is_break?: boolean
           label: string
           requires_note?: boolean
           sort_order?: number
@@ -674,6 +676,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          is_break?: boolean
           label?: string
           requires_note?: boolean
           sort_order?: number

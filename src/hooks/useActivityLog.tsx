@@ -8,6 +8,7 @@ export interface TaskCategory {
   checklist_items: string[] | null;
   sort_order: number;
   is_active: boolean;
+  is_break: boolean;
 }
 
 export interface ChecklistStateItem {
