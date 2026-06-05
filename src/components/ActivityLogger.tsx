@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { ListChecks, Loader2 } from "lucide-react";
+import { ListChecks, Loader2, Coffee } from "lucide-react";
 import { toast } from "sonner";
 import {
   useTaskCategories,
