@@ -151,6 +151,43 @@ export const useUpdateChecklistState = () => {
   });
 };
 
+export const useUpdateActivityNote = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      logId,
+      note,
+    }: {
+      logId: string;
+      note: string;
+      timeEntryId: string;
+    }) => {
+      const { error } = await db
+        .from("activity_logs")
+        .update({ note: note.length > 0 ? note : null })
+        .eq("id", logId);
+      if (error) throw error;
+    },
+    onMutate: async ({ logId, note, timeEntryId }) => {
+      await qc.cancelQueries({ queryKey: ["activity-logs", timeEntryId] });
+      const prev = qc.getQueryData<ActivityLog[]>(["activity-logs", timeEntryId]);
+      if (prev) {
+        qc.setQueryData<ActivityLog[]>(
+          ["activity-logs", timeEntryId],
+          prev.map((l) => (l.id === logId ? { ...l, note: note.length > 0 ? note : null } : l)),
+        );
+      }
+      return { prev };
+    },
+    onError: (_e, vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["activity-logs", vars.timeEntryId], ctx.prev);
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
+    },
+  });
+};
+
 export const useCloseOpenActivityLog = () => {
   return useMutation({
     mutationFn: async (workerId: string) => {
