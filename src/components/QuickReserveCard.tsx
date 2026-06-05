@@ -20,9 +20,9 @@ interface Props {
   onOpenFull: (place: string) => void;
   /** Visas endast för egna extra-platser. Om satt går platsen att ta bort. */
   onRemoveExtraPlace?: () => void;
-  /** Förbetalda gäster utan plats — kan tilldelas direkt här. */
+  /** Förbetalda gäster utan plats — kan matchas direkt här. */
   prepaidGuests?: EveningRoundGuest[];
-  /** Tilldela en förbetald gäst denna plats. */
+  /** Matcha en förbetald gäst med denna plats. */
   onAssignPrepaid?: (guestId: string) => Promise<unknown> | unknown;
 }
 
