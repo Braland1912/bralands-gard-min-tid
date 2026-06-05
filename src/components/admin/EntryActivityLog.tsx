@@ -1,9 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
-import { ChevronDown, Coffee, FileText, ListChecks, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  Coffee,
+  FileText,
+  ListChecks,
+  Loader2,
+  Pencil,
+  Check,
+  X,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEntryActivityLogs } from "@/hooks/useEntryActivityLogs";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import {
+  useEntryActivityLogs,
+  useUpdateEntryLogNote,
+  useUpdateEntryLogChecklist,
+  type EntryActivityLogRow,
+} from "@/hooks/useEntryActivityLogs";
 import { calcWorkedMinutes, sumBreakMinutes } from "@/lib/workedTime";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +30,12 @@ interface Props {
   clockIn: string;
   clockOut: string | null;
   enabled: boolean;
+  /**
+   * När true: tillåt inline-redigering av note + checklist-toggling.
+   * Tider/rast/kategori går aldrig att redigera här.
+   * Default: false (admin-vyn).
+   */
+  editable?: boolean;
 }
 
 const fmtDur = (mins: number) => {
@@ -25,12 +49,169 @@ const fmtDur = (mins: number) => {
 const fmtHours = (mins: number) =>
   (mins / 60).toFixed(2).replace(".", ",") + " h";
 
-const EntryActivityLog = ({ timeEntryId, clockIn, clockOut, enabled }: Props) => {
+const useOnlineStatus = () => {
+  const [online, setOnline] = useState(
+    typeof navigator === "undefined" ? true : navigator.onLine,
+  );
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+  return online;
+};
+
+interface NoteEditorProps {
+  log: EntryActivityLogRow;
+  timeEntryId: string;
+  disabled: boolean;
+}
+
+const NoteEditor = ({ log, timeEntryId, disabled }: NoteEditorProps) => {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(log.note ?? "");
+  const updateNote = useUpdateEntryLogNote();
+
+  useEffect(() => {
+    if (!editing) setValue(log.note ?? "");
+  }, [log.note, editing]);
+
+  const startEdit = () => {
+    setValue(log.note ?? "");
+    setEditing(true);
+  };
+
+  const cancel = () => {
+    setValue(log.note ?? "");
+    setEditing(false);
+  };
+
+  const save = () => {
+    const trimmed = value.trim();
+    if (log.requires_note && trimmed.length < 2) {
+      toast.error("Den här uppgiften behöver en kort beskrivning");
+      return;
+    }
+    if (trimmed === (log.note ?? "")) {
+      setEditing(false);
+      return;
+    }
+    updateNote.mutate(
+      { logId: log.id, note: trimmed, timeEntryId },
+      {
+        onSuccess: () => {
+          toast.success("Sparat");
+          setEditing(false);
+        },
+      },
+    );
+  };
+
+  if (editing) {
+    return (
+      <div className="mt-1.5 flex items-start gap-1.5">
+        <FileText className="h-3.5 w-3.5 mt-2.5 shrink-0 text-muted-foreground" />
+        <div className="flex-1 flex flex-col gap-1.5 sm:flex-row sm:items-center">
+          <Input
+            autoFocus
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={
+              log.requires_note ? "Kort beskrivning..." : "Lägg till en notering..."
+            }
+            disabled={updateNote.isPending}
+            className="h-8 text-xs"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                save();
+              }
+              if (e.key === "Escape") cancel();
+            }}
+          />
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 px-2"
+              onClick={save}
+              disabled={updateNote.isPending}
+            >
+              {updateNote.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Check className="h-3.5 w-3.5" />
+              )}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2"
+              onClick={cancel}
+              disabled={updateNote.isPending}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (log.note) {
+    return (
+      <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
+        <FileText className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <span className="break-words flex-1">{log.note}</span>
+        <button
+          type="button"
+          onClick={startEdit}
+          disabled={disabled}
+          aria-label="Redigera notering"
+          className="shrink-0 p-1 -m-1 rounded hover:bg-muted/60 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <Pencil className="h-3 w-3" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-1">
+      <button
+        type="button"
+        onClick={startEdit}
+        disabled={disabled}
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <Pencil className="h-3 w-3" />
+        <span>Lägg till notering</span>
+      </button>
+    </div>
+  );
+};
+
+const EntryActivityLog = ({
+  timeEntryId,
+  clockIn,
+  clockOut,
+  enabled,
+  editable = false,
+}: Props) => {
   const { data: logs, isLoading, isFetching } = useEntryActivityLogs(
     timeEntryId,
     enabled,
   );
   const [expandedChecklists, setExpandedChecklists] = useState<Set<string>>(new Set());
+  const updateChecklist = useUpdateEntryLogChecklist();
+  const online = useOnlineStatus();
+  const canEdit = editable && online;
 
   if (!enabled) return null;
 
@@ -67,6 +248,16 @@ const EntryActivityLog = ({ timeEntryId, clockIn, clockOut, enabled }: Props) =>
     });
   };
 
+  const toggleChecklistItem = (
+    log: EntryActivityLogRow,
+    idx: number,
+    done: boolean,
+  ) => {
+    const current = log.checklist_state ?? [];
+    const next = current.map((it, i) => (i === idx ? { ...it, done } : it));
+    updateChecklist.mutate({ logId: log.id, state: next, timeEntryId });
+  };
+
   return (
     <div className="mt-3 space-y-2 border-t border-border pt-3">
       {/* Sammanfattning */}
@@ -95,6 +286,12 @@ const EntryActivityLog = ({ timeEntryId, clockIn, clockOut, enabled }: Props) =>
           <Loader2 className="ml-auto h-3 w-3 animate-spin text-muted-foreground" />
         )}
       </div>
+
+      {editable && !online && (
+        <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          Offline – redigering avstängd
+        </div>
+      )}
 
       {/* Loggrader */}
       {!logs || logs.length === 0 ? (
@@ -152,11 +349,20 @@ const EntryActivityLog = ({ timeEntryId, clockIn, clockOut, enabled }: Props) =>
                   </div>
                 </div>
 
-                {log.note && (
-                  <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
-                    <FileText className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                    <span className="break-words">{log.note}</span>
-                  </div>
+                {/* Note: redigerbar i editable-läge, annars läs-visning */}
+                {editable && !log.is_break ? (
+                  <NoteEditor
+                    log={log}
+                    timeEntryId={timeEntryId}
+                    disabled={!canEdit}
+                  />
+                ) : (
+                  log.note && (
+                    <div className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
+                      <FileText className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                      <span className="break-words">{log.note}</span>
+                    </div>
+                  )
                 )}
 
                 {hasChecklist && (
@@ -178,28 +384,57 @@ const EntryActivityLog = ({ timeEntryId, clockIn, clockOut, enabled }: Props) =>
                       />
                     </button>
                     {checklistExpanded && (
-                      <ul className="mt-1 ml-5 space-y-0.5 text-xs">
-                        {checklist.map((item, idx) => (
-                          <li
-                            key={idx}
-                            className={cn(
-                              "flex items-center gap-1.5",
-                              item.done
-                                ? "text-foreground"
-                                : "text-muted-foreground line-through-none",
-                            )}
-                          >
-                            <span
+                      <ul className="mt-1.5 ml-5 space-y-1.5 text-xs">
+                        {checklist.map((item, idx) => {
+                          if (editable) {
+                            const id = `cl-${log.id}-${idx}`;
+                            return (
+                              <li key={idx} className="flex items-center gap-2">
+                                <Checkbox
+                                  id={id}
+                                  checked={item.done}
+                                  disabled={!canEdit || updateChecklist.isPending}
+                                  onCheckedChange={(v) =>
+                                    toggleChecklistItem(log, idx, v === true)
+                                  }
+                                  className="h-4 w-4"
+                                />
+                                <label
+                                  htmlFor={id}
+                                  className={cn(
+                                    "cursor-pointer flex-1",
+                                    item.done
+                                      ? "text-muted-foreground line-through"
+                                      : "text-foreground",
+                                  )}
+                                >
+                                  {item.item}
+                                </label>
+                              </li>
+                            );
+                          }
+                          return (
+                            <li
+                              key={idx}
                               className={cn(
-                                "inline-block h-3 w-3 rounded border",
+                                "flex items-center gap-1.5",
                                 item.done
-                                  ? "bg-primary border-primary"
-                                  : "border-muted-foreground/40",
+                                  ? "text-foreground"
+                                  : "text-muted-foreground",
                               )}
-                            />
-                            <span>{item.item}</span>
-                          </li>
-                        ))}
+                            >
+                              <span
+                                className={cn(
+                                  "inline-block h-3 w-3 rounded border",
+                                  item.done
+                                    ? "bg-primary border-primary"
+                                    : "border-muted-foreground/40",
+                                )}
+                              />
+                              <span>{item.item}</span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
