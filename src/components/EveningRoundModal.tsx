@@ -778,6 +778,7 @@ const EveningRoundModal = ({
                             setPickedPlace(created);
                             setPlaceCleared(false);
                             setEditingPlace(false);
+                            setStatus("here");
                             setNewPlaceLabel("");
                           } catch {
                             /* hook visar toast */
@@ -948,9 +949,10 @@ const EveningRoundModal = ({
                               if (!label) return;
                               setCreatingPlace(true);
                               try {
-                                const created = await onAddPlace(label);
-                                setPickedPlace(created);
-                                setNewPlaceLabel("");
+                                 const created = await onAddPlace(label);
+                                 setPickedPlace(created);
+                                 setStatus("here");
+                                 setNewPlaceLabel("");
                               } catch {
                                 /* hook visar toast */
                               } finally {
