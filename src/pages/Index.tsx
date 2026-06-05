@@ -16,7 +16,8 @@ import TodayScheduleChips from "@/components/TodayScheduleChips";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import ActivityLogger from "@/components/ActivityLogger";
-import { useCloseOpenActivityLog } from "@/hooks/useActivityLog";
+import { useCloseOpenActivityLog, useActivityLogs } from "@/hooks/useActivityLog";
+import { calcWorkedMinutes, sumBreakMinutes, isBreakLog, type BreakInterval } from "@/lib/workedTime";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
