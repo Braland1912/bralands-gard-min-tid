@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Minus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Plus, Minus, StickyNote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, getISOWeek, isToday, isSameWeek, addDays } from "date-fns";
@@ -329,7 +329,7 @@ const MySchedule = () => {
   }) => {
     const cfg = SHIFT_CONFIG[shift];
     const interactive = !!onClick && (!!hasChecklist || shift === "busy");
-    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
+    const hasNote = !!note && note.trim().length > 0;
     return (
       <button
         type="button"
@@ -343,8 +343,9 @@ const MySchedule = () => {
         <span className={`leading-none ${full ? "text-base" : "text-sm"}`}>{cfg.emoji}</span>
         <span className={`font-semibold mt-0.5 ${cfg.text} text-[10px]`}>{cfg.label}</span>
         {hasNote && (
-          <span className={`mt-0.5 ${cfg.text} text-[9px] opacity-80 truncate max-w-full px-0.5`}>
-            {note}
+          <span className={`mt-0.5 inline-flex items-center gap-0.5 ${cfg.text} text-[9px] opacity-80 max-w-full px-0.5`}>
+            <StickyNote className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{note}</span>
           </span>
         )}
       </button>
