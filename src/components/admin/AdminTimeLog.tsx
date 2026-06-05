@@ -29,8 +29,18 @@ const AdminTimeLog = () => {
   const [addWorkerId, setAddWorkerId] = useState("");
   const [addClockIn, setAddClockIn] = useState("");
   const [addClockOut, setAddClockOut] = useState("");
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const toggleEntryExpanded = (id: string) => {
+    setExpandedEntries((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
