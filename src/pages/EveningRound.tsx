@@ -701,6 +701,7 @@ const EveningRound = () => {
                 );
               })}
             </div>
+            )}
           </div>
         )}
 
