@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { formatLocalDate, formatLocalTime } from "@/lib/date-format";
 
@@ -11,20 +10,30 @@ const Confirmation = () => {
   const name = searchParams.get("name");
   const ts = searchParams.get("ts");
   const tsDate = ts ? new Date(ts) : new Date();
+  const [secondsLeft, setSecondsLeft] = useState(3);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/");
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    const timer = setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s <= 1) {
+          clearInterval(timer);
+          navigate("/");
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
   }, [navigate]);
 
   const timeStr = formatLocalTime(tsDate);
   const dateStr = formatLocalDate(tsDate, "long");
 
   return (
-    <div className="min-h-screen bg-background flex flex-col px-6 pt-16 pb-8 safe-area-inset">
+    <div
+      className="min-h-screen bg-background flex flex-col px-6 pt-16 pb-8 safe-area-inset cursor-pointer"
+      onClick={() => navigate("/")}
+    >
       <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 w-full max-w-md mx-auto">
         <CheckCircle
           className="h-32 w-32 text-primary animate-in zoom-in duration-500"
@@ -50,13 +59,14 @@ const Confirmation = () => {
         </div>
       </div>
 
-      <Button
-        onClick={() => navigate("/")}
-        size="lg"
-        className="w-full h-16 text-lg font-semibold"
-      >
-        Klar
-      </Button>
+      <div className="text-center animate-in fade-in duration-1000">
+        <p className="text-sm text-muted-foreground">
+          Skickar vidare om {secondsLeft} sekund{secondsLeft !== 1 ? "er" : ""}…
+        </p>
+        <p className="text-xs text-muted-foreground/60 mt-1">
+          Tryck var som helst för att gå vidare direkt
+        </p>
+      </div>
     </div>
   );
 };
