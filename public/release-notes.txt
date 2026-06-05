@@ -1,1 +1,1 @@
-Nu kan alla medarbetare registrera förbetalda och tillfälliga gäster i kvällsrundan, även om du inte är ansvarig för rundan den dagen. Tidigare felmeddelande om behörighet är åtgärdat.
+Nu får du en sammanfattning när du stämplar ut. Kontrollera dina loggade uppgifter, justera tider, lägg till glömda raster och bekräfta innan passet avslutas.
