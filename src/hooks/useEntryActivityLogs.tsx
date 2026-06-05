@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -14,6 +14,7 @@ export interface EntryActivityLogRow {
   started_at: string;
   ended_at: string | null;
   is_break: boolean;
+  requires_note: boolean;
 }
 
 /**
@@ -31,7 +32,7 @@ export const useEntryActivityLogs = (
       const { data, error } = await db
         .from("activity_logs")
         .select(
-          "id, time_entry_id, category_id, category_label, note, checklist_state, started_at, ended_at, task_categories(is_break)",
+          "id, time_entry_id, category_id, category_label, note, checklist_state, started_at, ended_at, task_categories(is_break, requires_note)",
         )
         .eq("time_entry_id", timeEntryId)
         .order("started_at", { ascending: true });
@@ -51,7 +52,99 @@ export const useEntryActivityLogs = (
         is_break:
           row.task_categories?.is_break === true ||
           row.category_label === "Rast",
+        requires_note: row.task_categories?.requires_note === true,
       }));
+    },
+  });
+};
+
+/**
+ * Uppdaterar note på en activity_logs-rad. Optimistisk uppdatering mot
+ * ["entry-activity-logs", timeEntryId].
+ */
+export const useUpdateEntryLogNote = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      logId,
+      note,
+    }: {
+      logId: string;
+      note: string;
+      timeEntryId: string;
+    }) => {
+      const trimmed = note.trim();
+      const { error } = await db
+        .from("activity_logs")
+        .update({ note: trimmed.length > 0 ? trimmed : null })
+        .eq("id", logId);
+      if (error) throw error;
+    },
+    onMutate: async ({ logId, note, timeEntryId }) => {
+      const key = ["entry-activity-logs", timeEntryId];
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<EntryActivityLogRow[]>(key);
+      const trimmed = note.trim();
+      if (prev) {
+        qc.setQueryData<EntryActivityLogRow[]>(
+          key,
+          prev.map((r) =>
+            r.id === logId ? { ...r, note: trimmed.length > 0 ? trimmed : null } : r,
+          ),
+        );
+      }
+      return { prev, key };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev && ctx.key) qc.setQueryData(ctx.key, ctx.prev);
+      toast.error("Kunde inte spara noteringen");
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["entry-activity-logs", vars.timeEntryId] });
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
+    },
+  });
+};
+
+/**
+ * Uppdaterar checklist_state på en activity_logs-rad. Optimistisk uppdatering.
+ */
+export const useUpdateEntryLogChecklist = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      logId,
+      state,
+    }: {
+      logId: string;
+      state: Array<{ item: string; done: boolean }>;
+      timeEntryId: string;
+    }) => {
+      const { error } = await db
+        .from("activity_logs")
+        .update({ checklist_state: state })
+        .eq("id", logId);
+      if (error) throw error;
+    },
+    onMutate: async ({ logId, state, timeEntryId }) => {
+      const key = ["entry-activity-logs", timeEntryId];
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<EntryActivityLogRow[]>(key);
+      if (prev) {
+        qc.setQueryData<EntryActivityLogRow[]>(
+          key,
+          prev.map((r) => (r.id === logId ? { ...r, checklist_state: state } : r)),
+        );
+      }
+      return { prev, key };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev && ctx.key) qc.setQueryData(ctx.key, ctx.prev);
+      toast.error("Kunde inte spara checklistan");
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["entry-activity-logs", vars.timeEntryId] });
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
     },
   });
 };
