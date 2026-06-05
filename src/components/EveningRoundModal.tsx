@@ -1484,7 +1484,7 @@ const EveningRoundModal = ({
                       className="bg-card"
                     />
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {["Var ej där", "Ville inte av någon anledning"].map((r) => (
+                      {["Var ej där", "Ville inte av någon anledning", "Betalt – Debiteras nere under rundan"].map((r) => (
                         <button
                           key={r}
                           type="button"
