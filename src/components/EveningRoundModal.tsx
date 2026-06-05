@@ -392,9 +392,9 @@ const EveningRoundModal = ({
       fail("Ange varför ingen betalning skett");
       return;
     }
-    // Ej betalt får bara kombineras med "ej här" om det är en reservation
-    // (ankomst i framtiden). Annars måste betalning registreras.
-    // Förbetalda gäster (mode=prepaid) räknas alltid som "ej här" tills plats tilldelas.
+    // Status bestäms av vald plats/boende. Anledningen till ej betalt är
+    // fri text (chips är bara snabbval) och påverkar inte statusen – en gäst
+    // kan vara "ej här" just nu (t.ex. på promenad) utan att ha betalat ännu.
     const effectiveStatus: GuestStatus = !guest
       ? (place == null || effectiveAccommodation === "temporary")
         ? (effectiveAccommodation === "temporary" ? "here" : "not_here")
@@ -402,15 +402,6 @@ const EveningRoundModal = ({
       : placeCleared
         ? "not_here"
         : status;
-    if (
-      method === "none" &&
-      effectiveStatus === "not_here" &&
-      arrival <= todayLocal() &&
-      mode !== "prepaid"
-    ) {
-      fail("Ej betalt + ej här går bara för reservationer (ankomst i framtiden)");
-      return;
-    }
 
     setSaving(true);
     try {
