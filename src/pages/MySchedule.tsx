@@ -792,6 +792,14 @@ const MySchedule = () => {
         })()}
 
         <SwapShiftSection workerId={worker?.id} userId={user?.id} />
+
+        {user?.id && (
+          <CalendarSyncCard
+            feedUserId={user.id}
+            title="Synka mitt schema till kalender"
+            description="Prenumerera på dina egna pass i iPhone-kalendern eller WeekCal — uppdateras automatiskt."
+          />
+        )}
       </div>
 
 
