@@ -278,12 +278,8 @@ const Index = () => {
       performClockOut();
       return;
     }
-    if ((checklistStatus?.unchecked ?? 0) > 0) {
-      setConfirmClockOutOpen(true);
-      return;
-    }
-    performClockOut();
-  }, [worker, clockOutState, isOnline, activeEntry, checklistStatus, performClockOut]);
+    setConfirmClockOutOpen(true);
+  }, [worker, clockOutState, isOnline, activeEntry]);
 
   const handleForgottenCorrection = () => {
     navigate("/my-time");
