@@ -405,6 +405,18 @@ const EveningRoundModal = ({
         ? "not_here"
         : status;
 
+    // Gäst på plats utan betalning måste ha en anledning ifylld.
+    if (
+      method === "none" &&
+      effectiveStatus === "here" &&
+      mode !== "prepaid" &&
+      !unpaidReason.trim()
+    ) {
+      fail("Skriv varför gästen inte har betalat");
+      return;
+    }
+
+
     setSaving(true);
     try {
       await onSave({
