@@ -120,6 +120,9 @@ const EveningRound = () => {
   const [addPlaceChoiceOpen, setAddPlaceChoiceOpen] = useState(false);
   const [autoExpandPlacePicker, setAutoExpandPlacePicker] = useState(false);
   const [fastaCollapsed, setFastaCollapsed] = useState(false);
+  const [tempGuestsCollapsed, setTempGuestsCollapsed] = useState(false);
+  const [unassignedCollapsed, setUnassignedCollapsed] = useState(false);
+  const [extraPlacesCollapsed, setExtraPlacesCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("forbetalda");
 
   const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
