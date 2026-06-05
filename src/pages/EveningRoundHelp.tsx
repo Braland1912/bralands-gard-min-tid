@@ -178,9 +178,9 @@ const EveningRoundHelp = () => {
                 <strong>Platslistan</strong> – alla campingplatser 1–21 och E1–E6.
               </li>
               <li>
-                <strong>"Lägg till plats"</strong> – endast för att matcha en
-                förbetald gäst eller skapa en tillfällig plats (tält/fordon på
-                gräs). Fasta platser går via platskortet.
+                <strong>"Lägg till tillfällig plats"</strong> – endast för att
+                matcha en förbetald gäst eller skapa en tillfällig plats
+                (tält/fordon på gräs). Fasta platser går via platskortet.
               </li>
 
               <li>
