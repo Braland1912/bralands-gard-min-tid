@@ -264,7 +264,7 @@ const EveningRoundHelp = () => {
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
             <li><strong>Stämpla in</strong> på tidrapporten.</li>
             <li><strong>Registrera dagens förbetalda</strong> som kommit in via mejl/telefon.</li>
-            <li><strong>Kolla "Inkommande · förbetalda"</strong> – är någon redan här? Matcha mot plats.</li>
+            <li><strong>Kolla "Förbetalda"</strong> – är någon redan här? Matcha mot plats.</li>
           </ol>
 
           <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
