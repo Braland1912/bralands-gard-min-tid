@@ -1,1 +1,4 @@
 project_id = "zpwtjjnedhhcmyfcjhmo"
+
+[functions.schedule-ics]
+verify_jwt = false
