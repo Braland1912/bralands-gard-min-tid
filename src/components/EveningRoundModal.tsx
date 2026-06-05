@@ -388,10 +388,6 @@ const EveningRoundModal = ({
       fail("Beskriv betalningsmetoden");
       return;
     }
-    if (method === "none" && !unpaidReason.trim()) {
-      fail("Ange varför ingen betalning skett");
-      return;
-    }
     // Status bestäms av vald plats/boende. Anledningen till ej betalt är
     // fri text (chips är bara snabbval) och påverkar inte statusen – en gäst
     // kan vara "ej här" just nu (t.ex. på promenad) utan att ha betalat ännu.
@@ -1455,7 +1451,7 @@ const EveningRoundModal = ({
                       className="bg-card"
                     />
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {["Var ej där", "Har ej kommit, bara reserverat", "Ville inte av någon anledning"].map((r) => (
+                      {["Var ej där", "Ville inte av någon anledning"].map((r) => (
                         <button
                           key={r}
                           type="button"
