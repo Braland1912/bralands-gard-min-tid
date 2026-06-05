@@ -1156,7 +1156,7 @@ const AdminSchedule = () => {
 
               return hasShift ? (
                 <>
-                  {BusyNoteEditor}
+                  {NoteEditor}
                   {currentShiftRow && currentShiftType !== "busy" && (
                     <div>
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
