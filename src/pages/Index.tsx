@@ -86,6 +86,7 @@ const Index = () => {
   const [earlyReason, setEarlyReason] = useState("");
   const [submittingEarly, setSubmittingEarly] = useState(false);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
+  const closeOpenActivityLog = useCloseOpenActivityLog();
 
   // Track online status
   useEffect(() => {
