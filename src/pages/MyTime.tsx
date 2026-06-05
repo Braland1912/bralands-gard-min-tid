@@ -61,6 +61,29 @@ const MyTime = () => {
   const [formClockIn, setFormClockIn] = useState("");
   const [formClockOut, setFormClockOut] = useState("");
   const [formReason, setFormReason] = useState("");
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+
+  const toggleEntryExpanded = (id: string) => {
+    setExpandedEntries((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const requestCorrectionFor = (entry: { id: string; clock_in: string | null; clock_out: string | null }) => {
+    const day = entry.clock_in ? format(new Date(entry.clock_in), "yyyy-MM-dd") : "";
+    const ci = entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "";
+    const co = entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : "";
+    setFormDate(day);
+    setFormClockIn(ci);
+    setFormClockOut(co);
+    setFormReason("");
+    setActiveTab("rattelser");
+    navigate("/my-time", { state: { tab: "rattelser" }, replace: false });
+    setTimeout(() => setOpen(true), 60);
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
