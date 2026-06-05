@@ -128,6 +128,7 @@ export type Database = {
           label: string | null
           revoked: boolean
           token: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -136,6 +137,7 @@ export type Database = {
           label?: string | null
           revoked?: boolean
           token: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -144,6 +146,7 @@ export type Database = {
           label?: string | null
           revoked?: boolean
           token?: string
+          user_id?: string | null
         }
         Relationships: []
       }
