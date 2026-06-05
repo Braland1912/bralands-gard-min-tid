@@ -896,7 +896,26 @@ const EveningRound = () => {
               Moms: gästnatt 12%, allt annat (kiosk m.m.) 6%.
             </div>
             {isAdmin ? (
-              <AdminDailySummaries roundDate={date} eveningRoundId={round?.id} />
+              <>
+                {worker?.id && round?.id && (
+                  <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3">
+                    <div>
+                      <h2 className="text-base font-semibold">Din egen kassaredovisning</h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Använd den här om du som admin tömmer brevlådan eller tar emot kontanter under dagen – utan att lägga till en rad hos någon medarbetare.
+                      </p>
+                    </div>
+                    <EveningRoundSummaryForm
+                      eveningRoundId={round.id}
+                      workerId={worker.id}
+                      roundDate={date}
+                      showQuickStart={false}
+                      showChecklist={false}
+                    />
+                  </div>
+                )}
+                <AdminDailySummaries roundDate={date} eveningRoundId={round?.id} />
+              </>
             ) : (
               <EveningRoundSummaryForm
                 eveningRoundId={round?.id}
