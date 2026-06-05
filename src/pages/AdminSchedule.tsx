@@ -1204,8 +1204,8 @@ const AdminSchedule = () => {
                     Ta bort pass
                   </Button>
                 )}
-                <Button className="flex-1" onClick={() => setSheet(null)}>
-                  Klar
+                <Button variant="outline" className="flex-1" onClick={() => setSheet(null)}>
+                  Avbryt
                 </Button>
               </div>
             );
