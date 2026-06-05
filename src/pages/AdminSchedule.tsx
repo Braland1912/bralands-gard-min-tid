@@ -278,8 +278,13 @@ const AdminSchedule = () => {
         .maybeSingle();
 
       const payload: any = { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex };
-      // Only persist note for busy entries; clear it for other types
-      payload.note = shiftType === "busy" ? (note && note.trim().length > 0 ? note.trim() : null) : null;
+      // Note follows the row, not the type: preserve existing note when switching types
+      // unless a fresh note was explicitly provided (used when creating/editing busy from sheet).
+      if (typeof note === "string" || note === null) {
+        payload.note = note && note.trim().length > 0 ? note.trim() : null;
+      } else if (existing && "note" in existing) {
+        payload.note = (existing as any).note ?? null;
+      }
 
       const { error } = await supabase
         .from("schedules")
