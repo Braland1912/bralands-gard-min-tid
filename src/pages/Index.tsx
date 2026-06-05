@@ -191,6 +191,17 @@ const Index = () => {
       : null
     : null;
 
+  // Activity logs for the active entry (used for break calculations)
+  const { data: activityLogs = [] } = useActivityLogs(activeEntry?.id);
+  const openBreakLog = activityLogs.find((l) => l.ended_at === null && isBreakLog(l));
+  const onBreak = !!openBreakLog;
+  const breakIntervals: BreakInterval[] = activityLogs.map((l) => ({
+    started_at: l.started_at,
+    ended_at: l.ended_at,
+    category_label: l.category_label,
+  }));
+
+
   const handleClockIn = useCallback(async () => {
     if (!worker || clockInState !== "idle" || !isOnline) return;
     // Only block when there's an active entry from TODAY (not a forgotten one from a previous day)
