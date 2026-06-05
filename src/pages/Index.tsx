@@ -345,6 +345,15 @@ const Index = () => {
               <ActiveTimer since={activeEntry.clock_in!} />
             )}
 
+            {/* Activity logger – only when clocked in today */}
+            {activeEntry && !forgottenEntry && worker && (
+              <ActivityLogger
+                timeEntryId={activeEntry.id}
+                workerId={worker.id}
+                isOnline={isOnline}
+              />
+            )}
+
             {/* Today's summary */}
             <div className="bg-muted/50 rounded-xl p-3 text-center">
               <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-0.5">
