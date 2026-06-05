@@ -171,16 +171,16 @@ const EveningRoundHelp = () => {
                 när du börjar och <em>Stoppa</em> när du är klar.
               </li>
               <li>
-                <strong>Inkommande · förbetalda</strong> – gäster som betalat
-                men inte tilldelats plats än.
+                <strong>Förbetalda</strong> – gäster som betalat men inte
+                matchats mot plats än.
               </li>
               <li>
                 <strong>Platslistan</strong> – alla campingplatser 1–21 och E1–E6.
               </li>
               <li>
-                <strong>"Lägg till plats"</strong> – endast för att matcha en
-                förbetald gäst eller skapa en tillfällig plats (tält/fordon på
-                gräs). Fasta platser går via platskortet.
+                <strong>"Lägg till tillfällig plats"</strong> – endast för att
+                matcha en förbetald gäst eller skapa en tillfällig plats
+                (tält/fordon på gräs). Fasta platser går via platskortet.
               </li>
 
               <li>
@@ -224,7 +224,7 @@ const EveningRoundHelp = () => {
               Tillfällig plats utan förbetalning
             </h3>
             <ol className="list-decimal pl-5 space-y-1 text-foreground">
-              <li>Tryck på <strong>Lägg till plats</strong> och välj fliken <strong>Ny gäst</strong>.</li>
+              <li>Tryck på <strong>Lägg till tillfällig plats</strong> och välj fliken <strong>Ny gäst</strong>.</li>
               <li>Skriv en kort beskrivning av platsen och tryck <strong>Skapa tillfällig plats</strong>.</li>
 
               <li>
@@ -264,7 +264,7 @@ const EveningRoundHelp = () => {
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground leading-relaxed">
             <li><strong>Stämpla in</strong> på tidrapporten.</li>
             <li><strong>Registrera dagens förbetalda</strong> som kommit in via mejl/telefon.</li>
-            <li><strong>Kolla "Inkommande · förbetalda"</strong> – är någon redan här? Matcha mot plats.</li>
+            <li><strong>Kolla "Förbetalda"</strong> – är någon redan här? Matcha mot plats.</li>
           </ol>
 
           <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
@@ -313,7 +313,7 @@ const EveningRoundHelp = () => {
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
                 <strong>En gäst = en post.</strong> Skapa aldrig en ny rad för
-                någon som redan finns i "Inkommande" – matcha istället.
+                någon som redan finns under "Förbetalda" – matcha istället.
               </li>
               <li>
                 <strong>Beskriv tillfälliga platser noga</strong> så nästa
@@ -328,7 +328,7 @@ const EveningRoundHelp = () => {
                 ordnad i förväg.
               </li>
               <li>
-                <strong>Hittar du inte gästen?</strong> Kolla "Inkommande" högst
+                <strong>Hittar du inte gästen?</strong> Kolla "Förbetalda" högst
                 upp innan du registrerar på nytt.
               </li>
               <li><strong>Osäker?</strong> Fråga hellre en gång för mycket.</li>
