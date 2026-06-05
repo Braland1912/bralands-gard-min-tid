@@ -25,7 +25,7 @@ const SHIFT_EMOJI: Record<string, string> = {
   evening: "🌙",
   busy: "🚫",
   fishing: "🎣",
-  clearing: "🌲",
+  clearing: "🚜",
   off: "💤",
 };
 

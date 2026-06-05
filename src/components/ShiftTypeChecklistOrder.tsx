@@ -39,8 +39,8 @@ const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; bo
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
   { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
   { value: "evening", label: "Kväll", emoji: "🌙", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
-  { value: "fishing", label: "Fiske", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
-  { value: "clearing", label: "Röja", emoji: "🌲", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
+  { value: "fishing", label: "Guidning", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  { value: "clearing", label: "Gårdssyslor", emoji: "🚜", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
 ];
 
 type Link = { id: string; template_id: string; shift_type: string; sort_order: number };
