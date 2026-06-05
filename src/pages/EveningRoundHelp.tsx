@@ -171,8 +171,8 @@ const EveningRoundHelp = () => {
                 när du börjar och <em>Stoppa</em> när du är klar.
               </li>
               <li>
-                <strong>Inkommande · förbetalda</strong> – gäster som betalat
-                men inte tilldelats plats än.
+                <strong>Förbetalda</strong> – gäster som betalat men inte
+                matchats mot plats än.
               </li>
               <li>
                 <strong>Platslistan</strong> – alla campingplatser 1–21 och E1–E6.
