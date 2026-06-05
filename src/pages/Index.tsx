@@ -19,6 +19,7 @@ import ActivityLogger from "@/components/ActivityLogger";
 import { useCloseOpenActivityLog, useActivityLogs } from "@/hooks/useActivityLog";
 import { calcWorkedMinutes, sumBreakMinutes, isBreakLog, type BreakInterval } from "@/lib/workedTime";
 import { Textarea } from "@/components/ui/textarea";
+import ClockOutReview from "@/components/ClockOutReview";
 import {
   Dialog,
   DialogContent,
