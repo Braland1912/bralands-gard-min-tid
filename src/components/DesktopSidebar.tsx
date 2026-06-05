@@ -49,6 +49,7 @@ const adminItems: NavItem[] = [
   { id: "tidslogg", label: "Tidslogg", icon: Clock, dashboardTab: "tidslogg", matchTab: "tidslogg" },
   { id: "rattelser", label: "Rättelser", icon: AlertTriangle, dashboardTab: "rattelser", matchTab: "rattelser" },
   { id: "team", label: "Team", icon: Users, dashboardTab: "team", matchTab: "team" },
+  { id: "uppgifter", label: "Uppgifter", icon: Tags, dashboardTab: "uppgifter", matchTab: "uppgifter" },
   { id: "checklistor", label: "Checklistor", icon: ListChecks, path: "/admin/checklists", matchPath: "/admin/checklists" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
   { id: "bjudin", label: "Bjud in", icon: Link2, dashboardTab: "bjudin", matchTab: "bjudin" },
