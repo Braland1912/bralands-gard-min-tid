@@ -1,1 +1,1 @@
-Nu får du en sammanfattning när du stämplar ut. Kontrollera dina loggade uppgifter, justera tider, lägg till glömda raster och bekräfta innan passet avslutas.
+Kvällsrundan har fått ny hjälptext med användbara fraser på engelska. Orden har ändrats till "förbetalda" och "matcha" överallt så det blir tydligare. Som admin kan du nu också redovisa kontanter direkt utan att lägga till en medarbetare.
