@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon, X } from "lucide-react";
+import { ArrowLeft, Plus, Clock, Power, FileText, Loader2, CalendarIcon, X, ChevronDown } from "lucide-react";
+import EntryActivityLog from "@/components/admin/EntryActivityLog";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TimePicker } from "@/components/TimePicker";
@@ -60,6 +61,29 @@ const MyTime = () => {
   const [formClockIn, setFormClockIn] = useState("");
   const [formClockOut, setFormClockOut] = useState("");
   const [formReason, setFormReason] = useState("");
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
+
+  const toggleEntryExpanded = (id: string) => {
+    setExpandedEntries((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const requestCorrectionFor = (entry: { id: string; clock_in: string | null; clock_out: string | null }) => {
+    const day = entry.clock_in ? format(new Date(entry.clock_in), "yyyy-MM-dd") : "";
+    const ci = entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "";
+    const co = entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : "";
+    setFormDate(day);
+    setFormClockIn(ci);
+    setFormClockOut(co);
+    setFormReason("");
+    setActiveTab("rattelser");
+    navigate("/my-time", { state: { tab: "rattelser" }, replace: false });
+    setTimeout(() => setOpen(true), 60);
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -493,18 +517,53 @@ const MyTime = () => {
                             const hours = e.clock_in && e.clock_out
                               ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
                               : null;
+                            const isExpanded = expandedEntries.has(e.id);
                             return (
-                              <div key={e.id} className="px-4 py-3 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
-                                    <span>{e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"}</span>
-                                    <span>–</span>
-                                    <span>{e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary font-medium">nu</span>}</span>
+                              <div key={e.id} className="px-4 py-3 space-y-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleEntryExpanded(e.id)}
+                                  className="w-full flex items-center justify-between gap-3 text-left"
+                                  aria-expanded={isExpanded}
+                                  aria-label={isExpanded ? "Dölj arbetslogg" : "Visa arbetslogg"}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <ChevronDown
+                                      className={cn(
+                                        "h-4 w-4 text-muted-foreground transition-transform",
+                                        isExpanded && "rotate-180",
+                                      )}
+                                    />
+                                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
+                                      <span>{e.clock_in ? format(new Date(e.clock_in), "HH:mm") : "–"}</span>
+                                      <span>–</span>
+                                      <span>{e.clock_out ? format(new Date(e.clock_out), "HH:mm") : <span className="text-primary font-medium">nu</span>}</span>
+                                    </div>
                                   </div>
-                                </div>
-                                <p className="text-sm font-medium text-foreground tabular-nums">
-                                  {hours ? `${hours.toFixed(1)} h` : ""}
-                                </p>
+                                  <p className="text-sm font-medium text-foreground tabular-nums">
+                                    {hours ? `${hours.toFixed(1)} h` : (!e.clock_out ? <span className="text-primary">pågår</span> : "")}
+                                  </p>
+                                </button>
+                                {isExpanded && e.clock_in && (
+                                  <div className="pl-6">
+                                    <EntryActivityLog
+                                      timeEntryId={e.id}
+                                      clockIn={e.clock_in}
+                                      clockOut={e.clock_out}
+                                      enabled
+                                      editable
+                                    />
+                                    <div className="mt-3 text-right">
+                                      <button
+                                        type="button"
+                                        onClick={() => requestCorrectionFor(e)}
+                                        className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+                                      >
+                                        Fel på tiderna? Begär rättelse
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
