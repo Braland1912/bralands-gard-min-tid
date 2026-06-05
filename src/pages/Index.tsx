@@ -224,7 +224,7 @@ const Index = () => {
       toast({ title: "Utstampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockOutState("idle");
     }
-  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient, navigate]);
+  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient, navigate, closeOpenActivityLog]);
 
   const handleClockOut = useCallback(() => {
     if (!worker || clockOutState !== "idle" || !isOnline || !activeEntry) {
