@@ -20,9 +20,9 @@ interface Props {
   onOpenFull: (place: string) => void;
   /** Visas endast för egna extra-platser. Om satt går platsen att ta bort. */
   onRemoveExtraPlace?: () => void;
-  /** Förbetalda gäster utan plats — kan tilldelas direkt här. */
+  /** Förbetalda gäster utan plats — kan matchas direkt här. */
   prepaidGuests?: EveningRoundGuest[];
-  /** Tilldela en förbetald gäst denna plats. */
+  /** Matcha en förbetald gäst med denna plats. */
   onAssignPrepaid?: (guestId: string) => Promise<unknown> | unknown;
 }
 
@@ -123,7 +123,7 @@ const QuickReserveCard = ({ placeLabel, date, onQuickReserve, onOpenFull, onRemo
               className="w-full rounded-xl border border-sky-200 bg-sky-50 text-sky-800 text-xs font-semibold py-2 flex items-center justify-center gap-1.5 hover:bg-sky-100 transition-colors"
             >
               <UserCheck className="h-3.5 w-3.5" />
-              Tilldela förbetald ({prepaidGuests.length})
+              Matcha förbetald ({prepaidGuests.length})
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-72 p-2 max-h-72 overflow-y-auto">
