@@ -933,26 +933,15 @@ const AdminSchedule = () => {
                       <button
                         key={opt.type}
                         onClick={() => {
-                          upsertShift.mutate(
-                            {
-                              userId: sheet.worker.user_id,
-                              date: format(sheet.date, "yyyy-MM-dd"),
-                              shiftType: opt.type,
-                              shiftIndex: sheet.shiftIndex,
-                              // For busy we pass the current draft; for other types we omit `note`
-                              // so the mutation preserves any existing note on the row.
-                              note: opt.type === "busy" ? noteDraft : undefined,
-                            },
-                            {
-                              onSuccess: () => {
-                                // Auto-stäng för enkla pass; stanna kvar för "busy"
-                                // (kräver/erbjuder skäl) så admin kan skriva utan extra klick.
-                                if (opt.type !== "busy") {
-                                  window.setTimeout(() => setSheet(null), 280);
-                                }
-                              },
-                            },
-                          );
+                          upsertShift.mutate({
+                            userId: sheet.worker.user_id,
+                            date: format(sheet.date, "yyyy-MM-dd"),
+                            shiftType: opt.type,
+                            shiftIndex: sheet.shiftIndex,
+                            // For busy we pass the current draft; for other types we omit `note`
+                            // so the mutation preserves any existing note on the row.
+                            note: opt.type === "busy" ? noteDraft : undefined,
+                          });
                         }}
                         className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-all duration-200 active:scale-[0.99] ${opt.bg} ${
                           isSelected ? "border-primary ring-2 ring-primary/30 scale-[1.01]" : `${opt.border} hover:brightness-95`
@@ -1197,22 +1186,26 @@ const AdminSchedule = () => {
               ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
               : null;
             const canDelete = !!sheet.worker.user_id && !!currentShiftType;
-            if (!canDelete) return null;
             return (
               <div className="modal-footer">
-                <Button
-                  variant="outline"
-                  className="flex-1 text-destructive hover:text-destructive"
-                  onClick={() =>
-                    deleteShift.mutate({
-                      userId: sheet.worker.user_id,
-                      date: format(sheet.date, "yyyy-MM-dd"),
-                      shiftIndex: sheet.shiftIndex,
-                    })
-                  }
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Ta bort pass
+                {canDelete && (
+                  <Button
+                    variant="outline"
+                    className="flex-1 text-destructive hover:text-destructive"
+                    onClick={() =>
+                      deleteShift.mutate({
+                        userId: sheet.worker.user_id,
+                        date: format(sheet.date, "yyyy-MM-dd"),
+                        shiftIndex: sheet.shiftIndex,
+                      })
+                    }
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Ta bort pass
+                  </Button>
+                )}
+                <Button className="flex-1" onClick={() => setSheet(null)}>
+                  Klar
                 </Button>
               </div>
             );
