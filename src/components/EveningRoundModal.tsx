@@ -461,14 +461,24 @@ const EveningRoundModal = ({
           <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
-                <DialogTitle>
-                  {guest
-                    ? "Redigera gäst"
-                    : mode === "prepaid"
-                      ? "Förbetald gäst"
-                      : mode === "temporary"
-                        ? "Tillfällig plats"
-                        : "Lägg till gäst"}
+                <DialogTitle className="flex items-center gap-2 flex-wrap">
+                  <span>
+                    {guest
+                      ? "Redigera gäst"
+                      : mode === "prepaid"
+                        ? "Förbetald gäst"
+                        : mode === "temporary"
+                          ? "Tillfällig plats"
+                          : "Lägg till gäst"}
+                  </span>
+                  {isReservation && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px] font-semibold uppercase tracking-wide"
+                    >
+                      Reserverad
+                    </Badge>
+                  )}
                 </DialogTitle>
                 <DialogDescription>
                   {place != null ? (
