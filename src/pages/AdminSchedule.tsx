@@ -45,8 +45,8 @@ const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; bg: string
   { type: "day", emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
   { type: "evening", emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
   { type: "busy", emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
-  { type: "fishing", emoji: "🎣", label: "Fiske", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
-  { type: "clearing", emoji: "🌲", label: "Röja", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
+  { type: "fishing", emoji: "🎣", label: "Guidning", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
+  { type: "clearing", emoji: "🚜", label: "Gårdssyslor", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
   { type: "off", emoji: "💤", label: "Ledigt", bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-400" },
 ];
 
@@ -271,15 +271,20 @@ const AdminSchedule = () => {
       // Check if this shift already exists (so we know if it's newly created)
       const { data: existing } = await supabase
         .from("schedules")
-        .select("id, shift_type")
+        .select("id, shift_type, note")
         .eq("user_id", userId)
         .eq("date", date)
         .eq("shift_index", shiftIndex)
         .maybeSingle();
 
       const payload: any = { user_id: userId, date, shift_type: shiftType, shift_index: shiftIndex };
-      // Only persist note for busy entries; clear it for other types
-      payload.note = shiftType === "busy" ? (note && note.trim().length > 0 ? note.trim() : null) : null;
+      // Note follows the row, not the type: preserve existing note when switching types
+      // unless a fresh note was explicitly provided (used when creating/editing busy from sheet).
+      if (typeof note === "string" || note === null) {
+        payload.note = note && note.trim().length > 0 ? note.trim() : null;
+      } else if (existing && "note" in existing) {
+        payload.note = (existing as any).note ?? null;
+      }
 
       const { error } = await supabase
         .from("schedules")
@@ -618,7 +623,7 @@ const AdminSchedule = () => {
     note?: string | null,
   ) => {
     const cfg = SHIFT_MAP[shift];
-    const hasNote = shift === "busy" && !!note && note.trim().length > 0;
+    const hasNote = !!note && note.trim().length > 0;
     return (
       <div
         role="button"
@@ -933,7 +938,9 @@ const AdminSchedule = () => {
                             date: format(sheet.date, "yyyy-MM-dd"),
                             shiftType: opt.type,
                             shiftIndex: sheet.shiftIndex,
-                            note: opt.type === "busy" ? noteDraft : null,
+                            // For busy we pass the current draft; for other types we omit `note`
+                            // so the mutation preserves any existing note on the row.
+                            note: opt.type === "busy" ? noteDraft : undefined,
                           });
                         }}
                         className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
@@ -953,13 +960,14 @@ const AdminSchedule = () => {
                 </div>
               );
 
-              const BusyNoteEditor = currentShiftType === "busy" && currentShiftRow ? (
+              const isBusy = currentShiftType === "busy";
+              const NoteEditor = currentShiftRow ? (
                 <div className="space-y-2">
-                  <Label htmlFor="busy-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Skäl (valfritt)
+                  <Label htmlFor="shift-note" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {isBusy ? "Skäl (valfritt)" : "Notering till medarbetaren (valfritt)"}
                   </Label>
                   <Textarea
-                    id="busy-note"
+                    id="shift-note"
                     value={noteDraft}
                     onChange={(e) => setNoteDraft(e.target.value)}
                     onBlur={() => {
@@ -969,7 +977,12 @@ const AdminSchedule = () => {
                         updateNote.mutate({ id: currentShiftRow.id, note: next });
                       }
                     }}
-                    placeholder="T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15, kan jobba till 12..."
+                    disabled={typeof navigator !== "undefined" && !navigator.onLine}
+                    placeholder={
+                      isBusy
+                        ? "T.ex. upptagen hela dagen, upptagen förmiddag men kan jobba från 15..."
+                        : "T.ex. info om gästerna, något särskilt att tänka på..."
+                    }
                     className="min-h-[88px] text-base"
                   />
                 </div>
@@ -1143,7 +1156,7 @@ const AdminSchedule = () => {
 
               return hasShift ? (
                 <>
-                  {BusyNoteEditor}
+                  {NoteEditor}
                   {currentShiftRow && currentShiftType !== "busy" && (
                     <div>
                       <ShiftChecklists shiftId={currentShiftRow.id} mode="admin" />
