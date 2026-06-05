@@ -23,6 +23,7 @@ import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import SwapShiftSection from "@/components/SwapShiftSection";
+import CalendarSyncCard from "@/components/admin/CalendarSyncCard";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -791,6 +792,14 @@ const MySchedule = () => {
         })()}
 
         <SwapShiftSection workerId={worker?.id} userId={user?.id} />
+
+        {user?.id && (
+          <CalendarSyncCard
+            feedUserId={user.id}
+            title="Synka mitt schema till kalender"
+            description="Prenumerera på dina egna pass i iPhone-kalendern eller WeekCal — uppdateras automatiskt."
+          />
+        )}
       </div>
 
 

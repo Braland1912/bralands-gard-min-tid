@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
 
     const { data: tokenRow, error: tokenErr } = await supabase
       .from("calendar_feed_tokens")
-      .select("id, revoked")
+      .select("id, revoked, user_id")
       .eq("token", token)
       .maybeSingle();
 
@@ -97,11 +97,18 @@ Deno.serve(async (req) => {
     const from = todayMinus(30);
     const to = todayPlus(180);
 
-    const { data: schedules, error: schedErr } = await supabase
+    let schedQuery = supabase
       .from("schedules")
       .select("id, date, shift_type, shift_index, user_id")
       .gte("date", from)
       .lte("date", to);
+
+    if (tokenRow.user_id) {
+      schedQuery = schedQuery.eq("user_id", tokenRow.user_id);
+    }
+
+    const { data: schedules, error: schedErr } = await schedQuery;
+
 
     if (schedErr) {
       return new Response("Error", { status: 500, headers: corsHeaders });
