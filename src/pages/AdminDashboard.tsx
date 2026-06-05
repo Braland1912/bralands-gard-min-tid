@@ -31,6 +31,7 @@ const mobileBottomTabs = [
 
 const mobileMoreTabs = [
   { id: "team", label: "Team", icon: Users },
+  { id: "uppgifter", label: "Uppgifter", icon: Tags },
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
