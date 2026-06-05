@@ -313,7 +313,7 @@ const EveningRoundHelp = () => {
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
                 <strong>En gäst = en post.</strong> Skapa aldrig en ny rad för
-                någon som redan finns i "Inkommande" – matcha istället.
+                någon som redan finns under "Förbetalda" – matcha istället.
               </li>
               <li>
                 <strong>Beskriv tillfälliga platser noga</strong> så nästa
