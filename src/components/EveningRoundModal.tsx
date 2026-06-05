@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -323,6 +324,11 @@ const EveningRoundModal = ({
   };
   const isCash = method === "K";
   const isOther = method === "O";
+  const isReservation =
+    !!guest &&
+    guest.status === "not_here" &&
+    guest.accommodation_type !== "temporary" &&
+    !guest.is_prepaid;
 
   // Boende-väljaren visas när ingen fast plats är vald (skapande av ny plats
   // eller specialläge). I `temporary`-läge är boendet låst till "temporary".
@@ -456,14 +462,24 @@ const EveningRoundModal = ({
           <DialogHeader className="px-4 pt-4 pb-3 border-b border-border shrink-0 space-y-1">
             <div className="flex items-start justify-between gap-2 pr-8">
               <div className="min-w-0 flex-1">
-                <DialogTitle>
-                  {guest
-                    ? "Redigera gäst"
-                    : mode === "prepaid"
-                      ? "Förbetald gäst"
-                      : mode === "temporary"
-                        ? "Tillfällig plats"
-                        : "Lägg till gäst"}
+                <DialogTitle className="flex items-center gap-2 flex-wrap">
+                  <span>
+                    {guest
+                      ? "Redigera gäst"
+                      : mode === "prepaid"
+                        ? "Förbetald gäst"
+                        : mode === "temporary"
+                          ? "Tillfällig plats"
+                          : "Lägg till gäst"}
+                  </span>
+                  {isReservation && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px] font-semibold uppercase tracking-wide"
+                    >
+                      Reserverad
+                    </Badge>
+                  )}
                 </DialogTitle>
                 <DialogDescription>
                   {place != null ? (
@@ -1376,6 +1392,11 @@ const EveningRoundModal = ({
                 <Label>Betalning</Label>
                 <p className="text-[11px] text-muted-foreground mt-0.5">12% moms på gästnatt</p>
               </div>
+              {isReservation && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900 leading-snug">
+                  <span className="font-semibold">Reserverad plats</span> — gästen har <em>inte</em> förbetalt och har ännu inte dykt upp. Registrera betalning först när gästen är på plats.
+                </div>
+              )}
               <div className="rounded-xl border border-border bg-muted/40 p-3 space-y-3">
                 <div className={cn("grid gap-3", isCash ? "grid-cols-1" : "grid-cols-[1fr_110px]") }>
                   <div className="space-y-1.5">
