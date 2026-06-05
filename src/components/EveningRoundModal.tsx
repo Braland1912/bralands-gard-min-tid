@@ -388,10 +388,6 @@ const EveningRoundModal = ({
       fail("Beskriv betalningsmetoden");
       return;
     }
-    if (method === "none" && !unpaidReason.trim()) {
-      fail("Ange varför ingen betalning skett");
-      return;
-    }
     // Status bestäms av vald plats/boende. Anledningen till ej betalt är
     // fri text (chips är bara snabbval) och påverkar inte statusen – en gäst
     // kan vara "ej här" just nu (t.ex. på promenad) utan att ha betalat ännu.
