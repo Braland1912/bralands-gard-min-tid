@@ -131,13 +131,22 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
         Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
       </p>
 
+  const workCategories = categories?.filter((c) => !c.is_break) ?? [];
+  const breakCategory = categories?.find((c) => c.is_break);
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground leading-snug">
+        Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
+      </p>
+
       {/* Chips */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Vad gör du nu?
         </p>
         <div className="flex flex-wrap gap-2">
-          {categories?.map((cat) => {
+          {workCategories.map((cat) => {
             const active = openLog?.category_id === cat.id;
             return (
               <Button
@@ -156,6 +165,31 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
           })}
         </div>
       </div>
+
+      {/* Rast – avskild från jobb-chips */}
+      {breakCategory && (() => {
+        const breakActive = openLog?.category_id === breakCategory.id;
+        return (
+          <div className="space-y-2 pt-1">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+              Paus
+            </p>
+            <Button
+              type="button"
+              disabled={!isOnline || switchTask.isPending || breakActive}
+              onClick={() => handleChipClick(breakCategory)}
+              className={`min-h-12 px-4 py-3 rounded-xl text-sm font-medium gap-2 border ${
+                breakActive
+                  ? "bg-amber-500 hover:bg-amber-500 text-white border-amber-500 shadow-sm"
+                  : "bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200"
+              }`}
+            >
+              <Coffee className="h-4 w-4" />
+              {breakActive ? "På rast" : "Rast"}
+            </Button>
+          </div>
+        );
+      })()}
 
       {/* Note input for requires_note */}
       {noteCategory && (
