@@ -15,6 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
+import ActivityLogger from "@/components/ActivityLogger";
+import { useCloseOpenActivityLog } from "@/hooks/useActivityLog";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
