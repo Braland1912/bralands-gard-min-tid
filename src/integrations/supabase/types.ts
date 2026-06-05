@@ -14,6 +14,67 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          category_id: string | null
+          category_label: string
+          checklist_state: Json | null
+          created_at: string
+          ended_at: string | null
+          id: string
+          note: string | null
+          started_at: string
+          time_entry_id: string
+          worker_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          category_label: string
+          checklist_state?: Json | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          note?: string | null
+          started_at?: string
+          time_entry_id: string
+          worker_id: string
+        }
+        Update: {
+          category_id?: string | null
+          category_label?: string
+          checklist_state?: Json | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          note?: string | null
+          started_at?: string
+          time_entry_id?: string
+          worker_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "task_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_releases: {
         Row: {
           created_at: string
@@ -588,6 +649,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      task_categories: {
+        Row: {
+          checklist_items: string[] | null
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          requires_note: boolean
+          sort_order: number
+        }
+        Insert: {
+          checklist_items?: string[] | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          requires_note?: boolean
+          sort_order?: number
+        }
+        Update: {
+          checklist_items?: string[] | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          requires_note?: boolean
+          sort_order?: number
+        }
+        Relationships: []
       }
       time_correction_requests: {
         Row: {

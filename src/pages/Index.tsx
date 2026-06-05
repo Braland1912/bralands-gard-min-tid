@@ -15,6 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TodayScheduleChips from "@/components/TodayScheduleChips";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
+import ActivityLogger from "@/components/ActivityLogger";
+import { useCloseOpenActivityLog } from "@/hooks/useActivityLog";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -84,6 +86,7 @@ const Index = () => {
   const [earlyReason, setEarlyReason] = useState("");
   const [submittingEarly, setSubmittingEarly] = useState(false);
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
+  const closeOpenActivityLog = useCloseOpenActivityLog();
 
   // Track online status
   useEffect(() => {
@@ -196,6 +199,12 @@ const Index = () => {
     setClockOutState("loading");
     const ts = new Date().toISOString();
     try {
+      // Close any open activity log first so the timeline stays consistent
+      try {
+        await closeOpenActivityLog.mutateAsync(worker.id);
+      } catch (e) {
+        console.warn("Could not close open activity log:", e);
+      }
       const { error } = await supabase
         .from("time_entries")
         .update({ clock_out: ts })
@@ -204,6 +213,7 @@ const Index = () => {
 
       setClockOutState("confirmed");
       await queryClient.invalidateQueries({ queryKey: ["active-entry"] });
+      await queryClient.invalidateQueries({ queryKey: ["activity-logs"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
       await queryClient.invalidateQueries({ queryKey: ["my-today-entries"] });
 
@@ -214,7 +224,7 @@ const Index = () => {
       toast({ title: "Utstampling misslyckades", description: "Kontrollera din internetanslutning och forsok igen.", variant: "destructive" });
       setClockOutState("idle");
     }
-  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient, navigate]);
+  }, [worker, clockOutState, isOnline, activeEntry, toast, queryClient, navigate, closeOpenActivityLog]);
 
   const handleClockOut = useCallback(() => {
     if (!worker || clockOutState !== "idle" || !isOnline || !activeEntry) {
@@ -333,6 +343,15 @@ const Index = () => {
             {/* Active timer */}
             {activeEntry && !forgottenEntry && (
               <ActiveTimer since={activeEntry.clock_in!} />
+            )}
+
+            {/* Activity logger – only when clocked in today */}
+            {activeEntry && !forgottenEntry && worker && (
+              <ActivityLogger
+                timeEntryId={activeEntry.id}
+                workerId={worker.id}
+                isOnline={isOnline}
+              />
             )}
 
             {/* Today's summary */}
