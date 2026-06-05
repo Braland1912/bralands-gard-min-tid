@@ -5,13 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Download, Calendar, Clock, Pencil, Trash2, Plus, Loader2, Save, CalendarDays, CalendarRange } from "lucide-react";
+import { Download, Calendar, Clock, Pencil, Trash2, Plus, Loader2, Save, CalendarDays, CalendarRange, ChevronDown } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import MonthlySummary from "@/components/MonthlySummary";
+import EntryActivityLog from "@/components/admin/EntryActivityLog";
+import { cn } from "@/lib/utils";
 
 type FilterMode = "all" | "today" | "week" | "custom";
 
@@ -27,8 +29,18 @@ const AdminTimeLog = () => {
   const [addWorkerId, setAddWorkerId] = useState("");
   const [addClockIn, setAddClockIn] = useState("");
   const [addClockOut, setAddClockOut] = useState("");
+  const [expandedEntries, setExpandedEntries] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const toggleEntryExpanded = (id: string) => {
+    setExpandedEntries((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
@@ -406,13 +418,27 @@ const AdminTimeLog = () => {
                     : null;
                   return (
                     <Card key={entry.id} className="p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-foreground">{entry.worker_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleEntryExpanded(entry.id)}
+                          aria-expanded={expandedEntries.has(entry.id)}
+                          aria-label={expandedEntries.has(entry.id) ? "Dölj arbetslogg" : "Visa arbetslogg"}
+                          className="flex items-center gap-2 min-w-0 flex-1 text-left -m-1 p-1 rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                              expandedEntries.has(entry.id) && "rotate-180",
+                            )}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-foreground">{entry.worker_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {entry.clock_in ? format(new Date(entry.clock_in), "HH:mm") : "–"} — {entry.clock_out ? format(new Date(entry.clock_out), "HH:mm") : <span className="text-primary font-medium">Aktiv</span>}
+                            </p>
+                          </div>
+                        </button>
                         <div className="flex items-center gap-2">
                           <div className="text-right mr-1">
                             {hours !== null ? (
@@ -435,6 +461,14 @@ const AdminTimeLog = () => {
                           </Button>
                         </div>
                       </div>
+                      {expandedEntries.has(entry.id) && entry.clock_in && (
+                        <EntryActivityLog
+                          timeEntryId={entry.id}
+                          clockIn={entry.clock_in}
+                          clockOut={entry.clock_out}
+                          enabled
+                        />
+                      )}
                     </Card>
                   );
                 })}
