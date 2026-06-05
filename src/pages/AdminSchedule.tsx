@@ -943,13 +943,13 @@ const AdminSchedule = () => {
                             note: opt.type === "busy" ? noteDraft : undefined,
                           });
                         }}
-                        className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${
-                          isSelected ? "bg-primary/10 border-primary" : "bg-card border-border hover:bg-muted/50"
+                        className={`w-full min-h-[64px] flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 transition-colors active:scale-[0.99] ${opt.bg} ${
+                          isSelected ? "border-primary ring-2 ring-primary/30" : `${opt.border} hover:brightness-95`
                         }`}
                       >
                         <span className="text-3xl leading-none">{opt.emoji}</span>
                         <div className="flex-1 text-left">
-                          <span className={`text-base font-semibold ${isSelected ? "text-primary" : "text-foreground"}`}>
+                          <span className={`text-base font-semibold ${opt.text}`}>
                             {opt.label}
                           </span>
                         </div>
