@@ -20,30 +20,49 @@ const buildHttpsUrl = (token: string) => {
   return `${base}/functions/v1/schedule-ics?token=${token}`;
 };
 
-const CalendarSyncCard = () => {
+interface CalendarSyncCardProps {
+  feedUserId?: string | null;
+  title?: string;
+  description?: string;
+}
+
+const CalendarSyncCard = ({ feedUserId, title, description }: CalendarSyncCardProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
+  const isPersonal = !!feedUserId;
+  const headingText = title ?? "Synka till kalender";
+  const descriptionText =
+    description ??
+    "Prenumerera på hela schemat i iPhone-kalendern eller WeekCal — uppdateras automatiskt.";
+
   useEffect(() => {
     let active = true;
     (async () => {
-      const { data, error } = await supabase
+      setLoading(true);
+      let query = supabase
         .from("calendar_feed_tokens")
         .select("token")
         .eq("revoked", false)
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+      if (isPersonal) {
+        query = query.eq("user_id", feedUserId!);
+      } else {
+        query = query.is("user_id", null);
+      }
+      const { data, error } = await query.maybeSingle();
       if (!active) return;
       if (!error && data?.token) setToken(data.token);
+      else setToken(null);
       setLoading(false);
     })();
     return () => {
       active = false;
     };
-  }, []);
+  }, [feedUserId, isPersonal]);
 
   const createToken = async () => {
     if (creating) return;
@@ -52,7 +71,12 @@ const CalendarSyncCard = () => {
       const newToken = generateToken();
       const { error } = await supabase
         .from("calendar_feed_tokens")
-        .insert({ token: newToken, created_by: user?.id ?? null, label: "Schema" });
+        .insert({
+          token: newToken,
+          created_by: user?.id ?? null,
+          user_id: feedUserId ?? null,
+          label: isPersonal ? "Mitt schema" : "Schema",
+        });
       if (error) throw error;
       setToken(newToken);
       toast.success("Kalenderlänk skapad");
@@ -63,15 +87,12 @@ const CalendarSyncCard = () => {
     }
   };
 
-
   return (
     <Card className="bg-card rounded-xl p-5 md:p-6">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Synka till kalender</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Prenumerera på hela schemat i iPhone-kalendern eller WeekCal — uppdateras automatiskt.
-          </p>
+          <h2 className="text-base font-semibold text-foreground">{headingText}</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">{descriptionText}</p>
         </div>
       </div>
 
