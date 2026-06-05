@@ -906,13 +906,37 @@ const AdminSchedule = () => {
                 })()}
               </div>
             </div>
-            <button
-              onClick={() => setSheet(null)}
-              aria-label="Stäng"
-              className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors mt-1.5 md:mt-0"
-            >
-              <X className="h-5 w-5 text-muted-foreground" />
-            </button>
+            <div className="flex-shrink-0 flex items-center gap-1 mt-1.5 md:mt-0">
+              {(() => {
+                const currentShiftType = sheet?.worker.user_id
+                  ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
+                  : null;
+                const canDelete = !!sheet?.worker.user_id && !!currentShiftType;
+                if (!canDelete || !sheet) return null;
+                return (
+                  <button
+                    onClick={() =>
+                      deleteShift.mutate({
+                        userId: sheet.worker.user_id,
+                        date: format(sheet.date, "yyyy-MM-dd"),
+                        shiftIndex: sheet.shiftIndex,
+                      })
+                    }
+                    aria-label="Ta bort pass"
+                    className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                );
+              })()}
+              <button
+                onClick={() => setSheet(null)}
+                aria-label="Stäng"
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <X className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Scrollable body */}
@@ -1182,35 +1206,13 @@ const AdminSchedule = () => {
           </div>
 
           {/* Footer — sticky bottom */}
-          {sheet && (() => {
-            const currentShiftType = sheet.worker.user_id
-              ? getShiftAt(sheet.worker.user_id, sheet.date, sheet.shiftIndex)
-              : null;
-            const canDelete = !!sheet.worker.user_id && !!currentShiftType;
-            return (
-              <div className="modal-footer">
-                {canDelete && (
-                  <Button
-                    variant="outline"
-                    className="flex-1 text-destructive hover:text-destructive"
-                    onClick={() =>
-                      deleteShift.mutate({
-                        userId: sheet.worker.user_id,
-                        date: format(sheet.date, "yyyy-MM-dd"),
-                        shiftIndex: sheet.shiftIndex,
-                      })
-                    }
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Ta bort pass
-                  </Button>
-                )}
-                <Button variant="outline" className="flex-1" onClick={() => setSheet(null)}>
-                  Avbryt
-                </Button>
-              </div>
-            );
-          })()}
+          {sheet && (
+            <div className="modal-footer">
+              <Button variant="outline" className="w-full" onClick={() => setSheet(null)}>
+                Avbryt
+              </Button>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
 
