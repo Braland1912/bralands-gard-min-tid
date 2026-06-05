@@ -263,17 +263,23 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
           <ul className="space-y-1.5">
             {logs.map((l) => {
               const isOpen = l.ended_at === null;
+              const isBreak = l.category_label === "Rast";
               const checkTotal = l.checklist_state?.length ?? 0;
               const checkDone = l.checklist_state?.filter((s) => s.done).length ?? 0;
               return (
                 <li
                   key={l.id}
                   className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-                    isOpen
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "bg-muted/40 text-foreground"
+                    isBreak
+                      ? isOpen
+                        ? "bg-amber-100 text-amber-900 font-medium"
+                        : "bg-amber-50 text-amber-900"
+                      : isOpen
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "bg-muted/40 text-foreground"
                   }`}
                 >
+                  {isBreak && <Coffee className="h-3.5 w-3.5 shrink-0" />}
                   <span className="tabular-nums text-xs opacity-80 shrink-0">
                     {formatTime(l.started_at)}
                     {l.ended_at ? `–${formatTime(l.ended_at)}` : "–nu"}
