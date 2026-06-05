@@ -328,7 +328,7 @@ const EveningRoundHelp = () => {
                 ordnad i förväg.
               </li>
               <li>
-                <strong>Hittar du inte gästen?</strong> Kolla "Inkommande" högst
+                <strong>Hittar du inte gästen?</strong> Kolla "Förbetalda" högst
                 upp innan du registrerar på nytt.
               </li>
               <li><strong>Osäker?</strong> Fråga hellre en gång för mycket.</li>
