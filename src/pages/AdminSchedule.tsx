@@ -691,8 +691,6 @@ const AdminSchedule = () => {
           </div>
         </div>
 
-        <CalendarSyncCard />
-
         {/* Grid */}
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
@@ -1350,6 +1348,8 @@ const AdminSchedule = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <CalendarSyncCard />
 
       <AdminMobileBottomNav active="schema" />
     </div>
