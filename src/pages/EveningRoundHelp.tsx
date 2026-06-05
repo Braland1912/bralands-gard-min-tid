@@ -134,7 +134,7 @@ const EveningRoundHelp = () => {
                 <span className="inline-block rounded-md bg-sky-100 text-sky-800 border border-sky-200 px-2 py-0.5 text-xs font-semibold mr-1.5">
                   Förbetald
                 </span>
-                Har bokat och betalat innan (Campio / PayPal / Swish / kontant).
+                Har bokat och betalat innan (Campio / Swish / kontant).
                 Registrera först, matcha sen mot plats ute.
               </p>
 
