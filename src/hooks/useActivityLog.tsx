@@ -201,3 +201,92 @@ export const useCloseOpenActivityLog = () => {
     },
   });
 };
+
+export const useUpdateActivityTimes = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      logId,
+      started_at,
+      ended_at,
+    }: {
+      logId: string;
+      started_at?: string;
+      ended_at?: string | null;
+      timeEntryId: string;
+    }) => {
+      const patch: Record<string, any> = {};
+      if (started_at !== undefined) patch.started_at = started_at;
+      if (ended_at !== undefined) patch.ended_at = ended_at;
+      const { error } = await db
+        .from("activity_logs")
+        .update(patch)
+        .eq("id", logId);
+      if (error) throw error;
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
+    },
+  });
+};
+
+export const useDeleteActivityLog = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      logId,
+    }: {
+      logId: string;
+      timeEntryId: string;
+    }) => {
+      const { error } = await db
+        .from("activity_logs")
+        .delete()
+        .eq("id", logId);
+      if (error) throw error;
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
+    },
+  });
+};
+
+export const useAddManualActivityLog = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      timeEntryId,
+      workerId,
+      category,
+      started_at,
+      ended_at,
+      note,
+    }: {
+      timeEntryId: string;
+      workerId: string;
+      category: TaskCategory;
+      started_at: string;
+      ended_at: string | null;
+      note?: string | null;
+    }) => {
+      const checklist_state =
+        category.checklist_items && category.checklist_items.length > 0
+          ? category.checklist_items.map((item) => ({ item, done: false }))
+          : null;
+      const { error } = await db.from("activity_logs").insert({
+        time_entry_id: timeEntryId,
+        worker_id: workerId,
+        category_id: category.id,
+        category_label: category.label,
+        note: note ?? null,
+        checklist_state,
+        started_at,
+        ended_at,
+      });
+      if (error) throw error;
+    },
+    onSettled: (_d, _e, vars) => {
+      qc.invalidateQueries({ queryKey: ["activity-logs", vars.timeEntryId] });
+    },
+  });
+};
