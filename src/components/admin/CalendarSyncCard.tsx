@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { CalendarPlus, Loader2, RefreshCw } from "lucide-react";
+import { CalendarPlus, Copy, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -63,31 +63,6 @@ const CalendarSyncCard = () => {
     }
   };
 
-  const rotateToken = async () => {
-    if (creating || !token) return;
-    setCreating(true);
-    try {
-      const { error: revErr } = await supabase
-        .from("calendar_feed_tokens")
-        .update({ revoked: true })
-        .eq("token", token);
-      if (revErr) throw revErr;
-
-      const newToken = generateToken();
-      const { error } = await supabase
-        .from("calendar_feed_tokens")
-        .insert({ token: newToken, created_by: user?.id ?? null, label: "Schema" });
-      if (error) throw error;
-      setToken(newToken);
-      toast.success("Ny kalenderlänk skapad", {
-        description: "Gamla länken slutar fungera.",
-      });
-    } catch (e: any) {
-      toast.error("Kunde inte skapa ny länk", { description: e?.message });
-    } finally {
-      setCreating(false);
-    }
-  };
 
   return (
     <Card className="bg-card rounded-xl p-5 md:p-6">
@@ -124,12 +99,15 @@ const CalendarSyncCard = () => {
             </a>
             <Button
               variant="outline"
-              onClick={rotateToken}
-              disabled={creating}
+              onClick={() => {
+                navigator.clipboard.writeText(buildWebcalUrl(token))
+                  .then(() => toast.success("Länk kopierad!"))
+                  .catch(() => toast.error("Kunde inte kopiera"));
+              }}
               className="gap-2"
             >
-              {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              Skapa ny länk
+              <Copy className="h-4 w-4" />
+              Kopiera länk
             </Button>
           </div>
           <details className="text-xs text-muted-foreground">
