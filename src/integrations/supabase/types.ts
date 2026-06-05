@@ -120,6 +120,33 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_feed_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+          revoked: boolean
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          revoked?: boolean
+          token: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+          revoked?: boolean
+          token?: string
+        }
+        Relationships: []
+      }
       checklist_template_items: {
         Row: {
           created_at: string
