@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { StickyNote } from "lucide-react";
 
 interface Props {
   shiftId: string;
