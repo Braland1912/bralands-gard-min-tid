@@ -1209,7 +1209,7 @@ const AdminSchedule = () => {
           {sheet && (
             <div className="modal-footer">
               <Button variant="outline" className="w-full" onClick={() => setSheet(null)}>
-                Avbryt
+                Stäng
               </Button>
             </div>
           )}
