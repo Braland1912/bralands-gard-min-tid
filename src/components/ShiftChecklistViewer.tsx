@@ -34,13 +34,13 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
-  // Hämta passets datum (för loggning per kväll)
+  // Hämta passets datum + ev. notering från admin
   const { data: shiftMeta } = useQuery({
     queryKey: ["shift-meta", shiftId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedules")
-        .select("date")
+        .select("date, note")
         .eq("id", shiftId)
         .maybeSingle();
       if (error) throw error;
