@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { StickyNote } from "lucide-react";
 
 interface Props {
   shiftId: string;
@@ -33,13 +34,13 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
-  // Hämta passets datum (för loggning per kväll)
+  // Hämta passets datum + ev. notering från admin
   const { data: shiftMeta } = useQuery({
     queryKey: ["shift-meta", shiftId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("schedules")
-        .select("date")
+        .select("date, note")
         .eq("id", shiftId)
         .maybeSingle();
       if (error) throw error;
@@ -84,12 +85,31 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
+  const note = shiftMeta?.note?.trim();
+  const NoteBanner = note ? (
+    <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
+      <StickyNote className="h-4 w-4 text-amber-700 mt-0.5 shrink-0" />
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+          Notering till dig
+        </p>
+        <p className="text-sm text-amber-900 whitespace-pre-wrap break-words">{note}</p>
+      </div>
+    </div>
+  ) : null;
+
   if (isLoading) return <Skeleton className="h-16 w-full rounded-lg" />;
   if (!lists || lists.length === 0)
-    return <p className="text-sm text-muted-foreground italic">Inga checklistor</p>;
+    return (
+      <div className="space-y-3">
+        {NoteBanner}
+        <p className="text-sm text-muted-foreground italic">Inga checklistor</p>
+      </div>
+    );
 
   return (
     <div className="space-y-4">
+      {NoteBanner}
       {lists.map((list) => {
         const total = list.items.length;
         const done = list.items.filter((i) => i.is_checked).length;
