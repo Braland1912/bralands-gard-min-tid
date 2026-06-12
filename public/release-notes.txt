@@ -1,1 +1,1 @@
-Kvällsrundan har fått ny hjälptext med användbara fraser på engelska. Orden har ändrats till "förbetalda" och "matcha" överallt så det blir tydligare. Som admin kan du nu också redovisa kontanter direkt utan att lägga till en medarbetare.
+Noteringar från admin syns nu överst på dina pass-checklistor. I schemaläggningen stänger du sidan med Stäng och allt sparas automatiskt.
