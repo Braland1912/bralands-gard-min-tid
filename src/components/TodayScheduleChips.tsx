@@ -211,6 +211,17 @@ const TodayScheduleChips = ({ userId }: Props) => {
                   <span className={`font-semibold ${cfg.text} text-sm`}>{cfg.label}</span>
                 </div>
               )}
+              {s.note && s.note.trim().length > 0 && (
+                <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
+                  <StickyNote className="h-4 w-4 text-amber-700 mt-0.5 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                      Notering till dig
+                    </p>
+                    <p className="text-sm text-amber-900 whitespace-pre-wrap break-words">{s.note}</p>
+                  </div>
+                </div>
+              )}
               {hasLists && !isCollapsed && <ShiftChecklistsView shiftId={s.id} />}
             </div>
           );
