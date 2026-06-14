@@ -80,7 +80,7 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-  const upcomingEnd = useMemo(() => addDays(today, 60), [today]);
+  const upcomingEnd = useMemo(() => addDays(today, 365), [today]);
 
   const selectableWorkers = workers
     .filter((w) => !!w.user_id)
