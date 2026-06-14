@@ -1,1 +1,1 @@
-Noteringar från admin syns nu överst på dina pass-checklistor. I schemaläggningen stänger du sidan med Stäng och allt sparas automatiskt.
+Nu kan vem som helst i teamet lägga till och redigera extra platser i kvällsrundan, även om någon annan startade den. När du byter eller dubblerar ett pass följer noteringen med automatiskt.
