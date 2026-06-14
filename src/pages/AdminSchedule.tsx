@@ -493,7 +493,7 @@ const AdminSchedule = () => {
         date: args.date,
         shift_type: args.sourceType,
         shift_index: args.shiftIndex,
-        note: args.sourceType === "busy" ? args.sourceNote : null,
+        note: args.sourceNote && args.sourceNote.trim().length > 0 ? args.sourceNote : null,
       })
       .select("id")
       .single();
