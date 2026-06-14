@@ -114,15 +114,14 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
       const publishedDates = new Set(
         (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date),
       );
-      const filtered = (shiftsRes.data || []).filter((s: any) => publishedDates.has(s.date));
-      const byDate: Record<string, any[]> = {};
-      filtered.forEach((s: any) => {
-        if (!byDate[s.date]) byDate[s.date] = [];
-        byDate[s.date].push(s);
+      const byDate: Record<string, { shifts: any[]; isPublished: boolean }> = {};
+      (shiftsRes.data || []).forEach((s: any) => {
+        if (!byDate[s.date]) byDate[s.date] = { shifts: [], isPublished: publishedDates.has(s.date) };
+        byDate[s.date].shifts.push(s);
       });
       return Object.entries(byDate)
         .sort(([a], [b]) => (a < b ? -1 : 1))
-        .map(([date, shifts]) => ({ date, shifts }));
+        .map(([date, v]) => ({ date, shifts: v.shifts, isPublished: v.isPublished }));
     },
     enabled: !!selectedUserId,
   });
