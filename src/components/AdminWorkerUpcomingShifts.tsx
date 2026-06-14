@@ -193,12 +193,12 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
       ) : upcoming.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
           <span className="text-xs text-muted-foreground">
-            Inga publicerade kommande pass för {selectedWorker?.name}.
+            Inga kommande pass för {selectedWorker?.name}.
           </span>
         </div>
       ) : (
         <div className="max-h-96 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
-          {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }, idx: number) => {
+          {upcoming.map(({ date, shifts, isPublished }: { date: string; shifts: any[]; isPublished: boolean }, idx: number) => {
             const dateObj = new Date(date + "T00:00:00");
             const wk = getISOWeek(dateObj);
             const prevWk =
