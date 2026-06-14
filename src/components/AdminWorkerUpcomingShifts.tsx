@@ -80,7 +80,7 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-  const upcomingEnd = useMemo(() => addDays(today, 60), [today]);
+  const upcomingEnd = useMemo(() => addDays(today, 365), [today]);
 
   const selectableWorkers = workers
     .filter((w) => !!w.user_id)
@@ -114,15 +114,14 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
       const publishedDates = new Set(
         (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date),
       );
-      const filtered = (shiftsRes.data || []).filter((s: any) => publishedDates.has(s.date));
-      const byDate: Record<string, any[]> = {};
-      filtered.forEach((s: any) => {
-        if (!byDate[s.date]) byDate[s.date] = [];
-        byDate[s.date].push(s);
+      const byDate: Record<string, { shifts: any[]; isPublished: boolean }> = {};
+      (shiftsRes.data || []).forEach((s: any) => {
+        if (!byDate[s.date]) byDate[s.date] = { shifts: [], isPublished: publishedDates.has(s.date) };
+        byDate[s.date].shifts.push(s);
       });
       return Object.entries(byDate)
         .sort(([a], [b]) => (a < b ? -1 : 1))
-        .map(([date, shifts]) => ({ date, shifts }));
+        .map(([date, v]) => ({ date, shifts: v.shifts, isPublished: v.isPublished }));
     },
     enabled: !!selectedUserId,
   });
@@ -194,12 +193,12 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
       ) : upcoming.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
           <span className="text-xs text-muted-foreground">
-            Inga publicerade kommande pass för {selectedWorker?.name}.
+            Inga kommande pass för {selectedWorker?.name}.
           </span>
         </div>
       ) : (
         <div className="max-h-96 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
-          {upcoming.map(({ date, shifts }: { date: string; shifts: any[] }, idx: number) => {
+          {upcoming.map(({ date, shifts, isPublished }: { date: string; shifts: any[]; isPublished: boolean }, idx: number) => {
             const dateObj = new Date(date + "T00:00:00");
             const wk = getISOWeek(dateObj);
             const prevWk =
@@ -251,9 +250,16 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
                     <span className="text-sm font-semibold text-foreground capitalize truncate">
                       {format(dateObj, "EEEE", { locale: sv })}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {format(dateObj, "d MMMM", { locale: sv })}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">
+                        {format(dateObj, "d MMMM", { locale: sv })}
+                      </span>
+                      {!isPublished && (
+                        <span className="text-[9px] font-medium uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded px-1 py-px">
+                          Ej publ.
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-1.5 shrink-0 w-[160px]">
                     {shifts.map((entry: any) => {
