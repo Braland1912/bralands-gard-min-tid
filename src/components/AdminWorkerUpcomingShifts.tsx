@@ -250,9 +250,16 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
                     <span className="text-sm font-semibold text-foreground capitalize truncate">
                       {format(dateObj, "EEEE", { locale: sv })}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {format(dateObj, "d MMMM", { locale: sv })}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground">
+                        {format(dateObj, "d MMMM", { locale: sv })}
+                      </span>
+                      {!isPublished && (
+                        <span className="text-[9px] font-medium uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded px-1 py-px">
+                          Ej publ.
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-1.5 shrink-0 w-[160px]">
                     {shifts.map((entry: any) => {
