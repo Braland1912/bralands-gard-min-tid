@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { STANDARD_PLACES, validatePlaceLabel } from "@/lib/place-label";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 export interface ExtraPlace {
   id: string;
@@ -11,7 +12,16 @@ export interface ExtraPlace {
   created_at: string;
 }
 
-export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) => {
+export interface ExtraPlacesLogCtx {
+  workerId?: string | null;
+  workerName?: string | null;
+  roundDate?: string;
+}
+
+export const useEveningRoundExtraPlaces = (
+  eveningRoundId: string | undefined,
+  logCtx?: ExtraPlacesLogCtx,
+) => {
   const queryClient = useQueryClient();
 
   const query = useQuery({
