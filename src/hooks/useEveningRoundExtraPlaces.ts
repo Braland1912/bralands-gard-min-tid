@@ -130,12 +130,25 @@ export const useEveningRoundExtraPlaces = (
         }
         throw error;
       }
-      return data;
+      return { data, previousLabel: place.label };
     },
-    onSuccess: (data) => {
+    onSuccess: ({ data, previousLabel }) => {
       toast.success(`Plats uppdaterad till ${data.label}`);
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      if (logCtx?.roundDate) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: data.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: data.id,
+          action: "rename",
+          summary: `Bytte namn på plats ${previousLabel} → ${data.label}`,
+          details: { from: previousLabel, to: data.label },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte byta namn"),
   });
