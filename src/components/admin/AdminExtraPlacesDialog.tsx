@@ -124,6 +124,19 @@ const AdminExtraPlacesDialog = ({ currentRoundId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["admin-extra-places-all"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      if (row.round_date) {
+        logEveningRoundActivity({
+          round_date: row.round_date,
+          evening_round_id: row.evening_round_id,
+          worker_id: adminWorker?.id ?? null,
+          worker_name: adminWorker?.name ?? "Admin",
+          entity_type: "place",
+          entity_id: row.id,
+          action: "delete",
+          summary: `Tog bort plats ${row.label}${row.guest_count > 0 ? ` (och ${row.guest_count} bokningar)` : ""}`,
+          details: { label: row.label, guest_count: row.guest_count, via: "admin-dialog" },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort plats"),
   });
