@@ -277,12 +277,39 @@ export const useEveningRoundSummary = (
       const updated = data as unknown as EveningRoundSummary;
       return { ...updated, cash_breakdown: normalizeCashBreakdown(updated.cash_breakdown) };
     },
-    onSuccess: (row) => {
+    onSuccess: (row, payload) => {
       queryClient.setQueryData(
         ["evening-round-summary", eveningRoundId, workerId],
         row,
       );
       queryClient.invalidateQueries({ queryKey: ["evening-round-summaries-history"] });
+      if (logCtx?.roundDate) {
+        const fields = Object.keys(payload);
+        let action: "checklist" | "cash" | "notes" | "update" = "update";
+        if (fields.length === 1 && fields[0] === "checklist") action = "checklist";
+        else if (fields.length === 1 && fields[0] === "notes") action = "notes";
+        else if (
+          fields.every((f) => f === "cash_breakdown" || f === "selected_currencies")
+        )
+          action = "cash";
+        const labels: Record<string, string> = {
+          checklist: "Uppdaterade checklistan",
+          cash: "Uppdaterade kassan",
+          notes: "Uppdaterade anteckningar",
+          update: `Uppdaterade sammanställning (${fields.join(", ")})`,
+        };
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: row.evening_round_id,
+          worker_id: workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "summary",
+          entity_id: row.id,
+          action,
+          summary: labels[action],
+          details: { changed_fields: fields },
+        });
+      }
     },
     onError: (e: Error) => {
       toast.error("Kunde inte spara", { description: e.message });
