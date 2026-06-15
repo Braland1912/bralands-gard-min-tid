@@ -169,7 +169,7 @@ export const useEveningRoundExtraPlaces = (
         .delete()
         .eq("id", id);
       if (error) throw error;
-      return id;
+      return place;
     },
     onMutate: async (id: string) => {
       const queryKey = ["evening-round-extra-places", eveningRoundId];
