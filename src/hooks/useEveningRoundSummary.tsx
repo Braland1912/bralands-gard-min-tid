@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 /** Lega-nycklar för bakåtkompatibilitet med tidigare lagrade rader. */
 export type LegacyChecklistKey =
