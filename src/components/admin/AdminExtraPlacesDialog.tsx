@@ -45,6 +45,8 @@ interface ExtraPlaceRow {
 
 const AdminExtraPlacesDialog = ({ currentRoundId }: Props) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { data: adminWorker } = useWorker(user?.id);
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState<ExtraPlaceRow | null>(null);
 
