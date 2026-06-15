@@ -184,6 +184,22 @@ export const useEveningRoundGuests = (
         ]),
       });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      logEveningRoundActivity({
+        round_date: date,
+        evening_round_id: data.evening_round_id,
+        worker_id: logCtx?.workerId ?? null,
+        worker_name: logCtx?.workerName ?? null,
+        entity_type: "guest",
+        entity_id: data.id,
+        action: "create",
+        summary: `La till gäst ${data.guest_name}${data.place_label ? ` på plats ${data.place_label}` : ""}`,
+        details: {
+          guest_name: data.guest_name,
+          place_label: data.place_label,
+          accommodation_type: data.accommodation_type,
+          is_prepaid: data.is_prepaid,
+        },
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till gäst"),
   });
