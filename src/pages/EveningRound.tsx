@@ -77,10 +77,14 @@ const EveningRound = () => {
     addGuest,
     updateGuest,
     deleteGuest,
-  } = useEveningRoundGuests(round?.id, date, isAdmin);
+  } = useEveningRoundGuests(round?.id, date, isAdmin, {
+    workerId: worker?.id,
+    workerName: worker?.name,
+  });
   const { data: session, start: startSession, end: endSession } = useEveningRoundSession(
     worker?.id,
     date,
+    { workerName: worker?.name, eveningRoundId: round?.id },
   );
   const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
   const { data: ownersByRoundId } = useRoundOwnersForDate(date);
