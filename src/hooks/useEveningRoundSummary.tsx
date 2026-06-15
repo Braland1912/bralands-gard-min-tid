@@ -189,9 +189,15 @@ interface UpdatePayload {
 /**
  * Hämtar (eller skapar) redovisning för aktuell medarbetare och kvällsrunda.
  */
+export interface SummaryLogCtx {
+  workerName?: string | null;
+  roundDate?: string;
+}
+
 export const useEveningRoundSummary = (
   eveningRoundId: string | undefined,
   workerId: string | undefined,
+  logCtx?: SummaryLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
