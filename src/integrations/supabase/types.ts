@@ -238,6 +238,63 @@ export type Database = {
         }
         Relationships: []
       }
+      evening_round_activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          evening_round_id: string | null
+          id: string
+          round_date: string
+          summary: string
+          worker_id: string | null
+          worker_name: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          evening_round_id?: string | null
+          id?: string
+          round_date: string
+          summary: string
+          worker_id?: string | null
+          worker_name?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          evening_round_id?: string | null
+          id?: string
+          round_date?: string
+          summary?: string
+          worker_id?: string | null
+          worker_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evening_round_activity_log_evening_round_id_fkey"
+            columns: ["evening_round_id"]
+            isOneToOne: false
+            referencedRelation: "evening_rounds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evening_round_activity_log_worker_id_fkey"
+            columns: ["worker_id"]
+            isOneToOne: false
+            referencedRelation: "workers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evening_round_extra_places: {
         Row: {
           created_at: string
