@@ -82,15 +82,18 @@ const EveningRoundSummaryForm = ({
   onSaved,
 }: Props) => {
   const online = useOnline();
+  const { data: workerProfile } = useWorker(workerId);
   const summaryHook = useEveningRoundSummary(
     overrideSummary ? overrideSummary.evening_round_id : eveningRoundId,
     overrideSummary ? overrideSummary.worker_id : workerId,
+    { workerName: workerProfile?.name, roundDate },
   );
   const data = overrideSummary ?? summaryHook.data;
   const canShowQuickStart = showQuickStart && !overrideSummary && !!workerId && !!roundDate;
   const sessionHook = useEveningRoundSession(
     canShowQuickStart ? workerId : undefined,
     roundDate ?? "",
+    { workerName: workerProfile?.name, eveningRoundId },
   );
   const session = sessionHook.data;
   const sessionRunning = !!session?.session_start && !session?.session_end;
