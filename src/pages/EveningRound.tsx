@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
+import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogDialog";
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
