@@ -2,6 +2,12 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
+
+export interface GuestsLogCtx {
+  workerId?: string | null;
+  workerName?: string | null;
+}
 
 export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
