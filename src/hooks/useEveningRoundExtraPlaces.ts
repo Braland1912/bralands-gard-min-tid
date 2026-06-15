@@ -189,8 +189,21 @@ export const useEveningRoundExtraPlaces = (
       }
       toast.error(e.message ?? "Kunde inte ta bort plats");
     },
-    onSuccess: () => {
+    onSuccess: (place) => {
       toast.success("Plats borttagen");
+      if (logCtx?.roundDate && place) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: place.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: place.id,
+          action: "delete",
+          summary: `Tog bort plats ${place.label}`,
+          details: { label: place.label },
+        });
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
