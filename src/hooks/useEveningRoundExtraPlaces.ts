@@ -83,6 +83,19 @@ export const useEveningRoundExtraPlaces = (
     onSuccess: (data) => {
       toast.success(`Plats ${data.label} tillagd`);
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
+      if (logCtx?.roundDate) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: data.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: data.id,
+          action: "create",
+          summary: `La till plats ${data.label}`,
+          details: { label: data.label },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till plats"),
   });
