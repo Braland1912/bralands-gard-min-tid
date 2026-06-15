@@ -105,6 +105,7 @@ export const useEveningRoundGuests = (
   eveningRoundId: string | undefined,
   date: string,
   isAdmin: boolean,
+  logCtx?: GuestsLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
