@@ -129,7 +129,10 @@ const EveningRound = () => {
   const [extraPlacesCollapsed, setExtraPlacesCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("forbetalda");
 
-  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
+  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(
+    round?.id,
+    { workerId: worker?.id, workerName: worker?.name, roundDate: date },
+  );
   const allPlaces = useMemo(() => {
     const extras = extraPlaces.map((p) => p.label);
     // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
