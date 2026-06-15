@@ -308,6 +308,7 @@ const EveningRound = () => {
         {isAdmin && (
           <header className="flex items-center justify-end gap-2">
             <AdminExtraPlacesDialog currentRoundId={round?.id} />
+            <AdminEveningRoundLogDialog />
             <EveningRoundExportDialog />
           </header>
         )}
