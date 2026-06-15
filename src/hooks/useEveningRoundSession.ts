@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 export interface EveningRoundSession {
   id: string;
@@ -11,12 +12,18 @@ export interface EveningRoundSession {
   session_end: string | null;
 }
 
+export interface SessionLogCtx {
+  workerName?: string | null;
+  eveningRoundId?: string | null;
+}
+
 /**
  * Hanterar medarbetarens session för kvällsrundan – när de börjar/slutar gå rundan.
  */
 export const useEveningRoundSession = (
   workerId: string | undefined,
   date: string,
+  logCtx?: SessionLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
