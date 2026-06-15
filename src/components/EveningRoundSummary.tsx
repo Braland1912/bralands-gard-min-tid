@@ -85,12 +85,14 @@ const EveningRoundSummaryForm = ({
   const summaryHook = useEveningRoundSummary(
     overrideSummary ? overrideSummary.evening_round_id : eveningRoundId,
     overrideSummary ? overrideSummary.worker_id : workerId,
+    { roundDate },
   );
   const data = overrideSummary ?? summaryHook.data;
   const canShowQuickStart = showQuickStart && !overrideSummary && !!workerId && !!roundDate;
   const sessionHook = useEveningRoundSession(
     canShowQuickStart ? workerId : undefined,
     roundDate ?? "",
+    { eveningRoundId },
   );
   const session = sessionHook.data;
   const sessionRunning = !!session?.session_start && !session?.session_end;

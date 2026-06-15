@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
+import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogDialog";
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
@@ -77,10 +78,14 @@ const EveningRound = () => {
     addGuest,
     updateGuest,
     deleteGuest,
-  } = useEveningRoundGuests(round?.id, date, isAdmin);
+  } = useEveningRoundGuests(round?.id, date, isAdmin, {
+    workerId: worker?.id,
+    workerName: worker?.name,
+  });
   const { data: session, start: startSession, end: endSession } = useEveningRoundSession(
     worker?.id,
     date,
+    { workerName: worker?.name, eveningRoundId: round?.id },
   );
   const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
   const { data: ownersByRoundId } = useRoundOwnersForDate(date);
@@ -125,7 +130,10 @@ const EveningRound = () => {
   const [extraPlacesCollapsed, setExtraPlacesCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("forbetalda");
 
-  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(round?.id);
+  const { data: extraPlaces = [], addPlace, deletePlace, renamePlace } = useEveningRoundExtraPlaces(
+    round?.id,
+    { workerId: worker?.id, workerName: worker?.name, roundDate: date },
+  );
   const allPlaces = useMemo(() => {
     const extras = extraPlaces.map((p) => p.label);
     // Standardplatser först, sedan extra (sortering bevaras enligt skapelseordning)
@@ -300,6 +308,7 @@ const EveningRound = () => {
         {isAdmin && (
           <header className="flex items-center justify-end gap-2">
             <AdminExtraPlacesDialog currentRoundId={round?.id} />
+            <AdminEveningRoundLogDialog />
             <EveningRoundExportDialog />
           </header>
         )}

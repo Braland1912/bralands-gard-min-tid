@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 export interface EveningRoundSession {
   id: string;
@@ -11,12 +12,18 @@ export interface EveningRoundSession {
   session_end: string | null;
 }
 
+export interface SessionLogCtx {
+  workerName?: string | null;
+  eveningRoundId?: string | null;
+}
+
 /**
  * Hanterar medarbetarens session för kvällsrundan – när de börjar/slutar gå rundan.
  */
 export const useEveningRoundSession = (
   workerId: string | undefined,
   date: string,
+  logCtx?: SessionLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
@@ -76,9 +83,19 @@ export const useEveningRoundSession = (
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Rundan startad");
       queryClient.invalidateQueries({ queryKey: ["evening-round-session"] });
+      logEveningRoundActivity({
+        round_date: date,
+        evening_round_id: logCtx?.eveningRoundId ?? null,
+        worker_id: workerId ?? null,
+        worker_name: logCtx?.workerName ?? null,
+        entity_type: "session",
+        entity_id: (data as any)?.id ?? null,
+        action: "start",
+        summary: "Startade kvällsrundan",
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte starta rundan"),
   });
@@ -97,9 +114,19 @@ export const useEveningRoundSession = (
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Rundan avslutad");
       queryClient.invalidateQueries({ queryKey: ["evening-round-session"] });
+      logEveningRoundActivity({
+        round_date: date,
+        evening_round_id: logCtx?.eveningRoundId ?? null,
+        worker_id: workerId ?? null,
+        worker_name: logCtx?.workerName ?? null,
+        entity_type: "session",
+        entity_id: (data as any)?.id ?? null,
+        action: "end",
+        summary: "Avslutade kvällsrundan",
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte avsluta rundan"),
   });

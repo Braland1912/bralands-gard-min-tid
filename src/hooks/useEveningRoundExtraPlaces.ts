@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { STANDARD_PLACES, validatePlaceLabel } from "@/lib/place-label";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 export interface ExtraPlace {
   id: string;
@@ -11,7 +12,16 @@ export interface ExtraPlace {
   created_at: string;
 }
 
-export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) => {
+export interface ExtraPlacesLogCtx {
+  workerId?: string | null;
+  workerName?: string | null;
+  roundDate?: string;
+}
+
+export const useEveningRoundExtraPlaces = (
+  eveningRoundId: string | undefined,
+  logCtx?: ExtraPlacesLogCtx,
+) => {
   const queryClient = useQueryClient();
 
   const query = useQuery({
@@ -73,6 +83,19 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
     onSuccess: (data) => {
       toast.success(`Plats ${data.label} tillagd`);
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
+      if (logCtx?.roundDate) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: data.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: data.id,
+          action: "create",
+          summary: `La till plats ${data.label}`,
+          details: { label: data.label },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till plats"),
   });
@@ -107,12 +130,25 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
         }
         throw error;
       }
-      return data;
+      return { data, previousLabel: place.label };
     },
-    onSuccess: (data) => {
+    onSuccess: ({ data, previousLabel }) => {
       toast.success(`Plats uppdaterad till ${data.label}`);
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      if (logCtx?.roundDate) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: data.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: data.id,
+          action: "rename",
+          summary: `Bytte namn på plats ${previousLabel} → ${data.label}`,
+          details: { from: previousLabel, to: data.label },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte byta namn"),
   });
@@ -133,7 +169,7 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
         .delete()
         .eq("id", id);
       if (error) throw error;
-      return id;
+      return place;
     },
     onMutate: async (id: string) => {
       const queryKey = ["evening-round-extra-places", eveningRoundId];
@@ -153,8 +189,21 @@ export const useEveningRoundExtraPlaces = (eveningRoundId: string | undefined) =
       }
       toast.error(e.message ?? "Kunde inte ta bort plats");
     },
-    onSuccess: () => {
+    onSuccess: (place) => {
       toast.success("Plats borttagen");
+      if (logCtx?.roundDate && place) {
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: place.evening_round_id,
+          worker_id: logCtx.workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "place",
+          entity_id: place.id,
+          action: "delete",
+          summary: `Tog bort plats ${place.label}`,
+          details: { label: place.label },
+        });
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });

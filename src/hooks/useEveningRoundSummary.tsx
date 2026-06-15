@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
 
 /** Lega-nycklar för bakåtkompatibilitet med tidigare lagrade rader. */
 export type LegacyChecklistKey =
@@ -188,9 +189,15 @@ interface UpdatePayload {
 /**
  * Hämtar (eller skapar) redovisning för aktuell medarbetare och kvällsrunda.
  */
+export interface SummaryLogCtx {
+  workerName?: string | null;
+  roundDate?: string;
+}
+
 export const useEveningRoundSummary = (
   eveningRoundId: string | undefined,
   workerId: string | undefined,
+  logCtx?: SummaryLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
@@ -270,12 +277,39 @@ export const useEveningRoundSummary = (
       const updated = data as unknown as EveningRoundSummary;
       return { ...updated, cash_breakdown: normalizeCashBreakdown(updated.cash_breakdown) };
     },
-    onSuccess: (row) => {
+    onSuccess: (row, payload) => {
       queryClient.setQueryData(
         ["evening-round-summary", eveningRoundId, workerId],
         row,
       );
       queryClient.invalidateQueries({ queryKey: ["evening-round-summaries-history"] });
+      if (logCtx?.roundDate) {
+        const fields = Object.keys(payload);
+        let action: "checklist" | "cash" | "notes" | "update" = "update";
+        if (fields.length === 1 && fields[0] === "checklist") action = "checklist";
+        else if (fields.length === 1 && fields[0] === "notes") action = "notes";
+        else if (
+          fields.every((f) => f === "cash_breakdown" || f === "selected_currencies")
+        )
+          action = "cash";
+        const labels: Record<string, string> = {
+          checklist: "Uppdaterade checklistan",
+          cash: "Uppdaterade kassan",
+          notes: "Uppdaterade anteckningar",
+          update: `Uppdaterade sammanställning (${fields.join(", ")})`,
+        };
+        logEveningRoundActivity({
+          round_date: logCtx.roundDate,
+          evening_round_id: row.evening_round_id,
+          worker_id: workerId ?? null,
+          worker_name: logCtx.workerName ?? null,
+          entity_type: "summary",
+          entity_id: row.id,
+          action,
+          summary: labels[action],
+          details: { changed_fields: fields },
+        });
+      }
     },
     onError: (e: Error) => {
       toast.error("Kunde inte spara", { description: e.message });

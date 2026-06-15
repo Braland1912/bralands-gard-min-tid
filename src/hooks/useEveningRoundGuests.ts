@@ -2,6 +2,12 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
+
+export interface GuestsLogCtx {
+  workerId?: string | null;
+  workerName?: string | null;
+}
 
 export type GuestStatus = "here" | "not_here";
 export type PaymentMethod = "S" | "P" | "Cp" | "Cc" | "R" | "B" | "K" | "Z" | "F" | "O";
@@ -99,6 +105,7 @@ export const useEveningRoundGuests = (
   eveningRoundId: string | undefined,
   date: string,
   isAdmin: boolean,
+  logCtx?: GuestsLogCtx,
 ) => {
   const queryClient = useQueryClient();
 
@@ -177,6 +184,22 @@ export const useEveningRoundGuests = (
         ]),
       });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      logEveningRoundActivity({
+        round_date: date,
+        evening_round_id: data.evening_round_id,
+        worker_id: logCtx?.workerId ?? null,
+        worker_name: logCtx?.workerName ?? null,
+        entity_type: "guest",
+        entity_id: data.id,
+        action: "create",
+        summary: `La till gäst ${data.guest_name}${data.place_label ? ` på plats ${data.place_label}` : ""}`,
+        details: {
+          guest_name: data.guest_name,
+          place_label: data.place_label,
+          accommodation_type: data.accommodation_type,
+          is_prepaid: data.is_prepaid,
+        },
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte lägga till gäst"),
   });
@@ -197,6 +220,7 @@ export const useEveningRoundGuests = (
       const keys = Object.keys(patch);
       const guestPart = data?.guest_name ? `Plats ${data.place_label} • ${data.guest_name}` : undefined;
       const datePart = formatDateLabel(date);
+      let summaryText: string;
       if (keys.length === 1 && keys[0] === "status") {
         const labels: Record<string, string> = {
           here: "Markerad som På plats",
@@ -205,11 +229,33 @@ export const useEveningRoundGuests = (
         toast.success(labels[(patch as any).status] ?? "Status uppdaterad", {
           description: buildDescription([guestPart, datePart]),
         });
+        const statusLabels: Record<string, string> = {
+          here: "På plats",
+          not_here: "Ej kommit",
+        };
+        summaryText = `${data.guest_name}: ${statusLabels[(patch as any).status] ?? "status"}`;
       } else {
         toast.success("Ändringar sparade", {
           description: buildDescription([guestPart, datePart]),
         });
+        summaryText = `Ändrade gäst ${data.guest_name} (${keys.join(", ")})`;
       }
+      logEveningRoundActivity({
+        round_date: date,
+        evening_round_id: data.evening_round_id,
+        worker_id: logCtx?.workerId ?? null,
+        worker_name: logCtx?.workerName ?? null,
+        entity_type: "guest",
+        entity_id: data.id,
+        action: "update",
+        summary: summaryText,
+        details: {
+          guest_name: data.guest_name,
+          place_label: data.place_label,
+          changed_fields: keys,
+          patch,
+        },
+      });
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte spara ändringar"),
   });
@@ -218,7 +264,7 @@ export const useEveningRoundGuests = (
     mutationFn: async (id: string) => {
       const { data: existing } = await supabase
         .from("evening_round_guests")
-        .select("place_label, guest_name")
+        .select("id, evening_round_id, place_label, guest_name")
         .eq("id", id)
         .maybeSingle();
       const { error } = await supabase.from("evening_round_guests").delete().eq("id", id);
@@ -234,6 +280,22 @@ export const useEveningRoundGuests = (
         ]),
       });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      if (existing) {
+        logEveningRoundActivity({
+          round_date: date,
+          evening_round_id: existing.evening_round_id,
+          worker_id: logCtx?.workerId ?? null,
+          worker_name: logCtx?.workerName ?? null,
+          entity_type: "guest",
+          entity_id: existing.id,
+          action: "delete",
+          summary: `Tog bort gäst ${existing.guest_name}${existing.place_label ? ` (plats ${existing.place_label})` : ""}`,
+          details: {
+            guest_name: existing.guest_name,
+            place_label: existing.place_label,
+          },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort gäst"),
   });

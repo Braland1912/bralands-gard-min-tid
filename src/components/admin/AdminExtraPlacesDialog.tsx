@@ -25,6 +25,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
+import { logEveningRoundActivity } from "@/hooks/useEveningRoundActivityLog";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorker } from "@/hooks/useWorker";
 
 interface Props {
   /** Aktiv runda för dagen — så vi kan markera "denna runda" i listan */
@@ -42,6 +45,8 @@ interface ExtraPlaceRow {
 
 const AdminExtraPlacesDialog = ({ currentRoundId }: Props) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { data: adminWorker } = useWorker(user?.id);
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState<ExtraPlaceRow | null>(null);
 
@@ -119,6 +124,19 @@ const AdminExtraPlacesDialog = ({ currentRoundId }: Props) => {
       queryClient.invalidateQueries({ queryKey: ["admin-extra-places-all"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-extra-places"] });
       queryClient.invalidateQueries({ queryKey: ["evening-round-guests"] });
+      if (row.round_date) {
+        logEveningRoundActivity({
+          round_date: row.round_date,
+          evening_round_id: row.evening_round_id,
+          worker_id: adminWorker?.id ?? null,
+          worker_name: adminWorker?.name ?? "Admin",
+          entity_type: "place",
+          entity_id: row.id,
+          action: "delete",
+          summary: `Tog bort plats ${row.label}${row.guest_count > 0 ? ` (och ${row.guest_count} bokningar)` : ""}`,
+          details: { label: row.label, guest_count: row.guest_count, via: "admin-dialog" },
+        });
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Kunde inte ta bort plats"),
   });
