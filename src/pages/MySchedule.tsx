@@ -766,18 +766,30 @@ const MySchedule = () => {
                                 {d.shifts.length === 0 ? (
                                   <span className="text-muted-foreground/30 text-xs select-none" aria-hidden>·</span>
                                 ) : (
-                                  d.shifts.map((t, idx) => {
-                                    const cfg = SHIFT_CONFIG[t as ShiftType];
+                                  d.shifts.map((s: any, idx: number) => {
+                                    const t = s.shift_type as ShiftType;
+                                    const cfg = SHIFT_CONFIG[t];
                                     if (!cfg) return null;
                                     return (
-                                      <span
-                                        key={`${t}-${idx}`}
-                                        className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none ${cfg.bg} ${cfg.border} ${cfg.text}`}
-                                        aria-label={`${DAY_NAMES[d.dayIdx]}: ${cfg.label}`}
-                                        title={`${DAY_NAMES[d.dayIdx]} · ${cfg.label}`}
+                                      <button
+                                        type="button"
+                                        key={`${s.id ?? t}-${idx}`}
+                                        onClick={() =>
+                                          setTeamShiftDetail({
+                                            workerName: row.worker.name,
+                                            date: weekDays[d.dayIdx],
+                                            shiftType: t,
+                                            startTime: s.start_time ?? null,
+                                            note: s.note ?? null,
+                                            shiftIndex: s.shift_index ?? 0,
+                                          })
+                                        }
+                                        className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none transition-transform active:scale-95 ${cfg.bg} ${cfg.border} ${cfg.text}`}
+                                        aria-label={`${DAY_NAMES[d.dayIdx]}: ${cfg.label}${s.start_time ? ` kl ${String(s.start_time).slice(0, 5)}` : ""}`}
+                                        title={`${DAY_NAMES[d.dayIdx]} · ${cfg.label}${s.start_time ? ` · kl ${String(s.start_time).slice(0, 5)}` : ""}`}
                                       >
                                         <span aria-hidden>{cfg.emoji}</span>
-                                      </span>
+                                      </button>
                                     );
                                   })
                                 )}
