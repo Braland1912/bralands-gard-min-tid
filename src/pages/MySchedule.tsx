@@ -723,7 +723,7 @@ const MySchedule = () => {
               ) : (
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
                   {/* Header med dagar */}
-                  <div className="grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2 border-b border-border bg-muted/30">
+                  <div className="sticky top-0 z-10 grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2 border-b border-border bg-muted/40 backdrop-blur">
                     <div />
                     {DAY_NAMES.map((dn, i) => (
                       <div
