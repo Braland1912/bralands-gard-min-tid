@@ -730,7 +730,7 @@ const MySchedule = () => {
                   <ul className="divide-y divide-border">
                     {rows.map((row) => {
                       const allDays = row.days.filter((d) => d.shifts.length > 0).length === 7;
-                      const flatTypes = row.days.flatMap((d) => d.shifts);
+                      const flatTypes = row.days.flatMap((d) => d.shifts.map((s: any) => s.shift_type));
                       const uniqueTypes = Array.from(new Set(flatTypes));
                       const isUniformWeek =
                         allDays &&
