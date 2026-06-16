@@ -73,6 +73,7 @@ const MySchedule = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
   const [teamShiftDetail, setTeamShiftDetail] = useState<{
+    shiftId: string;
     workerName: string;
     date: Date;
     shiftType: ShiftType;
