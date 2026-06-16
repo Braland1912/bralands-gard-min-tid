@@ -1224,6 +1224,7 @@ const AdminSchedule = () => {
 
               return hasShift ? (
                 <>
+                  {StartTimeEditor}
                   {NoteEditor}
                   {currentShiftRow && currentShiftType !== "busy" && (
                     <div>
