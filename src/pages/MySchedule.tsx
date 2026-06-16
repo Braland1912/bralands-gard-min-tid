@@ -683,7 +683,6 @@ const MySchedule = () => {
             })
             .filter((r) => r.hasAny)
             .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
-...
               ) : (
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
                   {/* Header med dagar */}
