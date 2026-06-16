@@ -683,6 +683,35 @@ const MySchedule = () => {
             })
             .filter((r) => r.hasAny)
             .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
+
+          return (
+            <div>
+              <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                    {isCurrentWeek ? "Teamets vecka" : `Vecka ${weekNumber}`}
+                  </h2>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {format(weekStart, "d MMM", { locale: sv })} – {format(weekEnd, "d MMM", { locale: sv })}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setWeekOffset((o) => o - 1)} aria-label="Föregående vecka">
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  {!isCurrentWeek && (
+                    <Button size="sm" variant="ghost" className="h-8 px-2 text-xs" onClick={() => setWeekOffset(0)}>
+                      Denna vecka
+                    </Button>
+                  )}
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setWeekOffset((o) => o + 1)} aria-label="Nästa vecka">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {rows.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">Inga andra är schemalagda denna vecka.</p>
               ) : (
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
                   {/* Header med dagar */}
