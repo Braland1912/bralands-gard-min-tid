@@ -92,6 +92,7 @@ const AdminSchedule = () => {
   } | null>(null);
   const [dragX, setDragX] = useState(0);
   const [noteDraft, setNoteDraft] = useState("");
+  const [startTimeDraft, setStartTimeDraft] = useState("");
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const dragActive = useRef(false);
 
