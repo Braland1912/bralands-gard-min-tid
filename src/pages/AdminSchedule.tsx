@@ -711,12 +711,12 @@ const AdminSchedule = () => {
         </div>
 
         {/* Grid */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-visible">
           <div className="overflow-x-auto">
             <div style={minWidthStyle}>
               {/* Header row */}
-              <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
-                <div className={`${cellPadX} ${headerPadY}`} aria-hidden="true" />
+              <div className="grid border-b border-border bg-muted/95 backdrop-blur sticky top-0 z-20" style={gridStyle}>
+                <div className={`${cellPadX} ${headerPadY} sticky left-0 z-30 bg-muted/95 backdrop-blur`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
