@@ -180,10 +180,11 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
-  // Sync noteDraft when sheet opens or underlying schedules change
+  // Sync drafts when sheet opens or underlying schedules change
   useEffect(() => {
     if (!sheet || !sheet.worker.user_id) {
       setNoteDraft("");
+      setStartTimeDraft("");
       return;
     }
     const dateStr = format(sheet.date, "yyyy-MM-dd");
@@ -191,6 +192,7 @@ const AdminSchedule = () => {
       (s) => s.user_id === sheet.worker.user_id && s.date === dateStr && (s.shift_index ?? 0) === sheet.shiftIndex,
     );
     setNoteDraft(row?.note ?? "");
+    setStartTimeDraft(row?.start_time ? String(row.start_time).slice(0, 5) : "");
   }, [sheet, schedules]);
 
   // Nollställ "Byt medarbetare"-valet när sheet öppnas/stängs/byter pass
