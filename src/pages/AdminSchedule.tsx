@@ -1032,6 +1032,30 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              const StartTimeEditor = currentShiftRow && !isBusy ? (
+                <div className="space-y-2">
+                  <Label htmlFor="shift-start-time" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Starttid (valfri)
+                  </Label>
+                  <input
+                    id="shift-start-time"
+                    type="time"
+                    value={startTimeDraft}
+                    onChange={(e) => setStartTimeDraft(e.target.value)}
+                    onBlur={() => {
+                      const original = currentShiftRow.start_time ? String(currentShiftRow.start_time).slice(0, 5) : "";
+                      const next = startTimeDraft;
+                      if (original !== next) {
+                        updateStartTime.mutate({ id: currentShiftRow.id, startTime: next || null });
+                      }
+                    }}
+                    disabled={typeof navigator !== "undefined" && !navigator.onLine}
+                    className="input-datetime h-11 w-full rounded-lg border border-input bg-background px-3 text-base"
+                    placeholder="t.ex. 08:00"
+                  />
+                </div>
+              ) : null;
+
               // Duplicera-väljare (visas endast när det finns ett aktivt pass)
               const DuplicatePicker = currentShiftRow ? (
                 <div className="space-y-2">
