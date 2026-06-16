@@ -666,23 +666,22 @@ const MySchedule = () => {
 
         {/* HELA TEAMET */}
         {canSeeTeam && (() => {
-          // Bygg rader: workers med minst ett pass, sorterat alfabetiskt på förnamn
+          // Bygg rader: workers med minst ett pass, alla 7 dagar (även tomma)
           const rows = (allWorkers as any[])
             .filter((w) => !!w.user_id && w.id !== worker?.id)
             .map((w) => {
-              const days = weekDays
-                .map((d, dayIdx) => {
-                  const dateStr = format(d, "yyyy-MM-dd");
-                  const shifts = (schedules as any[])
-                    .filter((s) => s.user_id === w.user_id && s.date === dateStr)
-                    .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0))
-                    .map((s) => s.shift_type as string);
-                  return { dayIdx, shifts };
-                })
-                .filter((d) => d.shifts.length > 0);
-              return { worker: w, days };
+              const days = weekDays.map((d, dayIdx) => {
+                const dateStr = format(d, "yyyy-MM-dd");
+                const shifts = (schedules as any[])
+                  .filter((s) => s.user_id === w.user_id && s.date === dateStr)
+                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0))
+                  .map((s) => s.shift_type as string);
+                return { dayIdx, shifts, isToday: isToday(d) };
+              });
+              const hasAny = days.some((d) => d.shifts.length > 0);
+              return { worker: w, days, hasAny };
             })
-            .filter((r) => r.days.length > 0)
+            .filter((r) => r.hasAny)
             .sort((a, b) => a.worker.name.localeCompare(b.worker.name, "sv"));
 
           return (
@@ -697,32 +696,15 @@ const MySchedule = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={() => setWeekOffset((o) => o - 1)}
-                    aria-label="Föregående vecka"
-                  >
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setWeekOffset((o) => o - 1)} aria-label="Föregående vecka">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   {!isCurrentWeek && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 px-2 text-xs"
-                      onClick={() => setWeekOffset(0)}
-                    >
+                    <Button size="sm" variant="ghost" className="h-8 px-2 text-xs" onClick={() => setWeekOffset(0)}>
                       Denna vecka
                     </Button>
                   )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={() => setWeekOffset((o) => o + 1)}
-                    aria-label="Nästa vecka"
-                  >
+                  <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setWeekOffset((o) => o + 1)} aria-label="Nästa vecka">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -731,61 +713,96 @@ const MySchedule = () => {
               {rows.length === 0 ? (
                 <p className="text-sm text-muted-foreground italic">Inga andra är schemalagda denna vecka.</p>
               ) : (
-                <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-                  {rows.map((row) => {
-                    // Detect "hela veckan" same single shift (e.g. busy alla dagar)
-                    const allDays = row.days.length === 7;
-                    const flatTypes = row.days.flatMap((d) => d.shifts);
-                    const uniqueTypes = Array.from(new Set(flatTypes));
-                    const isUniformWeek =
-                      allDays &&
-                      uniqueTypes.length === 1 &&
-                      row.days.every((d) => d.shifts.length === 1);
-                    const uniformCfg = isUniformWeek ? SHIFT_CONFIG[uniqueTypes[0] as ShiftType] : null;
-
-                    return (
-                      <li
-                        key={row.worker.id}
-                        className="py-2 px-3 flex items-center justify-between gap-2"
+                <div className="rounded-xl border border-border bg-card overflow-hidden">
+                  {/* Header med dagar */}
+                  <div className="grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2 border-b border-border bg-muted/30">
+                    <div />
+                    {DAY_NAMES.map((dn, i) => (
+                      <div
+                        key={dn}
+                        className={`text-center text-[10px] font-semibold uppercase tracking-wide ${
+                          isToday(weekDays[i]) ? "text-primary" : "text-muted-foreground"
+                        }`}
                       >
-                        <span className="text-sm font-medium text-foreground truncate shrink-0">
-                          {getShortName(row.worker.name)}
-                        </span>
-                        {uniformCfg ? (
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${uniformCfg.bg} ${uniformCfg.border} ${uniformCfg.text} shrink-0`}
-                            aria-label={`Hela veckan: ${uniformCfg.label}`}
-                          >
-                            <span className="leading-none">{uniformCfg.emoji}</span>
-                            <span className="leading-none">Hela veckan · {uniformCfg.label}</span>
+                        {dn}
+                      </div>
+                    ))}
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {rows.map((row) => {
+                      const allDays = row.days.filter((d) => d.shifts.length > 0).length === 7;
+                      const flatTypes = row.days.flatMap((d) => d.shifts);
+                      const uniqueTypes = Array.from(new Set(flatTypes));
+                      const isUniformWeek =
+                        allDays &&
+                        uniqueTypes.length === 1 &&
+                        row.days.every((d) => d.shifts.length === 1);
+                      const uniformCfg = isUniformWeek ? SHIFT_CONFIG[uniqueTypes[0] as ShiftType] : null;
+
+                      return (
+                        <li
+                          key={row.worker.id}
+                          className="grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2.5 items-start"
+                        >
+                          <span className="text-sm font-medium text-foreground truncate self-center pr-1">
+                            {getShortName(row.worker.name)}
                           </span>
-                        ) : (
-                          <div className="flex flex-wrap gap-x-2 gap-y-1 justify-end">
-                            {row.days.map((d) => (
-                              <div key={d.dayIdx} className="flex items-center gap-1">
-                                <span className="text-[11px] text-muted-foreground">{DAY_NAMES[d.dayIdx]}</span>
-                                {d.shifts.map((t, idx) => {
-                                  const cfg = SHIFT_CONFIG[t as ShiftType];
-                                  if (!cfg) return null;
-                                  return (
-                                    <span
-                                      key={`${t}-${idx}`}
-                                      className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${cfg.bg} ${cfg.border} ${cfg.text}`}
-                                      aria-label={`Pass: ${cfg.label}`}
-                                    >
-                                      <span className="leading-none">{cfg.emoji}</span>
-                                      <span className="leading-none">{cfg.label}</span>
-                                    </span>
-                                  );
-                                })}
+
+                          {uniformCfg ? (
+                            <div className="col-span-7 flex justify-center">
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-medium ${uniformCfg.bg} ${uniformCfg.border} ${uniformCfg.text}`}
+                                aria-label={`Hela veckan: ${uniformCfg.label}`}
+                              >
+                                <span className="leading-none">{uniformCfg.emoji}</span>
+                                <span className="leading-none">Hela veckan · {uniformCfg.label}</span>
+                              </span>
+                            </div>
+                          ) : (
+                            row.days.map((d) => (
+                              <div
+                                key={d.dayIdx}
+                                className="flex flex-col items-center gap-1 min-w-0"
+                              >
+                                {d.shifts.length === 0 ? (
+                                  <span className="text-muted-foreground/30 text-xs select-none" aria-hidden>·</span>
+                                ) : (
+                                  d.shifts.map((t, idx) => {
+                                    const cfg = SHIFT_CONFIG[t as ShiftType];
+                                    if (!cfg) return null;
+                                    return (
+                                      <span
+                                        key={`${t}-${idx}`}
+                                        className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none ${cfg.bg} ${cfg.border} ${cfg.text}`}
+                                        aria-label={`${DAY_NAMES[d.dayIdx]}: ${cfg.label}`}
+                                        title={`${DAY_NAMES[d.dayIdx]} · ${cfg.label}`}
+                                      >
+                                        <span aria-hidden>{cfg.emoji}</span>
+                                      </span>
+                                    );
+                                  })
+                                )}
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                            ))
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+
+                  {/* Legend */}
+                  <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2 border-t border-border bg-muted/20 text-[10px] text-muted-foreground">
+                    {(["morning","day","evening","busy"] as ShiftType[]).map((t) => {
+                      const cfg = SHIFT_CONFIG[t];
+                      return (
+                        <span key={t} className="inline-flex items-center gap-1">
+                          <span aria-hidden>{cfg.emoji}</span>
+                          <span>{cfg.label}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           );
