@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import EveningRoundWidget from "@/components/admin/EveningRoundWidget";
-import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek } from "date-fns";
+import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek, isToday } from "date-fns";
 import { sv } from "date-fns/locale";
 import VersionTag from "@/components/VersionTag";
 
