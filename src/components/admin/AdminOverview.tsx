@@ -503,36 +503,78 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             {normalizedSearch ? "Ingen matchar din sökning." : "Ingen är schemalagd denna vecka."}
           </p>
         ) : (
-          <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
-            {filteredWeekRows.map((row) => (
-              <li key={row.worker.id} className="py-1.5 flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-foreground truncate shrink-0">
-                  {getShortName(row.worker.name)}
-                </span>
-                <div className="flex flex-wrap gap-x-2 gap-y-1 justify-end">
-                  {row.days.map((d) => (
-                    <div key={d.dayIdx} className="flex items-center gap-1">
-                      <span className="text-[11px] text-muted-foreground">{DAY_NAMES[d.dayIdx]}</span>
-                      {d.shifts.map((t, idx) => {
-                        const chip = SHIFT_CHIP[t];
-                        if (!chip) return null;
-                        return (
-                          <span
-                            key={`${t}-${idx}`}
-                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${chip.bg} ${chip.border} ${chip.text}`}
-                            aria-label={`Pass: ${chip.label}`}
-                          >
-                            <span className="leading-none">{chip.emoji}</span>
-                            <span className="leading-none">{chip.label}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ))}
+          <div className={`rounded-xl border bg-card overflow-hidden ${SECTION_STYLE.week.divide}`}>
+            {/* Sticky header med veckodagar */}
+            <div className="sticky top-0 z-10 grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2 border-b bg-muted/40 backdrop-blur">
+              <div />
+              {DAY_NAMES.map((dn, i) => (
+                <div
+                  key={dn}
+                  className={`text-center text-[10px] font-semibold uppercase tracking-wide ${
+                    isToday(weekDays[i]) ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {dn}
                 </div>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+            <ul className={`divide-y ${SECTION_STYLE.week.divide}`}>
+              {filteredWeekRows.map((row) => {
+                // Bygg fulla 7 dagar (inkl. tomma)
+                const fullDays = Array.from({ length: 7 }, (_, dayIdx) => {
+                  const found = row.days.find((d: any) => d.dayIdx === dayIdx);
+                  return { dayIdx, shifts: found?.shifts ?? [] };
+                });
+                return (
+                  <li
+                    key={row.worker.id}
+                    className="grid grid-cols-[5.5rem_repeat(7,minmax(0,1fr))] gap-1 px-2 sm:px-3 py-2.5 items-start"
+                  >
+                    <span className="text-sm font-medium text-foreground truncate self-center pr-1">
+                      {getShortName(row.worker.name)}
+                    </span>
+                    {fullDays.map((d) => (
+                      <div
+                        key={d.dayIdx}
+                        className="flex flex-col items-center gap-1 min-w-0"
+                      >
+                        {d.shifts.length === 0 ? (
+                          <span className="text-muted-foreground/30 text-xs select-none" aria-hidden>·</span>
+                        ) : (
+                          d.shifts.map((t: string, idx: number) => {
+                            const chip = SHIFT_CHIP[t];
+                            if (!chip) return null;
+                            return (
+                              <span
+                                key={`${t}-${idx}`}
+                                className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none ${chip.bg} ${chip.border} ${chip.text}`}
+                                aria-label={`${DAY_NAMES[d.dayIdx]}: ${chip.label}`}
+                                title={`${DAY_NAMES[d.dayIdx]} · ${chip.label}`}
+                              >
+                                <span aria-hidden>{chip.emoji}</span>
+                              </span>
+                            );
+                          })
+                        )}
+                      </div>
+                    ))}
+                  </li>
+                );
+              })}
+            </ul>
+            {/* Teckenförklaring */}
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2 border-t bg-muted/20 text-[10px] text-muted-foreground">
+              {(["morning","day","evening"] as const).map((t) => {
+                const chip = SHIFT_CHIP[t];
+                return (
+                  <span key={t} className="inline-flex items-center gap-1">
+                    <span aria-hidden>{chip.emoji}</span>
+                    <span>{chip.label}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
         )}
       </section>
       )}
