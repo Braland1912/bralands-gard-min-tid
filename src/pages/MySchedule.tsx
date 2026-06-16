@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
+import ShiftChecklistsCollapsed from "@/components/ShiftChecklistsCollapsed";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
@@ -73,6 +74,7 @@ const MySchedule = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
   const [teamShiftDetail, setTeamShiftDetail] = useState<{
+    shiftId: string;
     workerName: string;
     date: Date;
     shiftType: ShiftType;
@@ -785,6 +787,7 @@ const MySchedule = () => {
                                         key={`${s.id ?? t}-${idx}`}
                                         onClick={() =>
                                           setTeamShiftDetail({
+                                            shiftId: s.id,
                                             workerName: row.worker.name,
                                             date: weekDays[d.dayIdx],
                                             shiftType: t,
@@ -1033,6 +1036,7 @@ const MySchedule = () => {
                       <p className="text-sm text-muted-foreground italic">Ingen anteckning.</p>
                     )}
                   </div>
+                  <ShiftChecklistsCollapsed shiftId={teamShiftDetail.shiftId} />
                 </div>
               </>
             );
