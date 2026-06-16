@@ -1035,6 +1035,7 @@ const MySchedule = () => {
                       <p className="text-sm text-muted-foreground italic">Ingen anteckning.</p>
                     )}
                   </div>
+                  <ShiftChecklistsCollapsed shiftId={teamShiftDetail.shiftId} />
                 </div>
               </>
             );
