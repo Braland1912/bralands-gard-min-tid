@@ -674,8 +674,7 @@ const MySchedule = () => {
                 const dateStr = format(d, "yyyy-MM-dd");
                 const shifts = (schedules as any[])
                   .filter((s) => s.user_id === w.user_id && s.date === dateStr)
-                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0))
-                  .map((s) => s.shift_type as string);
+                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0));
                 return { dayIdx, shifts, isToday: isToday(d) };
               });
               const hasAny = days.some((d) => d.shifts.length > 0);
