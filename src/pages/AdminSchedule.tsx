@@ -371,6 +371,22 @@ const AdminSchedule = () => {
     },
   });
 
+  const updateStartTime = useMutation({
+    mutationFn: async ({ id, startTime }: { id: string; startTime: string | null }) => {
+      const { error } = await supabase
+        .from("schedules")
+        .update({ start_time: startTime && startTime.length > 0 ? startTime : null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera starttid", variant: "destructive" });
+    },
+  });
+
   const deleteShift = useMutation({
     mutationFn: async ({ userId, date, shiftIndex }: { userId: string; date: string; shiftIndex: 0 | 1 }) => {
       const { error } = await supabase
