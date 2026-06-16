@@ -801,7 +801,7 @@ const AdminSchedule = () => {
                     style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 z-10 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
