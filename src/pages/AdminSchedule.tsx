@@ -622,10 +622,10 @@ const AdminSchedule = () => {
   const nameColPx = useMemo(() => {
     const names = (allWorkers as any[]).map((w) => (isMobile ? getShortName(w.name) : w.name));
     const longest = names.reduce((a, b) => (b.length > a.length ? b : a), "");
-    const charPx = isMobile ? 7 : 8.5; // approx char width for text-xs / text-sm medium
-    const padding = isMobile ? 14 : 26;
-    const min = isMobile ? 72 : 110;
-    const max = isMobile ? 140 : 220;
+    const charPx = isMobile ? 6.2 : 8.5;
+    const padding = isMobile ? 8 : 26;
+    const min = isMobile ? 48 : 110;
+    const max = isMobile ? 110 : 220;
     return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
   }, [allWorkers, isMobile]);
 
@@ -712,7 +712,7 @@ const AdminSchedule = () => {
 
         {/* Grid */}
         <Card className="overflow-visible">
-          <div className="overflow-x-auto">
+          <div style={{ overflowX: "auto", overflowY: "visible" }}>
             <div style={minWidthStyle}>
               {/* Header row */}
               <div className="grid border-b border-border bg-muted/95 backdrop-blur sticky top-0 z-20" style={gridStyle}>
