@@ -92,6 +92,7 @@ const AdminSchedule = () => {
   } | null>(null);
   const [dragX, setDragX] = useState(0);
   const [noteDraft, setNoteDraft] = useState("");
+  const [startTimeDraft, setStartTimeDraft] = useState("");
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const dragActive = useRef(false);
 
@@ -179,10 +180,11 @@ const AdminSchedule = () => {
     enabled: !!user,
   });
 
-  // Sync noteDraft when sheet opens or underlying schedules change
+  // Sync drafts when sheet opens or underlying schedules change
   useEffect(() => {
     if (!sheet || !sheet.worker.user_id) {
       setNoteDraft("");
+      setStartTimeDraft("");
       return;
     }
     const dateStr = format(sheet.date, "yyyy-MM-dd");
@@ -190,6 +192,7 @@ const AdminSchedule = () => {
       (s) => s.user_id === sheet.worker.user_id && s.date === dateStr && (s.shift_index ?? 0) === sheet.shiftIndex,
     );
     setNoteDraft(row?.note ?? "");
+    setStartTimeDraft(row?.start_time ? String(row.start_time).slice(0, 5) : "");
   }, [sheet, schedules]);
 
   // Nollställ "Byt medarbetare"-valet när sheet öppnas/stängs/byter pass
@@ -365,6 +368,22 @@ const AdminSchedule = () => {
     },
     onError: () => {
       toast({ title: "Kunde inte uppdatera anteckning", variant: "destructive" });
+    },
+  });
+
+  const updateStartTime = useMutation({
+    mutationFn: async ({ id, startTime }: { id: string; startTime: string | null }) => {
+      const { error } = await supabase
+        .from("schedules")
+        .update({ start_time: startTime && startTime.length > 0 ? startTime : null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-schedules"] });
+    },
+    onError: () => {
+      toast({ title: "Kunde inte uppdatera starttid", variant: "destructive" });
     },
   });
 
@@ -1013,6 +1032,30 @@ const AdminSchedule = () => {
                 </div>
               ) : null;
 
+              const StartTimeEditor = currentShiftRow && !isBusy ? (
+                <div className="space-y-2">
+                  <Label htmlFor="shift-start-time" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Starttid (valfri)
+                  </Label>
+                  <input
+                    id="shift-start-time"
+                    type="time"
+                    value={startTimeDraft}
+                    onChange={(e) => setStartTimeDraft(e.target.value)}
+                    onBlur={() => {
+                      const original = currentShiftRow.start_time ? String(currentShiftRow.start_time).slice(0, 5) : "";
+                      const next = startTimeDraft;
+                      if (original !== next) {
+                        updateStartTime.mutate({ id: currentShiftRow.id, startTime: next || null });
+                      }
+                    }}
+                    disabled={typeof navigator !== "undefined" && !navigator.onLine}
+                    className="input-datetime h-11 w-full rounded-lg border border-input bg-background px-3 text-base"
+                    placeholder="t.ex. 08:00"
+                  />
+                </div>
+              ) : null;
+
               // Duplicera-väljare (visas endast när det finns ett aktivt pass)
               const DuplicatePicker = currentShiftRow ? (
                 <div className="space-y-2">
@@ -1181,6 +1224,7 @@ const AdminSchedule = () => {
 
               return hasShift ? (
                 <>
+                  {StartTimeEditor}
                   {NoteEditor}
                   {currentShiftRow && currentShiftType !== "busy" && (
                     <div>

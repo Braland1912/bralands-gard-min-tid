@@ -1,0 +1,1 @@
+ALTER TABLE public.schedules ADD COLUMN IF NOT EXISTS start_time time;

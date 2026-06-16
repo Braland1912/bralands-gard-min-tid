@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import { useTodayChecklistStatus } from "@/hooks/useTodayChecklistStatus";
 import { CheckCircle2, ListChecks } from "lucide-react";
@@ -71,6 +72,14 @@ const MySchedule = () => {
   const [busyNote, setBusyNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
+  const [teamShiftDetail, setTeamShiftDetail] = useState<{
+    workerName: string;
+    date: Date;
+    shiftType: ShiftType;
+    startTime: string | null;
+    note: string | null;
+    shiftIndex: number;
+  } | null>(null);
   const upcomingListRef = useRef<HTMLDivElement | null>(null);
   const savedScrollRef = useRef<{ window: number; list: number } | null>(null);
 
@@ -674,8 +683,7 @@ const MySchedule = () => {
                 const dateStr = format(d, "yyyy-MM-dd");
                 const shifts = (schedules as any[])
                   .filter((s) => s.user_id === w.user_id && s.date === dateStr)
-                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0))
-                  .map((s) => s.shift_type as string);
+                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0));
                 return { dayIdx, shifts, isToday: isToday(d) };
               });
               const hasAny = days.some((d) => d.shifts.length > 0);
@@ -731,7 +739,7 @@ const MySchedule = () => {
                   <ul className="divide-y divide-border">
                     {rows.map((row) => {
                       const allDays = row.days.filter((d) => d.shifts.length > 0).length === 7;
-                      const flatTypes = row.days.flatMap((d) => d.shifts);
+                      const flatTypes = row.days.flatMap((d) => d.shifts.map((s: any) => s.shift_type));
                       const uniqueTypes = Array.from(new Set(flatTypes));
                       const isUniformWeek =
                         allDays &&
@@ -767,18 +775,30 @@ const MySchedule = () => {
                                 {d.shifts.length === 0 ? (
                                   <span className="text-muted-foreground/30 text-xs select-none" aria-hidden>·</span>
                                 ) : (
-                                  d.shifts.map((t, idx) => {
-                                    const cfg = SHIFT_CONFIG[t as ShiftType];
+                                  d.shifts.map((s: any, idx: number) => {
+                                    const t = s.shift_type as ShiftType;
+                                    const cfg = SHIFT_CONFIG[t];
                                     if (!cfg) return null;
                                     return (
-                                      <span
-                                        key={`${t}-${idx}`}
-                                        className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none ${cfg.bg} ${cfg.border} ${cfg.text}`}
-                                        aria-label={`${DAY_NAMES[d.dayIdx]}: ${cfg.label}`}
-                                        title={`${DAY_NAMES[d.dayIdx]} · ${cfg.label}`}
+                                      <button
+                                        type="button"
+                                        key={`${s.id ?? t}-${idx}`}
+                                        onClick={() =>
+                                          setTeamShiftDetail({
+                                            workerName: row.worker.name,
+                                            date: weekDays[d.dayIdx],
+                                            shiftType: t,
+                                            startTime: s.start_time ?? null,
+                                            note: s.note ?? null,
+                                            shiftIndex: s.shift_index ?? 0,
+                                          })
+                                        }
+                                        className={`inline-flex items-center justify-center rounded-md border w-full px-1 py-1 text-[10px] font-medium leading-none transition-transform active:scale-95 ${cfg.bg} ${cfg.border} ${cfg.text}`}
+                                        aria-label={`${DAY_NAMES[d.dayIdx]}: ${cfg.label}${s.start_time ? ` kl ${String(s.start_time).slice(0, 5)}` : ""}`}
+                                        title={`${DAY_NAMES[d.dayIdx]} · ${cfg.label}${s.start_time ? ` · kl ${String(s.start_time).slice(0, 5)}` : ""}`}
                                       >
                                         <span aria-hidden>{cfg.emoji}</span>
-                                      </span>
+                                      </button>
                                     );
                                   })
                                 )}
@@ -974,6 +994,51 @@ const MySchedule = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!teamShiftDetail} onOpenChange={(o) => { if (!o) setTeamShiftDetail(null); }}>
+        <DialogContent className="max-w-sm">
+          {teamShiftDetail && (() => {
+            const cfg = SHIFT_CONFIG[teamShiftDetail.shiftType];
+            const tid = teamShiftDetail.startTime ? String(teamShiftDetail.startTime).slice(0, 5) : null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-base">
+                    {teamShiftDetail.workerName}
+                  </DialogTitle>
+                  <DialogDescription className="capitalize">
+                    {format(teamShiftDetail.date, "EEEE d MMMM", { locale: sv })}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 mt-1">
+                  <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${cfg.bg} ${cfg.border} ${cfg.text}`}>
+                    <span className="text-lg leading-none" aria-hidden>{cfg.emoji}</span>
+                    <span className="text-sm font-semibold">{cfg.label}</span>
+                    {tid && (
+                      <span className="ml-auto text-sm font-medium tabular-nums">kl {tid}</span>
+                    )}
+                  </div>
+                  {!tid && teamShiftDetail.shiftType !== "busy" && (
+                    <p className="text-xs text-muted-foreground">Ingen starttid angiven.</p>
+                  )}
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                      Anteckning
+                    </div>
+                    {teamShiftDetail.note ? (
+                      <p className="text-sm text-foreground whitespace-pre-wrap rounded-lg border border-border bg-muted/30 px-3 py-2">
+                        {teamShiftDetail.note}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">Ingen anteckning.</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
       <MemberMobileBottomNav active="schema" />
     </div>
