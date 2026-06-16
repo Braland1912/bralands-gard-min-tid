@@ -197,7 +197,7 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
           </span>
         </div>
       ) : (
-        <div className="max-h-96 overflow-y-auto rounded-2xl border border-border bg-card divide-y divide-border">
+        <div className="rounded-2xl border border-border bg-card divide-y divide-border">
           {upcoming.map(({ date, shifts, isPublished }: { date: string; shifts: any[]; isPublished: boolean }, idx: number) => {
             const dateObj = new Date(date + "T00:00:00");
             const wk = getISOWeek(dateObj);
