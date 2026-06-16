@@ -711,12 +711,12 @@ const AdminSchedule = () => {
         </div>
 
         {/* Grid */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-visible">
           <div className="overflow-x-auto">
             <div style={minWidthStyle}>
               {/* Header row */}
-              <div className="grid border-b border-border bg-muted/30" style={gridStyle}>
-                <div className={`${cellPadX} ${headerPadY}`} aria-hidden="true" />
+              <div className="grid border-b border-border bg-muted/95 backdrop-blur sticky top-0 z-20" style={gridStyle}>
+                <div className={`${cellPadX} ${headerPadY} sticky left-0 z-30 bg-muted/95 backdrop-blur`} aria-hidden="true" />
 
                 {weekDays.map((d, i) => {
                   const today = isToday(d);
@@ -801,7 +801,7 @@ const AdminSchedule = () => {
                     style={gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 z-10 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
