@@ -995,6 +995,51 @@ const MySchedule = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      <Dialog open={!!teamShiftDetail} onOpenChange={(o) => { if (!o) setTeamShiftDetail(null); }}>
+        <DialogContent className="max-w-sm">
+          {teamShiftDetail && (() => {
+            const cfg = SHIFT_CONFIG[teamShiftDetail.shiftType];
+            const tid = teamShiftDetail.startTime ? String(teamShiftDetail.startTime).slice(0, 5) : null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="text-base">
+                    {teamShiftDetail.workerName}
+                  </DialogTitle>
+                  <DialogDescription className="capitalize">
+                    {format(teamShiftDetail.date, "EEEE d MMMM", { locale: sv })}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 mt-1">
+                  <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${cfg.bg} ${cfg.border} ${cfg.text}`}>
+                    <span className="text-lg leading-none" aria-hidden>{cfg.emoji}</span>
+                    <span className="text-sm font-semibold">{cfg.label}</span>
+                    {tid && (
+                      <span className="ml-auto text-sm font-medium tabular-nums">kl {tid}</span>
+                    )}
+                  </div>
+                  {!tid && teamShiftDetail.shiftType !== "busy" && (
+                    <p className="text-xs text-muted-foreground">Ingen starttid angiven.</p>
+                  )}
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+                      Anteckning
+                    </div>
+                    {teamShiftDetail.note ? (
+                      <p className="text-sm text-foreground whitespace-pre-wrap rounded-lg border border-border bg-muted/30 px-3 py-2">
+                        {teamShiftDetail.note}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">Ingen anteckning.</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       <MemberMobileBottomNav active="schema" />
     </div>
   );
