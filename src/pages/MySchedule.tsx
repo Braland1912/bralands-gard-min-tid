@@ -786,6 +786,7 @@ const MySchedule = () => {
                                         key={`${s.id ?? t}-${idx}`}
                                         onClick={() =>
                                           setTeamShiftDetail({
+                                            shiftId: s.id,
                                             workerName: row.worker.name,
                                             date: weekDays[d.dayIdx],
                                             shiftType: t,
