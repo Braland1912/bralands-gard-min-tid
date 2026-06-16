@@ -71,6 +71,14 @@ const MySchedule = () => {
   const [busyNote, setBusyNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [upcomingCollapsed, setUpcomingCollapsed] = useState(false);
+  const [teamShiftDetail, setTeamShiftDetail] = useState<{
+    workerName: string;
+    date: Date;
+    shiftType: ShiftType;
+    startTime: string | null;
+    note: string | null;
+    shiftIndex: number;
+  } | null>(null);
   const upcomingListRef = useRef<HTMLDivElement | null>(null);
   const savedScrollRef = useRef<{ window: number; list: number } | null>(null);
 
