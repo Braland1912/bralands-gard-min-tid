@@ -20,6 +20,8 @@ interface Props {
   timeEntryId: string;
   workerId: string;
   isOnline: boolean;
+  /** Visa uppgiftsknappar + dagens uppgifter. Rast-knappen visas alltid. */
+  showTasks?: boolean;
 }
 
 const formatTime = (iso: string) =>
@@ -34,7 +36,7 @@ const formatDuration = (start: string, end: string | null, nowMs: number) => {
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 };
 
-const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
+const ActivityLogger = ({ timeEntryId, workerId, isOnline, showTasks = true }: Props) => {
   const { data: categories, isLoading: catsLoading } = useTaskCategories();
   const { data: logs, isLoading: logsLoading } = useActivityLogs(timeEntryId);
   const switchTask = useSwitchTask();
@@ -157,35 +159,39 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground leading-snug">
-        Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
-      </p>
+      {showTasks && (
+        <p className="text-sm text-muted-foreground leading-snug">
+          Kul att du är på plats! Tryck på det du jobbar med så håller vi koll på tiderna åt dig.
+        </p>
+      )}
 
       {/* Chips */}
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Vad gör du nu?
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {workCategories.map((cat) => {
-            const active = openLog?.category_id === cat.id;
-            return (
-              <Button
-                key={cat.id}
-                type="button"
-                variant={active ? "default" : "outline"}
-                disabled={!isOnline || switchTask.isPending}
-                onClick={() => handleChipClick(cat)}
-                className={`min-h-12 px-4 py-3 rounded-xl text-sm font-medium ${
-                  active ? "shadow-sm" : ""
-                }`}
-              >
-                {cat.label}
-              </Button>
-            );
-          })}
+      {showTasks && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Vad gör du nu?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {workCategories.map((cat) => {
+              const active = openLog?.category_id === cat.id;
+              return (
+                <Button
+                  key={cat.id}
+                  type="button"
+                  variant={active ? "default" : "outline"}
+                  disabled={!isOnline || switchTask.isPending}
+                  onClick={() => handleChipClick(cat)}
+                  className={`min-h-12 px-4 py-3 rounded-xl text-sm font-medium ${
+                    active ? "shadow-sm" : ""
+                  }`}
+                >
+                  {cat.label}
+                </Button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Rast */}
       {breakCategory && (() => {
@@ -213,7 +219,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
       })()}
 
       {/* Inline note for active requires_note task */}
-      {needsNote && openLog && (
+      {showTasks && needsNote && openLog && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 space-y-2">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4 text-primary" />
@@ -236,7 +242,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
       )}
 
       {/* Active checklist */}
-      {openLog && openLog.checklist_state && openLog.checklist_state.length > 0 && (
+      {showTasks && openLog && openLog.checklist_state && openLog.checklist_state.length > 0 && (
         <div className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
           <div className="flex items-center gap-2">
             <ListChecks className="h-4 w-4 text-primary" />
@@ -267,7 +273,7 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline }: Props) => {
       )}
 
       {/* Timeline */}
-      {logs && logs.length > 0 && (
+      {showTasks && logs && logs.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Dagens uppgifter
