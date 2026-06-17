@@ -246,6 +246,26 @@ const TeamMembers = () => {
                     }}
                   />
                 </div>
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">Visa aktivitetslogg vid instämpling</span>
+                    <span className="text-[10px] text-muted-foreground/70">Schemalagda pass använder alltid passets checklistor.</span>
+                  </div>
+                  <Switch
+                    checked={(worker as any).show_activity_log === true}
+                    onCheckedChange={async (v) => {
+                      const { error } = await supabase
+                        .from("workers")
+                        .update({ show_activity_log: v } as any)
+                        .eq("id", worker.id);
+                      if (error) {
+                        toast.error("Kunde inte uppdatera inställning");
+                        return;
+                      }
+                      queryClient.invalidateQueries({ queryKey: ["workers"] });
+                    }}
+                  />
+                </div>
               </Card>
             );
           })}

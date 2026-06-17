@@ -392,12 +392,19 @@ const Index = () => {
               />
             )}
 
-            {/* Activity logger – only when clocked in today */}
+            {/* Activity logger – only when clocked in today.
+                Uppgiftsknappar visas bara om medarbetaren har show_activity_log=true
+                OCH inte har schemalagda checklistor idag (då används passets checklistor istället).
+                Rast-knappen visas alltid. */}
             {activeEntry && !forgottenEntry && worker && (
               <ActivityLogger
                 timeEntryId={activeEntry.id}
                 workerId={worker.id}
                 isOnline={isOnline}
+                showTasks={
+                  (worker as any).show_activity_log === true &&
+                  (!checklistStatus || checklistStatus.total === 0)
+                }
               />
             )}
 
