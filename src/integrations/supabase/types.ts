@@ -916,6 +916,7 @@ export type Database = {
           hourly_rate: number | null
           id: string
           name: string
+          show_activity_log: boolean
           user_id: string | null
         }
         Insert: {
@@ -924,6 +925,7 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           name: string
+          show_activity_log?: boolean
           user_id?: string | null
         }
         Update: {
@@ -932,6 +934,7 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           name?: string
+          show_activity_log?: boolean
           user_id?: string | null
         }
         Relationships: []
