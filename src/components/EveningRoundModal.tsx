@@ -348,6 +348,26 @@ const EveningRoundModal = ({
     }
   }, [place, accommodation, mode]);
 
+  // Räkna om belopp automatiskt när vistelse/typ ändras (om betalningsmetod valts).
+  // SEK visas direkt; EUR avrundas uppåt till hela euro (1 EUR = 10 SEK).
+  useEffect(() => {
+    if (!open) return;
+    if (method === "none") return;
+    if (effectiveAccommodation !== "vehicle" && effectiveAccommodation !== "tent") return;
+    const suggested = computeStayPrice({
+      arrival,
+      departure,
+      accommodation: effectiveAccommodation === "tent" ? "tent" : "vehicle",
+      hasElectricity,
+      tentPersons,
+    });
+    if (!suggested) return;
+    const next = currency === "EUR" ? Math.ceil(suggested / 10) : suggested;
+    setAmount(String(next));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arrival, departure, effectiveAccommodation, hasElectricity, tentPersons]);
+
+
   // Live-validering av datum: visa fel direkt när avresa är samma dag som ankomst
   // eller tidigare. Tomma fält flaggas inte här (de fångas vid spara).
   const dateError: string | null =
