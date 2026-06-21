@@ -1514,7 +1514,19 @@ const EveningRoundModal = ({
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold">Valuta</Label>
-                      <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+                      <Select value={currency} onValueChange={(v) => {
+                        const next = v as Currency;
+                        const prev = currency;
+                        const n = parseFloat(amount.replace(",", "."));
+                        if (!isNaN(n) && n > 0 && prev !== next) {
+                          let converted: number | null = null;
+                          if (prev === "SEK" && next === "EUR") converted = Math.ceil(n / 10);
+                          else if (prev === "EUR" && next === "SEK") converted = Math.ceil(n * 10);
+                          if (converted !== null) setAmount(String(converted));
+                        }
+                        setCurrency(next);
+                      }}>
+
                         <SelectTrigger className="bg-card">
                           <SelectValue />
                         </SelectTrigger>
