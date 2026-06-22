@@ -455,6 +455,7 @@ const MySchedule = () => {
     const renderChip = (entry: any, full: boolean) => {
       const has = isMine && (checklistCounts[entry.id] || 0) > 0;
       const isOwnBusy = isMine && entry.shift_type === "busy" && isFutureOrToday;
+      const hasNote = !!entry.note && String(entry.note).trim().length > 0;
       const onClick = isOwnBusy
         ? openSelfBusySheet
         : has
@@ -464,6 +465,17 @@ const MySchedule = () => {
               label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
               date,
               shiftType: entry.shift_type as ShiftType,
+              shiftIndex: entry.shift_index ?? 0,
+            })
+        : hasNote
+        ? () =>
+            setTeamShiftDetail({
+              shiftId: entry.id,
+              workerName: isMine ? (worker?.name || "Mitt pass") : "",
+              date,
+              shiftType: entry.shift_type as ShiftType,
+              startTime: entry.start_time ?? null,
+              note: entry.note ?? null,
               shiftIndex: entry.shift_index ?? 0,
             })
         : undefined;
