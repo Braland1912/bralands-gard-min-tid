@@ -340,8 +340,8 @@ const MySchedule = () => {
     onClick?: () => void;
   }) => {
     const cfg = SHIFT_CONFIG[shift];
-    const interactive = !!onClick && (!!hasChecklist || shift === "busy");
     const hasNote = !!note && note.trim().length > 0;
+    const interactive = !!onClick && (!!hasChecklist || shift === "busy" || hasNote);
     return (
       <button
         type="button"
