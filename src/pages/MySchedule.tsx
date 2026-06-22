@@ -675,26 +675,40 @@ const MySchedule = () => {
                           <div className="flex gap-1.5 shrink-0 w-[160px]">
                             {shifts.map((entry) => {
                               const has = (upcomingChecklistCounts[entry.id] || 0) > 0;
+                              const hasNote = !!entry.note && String(entry.note).trim().length > 0;
+                              const chipOnClick = has
+                                ? (e?: any) => {
+                                    e?.stopPropagation?.();
+                                    setOpenShift({
+                                      id: entry.id,
+                                      label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
+                                      date: dateObj,
+                                      shiftType: entry.shift_type as ShiftType,
+                                      shiftIndex: entry.shift_index ?? 0,
+                                    });
+                                  }
+                                : hasNote
+                                ? (e?: any) => {
+                                    e?.stopPropagation?.();
+                                    setTeamShiftDetail({
+                                      shiftId: entry.id,
+                                      workerName: worker?.name || "Mitt pass",
+                                      date: dateObj,
+                                      shiftType: entry.shift_type as ShiftType,
+                                      startTime: entry.start_time ?? null,
+                                      note: entry.note ?? null,
+                                      shiftIndex: entry.shift_index ?? 0,
+                                    });
+                                  }
+                                : undefined;
                               return (
                                 <div key={entry.id} className="flex-1">
                                   <Chip
                                     shift={entry.shift_type as ShiftType}
                                     full
                                     hasChecklist={has}
-                                    onClick={
-                                      has
-                                        ? (e?: any) => {
-                                            e?.stopPropagation?.();
-                                            setOpenShift({
-                                              id: entry.id,
-                                              label: SHIFT_CONFIG[entry.shift_type as ShiftType].label,
-                                              date: dateObj,
-                                              shiftType: entry.shift_type as ShiftType,
-                                              shiftIndex: entry.shift_index ?? 0,
-                                            });
-                                          }
-                                        : undefined
-                                    }
+                                    note={entry.note}
+                                    onClick={chipOnClick}
                                   />
                                 </div>
                               );
