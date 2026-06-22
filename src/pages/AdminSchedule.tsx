@@ -275,7 +275,7 @@ const AdminSchedule = () => {
       // Check if this shift already exists (so we know if it's newly created)
       const { data: existing } = await supabase
         .from("schedules")
-        .select("id, shift_type, note")
+        .select("id, shift_type, note, start_time")
         .eq("user_id", userId)
         .eq("date", date)
         .eq("shift_index", shiftIndex)
