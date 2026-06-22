@@ -275,7 +275,7 @@ const AdminSchedule = () => {
       // Check if this shift already exists (so we know if it's newly created)
       const { data: existing } = await supabase
         .from("schedules")
-        .select("id, shift_type, note")
+        .select("id, shift_type, note, start_time")
         .eq("user_id", userId)
         .eq("date", date)
         .eq("shift_index", shiftIndex)
@@ -290,10 +290,26 @@ const AdminSchedule = () => {
         payload.note = (existing as any).note ?? null;
       }
 
+      // Default starttider om inget annat är överenskommet (sätts endast vid skapande,
+      // eller om befintligt pass saknar starttid).
+      const DEFAULT_START: Partial<Record<ShiftType, string>> = {
+        morning: "07:00:00",
+        day: "10:00:00",
+        evening: "18:00:00",
+      };
+      const defaultStart = DEFAULT_START[shiftType];
+      if (defaultStart) {
+        const existingStart = (existing as any)?.start_time ?? null;
+        if (!existing || !existingStart) {
+          payload.start_time = defaultStart;
+        }
+      }
+
       const { error } = await supabase
         .from("schedules")
         .upsert(payload, { onConflict: "user_id,date,shift_index" });
       if (error) throw error;
+
 
       // Auto-attach templates only when shift is newly created
       if (existing) return;
