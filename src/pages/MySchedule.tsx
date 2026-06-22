@@ -599,17 +599,40 @@ const MySchedule = () => {
                     const shiftsWithChecklist = shifts.filter(
                       (s: any) => (upcomingChecklistCounts[s.id] || 0) > 0
                     );
-                    const rowClickable = shiftsWithChecklist.length === 1;
-                    const rowOpen = rowClickable
-                      ? () =>
-                          setOpenShift({
-                            id: shiftsWithChecklist[0].id,
-                            label:
-                              SHIFT_CONFIG[shiftsWithChecklist[0].shift_type as ShiftType].label,
-                            date: dateObj,
-                            shiftType: shiftsWithChecklist[0].shift_type as ShiftType,
-                            shiftIndex: shiftsWithChecklist[0].shift_index ?? 0,
-                          })
+                    const shiftsWithNote = shifts.filter(
+                      (s: any) => !!s.note && String(s.note).trim().length > 0
+                    );
+                    const singleClickable =
+                      shiftsWithChecklist.length === 1
+                        ? shiftsWithChecklist[0]
+                        : shifts.length === 1 && shiftsWithNote.length === 1
+                        ? shiftsWithNote[0]
+                        : null;
+                    const rowClickable = !!singleClickable;
+                    const rowOpen = singleClickable
+                      ? () => {
+                          const s = singleClickable;
+                          const hasCl = (upcomingChecklistCounts[s.id] || 0) > 0;
+                          if (hasCl) {
+                            setOpenShift({
+                              id: s.id,
+                              label: SHIFT_CONFIG[s.shift_type as ShiftType].label,
+                              date: dateObj,
+                              shiftType: s.shift_type as ShiftType,
+                              shiftIndex: s.shift_index ?? 0,
+                            });
+                          } else {
+                            setTeamShiftDetail({
+                              shiftId: s.id,
+                              workerName: worker?.name || "Mitt pass",
+                              date: dateObj,
+                              shiftType: s.shift_type as ShiftType,
+                              startTime: s.start_time ?? null,
+                              note: s.note ?? null,
+                              shiftIndex: s.shift_index ?? 0,
+                            });
+                          }
+                        }
                       : undefined;
                     return (
                       <div key={date}>
