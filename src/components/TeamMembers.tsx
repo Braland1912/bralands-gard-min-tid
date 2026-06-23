@@ -247,6 +247,23 @@ const TeamMembers = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
+                  <span className="text-xs text-muted-foreground">Kan se uthyrningskalendern</span>
+                  <Switch
+                    checked={(worker as any).can_see_lodge === true}
+                    onCheckedChange={async (v) => {
+                      const { error } = await supabase
+                        .from("workers")
+                        .update({ can_see_lodge: v } as any)
+                        .eq("id", worker.id);
+                      if (error) {
+                        toast.error("Kunde inte uppdatera behörighet");
+                        return;
+                      }
+                      queryClient.invalidateQueries({ queryKey: ["workers"] });
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
                   <div className="flex flex-col">
                     <span className="text-xs text-muted-foreground">Visa aktivitetslogg vid instämpling</span>
                     <span className="text-[10px] text-muted-foreground/70">Schemalagda pass använder alltid passets checklistor.</span>

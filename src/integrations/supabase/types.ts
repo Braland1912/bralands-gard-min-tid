@@ -911,6 +911,7 @@ export type Database = {
       }
       workers: {
         Row: {
+          can_see_lodge: boolean
           can_see_team: boolean
           created_at: string | null
           hourly_rate: number | null
@@ -920,6 +921,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          can_see_lodge?: boolean
           can_see_team?: boolean
           created_at?: string | null
           hourly_rate?: number | null
@@ -929,6 +931,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          can_see_lodge?: boolean
           can_see_team?: boolean
           created_at?: string | null
           hourly_rate?: number | null
