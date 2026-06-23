@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2 } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
 
@@ -52,11 +52,15 @@ const AppHeader = () => {
   // Don't show user info for unauthenticated users
   const showUserInfo = !!user && !!worker && !isAdmin;
 
-  const navItems = [
+  const baseNav = [
     { label: "Hem", icon: Home, path: "/" },
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
     { label: "Tidrapport", icon: Clock, path: "/my-time" },
     { label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
+  ];
+  const navItems = [
+    ...baseNav,
+    ...(worker?.can_see_lodge ? [{ label: "Uthyrning", icon: Building2, path: "/lodge" }] : []),
     { label: "Hjälp", icon: LifeBuoy, path: "/help" },
   ];
 
