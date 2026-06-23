@@ -17,7 +17,7 @@ import {
 import { ChevronLeft, ChevronRight, ArrowLeft, RefreshCw, Home, Calendar as CalendarIcon } from "lucide-react";
 import { addMonths, subMonths, format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isToday, parseISO, isWithinInterval } from "date-fns";
 import { sv } from "date-fns/locale";
-import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+
 
 type LodgeEvent = {
   uid: string;
@@ -321,7 +321,6 @@ const Lodge = () => {
         </DialogContent>
       </Dialog>
 
-      <MemberMobileBottomNav />
     </div>
   );
 };
