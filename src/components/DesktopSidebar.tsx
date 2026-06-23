@@ -15,6 +15,7 @@ import {
   LifeBuoy,
   GitBranch,
   Tags,
+  Building2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -107,7 +108,17 @@ const DesktopSidebar = () => {
 
   if (!user || adminLoading) return null;
 
-  const items = isAdmin ? adminItems : memberItems;
+  const baseItems = isAdmin ? adminItems : memberItems;
+  const showLodge = isAdmin || worker?.can_see_lodge === true;
+  const lodgeItem: NavItem = { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" };
+  const items = showLodge
+    ? (() => {
+        // Lägg in före "Hjälp" om det finns, annars i slutet
+        const idx = baseItems.findIndex((i) => i.id === "hjalp");
+        if (idx === -1) return [...baseItems, lodgeItem];
+        return [...baseItems.slice(0, idx), lodgeItem, ...baseItems.slice(idx)];
+      })()
+    : baseItems;
 
   // Determine active item
   const currentTab = (location.state as any)?.tab as string | undefined;
@@ -124,6 +135,7 @@ const DesktopSidebar = () => {
     if (item.id === "schema") return location.pathname === "/my-schedule";
     if (item.id === "tidrapport") return location.pathname === "/my-time";
     if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
+    if (item.id === "lodge") return location.pathname === "/lodge";
     if (item.id === "hjalp") return location.pathname.startsWith("/help") || location.pathname.startsWith("/evening-round/help");
     return false;
   };
