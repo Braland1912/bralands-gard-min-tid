@@ -1,0 +1,329 @@
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorker } from "@/hooks/useWorker";
+import { useAdmin } from "@/hooks/useAdmin";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, ArrowLeft, RefreshCw, Home, Calendar as CalendarIcon } from "lucide-react";
+import { addMonths, subMonths, format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isToday, parseISO, isWithinInterval } from "date-fns";
+import { sv } from "date-fns/locale";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+
+type LodgeEvent = {
+  uid: string;
+  summary: string;
+  start: string; // YYYY-MM-DD
+  end: string;   // YYYY-MM-DD (exclusive)
+  allDay: boolean;
+  startTime?: string;
+  endTime?: string;
+  unit: string;
+};
+
+const UNIT_STYLES: Record<string, { bg: string; dot: string; chip: string }> = {
+  "Laxen":             { bg: "bg-red-100",     dot: "bg-red-500",     chip: "bg-red-50 text-red-700 border-red-200" },
+  "Öringen":           { bg: "bg-amber-100",   dot: "bg-amber-500",   chip: "bg-amber-50 text-amber-700 border-amber-200" },
+  "Kungsfiskaren":     { bg: "bg-sky-100",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-700 border-sky-200" },
+  "Harren":            { bg: "bg-emerald-100", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  "Abborren":          { bg: "bg-lime-100",    dot: "bg-lime-500",    chip: "bg-lime-50 text-lime-700 border-lime-200" },
+  "Gäddan":            { bg: "bg-teal-100",    dot: "bg-teal-500",    chip: "bg-teal-50 text-teal-700 border-teal-200" },
+  "Lägenhet":          { bg: "bg-indigo-100",  dot: "bg-indigo-500",  chip: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+  "Husvagn":           { bg: "bg-orange-100",  dot: "bg-orange-500",  chip: "bg-orange-50 text-orange-700 border-orange-200" },
+  "Hela anläggningen": { bg: "bg-fuchsia-100", dot: "bg-fuchsia-500", chip: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
+  "Norra":             { bg: "bg-blue-100",    dot: "bg-blue-500",    chip: "bg-blue-50 text-blue-700 border-blue-200" },
+  "Undre":             { bg: "bg-violet-100",  dot: "bg-violet-500",  chip: "bg-violet-50 text-violet-700 border-violet-200" },
+  "Övrigt":            { bg: "bg-gray-100",    dot: "bg-gray-400",    chip: "bg-gray-50 text-gray-700 border-gray-200" },
+};
+
+const styleFor = (unit: string) => UNIT_STYLES[unit] ?? UNIT_STYLES["Övrigt"];
+
+const Lodge = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: worker, isLoading: workerLoading } = useWorker(user?.id);
+  const { isAdmin, loading: adminLoading } = useAdmin();
+  const [cursor, setCursor] = useState(new Date());
+  const [openDay, setOpenDay] = useState<Date | null>(null);
+
+  const canAccess = isAdmin || worker?.can_see_lodge === true;
+  const ready = !workerLoading && !adminLoading;
+
+  const { data, isLoading, refetch, isFetching, error } = useQuery({
+    queryKey: ["lodge-calendar"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Ej inloggad");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lodge-calendar`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        }
+      );
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Fel ${res.status}`);
+      }
+      return res.json() as Promise<{ events: LodgeEvent[]; fetchedAt: number }>;
+    },
+    enabled: ready && canAccess && !!user,
+    staleTime: 15 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const events = data?.events ?? [];
+
+  // Bygg månadsrutnät
+  const monthStart = startOfMonth(cursor);
+  const monthEnd = endOfMonth(cursor);
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const days: Date[] = useMemo(() => {
+    const result: Date[] = [];
+    let d = gridStart;
+    while (d <= gridEnd) {
+      result.push(d);
+      d = addDays(d, 1);
+    }
+    return result;
+  }, [gridStart.getTime(), gridEnd.getTime()]);
+
+  const eventsForDay = (day: Date): LodgeEvent[] => {
+    return events.filter((e) => {
+      const start = parseISO(e.start);
+      // ICS DTEND är exklusivt; sista datumet ingår inte
+      const endExclusive = parseISO(e.end);
+      const endInclusive = addDays(endExclusive, -1);
+      // För events utan giltig slut behandlar vi som en dag
+      const last = endInclusive < start ? start : endInclusive;
+      return isWithinInterval(day, { start, end: last });
+    });
+  };
+
+  const unitsInMonth = useMemo(() => {
+    const set = new Set<string>();
+    days.forEach((d) => eventsForDay(d).forEach((e) => set.add(e.unit)));
+    return Array.from(set).sort();
+  }, [days, events]);
+
+  if (!ready) {
+    return (
+      <div className="p-6 max-w-5xl mx-auto">
+        <Skeleton className="h-8 w-48 mb-4" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-6 max-w-md mx-auto text-center">
+        <h1 className="text-xl font-semibold mb-2">Logga in</h1>
+        <p className="text-muted-foreground mb-4">Du måste vara inloggad för att se uthyrningskalendern.</p>
+        <Button onClick={() => navigate("/login")}>Till inloggning</Button>
+      </div>
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <div className="p-6 max-w-md mx-auto text-center">
+        <CalendarIcon className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+        <h1 className="text-xl font-semibold mb-2">Saknar behörighet</h1>
+        <p className="text-muted-foreground mb-4">Be en admin slå på "Kan se uthyrningskalendern" för dig under Team.</p>
+        <Button variant="outline" onClick={() => navigate("/")}>
+          <ArrowLeft className="h-4 w-4 mr-2" /> Tillbaka
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background pb-24 md:pb-6">
+      <div className="max-w-5xl mx-auto p-4 md:p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} aria-label="Hem">
+              <Home className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl md:text-2xl font-semibold">Uthyrning i lodgen</h1>
+              <p className="text-xs text-muted-foreground">Bokningar från iCloud-kalendern</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => refetch()} disabled={isFetching} aria-label="Uppdatera">
+            <RefreshCw className={`h-5 w-5 ${isFetching ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
+
+        {/* Månadsnavigering */}
+        <Card className="p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="ghost" size="icon" onClick={() => setCursor(subMonths(cursor, 1))}>
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="text-center">
+              <div className="text-base md:text-lg font-semibold capitalize">
+                {format(cursor, "LLLL yyyy", { locale: sv })}
+              </div>
+              {!isSameMonth(cursor, new Date()) && (
+                <button
+                  className="text-xs text-primary hover:underline"
+                  onClick={() => setCursor(new Date())}
+                >
+                  Idag
+                </button>
+              )}
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setCursor(addMonths(cursor, 1))}>
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Veckodagar */}
+          <div className="grid grid-cols-7 gap-1 mb-1 text-[10px] md:text-xs font-medium text-muted-foreground text-center">
+            {["Mån","Tis","Ons","Tor","Fre","Lör","Sön"].map((d) => (
+              <div key={d} className="py-1">{d}</div>
+            ))}
+          </div>
+
+          {/* Rutnät */}
+          {isLoading ? (
+            <Skeleton className="h-96 w-full" />
+          ) : error ? (
+            <div className="text-center text-sm text-destructive py-8">
+              Kunde inte ladda kalendern. {(error as Error).message}
+            </div>
+          ) : (
+            <div className="grid grid-cols-7 gap-1">
+              {days.map((day) => {
+                const dayEvents = eventsForDay(day);
+                const inMonth = isSameMonth(day, cursor);
+                const today = isToday(day);
+                return (
+                  <button
+                    key={day.toISOString()}
+                    onClick={() => setOpenDay(day)}
+                    className={`min-h-[64px] md:min-h-[88px] p-1 md:p-1.5 rounded-lg border text-left transition-colors flex flex-col gap-1 ${
+                      today
+                        ? "border-primary bg-primary/5"
+                        : inMonth
+                        ? "border-border bg-card hover:bg-accent"
+                        : "border-border/50 bg-muted/30 text-muted-foreground"
+                    }`}
+                  >
+                    <div className={`text-[11px] md:text-xs font-medium ${today ? "text-primary" : ""}`}>
+                      {format(day, "d")}
+                    </div>
+                    <div className="flex flex-col gap-0.5 overflow-hidden">
+                      {dayEvents.slice(0, 3).map((e) => {
+                        const s = styleFor(e.unit);
+                        return (
+                          <div
+                            key={e.uid + e.start}
+                            className={`text-[9px] md:text-[10px] leading-tight rounded px-1 py-0.5 truncate ${s.bg}`}
+                            title={`${e.unit} – ${e.summary}`}
+                          >
+                            <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.dot} mr-1`} />
+                            <span className="font-medium">{e.unit}</span>
+                          </div>
+                        );
+                      })}
+                      {dayEvents.length > 3 && (
+                        <div className="text-[9px] text-muted-foreground">+{dayEvents.length - 3} till</div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+
+        {/* Förklaring */}
+        {unitsInMonth.length > 0 && (
+          <Card className="p-4">
+            <div className="text-xs font-medium text-muted-foreground mb-2">Enheter denna månad</div>
+            <div className="flex flex-wrap gap-2">
+              {unitsInMonth.map((u) => {
+                const s = styleFor(u);
+                return (
+                  <span key={u} className={`text-xs px-2 py-1 rounded-full border ${s.chip} flex items-center gap-1.5`}>
+                    <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+                    {u}
+                  </span>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Dialog: dagens händelser */}
+      <Dialog open={!!openDay} onOpenChange={(o) => !o && setOpenDay(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="capitalize">
+              {openDay && format(openDay, "EEEE d MMMM yyyy", { locale: sv })}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+            {openDay && eventsForDay(openDay).length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Inga bokningar denna dag.
+              </p>
+            )}
+            {openDay && eventsForDay(openDay).map((e) => {
+              const s = styleFor(e.unit);
+              const endInclusive = addDays(parseISO(e.end), -1);
+              const sameDay = e.start === format(endInclusive, "yyyy-MM-dd");
+              return (
+                <div key={e.uid + e.start} className={`p-3 rounded-lg border ${s.chip}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
+                    <span className="text-sm font-semibold">{e.unit}</span>
+                  </div>
+                  <div className="text-sm">{e.summary}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {e.allDay ? (
+                      sameDay ? (
+                        <>Hela dagen</>
+                      ) : (
+                        <>
+                          {format(parseISO(e.start), "d MMM", { locale: sv })} –{" "}
+                          {format(endInclusive, "d MMM", { locale: sv })}
+                        </>
+                      )
+                    ) : (
+                      <>
+                        {e.startTime} {e.endTime ? `– ${e.endTime}` : ""}
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <MemberMobileBottomNav />
+    </div>
+  );
+};
+
+export default Lodge;
