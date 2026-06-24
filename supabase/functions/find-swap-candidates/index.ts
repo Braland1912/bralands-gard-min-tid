@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     );
 
     const [workersRes, schedulesRes, phonesRes, requesterRes] = await Promise.all([
-      supabase.from('workers').select('id, name, user_id'),
+      supabase.from('workers').select('id, name, user_id, phone'),
       supabase.from('schedules').select('user_id, shift_type, note').eq('date', date),
       supabase.from('pending_members').select('user_id, phone'),
       requesterWorkerId
@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
       candidates.push({
         name: (w.name ?? '').trim(),
-        phone: phoneByUser.get(w.user_id) ?? null,
+        phone: (w.phone && String(w.phone).trim()) || phoneByUser.get(w.user_id) || null,
         status,
       });
     }

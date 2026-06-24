@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Users, KeyRound, DollarSign, Check, X, Mail, Copy } from "lucide-react";
+import { Trash2, Users, KeyRound, DollarSign, Check, X, Mail, Copy, Phone } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +35,9 @@ const TeamMembers = () => {
   const [editingRate, setEditingRate] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState("");
   const [savingRate, setSavingRate] = useState(false);
+  const [editingPhone, setEditingPhone] = useState<string | null>(null);
+  const [phoneValue, setPhoneValue] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
@@ -137,6 +140,24 @@ const TeamMembers = () => {
     queryClient.invalidateQueries({ queryKey: ["workers"] });
   };
 
+  const handleSavePhone = async (workerId: string) => {
+    const phone = phoneValue.trim();
+    setSavingPhone(true);
+    const { error } = await supabase
+      .from("workers")
+      .update({ phone: phone || null } as any)
+      .eq("id", workerId);
+    setSavingPhone(false);
+    if (error) {
+      toast.error("Kunde inte spara telefonnummer");
+      return;
+    }
+    toast.success("Telefonnummer uppdaterat");
+    setEditingPhone(null);
+    setPhoneValue("");
+    queryClient.invalidateQueries({ queryKey: ["workers"] });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -226,6 +247,35 @@ const TeamMembers = () => {
                     >
                       <DollarSign className="h-3.5 w-3.5" />
                       <span>{worker.hourly_rate || 0} kr/h</span>
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {editingPhone === worker.id ? (
+                    <div className="flex items-center gap-1 flex-1">
+                      <Input
+                        type="tel"
+                        inputMode="tel"
+                        value={phoneValue}
+                        onChange={(e) => setPhoneValue(e.target.value)}
+                        className="h-8 flex-1 text-sm"
+                        placeholder="07X XXX XX XX"
+                        autoFocus
+                      />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => handleSavePhone(worker.id)} disabled={savingPhone}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => { setEditingPhone(null); setPhoneValue(""); }}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => { setEditingPhone(worker.id); setPhoneValue((worker as any).phone || ""); }}
+                    >
+                      <Phone className="h-3.5 w-3.5" />
+                      <span>{(worker as any).phone || "Lägg till mobilnummer"}</span>
                     </button>
                   )}
                 </div>
