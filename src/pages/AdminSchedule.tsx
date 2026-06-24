@@ -341,8 +341,21 @@ const AdminSchedule = () => {
         .in("template_id", templateIds)
         .order("sort_order", { ascending: true });
 
-      for (let i = 0; i < templateIds.length; i++) {
-        const tpl = (templates as any[])?.find((t) => t.id === templateIds[i]);
+      // Sortera så att "Campingen (i slutet av passet)" alltid hamnar sist
+      const isEndOfShift = (name: string | undefined) =>
+        (name ?? "").trim().toLowerCase() === "campingen (i slutet av passet)";
+      const orderedTplIds = [...templateIds].sort((a, b) => {
+        const ta = (templates as any[])?.find((t) => t.id === a);
+        const tb = (templates as any[])?.find((t) => t.id === b);
+        const aEnd = isEndOfShift(ta?.name);
+        const bEnd = isEndOfShift(tb?.name);
+        if (aEnd && !bEnd) return 1;
+        if (!aEnd && bEnd) return -1;
+        return templateIds.indexOf(a) - templateIds.indexOf(b);
+      });
+
+      for (let i = 0; i < orderedTplIds.length; i++) {
+        const tpl = (templates as any[])?.find((t) => t.id === orderedTplIds[i]);
         if (!tpl) continue;
         const { data: newList, error: clErr } = await supabase
           .from("shift_checklists")
