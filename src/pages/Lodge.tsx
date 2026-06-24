@@ -392,7 +392,7 @@ const Lodge = () => {
             return (
               <>
                 {/* Sticky header med dag + navigering */}
-                <DialogHeader className="sticky top-0 z-10 bg-background border-b border-border px-5 py-3">
+                <DialogHeader className="sticky top-0 z-20 bg-background border-b border-border px-5 py-3 pr-12">
                   <div className="flex items-center justify-between gap-2">
                     <Button
                       variant="ghost"
@@ -417,6 +417,7 @@ const Lodge = () => {
                     </Button>
                   </div>
                 </DialogHeader>
+
 
                 <div className="px-5 py-4 max-h-[70vh] overflow-y-auto">
                   {dayEvents.length === 0 && potentialUnits.length === 0 && (
