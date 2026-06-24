@@ -62,9 +62,6 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   useEffect(() => {
     setExpanded({});
   }, [shiftId]);
-  const collapsed: Record<string, boolean> = new Proxy(expanded, {
-    get: (t, k: string) => !t[k],
-  });
 
   // Hämta pass-metadata för lodge-synk + sektion
   const { data: shiftMeta } = useQuery({
