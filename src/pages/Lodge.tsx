@@ -496,9 +496,10 @@ const Lodge = () => {
                                     {UNIT_NUMBER[u]} {u}
                                   </span>
                                 </div>
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-dashed bg-background/60 text-muted-foreground whitespace-nowrap">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-amber-100 text-amber-900 border-amber-300 whitespace-nowrap">
                                   Kan tillkomma
                                 </span>
+
                               </div>
                               <p className="text-xs text-muted-foreground mt-1">
                                 Ej bokad ännu – kan få en sen bokning med avfärd denna dag.
