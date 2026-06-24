@@ -538,6 +538,46 @@ const AdminChecklists = () => {
                 })}
               </div>
             </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Koppla till lodge-enhet (valfritt)</label>
+              <p className="text-[11px] text-muted-foreground">
+                När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs mallen automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Mallen blir låst på passet och kan inte tas bort manuellt.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditLodgeUnit(null)}
+                  className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-left transition ${
+                    editLodgeUnit === null
+                      ? "bg-muted border-foreground/30"
+                      : "border-border bg-muted/30 hover:bg-muted/50"
+                  }`}
+                >
+                  <span className="text-sm">Ingen koppling</span>
+                </button>
+                {LODGE_UNITS.map((u) => {
+                  const active = editLodgeUnit === u.value;
+                  return (
+                    <button
+                      key={u.value}
+                      type="button"
+                      onClick={() => setEditLodgeUnit(active ? null : u.value)}
+                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-left transition ${
+                        active ? u.chip : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      <span className="text-sm">{u.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {editLodgeUnit !== null && editShiftTypes.length > 0 && (
+                <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+                  Tips: när en lodge-enhet är vald hanteras mallen via kalendern. Du kan ta bort passtyperna ovan om mallen <em>bara</em> ska köras på avfärdsdagar.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Footer — sticky */}
