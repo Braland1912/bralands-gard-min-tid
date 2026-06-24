@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { LogIn, ListChecks, Calendar, Clock, Moon } from "lucide-react";
+import { LogIn, ListChecks, Calendar, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -16,7 +16,6 @@ const tabs: { id: ActiveKey; label: string; icon: any }[] = [
   { id: "hem", label: "Stämpla", icon: LogIn },
   { id: "dagens-uppgifter", label: "Uppgifter", icon: ListChecks },
   { id: "schema", label: "Schema", icon: Calendar },
-  { id: "tidrapport", label: "Tidrapport", icon: Clock },
   { id: "kvallsrundan", label: "Kvällen", icon: Moon },
 ];
 

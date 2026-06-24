@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2 } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2, ListChecks } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
 
@@ -54,9 +54,10 @@ const AppHeader = () => {
 
   const baseNav = [
     { label: "Hem", icon: Home, path: "/" },
+    { label: "Uppgifter", icon: ListChecks, path: "/today-tasks" },
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
-    { label: "Tidrapport", icon: Clock, path: "/my-time" },
     { label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
+    { label: "Tidrapport", icon: Clock, path: "/my-time" },
   ];
   const navItems = [
     ...baseNav,
