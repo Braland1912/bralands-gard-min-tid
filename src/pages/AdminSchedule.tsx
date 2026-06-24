@@ -1249,13 +1249,25 @@ const AdminSchedule = () => {
                             s.date === dateStr &&
                             (s.shift_index ?? 0) === sheet.shiftIndex,
                         );
+                        // Om mottagaren har ett pass på samma index men det andra
+                        // indexet är ledigt → erbjud dubbelpass istället för att skriva över.
+                        const otherIndex: 0 | 1 = sheet.shiftIndex === 0 ? 1 : 0;
+                        const otherOccupied = (schedules as any[]).some(
+                          (s) =>
+                            s.user_id === reassignTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === otherIndex,
+                        );
+                        const doubleShiftIndex =
+                          conflictRow && !otherOccupied ? otherIndex : undefined;
                         setConfirmReassign({
                           shiftRowId: currentShiftRow.id,
                           fromName: sheet.worker.name,
                           toUserId: reassignTo,
                           toName: target.name,
-                          conflictRowId: conflictRow?.id,
+                          conflictRowId: doubleShiftIndex !== undefined ? undefined : conflictRow?.id,
                           conflictType: conflictRow?.shift_type,
+                          doubleShiftIndex,
                         });
                       }}
                       className="h-11 px-4 rounded-xl"
