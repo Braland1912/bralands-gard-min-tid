@@ -616,15 +616,35 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                             </SortableContext>
                           </DndContext>
 
-                          <div className="flex items-center gap-2 pt-1">
-                            <Input
-                              value={newItemFor[list.id] ?? ""}
-                              onChange={(e) =>
-                                setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
+                          {!isLocked && (
+                            <div className="flex items-center gap-2 pt-1">
+                              <Input
+                                value={newItemFor[list.id] ?? ""}
+                                onChange={(e) =>
+                                  setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const text = (newItemFor[list.id] ?? "").trim();
+                                    if (text) {
+                                      addItem.mutate(
+                                        { listId: list.id, text },
+                                        {
+                                          onSuccess: () =>
+                                            setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                        },
+                                      );
+                                    }
+                                  }
+                                }}
+                                placeholder="Lägg till punkt..."
+                                className="h-8 text-sm"
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
                                   const text = (newItemFor[list.id] ?? "").trim();
                                   if (text) {
                                     addItem.mutate(
@@ -635,30 +655,12 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                       },
                                     );
                                   }
-                                }
-                              }}
-                              placeholder="Lägg till punkt..."
-                              className="h-8 text-sm"
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const text = (newItemFor[list.id] ?? "").trim();
-                                if (text) {
-                                  addItem.mutate(
-                                    { listId: list.id, text },
-                                    {
-                                      onSuccess: () =>
-                                        setNewItemFor((p) => ({ ...p, [list.id]: "" })),
-                                    },
-                                  );
-                                }
-                              }}
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
