@@ -492,7 +492,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                           className="flex items-center justify-between gap-2 cursor-pointer rounded-md -m-1 p-1 hover:bg-muted/50 transition-colors"
                           aria-expanded={!isCollapsed}
                         >
-                          {isCollapsed ? (
+                          {isCollapsed || isLocked ? (
                             <span className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
                               {list.name}{" "}
                               <span className="text-muted-foreground font-normal">
