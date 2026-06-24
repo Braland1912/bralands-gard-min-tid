@@ -498,9 +498,10 @@ const Lodge = () => {
                                     {UNIT_NUMBER[u]} {u}
                                   </span>
                                 </div>
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-300 whitespace-nowrap">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-orange-50 text-orange-800 border-orange-200 whitespace-nowrap">
                                   Kan tillkomma
                                 </span>
+
 
 
                               </div>
