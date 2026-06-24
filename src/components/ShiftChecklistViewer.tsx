@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { StickyNote } from "lucide-react";
+import { StickyNote, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface Props {
   shiftId: string;
@@ -11,6 +12,9 @@ interface Props {
 
 const ShiftChecklistViewer = ({ shiftId }: Props) => {
   const queryClient = useQueryClient();
+  const [openLists, setOpenLists] = useState<Record<string, boolean>>({});
+  const toggleOpen = (id: string) =>
+    setOpenLists((p) => ({ ...p, [id]: !p[id] }));
   const { data: lists, isLoading } = useQuery({
     queryKey: ["shift-checklists-viewer", shiftId],
     queryFn: async () => {
@@ -114,9 +118,18 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
         const total = list.items.length;
         const done = list.items.filter((i) => i.is_checked).length;
         const pct = total > 0 ? (done / total) * 100 : 0;
+        const open = !!openLists[list.id];
         return (
           <div key={list.id} className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
-            <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggleOpen(list.id)}
+              aria-expanded={open}
+              className="flex items-center gap-2 w-full text-left"
+            >
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
+              />
               <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
               <Progress
                 value={pct}
@@ -125,27 +138,29 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
               <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
                 {done}/{total}
               </span>
-            </div>
-            <ul className="space-y-1.5">
-              {list.items.map((item) => (
-                <li key={item.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`vw-${item.id}`}
-                    checked={item.is_checked}
-                    onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true, shiftChecklistId: list.id })}
-                  />
-                  <label
-                    htmlFor={`vw-${item.id}`}
-                    className={`text-sm cursor-pointer ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}
-                  >
-                    {item.text}
-                  </label>
-                </li>
-              ))}
-              {total === 0 && (
-                <li className="text-xs text-muted-foreground italic">Inga punkter</li>
-              )}
-            </ul>
+            </button>
+            {open && (
+              <ul className="space-y-1.5 pl-6">
+                {list.items.map((item) => (
+                  <li key={item.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`vw-${item.id}`}
+                      checked={item.is_checked}
+                      onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true, shiftChecklistId: list.id })}
+                    />
+                    <label
+                      htmlFor={`vw-${item.id}`}
+                      className={`text-sm cursor-pointer ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}
+                    >
+                      {item.text}
+                    </label>
+                  </li>
+                ))}
+                {total === 0 && (
+                  <li className="text-xs text-muted-foreground italic">Inga punkter</li>
+                )}
+              </ul>
+            )}
           </div>
         );
       })}
