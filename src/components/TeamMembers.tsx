@@ -250,6 +250,35 @@ const TeamMembers = () => {
                     </button>
                   )}
                 </div>
+                <div className="flex items-center gap-2">
+                  {editingPhone === worker.id ? (
+                    <div className="flex items-center gap-1 flex-1">
+                      <Input
+                        type="tel"
+                        inputMode="tel"
+                        value={phoneValue}
+                        onChange={(e) => setPhoneValue(e.target.value)}
+                        className="h-8 flex-1 text-sm"
+                        placeholder="07X XXX XX XX"
+                        autoFocus
+                      />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-primary" onClick={() => handleSavePhone(worker.id)} disabled={savingPhone}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => { setEditingPhone(null); setPhoneValue(""); }}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <button
+                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => { setEditingPhone(worker.id); setPhoneValue((worker as any).phone || ""); }}
+                    >
+                      <Phone className="h-3.5 w-3.5" />
+                      <span>{(worker as any).phone || "Lägg till mobilnummer"}</span>
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center justify-between gap-2 pt-1 border-t border-border">
                   <span className="text-xs text-muted-foreground">Kan se teamets schema</span>
                   <Switch
