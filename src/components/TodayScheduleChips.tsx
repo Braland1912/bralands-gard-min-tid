@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
+import LodgeDaySection from "@/components/LodgeDaySection";
+
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
