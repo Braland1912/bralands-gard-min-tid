@@ -16,6 +16,7 @@ import {
   GitBranch,
   Tags,
   Building2,
+  LogIn,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -37,7 +38,8 @@ type NavItem = {
 };
 
 const memberItems: NavItem[] = [
-  { id: "hem", label: "Hem", icon: Home, path: "/", matchPath: "/" },
+  { id: "hem", label: "Stämpla in/ut", icon: LogIn, path: "/", matchPath: "/" },
+  { id: "dagens-uppgifter", label: "Dagens uppgifter", icon: ListChecks, path: "/today-tasks", matchPath: "/today-tasks" },
   { id: "schema", label: "Schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
@@ -132,6 +134,7 @@ const DesktopSidebar = () => {
     }
     // Member
     if (item.id === "hem") return location.pathname === "/";
+    if (item.id === "dagens-uppgifter") return location.pathname === "/today-tasks";
     if (item.id === "schema") return location.pathname === "/my-schedule";
     if (item.id === "tidrapport") return location.pathname === "/my-time";
     if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
