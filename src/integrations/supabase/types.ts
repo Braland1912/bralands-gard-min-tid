@@ -715,6 +715,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          lodge_unit: string | null
           name: string
           shift_id: string
           sort_order: number
@@ -722,6 +723,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          lodge_unit?: string | null
           name: string
           shift_id: string
           sort_order?: number
@@ -729,6 +731,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          lodge_unit?: string | null
           name?: string
           shift_id?: string
           sort_order?: number
