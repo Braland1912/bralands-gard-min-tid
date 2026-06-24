@@ -213,11 +213,22 @@ const ShiftTypeChecklistOrder = () => {
         .order("sort_order", { ascending: true });
 
       let added = 0;
+      const isEndOfShift = (name: string | undefined) =>
+        (name ?? "").trim().toLowerCase() === "campingen (i slutet av passet)";
       const linksByType: Record<string, Link[]> = {};
       usedShiftTypes.forEach((st) => {
         linksByType[st] = links
           .filter((l) => l.shift_type === st)
-          .sort((a, b) => a.sort_order - b.sort_order);
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .sort((a, b) => {
+            const ta = templates.find((t) => t.id === a.template_id);
+            const tb = templates.find((t) => t.id === b.template_id);
+            const aEnd = isEndOfShift(ta?.name);
+            const bEnd = isEndOfShift(tb?.name);
+            if (aEnd && !bEnd) return 1;
+            if (!aEnd && bEnd) return -1;
+            return 0;
+          });
       });
 
       for (const shift of shifts as any[]) {
