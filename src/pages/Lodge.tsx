@@ -229,43 +229,60 @@ const Lodge = () => {
               Kunde inte ladda kalendern. {(error as Error).message}
             </div>
           ) : (
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0 border-l border-t border-border rounded-lg overflow-hidden">
               {days.map((day) => {
-                const dayEvents = eventsForDay(day);
                 const inMonth = isSameMonth(day, cursor);
                 const today = isToday(day);
                 return (
                   <button
                     key={day.toISOString()}
                     onClick={() => setOpenDay(day)}
-                    className={`min-h-[64px] md:min-h-[88px] p-1 md:p-1.5 rounded-lg border text-left transition-colors flex flex-col gap-1 ${
+                    className={`min-h-[92px] md:min-h-[112px] p-1 border-r border-b border-border text-left transition-colors flex flex-col ${
                       today
-                        ? "border-primary bg-primary/5"
+                        ? "bg-primary/5"
                         : inMonth
-                        ? "border-border bg-card hover:bg-accent"
-                        : "border-border/50 bg-muted/30 text-muted-foreground"
+                        ? "bg-card hover:bg-accent"
+                        : "bg-muted/30 text-muted-foreground"
                     }`}
                   >
-                    <div className={`text-[11px] md:text-xs font-medium ${today ? "text-primary" : ""}`}>
+                    <div className={`text-[11px] md:text-xs font-medium mb-1 ${today ? "text-primary" : ""}`}>
                       {format(day, "d")}
                     </div>
-                    <div className="flex flex-col gap-0.5 overflow-hidden">
-                      {dayEvents.slice(0, 3).map((e) => {
-                        const s = styleFor(e.unit);
+                    {/* Fyra fasta rader, en per uthyrningsenhet */}
+                    <div className="flex flex-col gap-[2px]">
+                      {UNIT_ORDER.map((unit) => {
+                        const e = eventForUnitDay(unit, day);
+                        const s = styleFor(unit);
+                        if (!e) {
+                          return <div key={unit} className="h-3 md:h-4" />;
+                        }
+                        const role = roleForDay(e, day)!;
+                        // Halvdagar: ankomst = höger halva, avfärd = vänster halva
+                        const pos =
+                          role === "start"
+                            ? "left-1/2 right-0 rounded-l-sm"
+                            : role === "end"
+                            ? "left-0 right-1/2 rounded-r-sm"
+                            : role === "single"
+                            ? "left-0 right-0 rounded-sm"
+                            : "left-0 right-0"; // middle: edge-to-edge, ingen rundning
+                        const showName = role === "start" || role === "single";
                         return (
                           <div
-                            key={e.uid + e.start}
-                            className={`text-[9px] md:text-[10px] leading-tight rounded px-1 py-0.5 truncate ${s.bg}`}
-                            title={`${e.unit} – ${e.summary}`}
+                            key={unit}
+                            className="relative h-3 md:h-4"
+                            title={`${UNIT_NUMBER[unit]} ${unit} – ${e.summary}`}
                           >
-                            <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.dot} mr-1`} />
-                            <span className="font-medium">{e.unit}</span>
+                            <div className={`absolute inset-y-0 ${pos} ${s.bar} flex items-center`}>
+                              {showName && (
+                                <span className={`text-[8px] md:text-[10px] font-semibold ${s.text} px-1 truncate leading-none`}>
+                                  {unit}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
-                      {dayEvents.length > 3 && (
-                        <div className="text-[9px] text-muted-foreground">+{dayEvents.length - 3} till</div>
-                      )}
                     </div>
                   </button>
                 );
@@ -277,17 +294,31 @@ const Lodge = () => {
         {/* Förklaring */}
         {unitsInMonth.length > 0 && (
           <Card className="p-4">
-            <div className="text-xs font-medium text-muted-foreground mb-2">Enheter denna månad</div>
+            <div className="text-xs font-medium text-muted-foreground mb-2">Uthyrningsenheter</div>
             <div className="flex flex-wrap gap-2">
-              {unitsInMonth.map((u) => {
+              {UNIT_ORDER.map((u) => {
                 const s = styleFor(u);
                 return (
                   <span key={u} className={`text-xs px-2 py-1 rounded-full border ${s.chip} flex items-center gap-1.5`}>
                     <span className={`h-2 w-2 rounded-full ${s.dot}`} />
-                    {u}
+                    <span className="font-medium">{UNIT_NUMBER[u]}</span> {u}
                   </span>
                 );
               })}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-l-sm bg-muted-foreground/40" />
+                Avfärd (förmiddag)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-r-sm bg-muted-foreground/40" />
+                Ankomst (eftermiddag)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-6 bg-muted-foreground/40" />
+                Vistelse (natt)
+              </span>
             </div>
           </Card>
         )}
