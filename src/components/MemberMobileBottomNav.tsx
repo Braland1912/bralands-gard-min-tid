@@ -47,6 +47,7 @@ const MemberMobileBottomNav = ({ active }: Props) => {
 
   const handleTabClick = (id: ActiveKey) => {
     if (id === "hem") return navigate("/");
+    if (id === "dagens-uppgifter") return navigate("/today-tasks");
     if (id === "schema") return navigate("/my-schedule");
     if (id === "tidrapport") return navigate("/my-time", { state: { tab: "tidrapport" } });
     if (id === "kvallsrundan") return navigate("/evening-round");
