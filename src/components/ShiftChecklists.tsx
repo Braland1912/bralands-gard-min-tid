@@ -24,11 +24,16 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 
+import { Lock } from "lucide-react";
+import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
+import LodgeDaySection from "@/components/LodgeDaySection";
+
 export type ShiftChecklist = {
   id: string;
   shift_id: string;
   name: string;
   sort_order: number;
+  lodge_unit?: string | null;
 };
 
 export type ShiftChecklistItem = {
