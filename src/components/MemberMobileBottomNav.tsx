@@ -16,7 +16,6 @@ const tabs: { id: ActiveKey; label: string; icon: any }[] = [
   { id: "hem", label: "Stämpla", icon: LogIn },
   { id: "dagens-uppgifter", label: "Uppgifter", icon: ListChecks },
   { id: "schema", label: "Schema", icon: Calendar },
-  { id: "tidrapport", label: "Tidrapport", icon: Clock },
   { id: "kvallsrundan", label: "Kvällen", icon: Moon },
 ];
 
