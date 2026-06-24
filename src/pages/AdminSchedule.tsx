@@ -1338,6 +1338,16 @@ const AdminSchedule = () => {
                   </span>
                   . Checklistor, avbockningar och anteckningar följer med automatiskt.
                 </p>
+                {confirmReassign?.doubleShiftIndex !== undefined && (
+                  <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-foreground">
+                    Obs: {confirmReassign.toName} har redan ett pass denna dag
+                    {confirmReassign.conflictType
+                      ? ` (${SHIFT_MAP[confirmReassign.conflictType]?.label ?? confirmReassign.conflictType})`
+                      : ""}
+                    . Detta pass läggs till som dubbelpass på{" "}
+                    Pass {confirmReassign.doubleShiftIndex + 1} — inget skrivs över.
+                  </div>
+                )}
                 {confirmReassign?.conflictRowId && (
                   <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     Obs: {confirmReassign.toName} har redan ett pass denna dag och
@@ -1361,6 +1371,7 @@ const AdminSchedule = () => {
                   shiftRowId: confirmReassign.shiftRowId,
                   toUserId: confirmReassign.toUserId,
                   conflictRowId: confirmReassign.conflictRowId,
+                  doubleShiftIndex: confirmReassign.doubleShiftIndex,
                 });
               }}
               disabled={reassignShift.isPending}
