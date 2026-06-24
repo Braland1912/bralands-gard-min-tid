@@ -90,6 +90,39 @@ const Lodge = () => {
 
   const events = data?.events ?? [];
 
+  // Hämta inloggad användares schemalagda (publicerade) pass för synligt månadsrutnät
+  const rangeFrom = format(startOfWeek(startOfMonth(cursor), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const rangeTo = format(endOfWeek(endOfMonth(cursor), { weekStartsOn: 1 }), "yyyy-MM-dd");
+  const { data: myShiftDates } = useQuery({
+    queryKey: ["lodge-my-shifts", user?.id, rangeFrom, rangeTo],
+    queryFn: async () => {
+      if (!user?.id) return new Set<string>();
+      const [shiftsRes, daysRes] = await Promise.all([
+        supabase
+          .from("schedules")
+          .select("date")
+          .eq("user_id", user.id)
+          .gte("date", rangeFrom)
+          .lte("date", rangeTo),
+        supabase
+          .from("schedule_days")
+          .select("date,is_published")
+          .gte("date", rangeFrom)
+          .lte("date", rangeTo),
+      ]);
+      const published = new Set(
+        (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date),
+      );
+      const set = new Set<string>();
+      (shiftsRes.data || []).forEach((s: any) => {
+        if (published.has(s.date)) set.add(s.date);
+      });
+      return set;
+    },
+    enabled: !!user?.id && ready && canAccess,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Bygg månadsrutnät
   const monthStart = startOfMonth(cursor);
   const monthEnd = endOfMonth(cursor);
