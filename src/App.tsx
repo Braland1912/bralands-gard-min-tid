@@ -75,6 +75,7 @@ const App = () => (
           <Route path="/evening-round/help" element={<EveningRoundHelp />} />
           <Route path="/help" element={<Help />} />
           <Route path="/lodge" element={<Lodge />} />
+          <Route path="/today-tasks" element={<TodayTasks />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />
