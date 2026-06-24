@@ -678,9 +678,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
             const totalCount = listItems.length;
             const allDone = totalCount > 0 && doneCount === totalCount;
             const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+            const isLocked = !!list.lodge_unit;
             return (
-              <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
+              <div key={list.id} className={`border rounded-xl p-3 space-y-2 ${isLocked ? "border-amber-300 bg-amber-50/30" : "border-border bg-background"}`}>
                 <div className="space-y-2">
+                  {isLocked && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 w-fit">
+                      <Lock className="h-2.5 w-2.5" />
+                      Från kalender · {list.lodge_unit}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
                     <div className="flex items-center gap-2 shrink-0">
