@@ -28,6 +28,11 @@ interface Props {
   userId: string;
 }
 
+const ShiftLodgeWrapper = ({ shiftId, shiftType, date }: { shiftId: string; shiftType: string; date: string }) => {
+  useSyncLodgeChecklists(shiftId, shiftType, date, true);
+  return <LodgeDaySection date={date} />;
+};
+
 const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
   const queryClient = useQueryClient();
   const { data: lists, isLoading } = useQuery({
