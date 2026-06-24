@@ -923,6 +923,7 @@ export type Database = {
           hourly_rate: number | null
           id: string
           name: string
+          phone: string | null
           show_activity_log: boolean
           user_id: string | null
         }
@@ -933,6 +934,7 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           name: string
+          phone?: string | null
           show_activity_log?: boolean
           user_id?: string | null
         }
@@ -943,6 +945,7 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           name?: string
+          phone?: string | null
           show_activity_log?: boolean
           user_id?: string | null
         }
