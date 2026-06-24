@@ -106,19 +106,37 @@ const Lodge = () => {
   const eventsForDay = (day: Date): LodgeEvent[] => {
     return events.filter((e) => {
       const start = parseISO(e.start);
-      // ICS DTEND är exklusivt; sista datumet ingår inte
       const endExclusive = parseISO(e.end);
       const endInclusive = addDays(endExclusive, -1);
-      // För events utan giltig slut behandlar vi som en dag
       const last = endInclusive < start ? start : endInclusive;
       return isWithinInterval(day, { start, end: last });
     });
   };
 
+  type Role = "start" | "middle" | "end" | "single";
+  const roleForDay = (e: LodgeEvent, day: Date): Role | null => {
+    const start = parseISO(e.start);
+    const endInclusive = addDays(parseISO(e.end), -1);
+    const last = endInclusive < start ? start : endInclusive;
+    if (!isWithinInterval(day, { start, end: last })) return null;
+    const isStart = day.getTime() === start.getTime();
+    const isEnd = day.getTime() === last.getTime();
+    if (isStart && isEnd) return "single";
+    if (isStart) return "start";
+    if (isEnd) return "end";
+    return "middle";
+  };
+
+  // Hitta event för en given enhet och dag
+  const eventForUnitDay = (unit: string, day: Date): LodgeEvent | undefined => {
+    return events.find((e) => e.unit === unit && roleForDay(e, day) !== null);
+  };
+
   const unitsInMonth = useMemo(() => {
     const set = new Set<string>();
     days.forEach((d) => eventsForDay(d).forEach((e) => set.add(e.unit)));
-    return Array.from(set).sort();
+    // Behåll fast ordning Nr.1–Nr.4
+    return UNIT_ORDER.filter((u) => set.has(u));
   }, [days, events]);
 
   if (!ready) {
