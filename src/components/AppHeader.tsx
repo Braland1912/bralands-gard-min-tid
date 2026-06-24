@@ -54,9 +54,10 @@ const AppHeader = () => {
 
   const baseNav = [
     { label: "Hem", icon: Home, path: "/" },
+    { label: "Uppgifter", icon: ListChecks, path: "/today-tasks" },
     { label: "Schema", icon: CalendarDays, path: "/my-schedule" },
-    { label: "Tidrapport", icon: Clock, path: "/my-time" },
     { label: "Kvällsrundan", icon: Moon, path: "/evening-round" },
+    { label: "Tidrapport", icon: Clock, path: "/my-time" },
   ];
   const navItems = [
     ...baseNav,
