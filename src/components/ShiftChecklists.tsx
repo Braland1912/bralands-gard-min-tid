@@ -540,7 +540,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 <Minus className="h-4 w-4" />
                               )}
                             </Button>
-                            {!isDuplicateOfTemplate(list.id) && (
+                            {!isLocked && !isDuplicateOfTemplate(list.id) && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -552,14 +552,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 <BookmarkPlus className="h-3.5 w-3.5" />
                               </Button>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => deleteList.mutate(list.id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                            {!isLocked && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => deleteList.mutate(list.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                         {!isCollapsed && totalCount > 0 && (
