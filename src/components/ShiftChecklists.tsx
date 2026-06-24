@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,9 +54,14 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newItemFor, setNewItemFor] = useState<Record<string, string>>({});
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  // Spåra explicit vilka listor som är expanderade. Default = collapsed.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const toggleCollapsed = (id: string) =>
-    setCollapsed((p) => ({ ...p, [id]: !p[id] }));
+    setExpanded((p) => ({ ...p, [id]: !p[id] }));
+  // Återställ när byte av pass sker
+  useEffect(() => {
+    setExpanded({});
+  }, [shiftId]);
 
   // Hämta pass-metadata för lodge-synk + sektion
   const { data: shiftMeta } = useQuery({
@@ -467,7 +472,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                 const totalCount = listItems.length;
                 const allDone = totalCount > 0 && doneCount === totalCount;
                 const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
-                const isCollapsed = collapsed[list.id] !== false;
+                const isCollapsed = !expanded[list.id];
                 const isLocked = !!list.lodge_unit;
                 return (
                   <SortableItem key={list.id} id={list.id}>
