@@ -176,6 +176,7 @@ const AdminChecklists = () => {
     setEditName(tpl.name);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
+    setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
     setAutoSaveState("idle");
   };
