@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { CalendarDays, Plus, Minus, StickyNote } from "lucide-react";
+import { CalendarDays, Plus, Minus, StickyNote, ChevronDown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
