@@ -38,7 +38,8 @@ type NavItem = {
 };
 
 const memberItems: NavItem[] = [
-  { id: "hem", label: "Hem", icon: Home, path: "/", matchPath: "/" },
+  { id: "hem", label: "Stämpla in/ut", icon: LogIn, path: "/", matchPath: "/" },
+  { id: "dagens-uppgifter", label: "Dagens uppgifter", icon: ListChecks, path: "/today-tasks", matchPath: "/today-tasks" },
   { id: "schema", label: "Schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
