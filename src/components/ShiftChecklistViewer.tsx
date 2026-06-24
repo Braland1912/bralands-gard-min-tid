@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { StickyNote } from "lucide-react";
+import { StickyNote, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface Props {
   shiftId: string;
@@ -11,6 +12,9 @@ interface Props {
 
 const ShiftChecklistViewer = ({ shiftId }: Props) => {
   const queryClient = useQueryClient();
+  const [openLists, setOpenLists] = useState<Record<string, boolean>>({});
+  const toggleOpen = (id: string) =>
+    setOpenLists((p) => ({ ...p, [id]: !p[id] }));
   const { data: lists, isLoading } = useQuery({
     queryKey: ["shift-checklists-viewer", shiftId],
     queryFn: async () => {
