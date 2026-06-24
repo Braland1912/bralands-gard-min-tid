@@ -1,1 +1,1 @@
-Klickar du på ett pass i ditt schema öppnas nu anteckningen även om passet saknar checklista – så missar du inte viktig info som kick off-genomgången.
+Ny sida Uthyrning i lodgen visar bokningarna från iCloud-kalendern som en månadsvy. Klicka på en dag för att se vad som händer per enhet – Avfärd (bytesdag, städa), Ankomst (kontrollera inför ankomst), Pågående vistelse och vilka enheter som ännu kan få sen bokning.
