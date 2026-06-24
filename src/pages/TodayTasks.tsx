@@ -104,6 +104,7 @@ const TodayTasks = () => {
           </div>
         )}
       </div>
+      <MemberMobileBottomNav active="dagens-uppgifter" />
     </div>
   );
 };
