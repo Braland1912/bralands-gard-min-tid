@@ -402,8 +402,15 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
 
   if (!shiftId) return null;
 
+  const showLodgeSection =
+    !!shiftMeta?.date && (shiftMeta.shift_type === "day" || shiftMeta.shift_type === "morning");
+
   return (
     <div className="space-y-3">
+      {showLodgeSection && shiftMeta && (
+        <LodgeDaySection date={shiftMeta.date} />
+      )}
+
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="h-4 w-4 text-muted-foreground" />
