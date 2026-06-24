@@ -426,13 +426,6 @@ const Lodge = () => {
                     </p>
                   )}
 
-                  {ongoing.length > 0 && (
-                    <>
-                      <SectionHeader title="Pågående" count={ongoing.length} />
-                      <div className="space-y-2">{ongoing.map((e) => renderCard(e))}</div>
-                    </>
-                  )}
-
                   {departures.length > 0 && (
                     <>
                       <SectionHeader title="Avfärd" count={departures.length} />
@@ -460,6 +453,14 @@ const Lodge = () => {
                       </div>
                     </>
                   )}
+
+                  {ongoing.length > 0 && (
+                    <>
+                      <SectionHeader title="Pågående" count={ongoing.length} />
+                      <div className="space-y-2">{ongoing.map((e) => renderCard(e))}</div>
+                    </>
+                  )}
+
 
                   {potentialUnits.length > 0 && (
                     <>
