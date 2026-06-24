@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Users, KeyRound, DollarSign, Check, X, Mail, Copy } from "lucide-react";
+import { Trash2, Users, KeyRound, DollarSign, Check, X, Mail, Copy, Phone } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +35,9 @@ const TeamMembers = () => {
   const [editingRate, setEditingRate] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState("");
   const [savingRate, setSavingRate] = useState(false);
+  const [editingPhone, setEditingPhone] = useState<string | null>(null);
+  const [phoneValue, setPhoneValue] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
 
   const { data: workers = [] } = useQuery({
     queryKey: ["workers"],
@@ -134,6 +137,24 @@ const TeamMembers = () => {
     toast.success("Timlön uppdaterad");
     setEditingRate(null);
     setRateValue("");
+    queryClient.invalidateQueries({ queryKey: ["workers"] });
+  };
+
+  const handleSavePhone = async (workerId: string) => {
+    const phone = phoneValue.trim();
+    setSavingPhone(true);
+    const { error } = await supabase
+      .from("workers")
+      .update({ phone: phone || null } as any)
+      .eq("id", workerId);
+    setSavingPhone(false);
+    if (error) {
+      toast.error("Kunde inte spara telefonnummer");
+      return;
+    }
+    toast.success("Telefonnummer uppdaterat");
+    setEditingPhone(null);
+    setPhoneValue("");
     queryClient.invalidateQueries({ queryKey: ["workers"] });
   };
 
