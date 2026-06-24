@@ -20,6 +20,7 @@ import Help from "./pages/Help";
 import MobileMenuTest from "./pages/MobileMenuTest";
 import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 import Lodge from "./pages/Lodge";
+import TodayTasks from "./pages/TodayTasks";
 
 
 import NotFound from "./pages/NotFound";
