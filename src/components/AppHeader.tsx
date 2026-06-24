@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2 } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2, ListChecks } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
 
