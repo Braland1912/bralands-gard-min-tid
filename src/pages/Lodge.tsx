@@ -284,12 +284,6 @@ const Lodge = () => {
                         : "bg-muted/30 text-muted-foreground"
                     }`}
                   >
-                    {isMyShift && !today && (
-                      <span
-                        aria-hidden
-                        className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary/70"
-                      />
-                    )}
                     <div className={`text-[11px] md:text-xs font-medium mb-1 flex items-center gap-1 ${today ? "text-primary font-bold" : ""}`}>
                       <span>{format(day, "d")}</span>
                       {today && <span className="text-[9px] md:text-[10px] uppercase tracking-wide">Idag</span>}
