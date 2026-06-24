@@ -54,9 +54,17 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newItemFor, setNewItemFor] = useState<Record<string, string>>({});
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  // Spåra explicit vilka listor som är expanderade. Default = collapsed.
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const toggleCollapsed = (id: string) =>
-    setCollapsed((p) => ({ ...p, [id]: !p[id] }));
+    setExpanded((p) => ({ ...p, [id]: !p[id] }));
+  // Återställ när byte av pass sker
+  useEffect(() => {
+    setExpanded({});
+  }, [shiftId]);
+  const collapsed: Record<string, boolean> = new Proxy(expanded, {
+    get: (t, k: string) => !t[k],
+  });
 
   // Hämta pass-metadata för lodge-synk + sektion
   const { data: shiftMeta } = useQuery({
