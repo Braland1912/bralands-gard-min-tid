@@ -456,11 +456,23 @@ const AdminSchedule = () => {
       shiftRowId,
       toUserId,
       conflictRowId,
+      doubleShiftIndex,
     }: {
       shiftRowId: string;
       toUserId: string;
       conflictRowId?: string;
+      doubleShiftIndex?: 0 | 1;
     }) => {
+      // Dubbelpass: mottagaren behåller sitt befintliga pass och
+      // detta pass flyttas till det lediga passindexet samma dag.
+      if (doubleShiftIndex !== undefined) {
+        const { error } = await supabase
+          .from("schedules")
+          .update({ user_id: toUserId, shift_index: doubleShiftIndex })
+          .eq("id", shiftRowId);
+        if (error) throw error;
+        return;
+      }
       // Om mottagaren redan har ett pass i samma index/datum → ta bort det först
       // (admin har bekräftat ersättning i UI:t)
       if (conflictRowId) {
