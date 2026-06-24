@@ -100,8 +100,9 @@ const Lodge = () => {
       const [shiftsRes, daysRes] = await Promise.all([
         supabase
           .from("schedules")
-          .select("date")
+          .select("date,shift_type")
           .eq("user_id", user.id)
+          .eq("shift_type", "day")
           .gte("date", rangeFrom)
           .lte("date", rangeTo),
         supabase
