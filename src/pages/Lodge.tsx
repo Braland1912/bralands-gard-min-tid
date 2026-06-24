@@ -286,7 +286,7 @@ const Lodge = () => {
                   >
                     <div className={`text-[11px] md:text-xs font-medium mb-1 flex items-center gap-1 ${today ? "text-primary font-bold" : ""}`}>
                       <span>{format(day, "d")}</span>
-                      {today && <span className="text-[9px] md:text-[10px] uppercase tracking-wide">Idag</span>}
+                      
                       {isMyShift && !today && (
                         <span className="ml-auto text-[8px] md:text-[9px] uppercase tracking-wide font-semibold text-primary/80">
                           Mitt pass
