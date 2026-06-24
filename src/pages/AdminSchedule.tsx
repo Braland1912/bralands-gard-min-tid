@@ -446,6 +446,9 @@ const AdminSchedule = () => {
     toName: string;
     conflictRowId?: string;
     conflictType?: ShiftType;
+    // När mottagaren redan har ett pass på samma index men det andra
+    // passindexet är ledigt – flytta dit istället för att skriva över.
+    doubleShiftIndex?: 0 | 1;
   } | null>(null);
 
   const reassignShift = useMutation({
@@ -453,11 +456,23 @@ const AdminSchedule = () => {
       shiftRowId,
       toUserId,
       conflictRowId,
+      doubleShiftIndex,
     }: {
       shiftRowId: string;
       toUserId: string;
       conflictRowId?: string;
+      doubleShiftIndex?: 0 | 1;
     }) => {
+      // Dubbelpass: mottagaren behåller sitt befintliga pass och
+      // detta pass flyttas till det lediga passindexet samma dag.
+      if (doubleShiftIndex !== undefined) {
+        const { error } = await supabase
+          .from("schedules")
+          .update({ user_id: toUserId, shift_index: doubleShiftIndex })
+          .eq("id", shiftRowId);
+        if (error) throw error;
+        return;
+      }
       // Om mottagaren redan har ett pass i samma index/datum → ta bort det först
       // (admin har bekräftat ersättning i UI:t)
       if (conflictRowId) {
@@ -1234,13 +1249,25 @@ const AdminSchedule = () => {
                             s.date === dateStr &&
                             (s.shift_index ?? 0) === sheet.shiftIndex,
                         );
+                        // Om mottagaren har ett pass på samma index men det andra
+                        // indexet är ledigt → erbjud dubbelpass istället för att skriva över.
+                        const otherIndex: 0 | 1 = sheet.shiftIndex === 0 ? 1 : 0;
+                        const otherOccupied = (schedules as any[]).some(
+                          (s) =>
+                            s.user_id === reassignTo &&
+                            s.date === dateStr &&
+                            (s.shift_index ?? 0) === otherIndex,
+                        );
+                        const doubleShiftIndex =
+                          conflictRow && !otherOccupied ? otherIndex : undefined;
                         setConfirmReassign({
                           shiftRowId: currentShiftRow.id,
                           fromName: sheet.worker.name,
                           toUserId: reassignTo,
                           toName: target.name,
-                          conflictRowId: conflictRow?.id,
+                          conflictRowId: doubleShiftIndex !== undefined ? undefined : conflictRow?.id,
                           conflictType: conflictRow?.shift_type,
+                          doubleShiftIndex,
                         });
                       }}
                       className="h-11 px-4 rounded-xl"
@@ -1311,6 +1338,16 @@ const AdminSchedule = () => {
                   </span>
                   . Checklistor, avbockningar och anteckningar följer med automatiskt.
                 </p>
+                {confirmReassign?.doubleShiftIndex !== undefined && (
+                  <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-foreground">
+                    Obs: {confirmReassign.toName} har redan ett pass denna dag
+                    {confirmReassign.conflictType
+                      ? ` (${SHIFT_MAP[confirmReassign.conflictType]?.label ?? confirmReassign.conflictType})`
+                      : ""}
+                    . Detta pass läggs till som dubbelpass på{" "}
+                    Pass {confirmReassign.doubleShiftIndex + 1} — inget skrivs över.
+                  </div>
+                )}
                 {confirmReassign?.conflictRowId && (
                   <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                     Obs: {confirmReassign.toName} har redan ett pass denna dag och
@@ -1334,6 +1371,7 @@ const AdminSchedule = () => {
                   shiftRowId: confirmReassign.shiftRowId,
                   toUserId: confirmReassign.toUserId,
                   conflictRowId: confirmReassign.conflictRowId,
+                  doubleShiftIndex: confirmReassign.doubleShiftIndex,
                 });
               }}
               disabled={reassignShift.isPending}
