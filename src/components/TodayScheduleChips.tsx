@@ -225,6 +225,9 @@ const TodayScheduleChips = ({ userId }: Props) => {
                   </div>
                 </div>
               )}
+              {!isCollapsed && (s.shift_type === "morning" || s.shift_type === "day") && (
+                <ShiftLodgeWrapper shiftId={s.id} shiftType={s.shift_type} date={today} />
+              )}
               {hasLists && !isCollapsed && <ShiftChecklistsView shiftId={s.id} />}
             </div>
           );
