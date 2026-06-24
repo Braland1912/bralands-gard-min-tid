@@ -342,12 +342,21 @@ const Lodge = () => {
               const s = styleFor(e.unit);
               const endInclusive = addDays(parseISO(e.end), -1);
               const sameDay = e.start === format(endInclusive, "yyyy-MM-dd");
+              const role = roleForDay(e, openDay!);
+              const roleLabel =
+                role === "start" ? "Ankomst (eftermiddag)" :
+                role === "end"   ? "Avfärd (förmiddag)"   :
+                role === "single" ? "Hela dagen" :
+                "Pågående vistelse";
               return (
                 <div key={e.uid + e.start} className={`p-3 rounded-lg border ${s.chip}`}>
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
-                    <span className="text-sm font-semibold">{e.unit}</span>
+                    <span className="text-sm font-semibold">
+                      {UNIT_NUMBER[e.unit] ? `${UNIT_NUMBER[e.unit]} ` : ""}{e.unit}
+                    </span>
                   </div>
+                  <div className="text-xs font-medium mb-1">{roleLabel}</div>
                   <div className="text-sm">{e.summary}</div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {e.allDay ? (
