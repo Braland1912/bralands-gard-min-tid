@@ -308,19 +308,25 @@ const Lodge = () => {
                 );
               })}
             </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block h-3 w-3 rounded-l-sm bg-muted-foreground/40" />
-                Avfärd (förmiddag)
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block h-3 w-3 rounded-r-sm bg-muted-foreground/40" />
-                Ankomst (eftermiddag)
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="inline-block h-3 w-6 bg-muted-foreground/40" />
-                Vistelse (natt)
-              </span>
+            <div className="mt-4 pt-3 border-t border-border">
+              <div className="text-xs font-semibold mb-2">Så läser du kalendern</div>
+              <div className="flex flex-col gap-2 text-[12px] text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <span className="inline-block h-3 w-4 rounded-r-sm bg-muted-foreground/50 shrink-0" />
+                  Halv stapel på vänster sida = gästen <strong className="text-foreground font-medium mx-1">åker hem</strong> den dagen
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="inline-block h-3 w-4 rounded-l-sm bg-muted-foreground/50 shrink-0 ml-4" />
+                  Halv stapel på höger sida = gästen <strong className="text-foreground font-medium mx-1">checkar in</strong> den dagen
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="inline-block h-3 w-8 bg-muted-foreground/50 shrink-0" />
+                  Hel stapel = gästen <strong className="text-foreground font-medium mx-1">bor över</strong> natten till nästa dag
+                </span>
+              </div>
+              <div className="mt-3 p-2 rounded-md bg-primary/5 border border-primary/20 text-[12px] text-foreground">
+                <strong>Kom ihåg:</strong> Avfärd senast kl 11:00 · Ankomst tidigast kl 15:00
+              </div>
             </div>
           </Card>
         )}
