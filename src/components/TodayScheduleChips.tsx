@@ -35,6 +35,9 @@ const ShiftLodgeWrapper = ({ shiftId, shiftType, date }: { shiftId: string; shif
 
 const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
   const queryClient = useQueryClient();
+  const [openLists, setOpenLists] = useState<Record<string, boolean>>({});
+  const toggleOpen = (id: string) =>
+    setOpenLists((p) => ({ ...p, [id]: !p[id] }));
   const { data: lists, isLoading } = useQuery({
     queryKey: ["home-shift-checklists", shiftId],
     queryFn: async () => {
