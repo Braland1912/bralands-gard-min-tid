@@ -132,7 +132,8 @@ async function getEvents(): Promise<ParsedEvent[]> {
     throw new Error(`Kunde inte hämta kalendern (${res.status})`);
   }
   const text = await res.text();
-  const events = parseICS(text);
+  // Endast händelser som tydligt tillhör en av de fyra uthyrningsenheterna
+  const events = parseICS(text).filter((e) => e.unit !== "Övrigt");
   cache = { fetchedAt: now, events };
   return events;
 }
