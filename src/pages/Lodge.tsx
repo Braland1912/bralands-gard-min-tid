@@ -334,7 +334,12 @@ const Lodge = () => {
 
       {/* Dialog: dagens händelser */}
       <Dialog open={!!openDay} onOpenChange={(o) => !o && setOpenDay(null)}>
-        <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
+        <DialogContent
+          className="p-0 gap-0 overflow-hidden flex flex-col
+                     h-[100dvh] w-screen max-w-none rounded-none border-0 translate-x-0 translate-y-0 top-0 left-0
+                     sm:h-auto sm:max-h-[85vh] sm:max-w-md sm:w-full sm:rounded-lg sm:border sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
+                     [&>button.absolute]:hidden"
+        >
           {openDay && (() => {
             const dayEvents = eventsForDay(openDay);
             const arrivals = dayEvents.filter((e) => {
@@ -391,38 +396,48 @@ const Lodge = () => {
 
             return (
               <>
-                {/* Sticky header med dag + navigering */}
-                <DialogHeader className="sticky top-0 z-20 bg-background border-b border-border px-5 py-3 pr-12">
-                  <div className="flex items-center justify-between gap-2">
+                {/* Header med dag + navigering + stäng */}
+                <DialogHeader className="shrink-0 bg-background border-b border-border px-3 py-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-10 w-10 shrink-0"
                       onClick={() => setOpenDay(addDays(openDay, -1))}
                       aria-label="Föregående dag"
                     >
-                      <ChevronLeft className="h-4 w-4" />
+                      <ChevronLeft className="h-5 w-5" />
                     </Button>
-                    <DialogTitle className="capitalize text-center text-base flex-1">
+                    <DialogTitle className="capitalize text-center text-base flex-1 min-w-0 truncate">
                       {format(openDay, "EEEE d MMMM", { locale: sv })}
                     </DialogTitle>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-10 w-10 shrink-0"
                       onClick={() => setOpenDay(addDays(openDay, 1))}
                       aria-label="Nästa dag"
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 shrink-0 ml-1 rounded-full bg-muted/60 hover:bg-muted"
+                      onClick={() => setOpenDay(null)}
+                      aria-label="Stäng"
+                    >
+                      <X className="h-5 w-5" />
                     </Button>
                   </div>
                 </DialogHeader>
 
 
-                <div className="px-5 py-4 max-h-[70vh] overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
                   {dayEvents.length === 0 && potentialUnits.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
                       Inga bokningar denna dag.
+
                     </p>
                   )}
 
