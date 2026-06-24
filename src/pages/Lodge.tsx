@@ -448,7 +448,7 @@ const Lodge = () => {
                         {departures.map((e) =>
                           renderCard(e, {
                             text: "Bytesdag – städa!",
-                            cls: "bg-orange-100 text-orange-900 border-orange-300",
+                            cls: "bg-orange-500 text-white border-orange-600",
                           })
                         )}
                       </div>
@@ -462,10 +462,11 @@ const Lodge = () => {
                         {arrivals.map((e) =>
                           renderCard(e, {
                             text: "Kontrollera inför ankomst",
-                            cls: "bg-sky-100 text-sky-900 border-sky-300",
+                            cls: "bg-orange-200 text-orange-900 border-orange-300",
                           })
                         )}
                       </div>
+
 
 
                     </>
@@ -497,9 +498,10 @@ const Lodge = () => {
                                     {UNIT_NUMBER[u]} {u}
                                   </span>
                                 </div>
-                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-300 whitespace-nowrap">
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-orange-50 text-orange-800 border-orange-200 whitespace-nowrap">
                                   Kan tillkomma
                                 </span>
+
 
 
                               </div>
