@@ -447,6 +447,11 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
       </section>
       )}
 
+      {/* Section: Lodge bookings today */}
+      <LodgeTodayCard onOpen={() => window.location.assign("/lodge")} />
+
+
+
       {/* Section: Working this week (sage) */}
       {showWeek && (
       <section className={`border rounded-2xl p-3 space-y-2.5 ${SECTION_STYLE.week.tint}`}>
