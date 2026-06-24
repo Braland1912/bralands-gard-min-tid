@@ -1,22 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Home, Calendar, Clock, Moon } from "lucide-react";
+import { LogIn, ListChecks, Calendar, Clock, Moon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useWorker } from "@/hooks/useWorker";
 
-type ActiveKey = "hem" | "schema" | "tidrapport" | "kvallsrundan";
+type ActiveKey = "hem" | "dagens-uppgifter" | "schema" | "tidrapport" | "kvallsrundan";
 
 interface Props {
   active: ActiveKey;
 }
 
 const tabs: { id: ActiveKey; label: string; icon: any }[] = [
-  { id: "hem", label: "Hem", icon: Home },
+  { id: "hem", label: "Stämpla", icon: LogIn },
+  { id: "dagens-uppgifter", label: "Uppgifter", icon: ListChecks },
   { id: "schema", label: "Schema", icon: Calendar },
   { id: "tidrapport", label: "Tidrapport", icon: Clock },
-  { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon },
+  { id: "kvallsrundan", label: "Kvällen", icon: Moon },
 ];
 
 const MemberMobileBottomNav = ({ active }: Props) => {
