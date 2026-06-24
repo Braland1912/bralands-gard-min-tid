@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import LodgeDaySection from "@/components/LodgeDaySection";
+import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 
 const SHIFT_LABEL: Record<string, string> = {
