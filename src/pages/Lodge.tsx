@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, ArrowLeft, RefreshCw, Home, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, RefreshCw, Home, Calendar as CalendarIcon, X } from "lucide-react";
 import { addMonths, subMonths, format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isToday, parseISO, isWithinInterval } from "date-fns";
 import { sv } from "date-fns/locale";
 
