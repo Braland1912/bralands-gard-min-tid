@@ -58,6 +58,25 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const toggleCollapsed = (id: string) =>
     setCollapsed((p) => ({ ...p, [id]: !p[id] }));
 
+  // Hämta pass-metadata för lodge-synk + sektion
+  const { data: shiftMeta } = useQuery({
+    queryKey: ["shift-meta", shiftId],
+    queryFn: async () => {
+      if (!shiftId) return null;
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("shift_type, date")
+        .eq("id", shiftId)
+        .maybeSingle();
+      if (error) throw error;
+      return data as { shift_type: string; date: string } | null;
+    },
+    enabled: !!shiftId,
+  });
+
+  useSyncLodgeChecklists(shiftId, shiftMeta?.shift_type, shiftMeta?.date, !!shiftMeta);
+
+
   const { data: lists = [] } = useQuery({
     queryKey: ["shift-checklists", shiftId],
     queryFn: async () => {
