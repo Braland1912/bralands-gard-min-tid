@@ -26,9 +26,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
 
-type Template = { id: string; name: string; sort_order: number };
+type Template = { id: string; name: string; sort_order: number; lodge_unit?: string | null };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
+
+const LODGE_UNITS: { value: string; label: string; chip: string }[] = [
+  { value: "Öringen",       label: "Nr. 1 Öringen",       chip: "bg-amber-50 text-amber-800 border-amber-300" },
+  { value: "Laxen",         label: "Nr. 2 Laxen",         chip: "bg-rose-50 text-rose-800 border-rose-300" },
+  { value: "Kungsfiskaren", label: "Nr. 3 Kungsfiskaren", chip: "bg-sky-50 text-sky-800 border-sky-300" },
+  { value: "Strömstaren",   label: "Nr. 4 Strömstaren",   chip: "bg-emerald-50 text-emerald-800 border-emerald-300" },
+  { value: "Husvagnen",     label: "Nr. 5 Husvagnen",     chip: "bg-violet-50 text-violet-800 border-violet-300" },
+];
 
 const SHIFT_TYPE_OPTIONS: { value: string; label: string; emoji: string; bg: string; border: string; text: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
