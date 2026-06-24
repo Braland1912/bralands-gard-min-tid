@@ -446,6 +446,9 @@ const AdminSchedule = () => {
     toName: string;
     conflictRowId?: string;
     conflictType?: ShiftType;
+    // När mottagaren redan har ett pass på samma index men det andra
+    // passindexet är ledigt – flytta dit istället för att skriva över.
+    doubleShiftIndex?: 0 | 1;
   } | null>(null);
 
   const reassignShift = useMutation({
