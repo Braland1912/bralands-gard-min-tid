@@ -233,7 +233,7 @@ const AdminChecklists = () => {
 
     const { error: nameErr } = await supabase
       .from("checklist_templates")
-      .update({ name, updated_at: new Date().toISOString() })
+      .update({ name, lodge_unit: editLodgeUnit, updated_at: new Date().toISOString() } as any)
       .eq("id", editing.id);
     if (nameErr) throw nameErr;
 
