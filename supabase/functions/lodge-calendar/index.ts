@@ -24,12 +24,13 @@ type ParsedEvent = {
   unit: string;
 };
 
-// Mappning av nyckelord -> uthyrningsenhet (de fyra uthyrningsbara enheterna)
+// Mappning av nyckelord -> uthyrningsenhet (de fem uthyrningsbara enheterna)
 const UNIT_KEYWORDS: { unit: string; words: string[] }[] = [
   { unit: "Öringen", words: ["öringen", "oringen"] },
   { unit: "Laxen", words: ["laxen", "lax "] },
   { unit: "Kungsfiskaren", words: ["kungsfiskaren", "kungsfiskare"] },
   { unit: "Strömstaren", words: ["strömstaren", "stromstaren", "strömstare", "stromstare"] },
+  { unit: "Husvagnen", words: ["husvagnen", "husvagn", "husbil", "camping"] },
 ];
 
 function detectUnit(summary: string): string {

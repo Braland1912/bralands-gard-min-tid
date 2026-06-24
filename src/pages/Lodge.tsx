@@ -30,13 +30,14 @@ type LodgeEvent = {
   unit: string;
 };
 
-// De fyra uthyrningsbara enheterna i lodgen, i fast ordning
-const UNIT_ORDER = ["Öringen", "Laxen", "Kungsfiskaren", "Strömstaren"] as const;
+// De fem uthyrningsbara enheterna i lodgen, i fast ordning
+const UNIT_ORDER = ["Öringen", "Laxen", "Kungsfiskaren", "Strömstaren", "Husvagnen"] as const;
 const UNIT_NUMBER: Record<string, string> = {
   "Öringen": "Nr. 1",
   "Laxen": "Nr. 2",
   "Kungsfiskaren": "Nr. 3",
   "Strömstaren": "Nr. 4",
+  "Husvagnen": "Nr. 5",
 };
 
 const UNIT_STYLES: Record<string, { bar: string; text: string; dot: string; chip: string }> = {
@@ -44,6 +45,7 @@ const UNIT_STYLES: Record<string, { bar: string; text: string; dot: string; chip
   "Laxen":         { bar: "bg-rose-400",    text: "text-rose-950",    dot: "bg-rose-500",    chip: "bg-rose-50 text-rose-800 border-rose-200" },
   "Kungsfiskaren": { bar: "bg-sky-400",     text: "text-sky-950",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-800 border-sky-200" },
   "Strömstaren":   { bar: "bg-emerald-400", text: "text-emerald-950", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+  "Husvagnen":     { bar: "bg-violet-400",  text: "text-violet-950",  dot: "bg-violet-500",  chip: "bg-violet-50 text-violet-800 border-violet-200" },
 };
 
 const styleFor = (unit: string) =>
