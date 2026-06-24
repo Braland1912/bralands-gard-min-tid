@@ -448,7 +448,7 @@ const Lodge = () => {
                         {departures.map((e) =>
                           renderCard(e, {
                             text: "Bytesdag – städa!",
-                            cls: "bg-orange-500 text-white border-orange-600",
+                            cls: "bg-orange-300 text-orange-950 border-orange-400",
                           })
                         )}
                       </div>
