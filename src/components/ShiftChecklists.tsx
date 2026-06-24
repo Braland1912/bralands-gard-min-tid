@@ -600,14 +600,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                     >
                                       {item.text}
                                     </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
-                                      onClick={() => removeItem.mutate(item.id)}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
+                                    {!isLocked && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={() => removeItem.mutate(item.id)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
                                   </SortableItem>
                                 ))}
                               </div>
