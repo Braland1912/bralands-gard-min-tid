@@ -239,16 +239,16 @@ const Lodge = () => {
                   <button
                     key={day.toISOString()}
                     onClick={() => setOpenDay(day)}
-                    className={`min-h-[92px] md:min-h-[112px] p-1 border-r border-b border-border text-left transition-colors flex flex-col ${
+                    className={`min-h-[92px] md:min-h-[112px] p-1 border-r border-b border-border text-left transition-colors flex flex-col relative ${
                       today
-                        ? "bg-primary/5"
+                        ? "bg-primary/10 ring-2 ring-primary ring-inset z-10"
                         : inMonth
                         ? "bg-card hover:bg-accent"
                         : "bg-muted/30 text-muted-foreground"
                     }`}
                   >
-                    <div className={`text-[11px] md:text-xs font-medium mb-1 ${today ? "text-primary" : ""}`}>
-                      {format(day, "d")}
+                    <div className={`text-[11px] md:text-xs font-medium mb-1 ${today ? "text-primary font-bold" : ""}`}>
+                      {format(day, "d")}{today && <span className="ml-1 text-[9px] md:text-[10px] uppercase tracking-wide">Idag</span>}
                     </div>
                     {/* Fyra fasta rader, en per uthyrningsenhet */}
                     <div className="flex flex-col gap-[2px]">
