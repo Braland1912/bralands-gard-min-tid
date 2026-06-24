@@ -17,7 +17,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     queryFn: async () => {
       const { data: lists, error } = await supabase
         .from("shift_checklists")
-        .select("id, name, sort_order")
+        .select("id, name, sort_order, lodge_unit")
         .eq("shift_id", shiftId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
