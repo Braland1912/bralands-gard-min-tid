@@ -30,22 +30,24 @@ type LodgeEvent = {
   unit: string;
 };
 
-const UNIT_STYLES: Record<string, { bg: string; dot: string; chip: string }> = {
-  "Laxen":             { bg: "bg-red-100",     dot: "bg-red-500",     chip: "bg-red-50 text-red-700 border-red-200" },
-  "Öringen":           { bg: "bg-amber-100",   dot: "bg-amber-500",   chip: "bg-amber-50 text-amber-700 border-amber-200" },
-  "Kungsfiskaren":     { bg: "bg-sky-100",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-700 border-sky-200" },
-  "Harren":            { bg: "bg-emerald-100", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  "Abborren":          { bg: "bg-lime-100",    dot: "bg-lime-500",    chip: "bg-lime-50 text-lime-700 border-lime-200" },
-  "Gäddan":            { bg: "bg-teal-100",    dot: "bg-teal-500",    chip: "bg-teal-50 text-teal-700 border-teal-200" },
-  "Lägenhet":          { bg: "bg-indigo-100",  dot: "bg-indigo-500",  chip: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  "Husvagn":           { bg: "bg-orange-100",  dot: "bg-orange-500",  chip: "bg-orange-50 text-orange-700 border-orange-200" },
-  "Hela anläggningen": { bg: "bg-fuchsia-100", dot: "bg-fuchsia-500", chip: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
-  "Norra":             { bg: "bg-blue-100",    dot: "bg-blue-500",    chip: "bg-blue-50 text-blue-700 border-blue-200" },
-  "Undre":             { bg: "bg-violet-100",  dot: "bg-violet-500",  chip: "bg-violet-50 text-violet-700 border-violet-200" },
-  "Övrigt":            { bg: "bg-gray-100",    dot: "bg-gray-400",    chip: "bg-gray-50 text-gray-700 border-gray-200" },
+// De fyra uthyrningsbara enheterna i lodgen, i fast ordning
+const UNIT_ORDER = ["Öringen", "Laxen", "Kungsfiskaren", "Strömstaren"] as const;
+const UNIT_NUMBER: Record<string, string> = {
+  "Öringen": "Nr. 1",
+  "Laxen": "Nr. 2",
+  "Kungsfiskaren": "Nr. 3",
+  "Strömstaren": "Nr. 4",
 };
 
-const styleFor = (unit: string) => UNIT_STYLES[unit] ?? UNIT_STYLES["Övrigt"];
+const UNIT_STYLES: Record<string, { bar: string; text: string; dot: string; chip: string }> = {
+  "Öringen":       { bar: "bg-amber-400",   text: "text-amber-950",   dot: "bg-amber-500",   chip: "bg-amber-50 text-amber-800 border-amber-200" },
+  "Laxen":         { bar: "bg-rose-400",    text: "text-rose-950",    dot: "bg-rose-500",    chip: "bg-rose-50 text-rose-800 border-rose-200" },
+  "Kungsfiskaren": { bar: "bg-sky-400",     text: "text-sky-950",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-800 border-sky-200" },
+  "Strömstaren":   { bar: "bg-emerald-400", text: "text-emerald-950", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+};
+
+const styleFor = (unit: string) =>
+  UNIT_STYLES[unit] ?? { bar: "bg-gray-300", text: "text-gray-900", dot: "bg-gray-400", chip: "bg-gray-50 text-gray-700 border-gray-200" };
 
 const Lodge = () => {
   const navigate = useNavigate();
