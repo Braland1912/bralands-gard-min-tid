@@ -334,58 +334,170 @@ const Lodge = () => {
 
       {/* Dialog: dagens händelser */}
       <Dialog open={!!openDay} onOpenChange={(o) => !o && setOpenDay(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="capitalize">
-              {openDay && format(openDay, "EEEE d MMMM yyyy", { locale: sv })}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-            {openDay && eventsForDay(openDay).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Inga bokningar denna dag.
-              </p>
-            )}
-            {openDay && eventsForDay(openDay).map((e) => {
+        <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
+          {openDay && (() => {
+            const dayEvents = eventsForDay(openDay);
+            const arrivals = dayEvents.filter((e) => {
+              const r = roleForDay(e, openDay);
+              return r === "start" || r === "single";
+            });
+            const departures = dayEvents.filter((e) => roleForDay(e, openDay) === "end");
+            const ongoing = dayEvents.filter((e) => roleForDay(e, openDay) === "middle");
+            const busyUnits = new Set(dayEvents.map((e) => e.unit));
+            const potentialUnits = UNIT_ORDER.filter((u) => !busyUnits.has(u));
+
+            const renderCard = (e: LodgeEvent, badge?: { text: string; cls: string }) => {
               const s = styleFor(e.unit);
               const endInclusive = addDays(parseISO(e.end), -1);
               const sameDay = e.start === format(endInclusive, "yyyy-MM-dd");
-              const role = roleForDay(e, openDay!);
-              const roleLabel =
-                role === "start" ? "Ankomst (eftermiddag)" :
-                role === "end"   ? "Avfärd (förmiddag)"   :
-                role === "single" ? "Hela dagen" :
-                "Pågående vistelse";
               return (
-                <div key={e.uid + e.start} className={`p-3 rounded-lg border ${s.chip}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
-                    <span className="text-sm font-semibold">
-                      {UNIT_NUMBER[e.unit] ? `${UNIT_NUMBER[e.unit]} ` : ""}{e.unit}
-                    </span>
+                <div key={e.uid + e.start} className={`relative p-3 pr-3 rounded-lg border ${s.chip}`}>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className={`h-2.5 w-2.5 rounded-full ${s.dot} shrink-0`} />
+                      <span className="text-sm font-semibold truncate">
+                        {UNIT_NUMBER[e.unit] ? `${UNIT_NUMBER[e.unit]} ` : ""}{e.unit}
+                      </span>
+                    </div>
+                    {badge && (
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${badge.cls}`}>
+                        {badge.text}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-xs font-medium mb-1">{roleLabel}</div>
                   <div className="text-sm">{e.summary}</div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {e.allDay ? (
-                      sameDay ? (
-                        <>Hela dagen</>
-                      ) : (
+                      sameDay ? <>Hela dagen</> : (
                         <>
                           {format(parseISO(e.start), "d MMM", { locale: sv })} –{" "}
                           {format(endInclusive, "d MMM", { locale: sv })}
                         </>
                       )
                     ) : (
-                      <>
-                        {e.startTime} {e.endTime ? `– ${e.endTime}` : ""}
-                      </>
+                      <>{e.startTime} {e.endTime ? `– ${e.endTime}` : ""}</>
                     )}
                   </div>
                 </div>
               );
-            })}
-          </div>
+            };
+
+            const SectionHeader = ({ title, count }: { title: string; count: number }) => (
+              <div className="flex items-center justify-between mt-3 mb-2 first:mt-0">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</h3>
+                <span className="text-[10px] text-muted-foreground">{count}</span>
+              </div>
+            );
+
+            return (
+              <>
+                {/* Sticky header med dag + navigering */}
+                <DialogHeader className="sticky top-0 z-10 bg-background border-b border-border px-5 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setOpenDay(addDays(openDay, -1))}
+                      aria-label="Föregående dag"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <DialogTitle className="capitalize text-center text-base flex-1">
+                      {format(openDay, "EEEE d MMMM", { locale: sv })}
+                    </DialogTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setOpenDay(addDays(openDay, 1))}
+                      aria-label="Nästa dag"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </DialogHeader>
+
+                <div className="px-5 py-4 max-h-[70vh] overflow-y-auto">
+                  {dayEvents.length === 0 && potentialUnits.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Inga bokningar denna dag.
+                    </p>
+                  )}
+
+                  {ongoing.length > 0 && (
+                    <>
+                      <SectionHeader title="Pågående" count={ongoing.length} />
+                      <div className="space-y-2">{ongoing.map((e) => renderCard(e))}</div>
+                    </>
+                  )}
+
+                  {departures.length > 0 && (
+                    <>
+                      <SectionHeader title="Avfärd" count={departures.length} />
+                      <div className="space-y-2">
+                        {departures.map((e) =>
+                          renderCard(e, {
+                            text: "Bytesdag – städa!",
+                            cls: "bg-rose-100 text-rose-900 border-rose-300",
+                          })
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {arrivals.length > 0 && (
+                    <>
+                      <SectionHeader title="Ankomst" count={arrivals.length} />
+                      <div className="space-y-2">
+                        {arrivals.map((e) =>
+                          renderCard(e, {
+                            text: "Kontrollera inför ankomst",
+                            cls: "bg-emerald-100 text-emerald-900 border-emerald-300",
+                          })
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {potentialUnits.length > 0 && (
+                    <>
+                      <SectionHeader title="Kan tillkomma vid sen bokning" count={potentialUnits.length} />
+                      <div className="space-y-2">
+                        {potentialUnits.map((u) => {
+                          const s = styleFor(u);
+                          return (
+                            <div
+                              key={u}
+                              className={`p-3 rounded-lg border-2 border-dashed ${s.chip} opacity-90`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`h-2.5 w-2.5 rounded-full ${s.dot} shrink-0`} />
+                                  <span className="text-sm font-semibold truncate">
+                                    {UNIT_NUMBER[u]} {u}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border border-dashed bg-background/60 text-muted-foreground whitespace-nowrap">
+                                  Kan tillkomma
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Ej bokad ännu – kan få en sen bokning med avfärd denna dag.
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+                        En gäst kan boka kvällen före och då tillkommer bytesdag/städ. Var beredd.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
