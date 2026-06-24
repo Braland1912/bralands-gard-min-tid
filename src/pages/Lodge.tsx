@@ -30,22 +30,24 @@ type LodgeEvent = {
   unit: string;
 };
 
-const UNIT_STYLES: Record<string, { bg: string; dot: string; chip: string }> = {
-  "Laxen":             { bg: "bg-red-100",     dot: "bg-red-500",     chip: "bg-red-50 text-red-700 border-red-200" },
-  "Öringen":           { bg: "bg-amber-100",   dot: "bg-amber-500",   chip: "bg-amber-50 text-amber-700 border-amber-200" },
-  "Kungsfiskaren":     { bg: "bg-sky-100",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-700 border-sky-200" },
-  "Harren":            { bg: "bg-emerald-100", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  "Abborren":          { bg: "bg-lime-100",    dot: "bg-lime-500",    chip: "bg-lime-50 text-lime-700 border-lime-200" },
-  "Gäddan":            { bg: "bg-teal-100",    dot: "bg-teal-500",    chip: "bg-teal-50 text-teal-700 border-teal-200" },
-  "Lägenhet":          { bg: "bg-indigo-100",  dot: "bg-indigo-500",  chip: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  "Husvagn":           { bg: "bg-orange-100",  dot: "bg-orange-500",  chip: "bg-orange-50 text-orange-700 border-orange-200" },
-  "Hela anläggningen": { bg: "bg-fuchsia-100", dot: "bg-fuchsia-500", chip: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
-  "Norra":             { bg: "bg-blue-100",    dot: "bg-blue-500",    chip: "bg-blue-50 text-blue-700 border-blue-200" },
-  "Undre":             { bg: "bg-violet-100",  dot: "bg-violet-500",  chip: "bg-violet-50 text-violet-700 border-violet-200" },
-  "Övrigt":            { bg: "bg-gray-100",    dot: "bg-gray-400",    chip: "bg-gray-50 text-gray-700 border-gray-200" },
+// De fyra uthyrningsbara enheterna i lodgen, i fast ordning
+const UNIT_ORDER = ["Öringen", "Laxen", "Kungsfiskaren", "Strömstaren"] as const;
+const UNIT_NUMBER: Record<string, string> = {
+  "Öringen": "Nr. 1",
+  "Laxen": "Nr. 2",
+  "Kungsfiskaren": "Nr. 3",
+  "Strömstaren": "Nr. 4",
 };
 
-const styleFor = (unit: string) => UNIT_STYLES[unit] ?? UNIT_STYLES["Övrigt"];
+const UNIT_STYLES: Record<string, { bar: string; text: string; dot: string; chip: string }> = {
+  "Öringen":       { bar: "bg-amber-400",   text: "text-amber-950",   dot: "bg-amber-500",   chip: "bg-amber-50 text-amber-800 border-amber-200" },
+  "Laxen":         { bar: "bg-rose-400",    text: "text-rose-950",    dot: "bg-rose-500",    chip: "bg-rose-50 text-rose-800 border-rose-200" },
+  "Kungsfiskaren": { bar: "bg-sky-400",     text: "text-sky-950",     dot: "bg-sky-500",     chip: "bg-sky-50 text-sky-800 border-sky-200" },
+  "Strömstaren":   { bar: "bg-emerald-400", text: "text-emerald-950", dot: "bg-emerald-500", chip: "bg-emerald-50 text-emerald-800 border-emerald-200" },
+};
+
+const styleFor = (unit: string) =>
+  UNIT_STYLES[unit] ?? { bar: "bg-gray-300", text: "text-gray-900", dot: "bg-gray-400", chip: "bg-gray-50 text-gray-700 border-gray-200" };
 
 const Lodge = () => {
   const navigate = useNavigate();
@@ -104,19 +106,37 @@ const Lodge = () => {
   const eventsForDay = (day: Date): LodgeEvent[] => {
     return events.filter((e) => {
       const start = parseISO(e.start);
-      // ICS DTEND är exklusivt; sista datumet ingår inte
       const endExclusive = parseISO(e.end);
       const endInclusive = addDays(endExclusive, -1);
-      // För events utan giltig slut behandlar vi som en dag
       const last = endInclusive < start ? start : endInclusive;
       return isWithinInterval(day, { start, end: last });
     });
   };
 
+  type Role = "start" | "middle" | "end" | "single";
+  const roleForDay = (e: LodgeEvent, day: Date): Role | null => {
+    const start = parseISO(e.start);
+    const endInclusive = addDays(parseISO(e.end), -1);
+    const last = endInclusive < start ? start : endInclusive;
+    if (!isWithinInterval(day, { start, end: last })) return null;
+    const isStart = day.getTime() === start.getTime();
+    const isEnd = day.getTime() === last.getTime();
+    if (isStart && isEnd) return "single";
+    if (isStart) return "start";
+    if (isEnd) return "end";
+    return "middle";
+  };
+
+  // Hitta event för en given enhet och dag
+  const eventForUnitDay = (unit: string, day: Date): LodgeEvent | undefined => {
+    return events.find((e) => e.unit === unit && roleForDay(e, day) !== null);
+  };
+
   const unitsInMonth = useMemo(() => {
     const set = new Set<string>();
     days.forEach((d) => eventsForDay(d).forEach((e) => set.add(e.unit)));
-    return Array.from(set).sort();
+    // Behåll fast ordning Nr.1–Nr.4
+    return UNIT_ORDER.filter((u) => set.has(u));
   }, [days, events]);
 
   if (!ready) {
@@ -209,43 +229,60 @@ const Lodge = () => {
               Kunde inte ladda kalendern. {(error as Error).message}
             </div>
           ) : (
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0 border-l border-t border-border rounded-lg overflow-hidden">
               {days.map((day) => {
-                const dayEvents = eventsForDay(day);
                 const inMonth = isSameMonth(day, cursor);
                 const today = isToday(day);
                 return (
                   <button
                     key={day.toISOString()}
                     onClick={() => setOpenDay(day)}
-                    className={`min-h-[64px] md:min-h-[88px] p-1 md:p-1.5 rounded-lg border text-left transition-colors flex flex-col gap-1 ${
+                    className={`min-h-[92px] md:min-h-[112px] p-1 border-r border-b border-border text-left transition-colors flex flex-col ${
                       today
-                        ? "border-primary bg-primary/5"
+                        ? "bg-primary/5"
                         : inMonth
-                        ? "border-border bg-card hover:bg-accent"
-                        : "border-border/50 bg-muted/30 text-muted-foreground"
+                        ? "bg-card hover:bg-accent"
+                        : "bg-muted/30 text-muted-foreground"
                     }`}
                   >
-                    <div className={`text-[11px] md:text-xs font-medium ${today ? "text-primary" : ""}`}>
+                    <div className={`text-[11px] md:text-xs font-medium mb-1 ${today ? "text-primary" : ""}`}>
                       {format(day, "d")}
                     </div>
-                    <div className="flex flex-col gap-0.5 overflow-hidden">
-                      {dayEvents.slice(0, 3).map((e) => {
-                        const s = styleFor(e.unit);
+                    {/* Fyra fasta rader, en per uthyrningsenhet */}
+                    <div className="flex flex-col gap-[2px]">
+                      {UNIT_ORDER.map((unit) => {
+                        const e = eventForUnitDay(unit, day);
+                        const s = styleFor(unit);
+                        if (!e) {
+                          return <div key={unit} className="h-3 md:h-4" />;
+                        }
+                        const role = roleForDay(e, day)!;
+                        // Halvdagar: ankomst = höger halva, avfärd = vänster halva
+                        const pos =
+                          role === "start"
+                            ? "left-1/2 right-0 rounded-l-sm"
+                            : role === "end"
+                            ? "left-0 right-1/2 rounded-r-sm"
+                            : role === "single"
+                            ? "left-0 right-0 rounded-sm"
+                            : "left-0 right-0"; // middle: edge-to-edge, ingen rundning
+                        const showName = role === "start" || role === "single";
                         return (
                           <div
-                            key={e.uid + e.start}
-                            className={`text-[9px] md:text-[10px] leading-tight rounded px-1 py-0.5 truncate ${s.bg}`}
-                            title={`${e.unit} – ${e.summary}`}
+                            key={unit}
+                            className="relative h-3 md:h-4"
+                            title={`${UNIT_NUMBER[unit]} ${unit} – ${e.summary}`}
                           >
-                            <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.dot} mr-1`} />
-                            <span className="font-medium">{e.unit}</span>
+                            <div className={`absolute inset-y-0 ${pos} ${s.bar} flex items-center`}>
+                              {showName && (
+                                <span className={`text-[8px] md:text-[10px] font-semibold ${s.text} px-1 truncate leading-none`}>
+                                  {unit}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
-                      {dayEvents.length > 3 && (
-                        <div className="text-[9px] text-muted-foreground">+{dayEvents.length - 3} till</div>
-                      )}
                     </div>
                   </button>
                 );
@@ -257,17 +294,31 @@ const Lodge = () => {
         {/* Förklaring */}
         {unitsInMonth.length > 0 && (
           <Card className="p-4">
-            <div className="text-xs font-medium text-muted-foreground mb-2">Enheter denna månad</div>
+            <div className="text-xs font-medium text-muted-foreground mb-2">Uthyrningsenheter</div>
             <div className="flex flex-wrap gap-2">
-              {unitsInMonth.map((u) => {
+              {UNIT_ORDER.map((u) => {
                 const s = styleFor(u);
                 return (
                   <span key={u} className={`text-xs px-2 py-1 rounded-full border ${s.chip} flex items-center gap-1.5`}>
                     <span className={`h-2 w-2 rounded-full ${s.dot}`} />
-                    {u}
+                    <span className="font-medium">{UNIT_NUMBER[u]}</span> {u}
                   </span>
                 );
               })}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-l-sm bg-muted-foreground/40" />
+                Avfärd (förmiddag)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded-r-sm bg-muted-foreground/40" />
+                Ankomst (eftermiddag)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-3 w-6 bg-muted-foreground/40" />
+                Vistelse (natt)
+              </span>
             </div>
           </Card>
         )}
@@ -291,12 +342,21 @@ const Lodge = () => {
               const s = styleFor(e.unit);
               const endInclusive = addDays(parseISO(e.end), -1);
               const sameDay = e.start === format(endInclusive, "yyyy-MM-dd");
+              const role = roleForDay(e, openDay!);
+              const roleLabel =
+                role === "start" ? "Ankomst (eftermiddag)" :
+                role === "end"   ? "Avfärd (förmiddag)"   :
+                role === "single" ? "Hela dagen" :
+                "Pågående vistelse";
               return (
                 <div key={e.uid + e.start} className={`p-3 rounded-lg border ${s.chip}`}>
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`h-2.5 w-2.5 rounded-full ${s.dot}`} />
-                    <span className="text-sm font-semibold">{e.unit}</span>
+                    <span className="text-sm font-semibold">
+                      {UNIT_NUMBER[e.unit] ? `${UNIT_NUMBER[e.unit]} ` : ""}{e.unit}
+                    </span>
                   </div>
+                  <div className="text-xs font-medium mb-1">{roleLabel}</div>
                   <div className="text-sm">{e.summary}</div>
                   <div className="text-xs text-muted-foreground mt-1">
                     {e.allDay ? (

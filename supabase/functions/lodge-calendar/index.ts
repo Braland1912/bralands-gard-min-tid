@@ -24,19 +24,12 @@ type ParsedEvent = {
   unit: string;
 };
 
-// Mappning av nyckelord -> uthyrningsenhet
+// Mappning av nyckelord -> uthyrningsenhet (de fyra uthyrningsbara enheterna)
 const UNIT_KEYWORDS: { unit: string; words: string[] }[] = [
-  { unit: "Laxen", words: ["laxen", "lax "] },
   { unit: "Öringen", words: ["öringen", "oringen"] },
+  { unit: "Laxen", words: ["laxen", "lax "] },
   { unit: "Kungsfiskaren", words: ["kungsfiskaren", "kungsfiskare"] },
-  { unit: "Harren", words: ["harren", "harr "] },
-  { unit: "Abborren", words: ["abborren", "abborre"] },
-  { unit: "Gäddan", words: ["gäddan", "gaddan"] },
-  { unit: "Lägenhet", words: ["lägenhet", "lagenhet", "apartment"] },
-  { unit: "Husvagn", words: ["husvagn", "husbil", "camping"] },
-  { unit: "Hela anläggningen", words: ["hela anlägget", "hela anläggningen", "hela anlaggningen"] },
-  { unit: "Norra", words: ["norra"] },
-  { unit: "Undre", words: ["undre"] },
+  { unit: "Strömstaren", words: ["strömstaren", "stromstaren", "strömstare", "stromstare"] },
 ];
 
 function detectUnit(summary: string): string {
@@ -139,7 +132,8 @@ async function getEvents(): Promise<ParsedEvent[]> {
     throw new Error(`Kunde inte hämta kalendern (${res.status})`);
   }
   const text = await res.text();
-  const events = parseICS(text);
+  // Endast händelser som tydligt tillhör en av de fyra uthyrningsenheterna
+  const events = parseICS(text).filter((e) => e.unit !== "Övrigt");
   cache = { fetchedAt: now, events };
   return events;
 }
