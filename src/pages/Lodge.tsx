@@ -268,6 +268,7 @@ const Lodge = () => {
               {days.map((day) => {
                 const inMonth = isSameMonth(day, cursor);
                 const today = isToday(day);
+                const isMyShift = myShiftDates?.has(format(day, "yyyy-MM-dd")) ?? false;
                 return (
                   <button
                     key={day.toISOString()}
@@ -275,14 +276,34 @@ const Lodge = () => {
                     className={`min-h-[92px] md:min-h-[112px] p-1 border-r border-b border-border text-left transition-colors flex flex-col relative ${
                       today
                         ? "bg-primary/10 ring-2 ring-primary ring-inset z-10"
+                        : isMyShift && inMonth
+                        ? "bg-primary/[0.04] hover:bg-primary/[0.08]"
                         : inMonth
                         ? "bg-card hover:bg-accent"
                         : "bg-muted/30 text-muted-foreground"
                     }`}
                   >
-                    <div className={`text-[11px] md:text-xs font-medium mb-1 ${today ? "text-primary font-bold" : ""}`}>
-                      {format(day, "d")}{today && <span className="ml-1 text-[9px] md:text-[10px] uppercase tracking-wide">Idag</span>}
+                    {isMyShift && !today && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary/70"
+                      />
+                    )}
+                    <div className={`text-[11px] md:text-xs font-medium mb-1 flex items-center gap-1 ${today ? "text-primary font-bold" : ""}`}>
+                      <span>{format(day, "d")}</span>
+                      {today && <span className="text-[9px] md:text-[10px] uppercase tracking-wide">Idag</span>}
+                      {isMyShift && !today && (
+                        <span className="ml-auto text-[8px] md:text-[9px] uppercase tracking-wide font-semibold text-primary/80">
+                          Mitt pass
+                        </span>
+                      )}
+                      {isMyShift && today && (
+                        <span className="ml-auto text-[8px] md:text-[9px] uppercase tracking-wide font-semibold text-primary">
+                          Mitt pass
+                        </span>
+                      )}
                     </div>
+
                     {/* Fyra fasta rader, en per uthyrningsenhet */}
                     <div className="flex flex-col gap-[2px]">
                       {UNIT_ORDER.map((unit) => {
