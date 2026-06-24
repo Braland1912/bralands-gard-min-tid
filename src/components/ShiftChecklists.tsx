@@ -24,11 +24,16 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 
+import { Lock } from "lucide-react";
+import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
+import LodgeDaySection from "@/components/LodgeDaySection";
+
 export type ShiftChecklist = {
   id: string;
   shift_id: string;
   name: string;
   sort_order: number;
+  lodge_unit?: string | null;
 };
 
 export type ShiftChecklistItem = {
@@ -52,6 +57,25 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const toggleCollapsed = (id: string) =>
     setCollapsed((p) => ({ ...p, [id]: !p[id] }));
+
+  // Hämta pass-metadata för lodge-synk + sektion
+  const { data: shiftMeta } = useQuery({
+    queryKey: ["shift-meta", shiftId],
+    queryFn: async () => {
+      if (!shiftId) return null;
+      const { data, error } = await supabase
+        .from("schedules")
+        .select("shift_type, date")
+        .eq("id", shiftId)
+        .maybeSingle();
+      if (error) throw error;
+      return data as { shift_type: string; date: string } | null;
+    },
+    enabled: !!shiftId,
+  });
+
+  useSyncLodgeChecklists(shiftId, shiftMeta?.shift_type, shiftMeta?.date, !!shiftMeta);
+
 
   const { data: lists = [] } = useQuery({
     queryKey: ["shift-checklists", shiftId],
@@ -378,8 +402,15 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
 
   if (!shiftId) return null;
 
+  const showLodgeSection =
+    !!shiftMeta?.date && (shiftMeta.shift_type === "day" || shiftMeta.shift_type === "morning");
+
   return (
     <div className="space-y-3">
+      {showLodgeSection && shiftMeta && (
+        <LodgeDaySection date={shiftMeta.date} />
+      )}
+
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ListChecks className="h-4 w-4 text-muted-foreground" />
@@ -437,9 +468,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                 const allDone = totalCount > 0 && doneCount === totalCount;
                 const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
                 const isCollapsed = !!collapsed[list.id];
+                const isLocked = !!list.lodge_unit;
                 return (
                   <SortableItem key={list.id} id={list.id}>
-                    <div className="border border-border rounded-xl p-3 space-y-2 bg-background flex-1 min-w-0">
+                    <div className={`border rounded-xl p-3 space-y-2 flex-1 min-w-0 ${isLocked ? "border-amber-300 bg-amber-50/30" : "border-border bg-background"}`}>
+                      {isLocked && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 w-fit">
+                          <Lock className="h-2.5 w-2.5" />
+                          Från kalender · {list.lodge_unit}
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <div
                           role="button"
@@ -454,7 +492,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                           className="flex items-center justify-between gap-2 cursor-pointer rounded-md -m-1 p-1 hover:bg-muted/50 transition-colors"
                           aria-expanded={!isCollapsed}
                         >
-                          {isCollapsed ? (
+                          {isCollapsed || isLocked ? (
                             <span className="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
                               {list.name}{" "}
                               <span className="text-muted-foreground font-normal">
@@ -502,7 +540,7 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 <Minus className="h-4 w-4" />
                               )}
                             </Button>
-                            {!isDuplicateOfTemplate(list.id) && (
+                            {!isLocked && !isDuplicateOfTemplate(list.id) && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -514,14 +552,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                 <BookmarkPlus className="h-3.5 w-3.5" />
                               </Button>
                             )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => deleteList.mutate(list.id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                            {!isLocked && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                onClick={() => deleteList.mutate(list.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                         {!isCollapsed && totalCount > 0 && (
@@ -560,29 +600,51 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                     >
                                       {item.text}
                                     </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
-                                      onClick={() => removeItem.mutate(item.id)}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
+                                    {!isLocked && (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                                        onClick={() => removeItem.mutate(item.id)}
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    )}
                                   </SortableItem>
                                 ))}
                               </div>
                             </SortableContext>
                           </DndContext>
 
-                          <div className="flex items-center gap-2 pt-1">
-                            <Input
-                              value={newItemFor[list.id] ?? ""}
-                              onChange={(e) =>
-                                setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
+                          {!isLocked && (
+                            <div className="flex items-center gap-2 pt-1">
+                              <Input
+                                value={newItemFor[list.id] ?? ""}
+                                onChange={(e) =>
+                                  setNewItemFor((p) => ({ ...p, [list.id]: e.target.value }))
+                                }
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const text = (newItemFor[list.id] ?? "").trim();
+                                    if (text) {
+                                      addItem.mutate(
+                                        { listId: list.id, text },
+                                        {
+                                          onSuccess: () =>
+                                            setNewItemFor((p) => ({ ...p, [list.id]: "" })),
+                                        },
+                                      );
+                                    }
+                                  }
+                                }}
+                                placeholder="Lägg till punkt..."
+                                className="h-8 text-sm"
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
                                   const text = (newItemFor[list.id] ?? "").trim();
                                   if (text) {
                                     addItem.mutate(
@@ -593,30 +655,12 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
                                       },
                                     );
                                   }
-                                }
-                              }}
-                              placeholder="Lägg till punkt..."
-                              className="h-8 text-sm"
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const text = (newItemFor[list.id] ?? "").trim();
-                                if (text) {
-                                  addItem.mutate(
-                                    { listId: list.id, text },
-                                    {
-                                      onSuccess: () =>
-                                        setNewItemFor((p) => ({ ...p, [list.id]: "" })),
-                                    },
-                                  );
-                                }
-                              }}
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -634,9 +678,16 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
             const totalCount = listItems.length;
             const allDone = totalCount > 0 && doneCount === totalCount;
             const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+            const isLocked = !!list.lodge_unit;
             return (
-              <div key={list.id} className="border border-border rounded-xl p-3 space-y-2 bg-background">
+              <div key={list.id} className={`border rounded-xl p-3 space-y-2 ${isLocked ? "border-amber-300 bg-amber-50/30" : "border-border bg-background"}`}>
                 <div className="space-y-2">
+                  {isLocked && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 w-fit">
+                      <Lock className="h-2.5 w-2.5" />
+                      Från kalender · {list.lodge_unit}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
                     <div className="flex items-center gap-2 shrink-0">

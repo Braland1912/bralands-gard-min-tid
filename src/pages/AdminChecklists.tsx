@@ -26,9 +26,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
 
-type Template = { id: string; name: string; sort_order: number };
+type Template = { id: string; name: string; sort_order: number; lodge_unit?: string | null };
 type Item = { id: string; template_id: string; text: string; sort_order: number };
 type ShiftLink = { template_id: string; shift_type: string };
+
+const LODGE_UNITS: { value: string; label: string; chip: string }[] = [
+  { value: "Öringen",       label: "Nr. 1 Öringen",       chip: "bg-amber-50 text-amber-800 border-amber-300" },
+  { value: "Laxen",         label: "Nr. 2 Laxen",         chip: "bg-rose-50 text-rose-800 border-rose-300" },
+  { value: "Kungsfiskaren", label: "Nr. 3 Kungsfiskaren", chip: "bg-sky-50 text-sky-800 border-sky-300" },
+  { value: "Strömstaren",   label: "Nr. 4 Strömstaren",   chip: "bg-emerald-50 text-emerald-800 border-emerald-300" },
+  { value: "Husvagnen",     label: "Nr. 5 Husvagnen",     chip: "bg-violet-50 text-violet-800 border-violet-300" },
+];
 
 const SHIFT_TYPE_OPTIONS: { value: string; label: string; emoji: string; bg: string; border: string; text: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
@@ -46,6 +54,7 @@ const AdminChecklists = () => {
   const [editName, setEditName] = useState("");
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
+  const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
 
   const { data: templates = [], isLoading } = useQuery({
@@ -167,6 +176,7 @@ const AdminChecklists = () => {
     setEditName(tpl.name);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
+    setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
     setAutoSaveState("idle");
   };
@@ -223,7 +233,7 @@ const AdminChecklists = () => {
 
     const { error: nameErr } = await supabase
       .from("checklist_templates")
-      .update({ name, updated_at: new Date().toISOString() })
+      .update({ name, lodge_unit: editLodgeUnit, updated_at: new Date().toISOString() } as any)
       .eq("id", editing.id);
     if (nameErr) throw nameErr;
 
@@ -280,7 +290,7 @@ const AdminChecklists = () => {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editName, editItems, editShiftTypes, editing?.id]);
+  }, [editName, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
@@ -527,6 +537,46 @@ const AdminChecklists = () => {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground">Koppla till lodge-enhet (valfritt)</label>
+              <p className="text-[11px] text-muted-foreground">
+                När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs mallen automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Mallen blir låst på passet och kan inte tas bort manuellt.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditLodgeUnit(null)}
+                  className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-left transition ${
+                    editLodgeUnit === null
+                      ? "bg-muted border-foreground/30"
+                      : "border-border bg-muted/30 hover:bg-muted/50"
+                  }`}
+                >
+                  <span className="text-sm">Ingen koppling</span>
+                </button>
+                {LODGE_UNITS.map((u) => {
+                  const active = editLodgeUnit === u.value;
+                  return (
+                    <button
+                      key={u.value}
+                      type="button"
+                      onClick={() => setEditLodgeUnit(active ? null : u.value)}
+                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-left transition ${
+                        active ? u.chip : "border-border bg-muted/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      <span className="text-sm">{u.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {editLodgeUnit !== null && editShiftTypes.length > 0 && (
+                <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+                  Tips: när en lodge-enhet är vald hanteras mallen via kalendern. Du kan ta bort passtyperna ovan om mallen <em>bara</em> ska köras på avfärdsdagar.
+                </p>
+              )}
             </div>
           </div>
 

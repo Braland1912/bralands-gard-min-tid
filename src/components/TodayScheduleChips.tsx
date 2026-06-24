@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
+import LodgeDaySection from "@/components/LodgeDaySection";
+
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -24,6 +27,11 @@ const SHIFT_CONFIG: Record<ShiftType, { emoji: string; label: string; bg: string
 interface Props {
   userId: string;
 }
+
+const ShiftLodgeWrapper = ({ shiftId, shiftType, date }: { shiftId: string; shiftType: string; date: string }) => {
+  useSyncLodgeChecklists(shiftId, shiftType, date, true);
+  return <LodgeDaySection date={date} />;
+};
 
 const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
   const queryClient = useQueryClient();
@@ -221,6 +229,9 @@ const TodayScheduleChips = ({ userId }: Props) => {
                     <p className="text-sm text-amber-900 whitespace-pre-wrap break-words">{s.note}</p>
                   </div>
                 </div>
+              )}
+              {!isCollapsed && (s.shift_type === "morning" || s.shift_type === "day") && (
+                <ShiftLodgeWrapper shiftId={s.id} shiftType={s.shift_type} date={today} />
               )}
               {hasLists && !isCollapsed && <ShiftChecklistsView shiftId={s.id} />}
             </div>
