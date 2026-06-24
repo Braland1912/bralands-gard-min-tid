@@ -54,6 +54,7 @@ const AdminChecklists = () => {
   const [editName, setEditName] = useState("");
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
+  const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
 
   const { data: templates = [], isLoading } = useQuery({
