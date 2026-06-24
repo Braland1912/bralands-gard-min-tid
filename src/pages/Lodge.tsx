@@ -448,7 +448,7 @@ const Lodge = () => {
                         {departures.map((e) =>
                           renderCard(e, {
                             text: "Bytesdag – städa!",
-                            cls: "bg-orange-100 text-orange-900 border-orange-300",
+                            cls: "bg-orange-500 text-white border-orange-600",
                           })
                         )}
                       </div>
@@ -462,10 +462,11 @@ const Lodge = () => {
                         {arrivals.map((e) =>
                           renderCard(e, {
                             text: "Kontrollera inför ankomst",
-                            cls: "bg-sky-100 text-sky-900 border-sky-300",
+                            cls: "bg-orange-200 text-orange-900 border-orange-300",
                           })
                         )}
                       </div>
+
 
 
                     </>
