@@ -208,10 +208,93 @@ const Emergency = () => {
           </div>
         </section>
 
+        {/* English / international numbers */}
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-lg" aria-hidden>🇬🇧</span>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              For foreign guests · international format
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Share these with guests calling from a foreign SIM card. Sweden's country code is +46.
+          </p>
+
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-2 bg-muted/40 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Anywhere in Sweden
+            </div>
+            <ul className="divide-y divide-border">
+              {[
+                ["112", "Emergency – life-threatening illness or accident. Works from any phone."],
+                ["+46 771 11 77 00", "Health-care advice, 24/7 (dial 1177 within Sweden)"],
+                ["+46 77 33 113 13", "Info on major accidents & crises (113 13 within Sweden)"],
+                ["+46 77 114 14 00", "Police, non-emergency (114 14 within Sweden)"],
+                ["+46 10 456 67 00", "Poisons Information (acute poisoning: call 112)"],
+              ].map(([num, txt]) => (
+                <li key={num} className="px-4 py-3 flex items-start gap-3">
+                  <a
+                    href={`tel:${num.replace(/\s/g, "")}`}
+                    className="font-semibold text-primary whitespace-nowrap"
+                  >
+                    {num}
+                  </a>
+                  <span className="text-sm text-muted-foreground">{txt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-2 bg-muted/40 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Munkedal & nearby
+            </div>
+            <ul className="divide-y divide-border">
+              {[
+                ["+46 10 441 51 40", "Närhälsan Munkedal health centre, Centrumvägen 34. Evenings & weekends: call 1177"],
+                ["+46 10 435 00 00", "A&E at NÄL hospital, Trollhättan – nearest emergency room"],
+              ].map(([num, txt]) => (
+                <li key={num} className="px-4 py-3 flex items-start gap-3">
+                  <a
+                    href={`tel:${num.replace(/\s/g, "")}`}
+                    className="font-semibold text-primary whitespace-nowrap"
+                  >
+                    {num}
+                  </a>
+                  <span className="text-sm text-muted-foreground">{txt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="px-4 py-2 bg-muted/40 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Call us
+            </div>
+            <ul className="divide-y divide-border">
+              {[
+                ["Per", "+46 73 410 36 10"],
+                ["Fina", "+46 73 800 51 87"],
+              ].map(([name, num]) => (
+                <li key={name} className="px-4 py-3 flex items-center gap-3">
+                  <span className="font-semibold text-foreground w-12">{name}</span>
+                  <a
+                    href={`tel:${num.replace(/\s/g, "")}`}
+                    className="font-semibold text-primary whitespace-nowrap"
+                  >
+                    {num}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         <footer className="text-xs text-muted-foreground flex items-center gap-2 pt-2">
           <AlertTriangle className="h-3.5 w-3.5" />
           Genomgången med all personal · 25 juni 2026 · Brålands Gård
         </footer>
+
       </div>
 
       
