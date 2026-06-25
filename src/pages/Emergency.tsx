@@ -1,5 +1,5 @@
 import { Flame, Phone, MapPin, AlertTriangle, Users, ShieldCheck, Stethoscope } from "lucide-react";
-import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
+
 
 const Emergency = () => {
   return (
@@ -214,7 +214,7 @@ const Emergency = () => {
         </footer>
       </div>
 
-      <MemberMobileBottomNav active={"hem" as any} />
+      
     </div>
   );
 };
