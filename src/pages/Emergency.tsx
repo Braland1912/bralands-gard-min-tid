@@ -90,8 +90,9 @@ const Emergency = () => {
         {/* Brandredskap */}
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Var finns brandredskap?
+            Var finns brandsläckare och brandfilt?
           </h2>
+
           <ul className="rounded-2xl border border-border bg-card divide-y divide-border">
             {[
               "Inuti Lodgen",
