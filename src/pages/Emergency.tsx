@@ -75,7 +75,7 @@ const Emergency = () => {
                 Återsamlingsplats
               </div>
               <div className="font-bold text-foreground">Fotbollsplanen vid Servicehuset</div>
-              <div className="text-xs text-muted-foreground mt-0.5">Leta efter den gröna skylten</div>
+
             </div>
           </div>
           <div className="rounded-xl bg-card border border-border p-3 text-sm">
