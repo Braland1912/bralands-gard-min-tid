@@ -1,4 +1,4 @@
-import { Flame, Phone, MapPin, AlertTriangle, Users, ShieldCheck, Stethoscope } from "lucide-react";
+import { Flame, Phone, MapPin, AlertTriangle, ShieldCheck, Stethoscope, Flag } from "lucide-react";
 
 
 const Emergency = () => {
@@ -64,20 +64,25 @@ const Emergency = () => {
         </section>
 
         {/* Återsamling */}
-        <section className="rounded-2xl border border-border bg-card p-4 flex items-start gap-3">
-          <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <Users className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Återsamlingsplats
+        <section className="rounded-2xl border-2 border-emerald-600 bg-emerald-600/5 p-5 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+              <Flag className="h-6 w-6" />
             </div>
-            <div className="font-semibold text-foreground">Fotbollsplanen vid Servicehuset</div>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                Återsamlingsplats
+              </div>
+              <div className="font-bold text-foreground">Fotbollsplanen vid Servicehuset</div>
+            </div>
+          </div>
+          <div className="rounded-xl bg-card border border-border p-3 text-sm">
+            <p className="text-foreground">
               Hit går alla – både gäster och personal. Räkna av och håll koll på vilka som är incheckade.
             </p>
           </div>
         </section>
+
 
         {/* Brandredskap */}
         <section className="space-y-3">
