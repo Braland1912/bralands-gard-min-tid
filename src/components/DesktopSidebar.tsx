@@ -17,6 +17,7 @@ import {
   Tags,
   Building2,
   LogIn,
+  Flame,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -44,6 +45,7 @@ const memberItems: NavItem[] = [
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
+  { id: "emergency", label: "Brand & nödläge", icon: Flame, path: "/emergency", matchPath: "/emergency" },
 ];
 
 const adminItems: NavItem[] = [
@@ -59,6 +61,7 @@ const adminItems: NavItem[] = [
   { id: "lon", label: "Löner", icon: DollarSign, dashboardTab: "lon", matchTab: "lon" },
   { id: "versioner", label: "Versioner", icon: GitBranch, dashboardTab: "versioner", matchTab: "versioner" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
+  { id: "emergency", label: "Brand & nödläge", icon: Flame, path: "/emergency", matchPath: "/emergency" },
 ];
 
 const DesktopSidebar = () => {
@@ -140,6 +143,7 @@ const DesktopSidebar = () => {
     if (item.id === "kvallsrundan") return location.pathname === "/evening-round";
     if (item.id === "lodge") return location.pathname === "/lodge";
     if (item.id === "hjalp") return location.pathname.startsWith("/help") || location.pathname.startsWith("/evening-round/help");
+    if (item.id === "emergency") return location.pathname === "/emergency";
     return false;
   };
 

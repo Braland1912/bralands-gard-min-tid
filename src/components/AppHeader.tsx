@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2, ListChecks } from "lucide-react";
+import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2, ListChecks, Flame } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
 
@@ -63,6 +63,7 @@ const AppHeader = () => {
     ...baseNav,
     ...(worker?.can_see_lodge ? [{ label: "Uthyrning", icon: Building2, path: "/lodge" }] : []),
     { label: "Hjälp", icon: LifeBuoy, path: "/help" },
+    { label: "Brand & nödläge", icon: Flame, path: "/emergency" },
   ];
 
   return (
