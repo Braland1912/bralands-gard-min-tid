@@ -214,7 +214,7 @@ const Emergency = () => {
         </footer>
       </div>
 
-      <MemberMobileBottomNav />
+      <MemberMobileBottomNav active={"hem" as any} />
     </div>
   );
 };
