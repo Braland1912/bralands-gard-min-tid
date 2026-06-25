@@ -21,6 +21,7 @@ import MobileMenuTest from "./pages/MobileMenuTest";
 import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 import Lodge from "./pages/Lodge";
 import TodayTasks from "./pages/TodayTasks";
+import Emergency from "./pages/Emergency";
 
 
 import NotFound from "./pages/NotFound";
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/help" element={<Help />} />
           <Route path="/lodge" element={<Lodge />} />
           <Route path="/today-tasks" element={<TodayTasks />} />
+          <Route path="/emergency" element={<Emergency />} />
           <Route path="/admin/checklists" element={
             <ProtectedRoute>
               <AdminChecklists />
