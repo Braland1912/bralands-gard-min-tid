@@ -1,4 +1,5 @@
-import { Flame, Phone, MapPin, AlertTriangle, ShieldCheck, Stethoscope, Flag } from "lucide-react";
+import { Flame, Phone, MapPin, AlertTriangle, ShieldCheck, Stethoscope } from "lucide-react";
+import AssemblyPointIcon from "@/components/icons/AssemblyPointIcon";
 
 
 const Emergency = () => {
@@ -66,14 +67,15 @@ const Emergency = () => {
         {/* Återsamling */}
         <section className="rounded-2xl border-2 border-emerald-600 bg-emerald-600/5 p-5 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
-              <Flag className="h-6 w-6" />
+            <div className="h-14 w-14 shrink-0 rounded-xl bg-emerald-600 text-white flex items-center justify-center p-1.5">
+              <AssemblyPointIcon className="h-full w-full" />
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
                 Återsamlingsplats
               </div>
               <div className="font-bold text-foreground">Fotbollsplanen vid Servicehuset</div>
+              <div className="text-xs text-muted-foreground mt-0.5">Leta efter den gröna skylten</div>
             </div>
           </div>
           <div className="rounded-xl bg-card border border-border p-3 text-sm">
@@ -82,6 +84,7 @@ const Emergency = () => {
             </p>
           </div>
         </section>
+
 
 
         {/* Brandredskap */}
