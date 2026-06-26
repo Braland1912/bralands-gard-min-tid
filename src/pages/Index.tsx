@@ -195,6 +195,26 @@ const Index = () => {
     enabled: !!worker,
   });
 
+  // Today's break log (all breaks for this worker today, across entries)
+  const { data: todayBreaks = [] } = useQuery({
+    queryKey: ["my-today-breaks", worker?.id],
+    queryFn: async () => {
+      if (!worker) return [];
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+      const { data, error } = await (supabase as any)
+        .from("activity_logs")
+        .select("id, started_at, ended_at, category_label, is_break")
+        .eq("worker_id", worker.id)
+        .gte("started_at", startOfDay)
+        .order("started_at", { ascending: true });
+      if (error) throw error;
+      return ((data || []) as any[]).filter(isBreakLog);
+    },
+    enabled: !!worker,
+    refetchInterval: 30000,
+  });
+
   // Check for forgotten clock-out (previous day)
   const forgottenEntry = activeEntry && activeEntry.clock_in
     ? new Date(activeEntry.clock_in).toDateString() !== new Date().toDateString()
