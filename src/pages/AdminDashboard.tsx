@@ -96,6 +96,10 @@ const AdminDashboard = () => {
       navigate("/emergency");
       return;
     }
+    if (tabId === "lodge") {
+      navigate("/lodge");
+      return;
+    }
     setActiveTab(tabId);
     // Sync URL state so the desktop sidebar reflects the change
     navigate("/admin/dashboard", { replace: true, state: { tab: tabId } });
