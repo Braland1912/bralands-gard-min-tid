@@ -44,6 +44,8 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline, showTasks = true }: P
   const switchTask = useSwitchTask();
   const updateChecklist = useUpdateChecklistState();
   const updateNote = useUpdateActivityNote();
+  const closeOpen = useCloseOpenActivityLog();
+  const qc = useQueryClient();
 
   const [nowMs, setNowMs] = useState(() => Date.now());
   const noteInputRef = useRef<HTMLInputElement | null>(null);
