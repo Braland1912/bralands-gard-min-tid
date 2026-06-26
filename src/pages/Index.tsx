@@ -162,22 +162,34 @@ const Index = () => {
     refetchInterval: 15000,
   });
 
-  // Today's completed hours
+  // Today's completed hours (subtracting break time from activity_logs)
   const { data: todayHours = 0 } = useQuery({
     queryKey: ["my-today-hours", worker?.id],
     queryFn: async () => {
       if (!worker) return 0;
       const today = new Date();
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
-      const { data, error } = await supabase
+      const { data: entries, error } = await supabase
         .from("time_entries")
-        .select("clock_in, clock_out")
+        .select("id, clock_in, clock_out")
         .eq("worker_id", worker.id)
         .gte("clock_in", startOfDay)
         .not("clock_out", "is", null);
       if (error) throw error;
-      return (data || []).reduce((sum, e) => {
-        return sum + (new Date(e.clock_out!).getTime() - new Date(e.clock_in!).getTime()) / 3600000;
+      const ids = (entries || []).map((e) => e.id);
+      let breaksByEntry: Record<string, BreakInterval[]> = {};
+      if (ids.length > 0) {
+        const { data: logs } = await (supabase as any)
+          .from("activity_logs")
+          .select("time_entry_id, started_at, ended_at, category_label")
+          .in("time_entry_id", ids);
+        for (const l of (logs || []) as any[]) {
+          if (!isBreakLog(l)) continue;
+          (breaksByEntry[l.time_entry_id] ||= []).push(l);
+        }
+      }
+      return (entries || []).reduce((sum, e) => {
+        return sum + calcWorkedMinutes(e.clock_in!, e.clock_out!, breaksByEntry[e.id] || []) / 60;
       }, 0);
     },
     enabled: !!worker,
