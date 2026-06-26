@@ -207,16 +207,27 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline, showTasks = true }: P
             </p>
             <Button
               type="button"
-              disabled={!isOnline || switchTask.isPending || breakActive}
-              onClick={() => handleChipClick(breakCategory)}
+              disabled={!isOnline || switchTask.isPending || closeOpen.isPending}
+              onClick={async () => {
+                if (breakActive) {
+                  try {
+                    await closeOpen.mutateAsync(workerId);
+                    await qc.invalidateQueries({ queryKey: ["activity-logs", timeEntryId] });
+                  } catch (e: any) {
+                    toast.error("Kunde inte avsluta rast", { description: e?.message });
+                  }
+                } else {
+                  handleChipClick(breakCategory);
+                }
+              }}
               className={`min-h-12 px-4 py-3 rounded-xl text-sm font-medium gap-2 border ${
                 breakActive
-                  ? "bg-amber-500 hover:bg-amber-500 text-white border-amber-500 shadow-sm"
+                  ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-sm"
                   : "bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-200"
               }`}
             >
               <Coffee className="h-4 w-4" />
-              {breakActive ? "På rast" : "Rast"}
+              {breakActive ? "Avsluta rast" : "Rast"}
             </Button>
           </div>
         );
