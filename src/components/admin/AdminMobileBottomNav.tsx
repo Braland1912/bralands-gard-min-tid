@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Calendar, Clock, AlertTriangle, Menu, Users, ListChecks, Link2, DollarSign, LogOut, Moon, GitBranch } from "lucide-react";
+import { LayoutDashboard, Calendar, Clock, AlertTriangle, Menu, Users, ListChecks, Link2, DollarSign, LogOut, Moon, GitBranch, Flame } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
