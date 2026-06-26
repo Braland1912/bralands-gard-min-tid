@@ -131,6 +131,10 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline, showTasks = true }: P
         currentOpenId: openLog?.id ?? null,
       },
       {
+        onSuccess: () => {
+          qc.invalidateQueries({ queryKey: ["my-today-breaks"] });
+          qc.invalidateQueries({ queryKey: ["my-today-hours"] });
+        },
         onError: (e: any) => {
           toast.error("Kunde inte byta uppgift", { description: e?.message });
         },
