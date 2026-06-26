@@ -28,6 +28,7 @@ const moreTabs = [
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
   { id: "versioner", label: "Versioner", icon: GitBranch },
+  { id: "lodge", label: "Uthyrning", icon: Building2 },
   { id: "emergency", label: "Brand & nödläge", icon: Flame },
 ];
 
