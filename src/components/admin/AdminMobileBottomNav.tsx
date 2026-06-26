@@ -97,6 +97,10 @@ const AdminMobileBottomNav = ({ active }: Props) => {
       navigate("/evening-round");
       return;
     }
+    if (id === "emergency") {
+      navigate("/emergency");
+      return;
+    }
     goToDashboard(id);
   };
 
