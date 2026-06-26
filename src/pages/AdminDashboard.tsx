@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon, GitBranch, Tags, Flame } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon, GitBranch, Tags, Flame, Building2 } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
