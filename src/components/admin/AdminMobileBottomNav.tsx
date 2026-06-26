@@ -102,6 +102,10 @@ const AdminMobileBottomNav = ({ active }: Props) => {
       navigate("/emergency");
       return;
     }
+    if (id === "lodge") {
+      navigate("/lodge");
+      return;
+    }
     goToDashboard(id);
   };
 
