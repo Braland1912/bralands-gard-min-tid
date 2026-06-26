@@ -456,6 +456,43 @@ const Index = () => {
               </p>
             </div>
 
+            {/* Today's break log */}
+            {todayBreaks.length > 0 && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 space-y-2">
+                <div className="flex items-center gap-1.5 text-amber-800">
+                  <Coffee className="h-3.5 w-3.5" />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Raster idag</span>
+                </div>
+                <ul className="space-y-1">
+                  {todayBreaks.map((b: any) => {
+                    const start = new Date(b.started_at);
+                    const end = b.ended_at ? new Date(b.ended_at) : null;
+                    const mins = Math.max(
+                      0,
+                      Math.round(((end ?? new Date()).getTime() - start.getTime()) / 60000),
+                    );
+                    const fmt = (d: Date) =>
+                      d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+                    return (
+                      <li
+                        key={b.id}
+                        className="flex items-center justify-between text-sm text-amber-900 tabular-nums"
+                      >
+                        <span>
+                          {fmt(start)} – {end ? fmt(end) : <span className="italic">pågår</span>}
+                        </span>
+                        <span className="text-xs font-medium">{mins} min</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="text-[11px] text-amber-700">
+                  Total rast-tid dras av från arbetstid.
+                </p>
+              </div>
+            )}
+
+
 
             {/* Checklist reminder banner — shown while clocked in if there are unchecked items today */}
             {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (
