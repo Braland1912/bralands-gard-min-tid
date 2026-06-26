@@ -120,6 +120,10 @@ const Index = () => {
   const [clockOutState, setClockOutState] = useState<ClockState>("idle");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [confirmClockOutOpen, setConfirmClockOutOpen] = useState(false);
+  const [editingBreak, setEditingBreak] = useState<any | null>(null);
+  const [editStart, setEditStart] = useState("");
+  const [editEnd, setEditEnd] = useState("");
+  const [savingBreak, setSavingBreak] = useState(false);
   
   const { data: checklistStatus } = useTodayChecklistStatus(user?.id);
   const closeOpenActivityLog = useCloseOpenActivityLog();
