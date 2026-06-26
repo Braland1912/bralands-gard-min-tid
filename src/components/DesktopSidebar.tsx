@@ -60,6 +60,7 @@ const adminItems: NavItem[] = [
   { id: "bjudin", label: "Bjud in", icon: Link2, dashboardTab: "bjudin", matchTab: "bjudin" },
   { id: "lon", label: "Löner", icon: DollarSign, dashboardTab: "lon", matchTab: "lon" },
   { id: "versioner", label: "Versioner", icon: GitBranch, dashboardTab: "versioner", matchTab: "versioner" },
+  { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
   { id: "emergency", label: "Brand & nödläge", icon: Flame, path: "/emergency", matchPath: "/emergency" },
 ];
