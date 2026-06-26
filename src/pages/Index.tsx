@@ -636,6 +636,116 @@ const Index = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={!!editingBreak}
+        onOpenChange={(o) => {
+          if (savingBreak) return;
+          if (!o) setEditingBreak(null);
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Redigera rast</DialogTitle>
+            <DialogDescription>Justera start- och sluttid för rasten.</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1">
+              <span className="text-xs font-medium text-muted-foreground">Start</span>
+              <Input
+                type="time"
+                value={editStart}
+                onChange={(e) => setEditStart(e.target.value)}
+                className="input-datetime"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="text-xs font-medium text-muted-foreground">Slut</span>
+              <Input
+                type="time"
+                value={editEnd}
+                onChange={(e) => setEditEnd(e.target.value)}
+                className="input-datetime"
+              />
+            </label>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-2 flex-row justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+              disabled={savingBreak}
+              onClick={async () => {
+                if (!editingBreak) return;
+                setSavingBreak(true);
+                try {
+                  const { error } = await (supabase as any)
+                    .from("activity_logs")
+                    .delete()
+                    .eq("id", editingBreak.id);
+                  if (error) throw error;
+                  toast({ title: "Rast borttagen" });
+                  setEditingBreak(null);
+                  await queryClient.invalidateQueries({ queryKey: ["my-today-breaks"] });
+                  await queryClient.invalidateQueries({ queryKey: ["activity-logs"] });
+                  await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
+                } catch (e: any) {
+                  toast({ title: "Kunde inte ta bort", description: e.message, variant: "destructive" });
+                } finally {
+                  setSavingBreak(false);
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Ta bort
+            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={() => setEditingBreak(null)} disabled={savingBreak}>
+                Avbryt
+              </Button>
+              <Button
+                type="button"
+                disabled={savingBreak || !editStart || !editEnd}
+                onClick={async () => {
+                  if (!editingBreak) return;
+                  const base = new Date(editingBreak.started_at);
+                  const buildDate = (hm: string) => {
+                    const [h, m] = hm.split(":").map(Number);
+                    const d = new Date(base);
+                    d.setHours(h, m, 0, 0);
+                    return d;
+                  };
+                  const s = buildDate(editStart);
+                  let e = buildDate(editEnd);
+                  if (e.getTime() <= s.getTime()) {
+                    toast({ title: "Sluttid måste vara efter starttid", variant: "destructive" });
+                    return;
+                  }
+                  setSavingBreak(true);
+                  try {
+                    const { error } = await (supabase as any)
+                      .from("activity_logs")
+                      .update({ started_at: s.toISOString(), ended_at: e.toISOString() })
+                      .eq("id", editingBreak.id);
+                    if (error) throw error;
+                    toast({ title: "Rast uppdaterad" });
+                    setEditingBreak(null);
+                    await queryClient.invalidateQueries({ queryKey: ["my-today-breaks"] });
+                    await queryClient.invalidateQueries({ queryKey: ["activity-logs"] });
+                    await queryClient.invalidateQueries({ queryKey: ["my-today-hours"] });
+                  } catch (err: any) {
+                    toast({ title: "Kunde inte spara", description: err.message, variant: "destructive" });
+                  } finally {
+                    setSavingBreak(false);
+                  }
+                }}
+              >
+                Spara
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <MemberMobileBottomNav active="hem" />
     </div>
   );
