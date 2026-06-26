@@ -217,6 +217,8 @@ const ActivityLogger = ({ timeEntryId, workerId, isOnline, showTasks = true }: P
                   try {
                     await closeOpen.mutateAsync(workerId);
                     await qc.invalidateQueries({ queryKey: ["activity-logs", timeEntryId] });
+                    qc.invalidateQueries({ queryKey: ["my-today-breaks"] });
+                    qc.invalidateQueries({ queryKey: ["my-today-hours"] });
                   } catch (e: any) {
                     toast.error("Kunde inte avsluta rast", { description: e?.message });
                   }
