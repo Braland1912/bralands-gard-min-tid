@@ -11,10 +11,12 @@ import {
   useSwitchTask,
   useUpdateChecklistState,
   useUpdateActivityNote,
+  useCloseOpenActivityLog,
   type TaskCategory,
   type ActivityLog,
   type ChecklistStateItem,
 } from "@/hooks/useActivityLog";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   timeEntryId: string;
