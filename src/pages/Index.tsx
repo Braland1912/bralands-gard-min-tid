@@ -481,12 +481,28 @@ const Index = () => {
                     return (
                       <li
                         key={b.id}
-                        className="flex items-center justify-between text-sm text-amber-900 tabular-nums"
+                        className="flex items-center justify-between gap-2 text-sm text-amber-900 tabular-nums"
                       >
-                        <span>
+                        <span className="flex-1">
                           {fmt(start)} – {end ? fmt(end) : <span className="italic">pågår</span>}
                         </span>
                         <span className="text-xs font-medium">{mins} min</span>
+                        {end && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingBreak(b);
+                              const toHM = (d: Date) =>
+                                `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+                              setEditStart(toHM(start));
+                              setEditEnd(toHM(end));
+                            }}
+                            className="p-1 -m-1 text-amber-700 hover:text-amber-900"
+                            aria-label="Redigera rast"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                       </li>
                     );
                   })}
