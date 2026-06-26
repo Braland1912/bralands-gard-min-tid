@@ -1,1 +1,1 @@
-Ny sida "Brand & nödläge" finns nu sist i menyn. Där hittar du nödnummer, var brandsläckare och brandfilt finns, och återsamlingsplats. Information finns även på engelska för utländska gäster.
+Dina raster för dagen visas nu direkt på stämpla-sidan, även när de är avslutade. Tryck på pennan för att justera tider eller ta bort en rast. Total arbetstid uppdateras automatiskt.
