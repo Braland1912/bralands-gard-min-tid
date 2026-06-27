@@ -4,9 +4,9 @@
  */
 export const PLACE_LABEL_MAX = 60;
 
-/** Standardplatser för Kvällsrundan: 1-21 samt E1-E6. */
+/** Standardplatser för Kvällsrundan: 1-31 samt E1-E6. */
 export const STANDARD_PLACES: string[] = [
-  ...Array.from({ length: 21 }, (_, i) => String(i + 1)),
+  ...Array.from({ length: 31 }, (_, i) => String(i + 1)),
   ...Array.from({ length: 6 }, (_, i) => `E${i + 1}`),
 ];
 
