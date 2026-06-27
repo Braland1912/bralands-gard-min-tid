@@ -1,1 +1,1 @@
-Dina raster för dagen visas nu direkt på stämpla-sidan, även när de är avslutade. Tryck på pennan för att justera tider eller ta bort en rast. Total arbetstid uppdateras automatiskt.
+Alla medarbetare kan nu skapa och ändra tillfälliga platser på kvällsrundan — även om rundan är tilldelad någon annan. Den här uppdateringen är obligatorisk och startar automatiskt.
