@@ -1,1 +1,1 @@
-Alla medarbetare kan nu skapa och ändra tillfälliga platser på kvällsrundan — även om rundan är tilldelad någon annan. Den här uppdateringen är obligatorisk och startar automatiskt.
+Tvingande uppdatering – appen laddar om automatiskt så alla kör senaste versionen.
