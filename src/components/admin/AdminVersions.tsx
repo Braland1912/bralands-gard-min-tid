@@ -97,6 +97,7 @@ const AdminVersions = () => {
   }, [releases, workerStatuses]);
 
   const totalWorkers = workerStatuses.length;
+  const adminOnLatest = APP_VERSION === latestVersion;
 
   return (
     <div className="space-y-6">
@@ -107,12 +108,36 @@ const AdminVersions = () => {
         </p>
       </div>
 
+      {/* Din (admin) version */}
+      <Card className="p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold">Din version (admin)</h3>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              v{APP_VERSION} • senaste publicerade v{latestVersion}
+            </p>
+          </div>
+          {adminOnLatest ? (
+            <Badge variant="secondary" className="bg-emerald-100 text-emerald-900 hover:bg-emerald-100 border-0 shrink-0">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Senaste
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="bg-amber-100 text-amber-900 hover:bg-amber-100 border-0 shrink-0">
+              <AlertCircle className="h-3 w-3 mr-1" />
+              Äldre version
+            </Badge>
+          )}
+        </div>
+      </Card>
+
       {/* Aktiva medarbetares versioner */}
       <Card className="p-5">
         <div className="flex items-baseline justify-between mb-3">
           <h3 className="text-base font-semibold">Medarbetarnas versioner</h3>
           <span className="text-xs text-muted-foreground">{totalWorkers} registrerade enheter</span>
         </div>
+
         {workerStatuses.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
             Ingen aktivitet loggad ännu. Status registreras automatiskt när medarbetare öppnar appen.
