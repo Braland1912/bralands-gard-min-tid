@@ -397,8 +397,26 @@ const Lodge = () => {
             });
             const departures = dayEvents.filter((e) => roleForDay(e, openDay) === "end");
             const ongoing = dayEvents.filter((e) => roleForDay(e, openDay) === "middle");
-            const busyUnits = new Set(dayEvents.map((e) => e.unit));
-            const potentialUnits = UNIT_ORDER.filter((u) => !busyUnits.has(u));
+            // "Kan tillkomma" endast för framtida dagar och endast om natten
+            // dagen innan är ledig (avfärd på D-1 räknas som ledig natt).
+            const todayRef = new Date();
+            todayRef.setHours(0, 0, 0, 0);
+            const openRef = new Date(openDay);
+            openRef.setHours(0, 0, 0, 0);
+            const prev = addDays(openRef, -1);
+            const ongoingUnits = new Set(ongoing.map((e) => e.unit));
+            const potentialUnits = openRef > todayRef
+              ? UNIT_ORDER.filter((u) => {
+                  if (ongoingUnits.has(u)) return false;
+                  for (const e of events) {
+                    if (e.unit !== u) continue;
+                    const s = parseISO(e.start);
+                    const en = parseISO(e.end); // exklusiv
+                    if (s <= prev && en > prev) return false;
+                  }
+                  return true;
+                })
+              : [];
 
             const renderCard = (e: LodgeEvent, badge?: { text: string; cls: string }) => {
               const s = styleFor(e.unit);
