@@ -85,10 +85,31 @@ export const useLodgeEvents = () =>
     refetchOnWindowFocus: false,
   });
 
+/**
+ * Är natten D-1 → D ledig för enheten?
+ * Den är upptagen om något event har en gäst som bor över natten D-1
+ * (dvs start <= D-1 och end > D-1, eftersom ICS-end är exklusiv).
+ * Avfärd morgonen D-1 räknas INTE som upptaget (end = D-1).
+ */
+const isNightBeforeFree = (events: LodgeEvent[], unit: string, day: Date): boolean => {
+  const prev = addDays(day, -1);
+  prev.setHours(0, 0, 0, 0);
+  for (const e of events) {
+    if (e.unit !== unit) continue;
+    const start = parseISO(e.start);
+    const end = parseISO(e.end); // exklusiv
+    if (start <= prev && end > prev) return false;
+  }
+  return true;
+};
+
 /** Returnerar enheter med olika roller för en specifik dag. */
-export const splitByRole = (events: LodgeEvent[], day: Date) => {
+export const splitByRole = (events: LodgeEvent[], day: Date, today?: Date) => {
   const startOfDay = new Date(day);
   startOfDay.setHours(0, 0, 0, 0);
+  const ref = today ? new Date(today) : new Date();
+  ref.setHours(0, 0, 0, 0);
+
   const dayEvents = events.filter((e) => roleForDay(e, startOfDay) !== null);
   const arrivals = dayEvents.filter((e) => {
     const r = roleForDay(e, startOfDay);
@@ -96,8 +117,21 @@ export const splitByRole = (events: LodgeEvent[], day: Date) => {
   });
   const departures = dayEvents.filter((e) => roleForDay(e, startOfDay) === "end");
   const ongoing = dayEvents.filter((e) => roleForDay(e, startOfDay) === "middle");
-  const busyUnits = new Set(dayEvents.map((e) => e.unit));
-  const potentialUnits = UNIT_ORDER.filter((u) => !busyUnits.has(u));
+
+  // "Kan tillkomma" gäller endast framtida dagar — på dagens datum
+  // är kvällsrundan dagen innan redan låst.
+  // En enhet kan ta en sen bokning D-1 → D om natten D-1 är ledig
+  // (även om enheten har Ankomst på D, eftersom den sena gästen
+  // checkar ut innan den nya checkar in).
+  let potentialUnits: LodgeUnit[] = [];
+  if (startOfDay > ref) {
+    const ongoingUnits = new Set(ongoing.map((e) => e.unit));
+    potentialUnits = UNIT_ORDER.filter((u) => {
+      if (ongoingUnits.has(u)) return false; // gäst bor över hela D
+      return isNightBeforeFree(events, u, startOfDay);
+    });
+  }
+
   return { arrivals, departures, ongoing, potentialUnits, dayEvents };
 };
 
