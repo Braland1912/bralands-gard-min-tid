@@ -41,20 +41,20 @@ export function useSyncLodgeChecklists(
         // Befintliga låsta lodge-checklistor på passet
         const { data: existing } = await supabase
           .from("shift_checklists")
-          .select("id, lodge_unit")
+          .select("id, lodge_unit, name")
           .eq("shift_id", shiftId)
           .not("lodge_unit", "is", null);
 
-        const existingMap = new Map<string, string>(); // unit -> list id
+        const existingPairs = new Set<string>(); // unit|name
         for (const row of existing ?? []) {
-          if (row.lodge_unit) existingMap.set(row.lodge_unit, row.id);
+          if (row.lodge_unit) existingPairs.add(`${row.lodge_unit}|${row.name}`);
         }
 
         const toRemove = (existing ?? [])
           .filter((r) => !r.lodge_unit || !wantedUnits.includes(r.lodge_unit as LodgeUnit))
           .map((r) => r.id);
 
-        const toAdd = wantedUnits.filter((u) => !existingMap.has(u));
+        const toAdd = wantedUnits;
 
         let changed = false;
 
