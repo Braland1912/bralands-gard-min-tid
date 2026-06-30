@@ -203,14 +203,13 @@ const AdminChecklists = () => {
     reorderTemplates.mutate(orderedIds);
   };
 
-  const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
+  const openEdit = (tpl: Template, items: Item[]) => {
     skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
     setEditDescription((tpl.description ?? "") as string);
     setEditGroupId((tpl.group_id ?? null) as string | null);
     setEditItems(items);
-    setEditShiftTypes(shiftTypes);
     setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
     setShowDescField(!!(tpl.description && (tpl.description as string).trim()));
@@ -220,7 +219,7 @@ const AdminChecklists = () => {
 
   const handleOpenExisting = (tpl: Template) => {
     const items = allItems.filter((i) => i.template_id === tpl.id);
-    openEdit(tpl, items, shiftTypesFor(tpl.id));
+    openEdit(tpl, items);
   };
 
   const handleAddItem = () => {
