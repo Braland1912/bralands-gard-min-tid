@@ -522,7 +522,8 @@ const AdminChecklists = () => {
         ) : (
           <div className="space-y-5">
             {groupedTemplates.map((section) => {
-              const collapsed = !!collapsedGroups[section.id ?? "_none"];
+              const key = section.id ?? "_none";
+              const collapsed = collapsedGroups[key] === undefined ? true : collapsedGroups[key];
               return (
                 <section key={section.id ?? "_none"} className="space-y-2">
                   <button
