@@ -88,7 +88,17 @@ const AdminChecklists = () => {
   const [showDescField, setShowDescField] = useState(false);
   const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
-  const [groupFilter, setGroupFilter] = useState<string | "all">("all");
+  const [groupFilter, setGroupFilter] = useState<Set<string>>(new Set());
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const toggleGroupFilter = (id: string) => {
+    setGroupFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: groups = [], isLoading: groupsLoading } = useChecklistGroups();
   const { data: groupShiftLinks = [], isLoading: groupShiftLinksLoading } = useChecklistGroupShiftTypes();
