@@ -346,42 +346,68 @@ export const useEveningRoundSummary = (
 };
 
 /* -------------------------------------------------------------------------- */
-/*  Dynamisk checklista — hämtar items från en checklist_template (mall).     */
-/*  Vald mall pekas ut av app_settings.evening_round_checklist_template_id    */
+/*  Dynamisk checklista — alla mallar i den grupp som är markerad som          */
+/*  "kvällsrundans grupp" (checklist_template_groups.is_evening_round = true). */
 /* -------------------------------------------------------------------------- */
 
 export interface EveningChecklistItem {
   id: string;
   text: string;
   sort_order: number;
+  description: string | null;
+  template_id: string;
+  template_name: string;
+  template_description: string | null;
+  template_sort: number;
 }
-
-export const EVENING_CHECKLIST_SETTING_KEY = "evening_round_checklist_template_id";
 
 export const useEveningRoundChecklistItems = () => {
   return useQuery({
     queryKey: ["evening-round-checklist-items"],
     queryFn: async (): Promise<EveningChecklistItem[]> => {
-      const { data: setting } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", EVENING_CHECKLIST_SETTING_KEY)
+      // Hitta gruppen som är markerad som kvällsrundans grupp
+      const { data: group } = await supabase
+        .from("checklist_template_groups" as any)
+        .select("id")
+        .eq("is_evening_round", true)
         .maybeSingle();
-      const raw = setting?.value as unknown;
-      const id =
-        typeof raw === "string"
-          ? raw
-          : raw && typeof raw === "object" && "id" in (raw as Record<string, unknown>)
-            ? String((raw as Record<string, unknown>).id)
-            : null;
-      if (!id) return [];
-      const { data, error } = await supabase
+      const groupId = (group as any)?.id as string | undefined;
+      if (!groupId) return [];
+
+      // Alla mallar i den gruppen
+      const { data: templates, error: tErr } = await supabase
+        .from("checklist_templates")
+        .select("id, name, description, sort_order" as any)
+        .eq("group_id", groupId)
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+      if (tErr) throw tErr;
+      const tpls = (templates ?? []) as any[];
+      if (tpls.length === 0) return [];
+
+      const tplIds = tpls.map((t) => t.id);
+      const { data: items, error: iErr } = await supabase
         .from("checklist_template_items")
-        .select("id, text, sort_order")
-        .eq("template_id", id)
+        .select("id, text, sort_order, description, template_id" as any)
+        .in("template_id", tplIds)
         .order("sort_order", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as EveningChecklistItem[];
+      if (iErr) throw iErr;
+
+      const tplMap = new Map<string, any>(tpls.map((t, idx) => [t.id, { ...t, _idx: idx }]));
+      return ((items ?? []) as any[]).map((it) => {
+        const t = tplMap.get(it.template_id);
+        return {
+          id: it.id,
+          text: it.text,
+          sort_order: it.sort_order ?? 0,
+          description: it.description ?? null,
+          template_id: it.template_id,
+          template_name: t?.name ?? "",
+          template_description: t?.description ?? null,
+          template_sort: t?._idx ?? 0,
+        };
+      });
     },
   });
 };
+

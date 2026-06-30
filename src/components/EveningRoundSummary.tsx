@@ -273,11 +273,17 @@ const EveningRoundSummaryForm = ({
       )}
 
       {showChecklist && (() => {
-        // Bygg renderingslista: aktiva items från mallen, plus ev. legacy-nycklar
-        // som redan finns i sparad checklist (för att inte tappa historik).
+        // Bygg renderingslista: aktiva items från mallarna i kvällsrundans grupp,
+        // plus ev. legacy-nycklar som redan finns i sparad checklist (för att
+        // inte tappa historik).
         const itemEntries = checklistItems.map((it) => ({
           id: it.id,
           label: it.text,
+          description: it.description,
+          template_id: it.template_id,
+          template_name: it.template_name,
+          template_description: it.template_description,
+          template_sort: it.template_sort,
         }));
         const knownIds = new Set(itemEntries.map((i) => i.id));
         const legacyEntries = (Object.keys(checklist) as string[])
@@ -285,6 +291,11 @@ const EveningRoundSummaryForm = ({
           .map((k) => ({
             id: k,
             label: LEGACY_CHECKLIST_LABELS[k as LegacyChecklistKey],
+            description: null as string | null,
+            template_id: "_legacy",
+            template_name: "Tidigare punkter",
+            template_description: null as string | null,
+            template_sort: 9999,
           }));
         const renderItems = [...itemEntries, ...legacyEntries];
 
@@ -292,6 +303,30 @@ const EveningRoundSummaryForm = ({
         const done = renderItems.filter((i) => checklist[i.id]).length;
         const allDone = done === total && total > 0;
         const progress = total > 0 ? (done / total) * 100 : 0;
+
+        // Gruppera per mall
+        const sections = new Map<
+          string,
+          {
+            name: string;
+            description: string | null;
+            sort: number;
+            items: typeof renderItems;
+          }
+        >();
+        for (const it of renderItems) {
+          const existing = sections.get(it.template_id);
+          if (existing) existing.items.push(it);
+          else
+            sections.set(it.template_id, {
+              name: it.template_name,
+              description: it.template_description,
+              sort: it.template_sort,
+              items: [it],
+            });
+        }
+        const sectionList = Array.from(sections.values()).sort((a, b) => a.sort - b.sort);
+
         return (
         <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-4">
           <div className="space-y-2">
@@ -325,53 +360,84 @@ const EveningRoundSummaryForm = ({
           </div>
           {renderItems.length === 0 ? (
             <p className="text-sm text-muted-foreground italic">
-              Ingen checklista vald än. Be en admin koppla en mall under
-              inställningar.
+              Ingen checklista vald än. Be en admin markera en grupp som
+              "Kvällsrundans checklista" under Checklistor → Hantera grupper.
             </p>
           ) : (
-          <ul className="space-y-2">
-            {renderItems.map((item) => {
-              const checked = !!checklist[item.id];
-              return (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => toggleItem(item.id)}
-                    aria-pressed={checked}
-                    className={`group w-full text-left rounded-xl border p-4 min-h-[64px] flex items-center gap-3.5 transition-all active:scale-[0.99] ${
-                      checked
-                        ? "border-primary/40 bg-primary/5 hover:bg-primary/10"
-                        : "border-border bg-background hover:bg-accent/40 hover:border-border/80"
-                    }`}
-                  >
-                    <span
-                      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-                        checked
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-muted-foreground/30 bg-card text-transparent group-hover:border-muted-foreground/50"
-                      }`}
-                      aria-hidden
-                    >
-                      {checked ? (
-                        <Check className="h-4 w-4" strokeWidth={3} />
-                      ) : (
-                        <Circle className="h-3 w-3 opacity-0" />
-                      )}
-                    </span>
-                    <span
-                      className={`text-[15px] leading-snug transition-colors ${
-                        checked
-                          ? "text-foreground/70 line-through decoration-foreground/30"
-                          : "text-foreground"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+            <div className="space-y-5">
+              {sectionList.map((sec) => {
+                const secDone = sec.items.filter((i) => checklist[i.id]).length;
+                return (
+                  <div key={sec.name} className="space-y-2">
+                    {sectionList.length > 1 && (
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {sec.name}
+                        </h3>
+                        <span className="text-[11px] tabular-nums text-muted-foreground">
+                          {secDone} / {sec.items.length}
+                        </span>
+                      </div>
+                    )}
+                    {sec.description && (
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {sec.description}
+                      </p>
+                    )}
+                    <ul className="space-y-2">
+                      {sec.items.map((item) => {
+                        const checked = !!checklist[item.id];
+                        return (
+                          <li key={item.id}>
+                            <button
+                              type="button"
+                              onClick={() => toggleItem(item.id)}
+                              aria-pressed={checked}
+                              className={`group w-full text-left rounded-xl border p-4 min-h-[64px] flex items-start gap-3.5 transition-all active:scale-[0.99] ${
+                                checked
+                                  ? "border-primary/40 bg-primary/5 hover:bg-primary/10"
+                                  : "border-border bg-background hover:bg-accent/40 hover:border-border/80"
+                              }`}
+                            >
+                              <span
+                                className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+                                  checked
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-muted-foreground/30 bg-card text-transparent group-hover:border-muted-foreground/50"
+                                }`}
+                                aria-hidden
+                              >
+                                {checked ? (
+                                  <Check className="h-4 w-4" strokeWidth={3} />
+                                ) : (
+                                  <Circle className="h-3 w-3 opacity-0" />
+                                )}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <span
+                                  className={`block text-[15px] leading-snug transition-colors ${
+                                    checked
+                                      ? "text-foreground/70 line-through decoration-foreground/30"
+                                      : "text-foreground"
+                                  }`}
+                                >
+                                  {item.label}
+                                </span>
+                                {item.description && (
+                                  <span className="block mt-1 text-xs text-muted-foreground leading-relaxed">
+                                    {item.description}
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </section>
         );
