@@ -37,7 +37,7 @@ import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
-import ChecklistGroupsManager, { useChecklistGroups } from "@/components/ChecklistGroupsManager";
+import ChecklistGroupsManager, { useChecklistGroups, useChecklistGroupShiftTypes } from "@/components/ChecklistGroupsManager";
 
 type Template = {
   id: string;
