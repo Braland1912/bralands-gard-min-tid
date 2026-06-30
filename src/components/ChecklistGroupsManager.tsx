@@ -223,7 +223,7 @@ const ChecklistGroupsManager = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="text-sm truncate">{g.name}</div>
-                      {(labels.length > 0 || g.lodge_unit) && (
+                      {(labels.length > 0 || g.lodge_unit || g.is_evening_round) && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {labels.map((l) => (
                             <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
@@ -231,6 +231,11 @@ const ChecklistGroupsManager = () => {
                           {g.lodge_unit && (
                             <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
                               {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
+                            </span>
+                          )}
+                          {g.is_evening_round && (
+                            <span className="text-[10px] rounded-full bg-primary/15 text-primary px-1.5 py-0.5">
+                              Kvällsrundan
                             </span>
                           )}
                         </div>
