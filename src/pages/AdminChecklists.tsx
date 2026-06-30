@@ -32,7 +32,7 @@ import {
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, rectSortingStrategy } from "@dnd-kit/sortable";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
@@ -511,7 +511,7 @@ const AdminChecklists = () => {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
           </div>
         ) : templates.length === 0 ? (
@@ -580,9 +580,9 @@ const AdminChecklists = () => {
                     >
                       <SortableContext
                         items={section.items.map((t) => t.id)}
-                        strategy={rectSortingStrategy}
+                        strategy={verticalListSortingStrategy}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                           {section.items.map((tpl) => (
                             <SortableItem key={tpl.id} id={tpl.id}>
                               <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
