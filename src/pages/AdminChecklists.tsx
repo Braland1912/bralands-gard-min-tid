@@ -88,6 +88,7 @@ const AdminChecklists = () => {
   const [showDescField, setShowDescField] = useState(false);
   const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+  const [groupFilter, setGroupFilter] = useState<string | "all">("all");
 
   const { data: groups = [] } = useChecklistGroups();
   const { data: groupShiftLinks = [] } = useChecklistGroupShiftTypes();
@@ -429,22 +430,21 @@ const AdminChecklists = () => {
       shift_types?: string[];
     }[] = [];
     for (const g of groups) {
-      const items = byGroup.get(g.id);
-      if (items && items.length > 0) {
-        sections.push({
-          id: g.id,
-          name: g.name,
-          color: g.color,
-          items,
-          lodge_unit: (g as any).lodge_unit ?? null,
-          shift_types: groupShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type),
-        });
-      }
+      const items = byGroup.get(g.id) ?? [];
+      sections.push({
+        id: g.id,
+        name: g.name,
+        color: g.color,
+        items,
+        lodge_unit: (g as any).lodge_unit ?? null,
+        shift_types: groupShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type),
+      });
     }
-    if (noGroup.length > 0) {
-      sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
-    }
-    return sections;
+    sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
+    const filtered = groupFilter === "all"
+      ? sections.filter((s) => s.items.length > 0 || s.id !== null)
+      : sections.filter((s) => (s.id ?? "_none") === groupFilter);
+    return filtered;
   })();
 
   return (
@@ -463,6 +463,52 @@ const AdminChecklists = () => {
             </Button>
           </div>
         </div>
+
+        {groups.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setGroupFilter("all")}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupFilter === "all"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-foreground border-border hover:bg-muted"
+              }`}
+            >
+              Alla
+            </button>
+            {groups.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => setGroupFilter(g.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                  groupFilter === g.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-foreground border-border hover:bg-muted"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: g.color }}
+                  aria-hidden
+                />
+                {g.name}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setGroupFilter("_none")}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupFilter === "_none"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-foreground border-border hover:bg-muted"
+              }`}
+            >
+              Ogrupperade
+            </button>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
