@@ -226,7 +226,7 @@ const AdminChecklists = () => {
     const newId = `tmp-${Date.now()}-${Math.random()}`;
     setEditItems((prev) => [
       ...prev,
-      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length },
+      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length, description: "" },
     ]);
     setNewItemText("");
     // focus next render
@@ -239,6 +239,13 @@ const AdminChecklists = () => {
   const updateItemText = (id: string, text: string) => {
     setEditItems((prev) => prev.map((i) => (i.id === id ? { ...i, text } : i)));
   };
+
+  const updateItemDescription = (id: string, description: string) => {
+    setEditItems((prev) => prev.map((i) => (i.id === id ? { ...i, description } : i)));
+  };
+
+  const toggleItemDesc = (id: string) =>
+    setExpandedItemDesc((p) => ({ ...p, [id]: !p[id] }));
 
   const removeItem = (id: string) => {
     setEditItems((prev) => prev.filter((i) => i.id !== id));
