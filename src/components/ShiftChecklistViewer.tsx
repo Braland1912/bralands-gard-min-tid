@@ -130,16 +130,35 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {NoteBanner}
-      {lists.map((list) => {
+      {grouped.map((g) => (
+        <div key={g.key} className="space-y-2">
+          {g.name && (
+            <div className="flex items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: g.color ?? "hsl(var(--muted-foreground))" }}
+                aria-hidden
+              />
+              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {g.name}
+              </h3>
+            </div>
+          )}
+          <div className="space-y-3">
+            {g.lists.map((list: any) => {
         const total = list.items.length;
-        const done = list.items.filter((i) => i.is_checked).length;
+        const done = list.items.filter((i: any) => i.is_checked).length;
         const pct = total > 0 ? (done / total) * 100 : 0;
         const open = !!openLists[list.id];
         const descOpen = !!openListDesc[list.id];
         return (
-          <div key={list.id} className="space-y-2 rounded-xl border border-border bg-muted/30 p-3">
+          <div
+            key={list.id}
+            className="space-y-2 rounded-xl border bg-muted/30 p-3"
+            style={g.color ? { borderLeft: `3px solid ${g.color}` } : undefined}
+          >
             <div className="flex items-center gap-2 w-full">
               <button
                 type="button"
@@ -182,7 +201,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
             )}
             {open && (
               <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-hidden">
-                {list.items.map((item) => {
+                {list.items.map((item: any) => {
                   const itemDescOpen = !!openItemDesc[item.id];
                   return (
                     <li
@@ -240,7 +259,10 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
             )}
           </div>
         );
-      })}
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
