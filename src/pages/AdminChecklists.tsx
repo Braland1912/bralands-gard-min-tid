@@ -90,8 +90,8 @@ const AdminChecklists = () => {
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const [groupFilter, setGroupFilter] = useState<string | "all">("all");
 
-  const { data: groups = [] } = useChecklistGroups();
-  const { data: groupShiftLinks = [] } = useChecklistGroupShiftTypes();
+  const { data: groups = [], isLoading: groupsLoading } = useChecklistGroups();
+  const { data: groupShiftLinks = [], isLoading: groupShiftLinksLoading } = useChecklistGroupShiftTypes();
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["checklist-templates"],
@@ -510,7 +510,7 @@ const AdminChecklists = () => {
           </div>
         )}
 
-        {isLoading ? (
+        {isLoading || groupsLoading || groupShiftLinksLoading ? (
           <div className="grid grid-cols-1 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
           </div>
