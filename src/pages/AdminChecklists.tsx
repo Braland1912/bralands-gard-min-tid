@@ -156,7 +156,7 @@ const AdminChecklists = () => {
       }
       const { data, error } = await supabase
         .from("checklist_templates")
-        .insert({ name: "Ny mall", sort_order: 0 })
+        .insert({ name: "Ny checklista", sort_order: 0 })
         .select()
         .single();
       if (error) throw error;
@@ -166,7 +166,7 @@ const AdminChecklists = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       openEdit(tpl, [], []);
     },
-    onError: () => toast({ title: "Kunde inte skapa mall", variant: "destructive" }),
+    onError: () => toast({ title: "Kunde inte skapa checklista", variant: "destructive" }),
   });
 
   const reorderTemplates = useMutation({
@@ -276,7 +276,7 @@ const AdminChecklists = () => {
 
   const persistTemplate = async () => {
     if (!editing) return;
-    const name = editName.trim() || "Namnlös mall";
+    const name = editName.trim() || "Namnlös checklista";
     const description = editDescription.trim() ? editDescription.trim() : null;
 
     const { error: nameErr } = await supabase
@@ -361,7 +361,7 @@ const AdminChecklists = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
       setEditing(null);
-      toast({ title: "Mall borttagen" });
+      toast({ title: "Checklista borttagen" });
     },
     onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
   });
@@ -403,12 +403,12 @@ const AdminChecklists = () => {
         items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })),
         linkedTypes,
       );
-      toast({ title: "Mall kopierad", description: "Döp om den och spara." });
+      toast({ title: "Checklista kopierad", description: "Döp om den och spara." });
     },
     onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
   });
 
-  // Gruppera mallar för listvyn
+  // Gruppera checklistor för listvyn
   const groupedTemplates = (() => {
     const byGroup = new Map<string, Template[]>();
     const noGroup: Template[] = [];
@@ -453,13 +453,13 @@ const AdminChecklists = () => {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>
-            <p className="text-xs text-muted-foreground">Mallar för återkommande uppgifter</p>
+            <p className="text-xs text-muted-foreground">Återkommande städ- och rutinuppgifter, grupperade och kopplade till pass</p>
           </div>
           <div className="flex items-center gap-2">
             <ChecklistGroupsManager />
             <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
               <Plus className="h-4 w-4 mr-1.5" />
-              Ny mall
+              Ny checklista
             </Button>
           </div>
         </div>
@@ -517,7 +517,7 @@ const AdminChecklists = () => {
         ) : templates.length === 0 ? (
           <Card className="p-10 text-center">
             <ListChecks className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Inga mallar ännu. Skapa din första mall.</p>
+            <p className="text-sm text-muted-foreground">Inga checklistor ännu. Skapa din första checklista.</p>
           </Card>
         ) : (
           <div className="space-y-5">
@@ -556,7 +556,7 @@ const AdminChecklists = () => {
                         <span
                           key={st}
                           className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${opt.bg} ${opt.border} ${opt.text}`}
-                          title="Alla mallar i gruppen läggs auto på denna passtyp"
+                          title="Alla checklistor i gruppen läggs auto på denna passtyp"
                         >
                           <span className="text-[10px] leading-none">{opt.emoji}</span>
                           {opt.label}
@@ -566,7 +566,7 @@ const AdminChecklists = () => {
                     {section.lodge_unit && (
                       <span
                         className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${styleFor(section.lodge_unit).chip}`}
-                        title="Alla mallar i gruppen läggs auto på dagpass när enheten har avfärd"
+                        title="Alla checklistor i gruppen läggs auto på dagpass när enheten har avfärd"
                       >
                         <Home className="h-2.5 w-2.5" />
                         {UNIT_NUMBER[section.lodge_unit] ?? ""} {section.lodge_unit}
@@ -627,8 +627,8 @@ const AdminChecklists = () => {
                                   }}
                                   disabled={duplicateTemplate.isPending}
                                   className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-                                  aria-label="Kopiera mall"
-                                  title="Kopiera mall"
+                                  aria-label="Kopiera checklista"
+                                  title="Kopiera checklista"
                                 >
                                   <Copy className="h-3.5 w-3.5" />
                                 </Button>
@@ -656,7 +656,7 @@ const AdminChecklists = () => {
         >
           {/* Header */}
           <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border bg-card">
-            <SheetTitle className="text-base font-semibold pr-8">Redigera mall</SheetTitle>
+            <SheetTitle className="text-base font-semibold pr-8">Redigera checklista</SheetTitle>
             <div className="text-xs text-muted-foreground flex items-center gap-1.5 pr-8">
               {autoSaveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Sparar…</>)}
               {autoSaveState === "saved" && (<><Check className="h-3 w-3 text-primary" />Sparat</>)}
@@ -671,18 +671,18 @@ const AdminChecklists = () => {
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                placeholder="Mallnamn"
+                placeholder="Namn på checklistan"
                 maxLength={100}
                 className={nameTaken ? "border-destructive focus-visible:ring-destructive" : undefined}
               />
               {nameTaken && (
-                <p className="text-xs text-destructive">Namnet används redan av en annan mall.</p>
+                <p className="text-xs text-destructive">Namnet används redan av en annan checklista.</p>
               )}
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-medium text-muted-foreground">Beskrivning av mallen</label>
+                <label className="text-xs font-medium text-muted-foreground">Beskrivning av checklistan</label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -827,7 +827,7 @@ const AdminChecklists = () => {
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
               <p className="text-[11px] text-muted-foreground">
-                Mallen läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
+                Checklistan läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
               </p>
               <div className="grid grid-cols-2 gap-2 pt-1">
                 {SHIFT_TYPE_OPTIONS.map((opt) => {
@@ -858,7 +858,7 @@ const AdminChecklists = () => {
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Koppla till lodge-enhet (valfritt)</label>
               <p className="text-[11px] text-muted-foreground">
-                När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs mallen automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Mallen blir låst på passet och kan inte tas bort manuellt.
+                När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs checklistan automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Checklistan blir låst på passet och kan inte tas bort manuellt.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <button
@@ -890,7 +890,7 @@ const AdminChecklists = () => {
               </div>
               {editLodgeUnit !== null && editShiftTypes.length > 0 && (
                 <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                  Tips: när en lodge-enhet är vald hanteras mallen via kalendern. Du kan ta bort passtyperna ovan om mallen <em>bara</em> ska köras på avfärdsdagar.
+                  Tips: när en lodge-enhet är vald hanteras checklistan via kalendern. Du kan ta bort passtyperna ovan om checklistan <em>bara</em> ska köras på avfärdsdagar.
                 </p>
               )}
             </div>
@@ -905,7 +905,7 @@ const AdminChecklists = () => {
               disabled={deleteTemplate.isPending}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Ta bort mall
+              Ta bort checklista
             </Button>
             <Button
               className="flex-1"
