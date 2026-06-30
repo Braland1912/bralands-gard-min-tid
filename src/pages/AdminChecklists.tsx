@@ -368,7 +368,11 @@ const AdminChecklists = () => {
       const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
-        .insert({ name: `${tpl.name} (kopia)` })
+        .insert({
+          name: `${tpl.name} (kopia)`,
+          description: (tpl as any).description ?? null,
+          group_id: (tpl as any).group_id ?? null,
+        } as any)
         .select()
         .single();
       if (error) throw error;
@@ -380,6 +384,7 @@ const AdminChecklists = () => {
               template_id: newTpl.id,
               text: i.text,
               sort_order: idx,
+              description: (i as any).description ?? null,
             })),
           );
         if (insErr) throw insErr;
@@ -398,6 +403,32 @@ const AdminChecklists = () => {
     },
     onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
   });
+
+  // Gruppera mallar för listvyn
+  const groupedTemplates = (() => {
+    const byGroup = new Map<string, Template[]>();
+    const noGroup: Template[] = [];
+    for (const t of templates) {
+      const gid = (t as any).group_id ?? null;
+      if (!gid) {
+        noGroup.push(t);
+      } else {
+        if (!byGroup.has(gid)) byGroup.set(gid, []);
+        byGroup.get(gid)!.push(t);
+      }
+    }
+    const sections: { id: string | null; name: string; color: string; items: Template[] }[] = [];
+    for (const g of groups) {
+      const items = byGroup.get(g.id);
+      if (items && items.length > 0) {
+        sections.push({ id: g.id, name: g.name, color: g.color, items });
+      }
+    }
+    if (noGroup.length > 0) {
+      sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
+    }
+    return sections;
+  })();
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
