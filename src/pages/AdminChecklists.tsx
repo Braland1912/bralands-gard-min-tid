@@ -582,7 +582,7 @@ const AdminChecklists = () => {
                         items={section.items.map((t) => t.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3">
                           {section.items.map((tpl) => (
                             <SortableItem key={tpl.id} id={tpl.id}>
                               <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
