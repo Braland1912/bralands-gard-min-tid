@@ -65,7 +65,14 @@ const ShiftTypeChecklistOrder = () => {
   const { data: templates = [], isLoading: tplLoading } = useQuery({
     queryKey: ["checklist-templates"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("checklist_templates").select("id, name");
+      // Keep this query shape identical to AdminChecklists. React Query shares
+      // data by queryKey, so selecting only id/name here could poison the
+      // shared cache and make AdminChecklists miss group_id after a reload.
+      const { data, error } = await supabase
+        .from("checklist_templates")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Template[];
     },
