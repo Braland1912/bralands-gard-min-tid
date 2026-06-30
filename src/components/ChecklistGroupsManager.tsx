@@ -178,6 +178,7 @@ const ChecklistGroupsManager = () => {
     setDraftName(g.name);
     setDraftColor(g.color);
     setDraftLodgeUnit((g.lodge_unit ?? null) as string | null);
+    setDraftIsEveningRound(!!g.is_evening_round);
     setDraftShiftTypes(allShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type));
   };
 
