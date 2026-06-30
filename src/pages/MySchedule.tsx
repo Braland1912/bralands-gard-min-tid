@@ -384,11 +384,17 @@ const MySchedule = () => {
     const isFutureOrToday = dateStart.getTime() >= todayStart.getTime();
     const canSelfMark = isMine && isFutureOrToday;
 
-    const e0 = userId ? getShiftAt(userId, date, 0) : null;
-    const e1 = userId ? getShiftAt(userId, date, 1) : null;
+    const rawShifts = userId
+      ? (schedules as any[]).filter(
+          (s) => s.user_id === userId && s.date === format(date, "yyyy-MM-dd"),
+        )
+      : [];
+    const sortedShifts = sortShiftsByType(rawShifts);
+    const e0 = sortedShifts[0] ?? null;
+    const e1 = sortedShifts[1] ?? null;
     const hasAny = !!e0 || !!e1;
     const onlyOne = hasAny && !(e0 && e1);
-    const ownBusy = isMine ? [e0, e1].find((e: any) => e?.shift_type === "busy") : null;
+    const ownBusy = isMine ? sortedShifts.find((e: any) => e?.shift_type === "busy") : null;
 
     const openSelfBusySheet = () => {
       setBusySheet({
