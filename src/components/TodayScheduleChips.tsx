@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 import LodgeDaySection from "@/components/LodgeDaySection";
+import { sortShiftsByType } from "@/lib/shift-order";
 
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
@@ -191,7 +192,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
       ]);
       if (schedulesRes.error) throw schedulesRes.error;
       if (dayRes.error) throw dayRes.error;
-      const shifts = schedulesRes.data || [];
+      const shifts = sortShiftsByType(schedulesRes.data || []);
       let counts: Record<string, number> = {};
       if (shifts.length > 0) {
         const { data: cls } = await supabase

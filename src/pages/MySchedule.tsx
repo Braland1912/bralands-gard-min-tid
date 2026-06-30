@@ -26,6 +26,7 @@ import { CheckCircle2, ListChecks } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import SwapShiftSection from "@/components/SwapShiftSection";
 import CalendarSyncCard from "@/components/admin/CalendarSyncCard";
+import { sortShiftsByType } from "@/lib/shift-order";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -275,7 +276,7 @@ const MySchedule = () => {
       });
       return Object.entries(byDate)
         .sort(([a], [b]) => (a < b ? -1 : 1))
-        .map(([date, shifts]) => ({ date, shifts }));
+        .map(([date, shifts]) => ({ date, shifts: sortShiftsByType(shifts) }));
     },
     enabled: !!myUserId,
   });
@@ -383,11 +384,17 @@ const MySchedule = () => {
     const isFutureOrToday = dateStart.getTime() >= todayStart.getTime();
     const canSelfMark = isMine && isFutureOrToday;
 
-    const e0 = userId ? getShiftAt(userId, date, 0) : null;
-    const e1 = userId ? getShiftAt(userId, date, 1) : null;
+    const rawShifts = userId
+      ? (schedules as any[]).filter(
+          (s) => s.user_id === userId && s.date === format(date, "yyyy-MM-dd"),
+        )
+      : [];
+    const sortedShifts = sortShiftsByType(rawShifts);
+    const e0 = sortedShifts[0] ?? null;
+    const e1 = sortedShifts[1] ?? null;
     const hasAny = !!e0 || !!e1;
     const onlyOne = hasAny && !(e0 && e1);
-    const ownBusy = isMine ? [e0, e1].find((e: any) => e?.shift_type === "busy") : null;
+    const ownBusy = isMine ? sortedShifts.find((e: any) => e?.shift_type === "busy") : null;
 
     const openSelfBusySheet = () => {
       setBusySheet({
@@ -732,9 +739,9 @@ const MySchedule = () => {
             .map((w) => {
               const days = weekDays.map((d, dayIdx) => {
                 const dateStr = format(d, "yyyy-MM-dd");
-                const shifts = (schedules as any[])
-                  .filter((s) => s.user_id === w.user_id && s.date === dateStr)
-                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0));
+                const shifts = sortShiftsByType(
+                  (schedules as any[]).filter((s) => s.user_id === w.user_id && s.date === dateStr),
+                );
                 return { dayIdx, shifts, isToday: isToday(d) };
               });
               const hasAny = days.some((d) => d.shifts.length > 0);
