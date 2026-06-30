@@ -206,10 +206,14 @@ const AdminChecklists = () => {
     skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
+    setEditDescription((tpl.description ?? "") as string);
+    setEditGroupId((tpl.group_id ?? null) as string | null);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
     setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
+    setShowDescField(!!(tpl.description && (tpl.description as string).trim()));
+    setExpandedItemDesc({});
     setAutoSaveState("idle");
   };
 
