@@ -282,7 +282,7 @@ const ChecklistGroupsManager = () => {
 
         <div className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Grupper organiserar mallar och kan kopplas till passtyper och lodge-enheter — då läggs alla mallar i gruppen automatiskt på matchande pass.
+            En grupp är en samling checklistor. Koppla gruppen till en eller flera passtyper, eller till en lodge-enhet — då läggs alla checklistor i gruppen automatiskt på matchande pass (lodge-enhet triggar på dagpass med bytesdag).
           </p>
 
           {groups.length > 0 && (
@@ -330,7 +330,7 @@ const ChecklistGroupsManager = () => {
                               className="h-7 w-7 text-destructive"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm(`Ta bort gruppen "${g.name}"? Mallar i gruppen blir ogrupperade.`)) {
+                                if (confirm(`Ta bort gruppen "${g.name}"? Checklistorna i gruppen blir ogrupperade.`)) {
                                   remove.mutate(g.id);
                                 }
                               }}
@@ -377,7 +377,7 @@ const ChecklistGroupsManager = () => {
 
             <div className="space-y-1.5">
               <div className="text-[11px] font-medium text-muted-foreground">
-                Lägg till alla mallar i gruppen automatiskt på passtyper
+                Lägg till alla checklistor i gruppen automatiskt på passtyper
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {SHIFT_OPTIONS.map((opt) => {
