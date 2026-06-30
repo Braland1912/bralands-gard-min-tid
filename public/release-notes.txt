@@ -1,1 +1,1 @@
-Checklistorna på dina pass visas nu i samma färgade grupper som i admin – både på stämpla in, dagens uppgifter och schemat. Morgon-, dag- och kvällspass ligger alltid i den ordningen. På checklistorna syns hela namnet och räknaren ligger snyggt under.
+Checklistorna på stämpla in-vyn ser nu likadana ut som i Dagens uppgifter — med info-ikoner, mer luft och samma tydliga gruppering.
