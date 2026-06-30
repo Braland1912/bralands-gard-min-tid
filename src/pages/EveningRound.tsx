@@ -90,27 +90,6 @@ const EveningRound = () => {
   const { data: adminSessions = [] } = useEveningRoundSessionsForDate(date);
   const { data: ownersByRoundId } = useRoundOwnersForDate(date);
 
-  // Hitta dagens kvällspass för medarbetaren (för passchecklistan).
-  // Kvällsrundans checklistmall är kopplad till shift_type = "evening".
-  const { data: roundShiftId } = useQuery({
-    queryKey: ["evening-round-shift", user?.id, date],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      const { data, error } = await supabase
-        .from("schedules")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("date", date)
-        .eq("shift_type", "evening")
-        .order("shift_index", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data?.id ?? null;
-    },
-    enabled: !!user?.id && !isAdmin,
-  });
-
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("alla");
   const [modalOpen, setModalOpen] = useState(false);
