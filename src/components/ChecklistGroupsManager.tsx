@@ -83,6 +83,7 @@ const ChecklistGroupsManager = () => {
   const [draftColor, setDraftColor] = useState(PALETTE[0]);
   const [draftShiftTypes, setDraftShiftTypes] = useState<string[]>([]);
   const [draftLodgeUnit, setDraftLodgeUnit] = useState<string | null>(null);
+  const [draftIsEveningRound, setDraftIsEveningRound] = useState(false);
 
   const reset = () => {
     setEditId(null);
@@ -90,6 +91,7 @@ const ChecklistGroupsManager = () => {
     setDraftColor(PALETTE[0]);
     setDraftShiftTypes([]);
     setDraftLodgeUnit(null);
+    setDraftIsEveningRound(false);
   };
 
   const save = useMutation({
