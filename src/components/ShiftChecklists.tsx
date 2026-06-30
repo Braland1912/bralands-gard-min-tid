@@ -690,4 +690,207 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
   );
 };
 
+// ============================================================================
+// Worker view — grupperade checklistor med beskrivningar
+// ============================================================================
+const WorkerChecklistsView = ({
+  lists,
+  items,
+  onToggle,
+}: {
+  lists: ShiftChecklist[];
+  items: ShiftChecklistItem[];
+  onToggle: (id: string, checked: boolean) => void;
+}) => {
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+  const [openListDesc, setOpenListDesc] = useState<Record<string, boolean>>({});
+  const [openItemDesc, setOpenItemDesc] = useState<Record<string, boolean>>({});
+
+  // Gruppera bevarat sort_order
+  const sections: { key: string; name: string | null; color: string | null; lists: ShiftChecklist[] }[] = [];
+  const seen = new Map<string, number>();
+  for (const list of lists) {
+    const key = list.group_name ?? "__none__";
+    if (!seen.has(key)) {
+      seen.set(key, sections.length);
+      sections.push({
+        key,
+        name: list.group_name ?? null,
+        color: list.group_color ?? null,
+        lists: [],
+      });
+    }
+    sections[seen.get(key)!].lists.push(list);
+  }
+
+  return (
+    <div className="space-y-4">
+      {sections.map((section) => {
+        const groupCollapsed = !!collapsedGroups[section.key];
+        const hasGroupHeader = !!section.name;
+        return (
+          <div key={section.key} className="space-y-2">
+            {hasGroupHeader && (
+              <button
+                type="button"
+                onClick={() =>
+                  setCollapsedGroups((p) => ({ ...p, [section.key]: !p[section.key] }))
+                }
+                className="flex items-center gap-2 w-full text-left"
+                aria-expanded={!groupCollapsed}
+              >
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${
+                    groupCollapsed ? "-rotate-90" : ""
+                  }`}
+                />
+                <span
+                  className="h-2 w-2 rounded-full shrink-0"
+                  style={{ backgroundColor: section.color ?? "#94a3b8" }}
+                  aria-hidden
+                />
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {section.name}
+                </span>
+              </button>
+            )}
+            {(!hasGroupHeader || !groupCollapsed) && (
+              <div className="space-y-3">
+                {section.lists.map((list) => {
+                  const listItems = items.filter((i) => i.shift_checklist_id === list.id);
+                  const doneCount = listItems.filter((i) => i.is_checked).length;
+                  const totalCount = listItems.length;
+                  const allDone = totalCount > 0 && doneCount === totalCount;
+                  const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+                  const isLocked = !!list.lodge_unit;
+                  const descOpen = !!openListDesc[list.id];
+                  return (
+                    <div
+                      key={list.id}
+                      className={`border rounded-xl p-3 space-y-3 ${
+                        isLocked
+                          ? "border-amber-300 bg-amber-50/30"
+                          : "border-border bg-background"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        {isLocked && (
+                          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 w-fit">
+                            <Lock className="h-2.5 w-2.5" />
+                            Från kalender · {list.lodge_unit}
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            <span className="text-sm font-semibold text-foreground truncate">
+                              {list.name}
+                            </span>
+                            {list.description && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0"
+                                onClick={() =>
+                                  setOpenListDesc((p) => ({ ...p, [list.id]: !p[list.id] }))
+                                }
+                                aria-label="Visa beskrivning"
+                                title="Visa beskrivning"
+                              >
+                                <Info className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                          {totalCount > 0 && (
+                            <span
+                              className={`text-[11px] font-medium tabular-nums shrink-0 ${
+                                allDone ? "text-emerald-700" : "text-muted-foreground"
+                              }`}
+                            >
+                              {doneCount}/{totalCount}
+                            </span>
+                          )}
+                        </div>
+                        {descOpen && list.description && (
+                          <p className="text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5 whitespace-pre-wrap">
+                            {list.description}
+                          </p>
+                        )}
+                        {totalCount > 0 && (
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                allDone ? "bg-emerald-500" : "bg-primary"
+                              }`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-hidden">
+                        {listItems.map((item) => {
+                          const itemDescOpen = !!openItemDesc[item.id];
+                          return (
+                            <li
+                              key={item.id}
+                              className={`px-3 py-2.5 transition-colors ${
+                                item.is_checked ? "bg-muted/30" : "bg-background hover:bg-muted/20"
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <Checkbox
+                                  className="mt-0.5"
+                                  checked={item.is_checked}
+                                  onCheckedChange={(v) => onToggle(item.id, v === true)}
+                                />
+                                <span
+                                  className={`flex-1 text-sm leading-snug ${
+                                    item.is_checked
+                                      ? "line-through text-muted-foreground"
+                                      : "text-foreground"
+                                  }`}
+                                >
+                                  {item.text}
+                                </span>
+                                {item.description && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0 -mr-1"
+                                    onClick={() =>
+                                      setOpenItemDesc((p) => ({
+                                        ...p,
+                                        [item.id]: !p[item.id],
+                                      }))
+                                    }
+                                    aria-label="Mer info"
+                                    title="Mer info"
+                                  >
+                                    <Info className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                              </div>
+                              {itemDescOpen && item.description && (
+                                <p className="mt-1.5 ml-7 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5 whitespace-pre-wrap">
+                                  {item.description}
+                                </p>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export default ShiftChecklists;
