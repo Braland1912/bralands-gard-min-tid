@@ -38,8 +38,6 @@ interface Props {
   roundDate?: string;
   /** Visa snabbstartknappen (start/stopp av runda). Default: true för egna redovisningar. */
   showQuickStart?: boolean;
-  /** Visa den fasta checklistan (servicehus, vattenlås m.m.). Default: true. */
-  showChecklist?: boolean;
   /** Visa kassaredovisningen och anteckningar. Default: true. */
   showCashSection?: boolean;
   /** Om admin redigerar någon annans redovisning – override worker_id. */
