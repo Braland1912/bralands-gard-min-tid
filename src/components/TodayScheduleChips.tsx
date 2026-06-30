@@ -191,7 +191,7 @@ const TodayScheduleChips = ({ userId }: Props) => {
       ]);
       if (schedulesRes.error) throw schedulesRes.error;
       if (dayRes.error) throw dayRes.error;
-      const shifts = schedulesRes.data || [];
+      const shifts = sortShiftsByType(schedulesRes.data || []);
       let counts: Record<string, number> = {};
       if (shifts.length > 0) {
         const { data: cls } = await supabase
