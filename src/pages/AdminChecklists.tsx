@@ -597,44 +597,52 @@ const AdminChecklists = () => {
                         [section.id ?? "_none"]: !p[section.id ?? "_none"],
                       }))
                     }
-                    className="flex items-center gap-2 w-full text-left"
+                    className="flex items-start gap-2 w-full text-left"
                     aria-expanded={!collapsed}
                   >
                     <ChevronDown
-                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                      className={`h-4 w-4 text-muted-foreground transition-transform mt-1 shrink-0 ${
                         collapsed ? "-rotate-90" : ""
                       }`}
                     />
                     <span
-                      className="h-2.5 w-2.5 rounded-full shrink-0"
+                      className="h-2.5 w-2.5 rounded-full shrink-0 mt-[7px]"
                       style={{ backgroundColor: section.color }}
                       aria-hidden
                     />
-                    <h2 className="text-sm font-semibold text-foreground">{section.name}</h2>
-                    <span className="text-xs text-muted-foreground">({section.items.length})</span>
-                    {(section.shift_types?.length ?? 0) > 0 && section.shift_types!.map((st) => {
-                      const opt = SHIFT_TYPE_OPTIONS.find((s) => s.value === st);
-                      if (!opt) return null;
-                      return (
-                        <span
-                          key={st}
-                          className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${opt.bg} ${opt.border} ${opt.text}`}
-                          title="Alla checklistor i gruppen läggs auto på denna passtyp"
-                        >
-                          <span className="text-[10px] leading-none">{opt.emoji}</span>
-                          {opt.label}
-                        </span>
-                      );
-                    })}
-                    {section.lodge_unit && (
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${styleFor(section.lodge_unit).chip}`}
-                        title="Alla checklistor i gruppen läggs auto på dagpass när enheten har avfärd"
-                      >
-                        <Home className="h-2.5 w-2.5" />
-                        {UNIT_NUMBER[section.lodge_unit] ?? ""} {section.lodge_unit}
-                      </span>
-                    )}
+                    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                      <div className="flex items-baseline gap-1.5">
+                        <h2 className="text-sm font-semibold text-foreground leading-snug">{section.name}</h2>
+                        <span className="text-xs text-muted-foreground shrink-0">({section.items.length})</span>
+                      </div>
+                      {((section.shift_types?.length ?? 0) > 0 || section.lodge_unit) && (
+                        <div className="flex flex-wrap items-center gap-1">
+                          {section.shift_types?.map((st) => {
+                            const opt = SHIFT_TYPE_OPTIONS.find((s) => s.value === st);
+                            if (!opt) return null;
+                            return (
+                              <span
+                                key={st}
+                                className={`inline-flex items-center gap-1 rounded-full border px-2 h-5 text-[10px] font-medium whitespace-nowrap ${opt.bg} ${opt.border} ${opt.text}`}
+                                title="Alla checklistor i gruppen läggs auto på denna passtyp"
+                              >
+                                <span className="text-[10px] leading-none">{opt.emoji}</span>
+                                {opt.label}
+                              </span>
+                            );
+                          })}
+                          {section.lodge_unit && (
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full border px-2 h-5 text-[10px] font-medium whitespace-nowrap ${styleFor(section.lodge_unit).chip}`}
+                              title="Alla checklistor i gruppen läggs auto på dagpass när enheten har avfärd"
+                            >
+                              <Home className="h-2.5 w-2.5" />
+                              {UNIT_NUMBER[section.lodge_unit] ?? ""} {section.lodge_unit}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </button>
                   {!collapsed && (
                     <DndContext
