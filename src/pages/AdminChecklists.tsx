@@ -583,6 +583,44 @@ const AdminChecklists = () => {
               )}
             </div>
 
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-muted-foreground">Beskrivning av mallen</label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setShowDescField((v) => !v)}
+                >
+                  {showDescField || editDescription ? "Dölj" : "Lägg till"}
+                </Button>
+              </div>
+              {(showDescField || editDescription) && (
+                <Textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Kort beskrivning av syftet med checklistan…"
+                  rows={2}
+                  className="resize-none"
+                />
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Grupp</label>
+              <select
+                value={editGroupId ?? ""}
+                onChange={(e) => setEditGroupId(e.target.value || null)}
+                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">— Ingen grupp —</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Punkter</label>
               <div className="space-y-2">
@@ -591,38 +629,67 @@ const AdminChecklists = () => {
                 )}
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={editItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-2">
-                      {editItems.map((item) => (
-                        <SortableItem key={item.id} id={item.id}>
-                          <Textarea
-                            data-item-id={item.id}
-                            value={item.text}
-                            onChange={(e) => updateItemText(item.id, e.target.value)}
-                            placeholder="Punkt..."
-                            rows={1}
-                            className="min-h-[40px] resize-none overflow-hidden py-2"
-                            onInput={(e) => {
-                              const el = e.currentTarget;
-                              el.style.height = "auto";
-                              el.style.height = el.scrollHeight + "px";
-                            }}
-                            ref={(el) => {
-                              if (el) {
-                                el.style.height = "auto";
-                                el.style.height = el.scrollHeight + "px";
-                              }
-                            }}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeItem(item.id)}
-                            className="text-destructive hover:text-destructive shrink-0"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </SortableItem>
-                      ))}
+                    <div className="space-y-3">
+                      {editItems.map((item) => {
+                        const open = !!expandedItemDesc[item.id] || !!item.description;
+                        return (
+                          <SortableItem key={item.id} id={item.id}>
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                              <div className="flex items-start gap-1.5">
+                                <Textarea
+                                  data-item-id={item.id}
+                                  value={item.text}
+                                  onChange={(e) => updateItemText(item.id, e.target.value)}
+                                  placeholder="Punkt..."
+                                  rows={1}
+                                  className="min-h-[40px] resize-none overflow-hidden py-2 flex-1"
+                                  onInput={(e) => {
+                                    const el = e.currentTarget;
+                                    el.style.height = "auto";
+                                    el.style.height = el.scrollHeight + "px";
+                                  }}
+                                  ref={(el) => {
+                                    if (el) {
+                                      el.style.height = "auto";
+                                      el.style.height = el.scrollHeight + "px";
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => toggleItemDesc(item.id)}
+                                  className={`shrink-0 ${
+                                    item.description ? "text-primary" : "text-muted-foreground"
+                                  }`}
+                                  title="Beskrivning"
+                                  aria-label="Visa/dölj beskrivning"
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              {open && (
+                                <Textarea
+                                  value={item.description ?? ""}
+                                  onChange={(e) => updateItemDescription(item.id, e.target.value)}
+                                  placeholder="Hur utförs punkten? (visas för medarbetaren via info-ikon)"
+                                  rows={2}
+                                  className="resize-none text-xs bg-muted/40"
+                                />
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeItem(item.id)}
+                              className="text-destructive hover:text-destructive shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </SortableItem>
+                        );
+                      })}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -637,6 +704,7 @@ const AdminChecklists = () => {
                 Ny punkt
               </Button>
             </div>
+
 
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
