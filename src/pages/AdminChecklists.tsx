@@ -463,7 +463,6 @@ const AdminChecklists = () => {
             </Button>
           </div>
         </div>
-        <EveningRoundChecklistPicker />
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
