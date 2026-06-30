@@ -1,1 +1,1 @@
-Checklistor är nu helt grupp-baserade. Grupper kopplas till passtyper eller till bytesdagar i lodgen, och du kan dra för att ändra ordning. Ny förhandsvisning visar exakt vilka checklistor som dyker upp på varje pass. Alla grupper är stängda från start och färgerna matchar lodge-enheterna.
+Checklistorna på dina pass visas nu i samma färgade grupper som i admin – både på stämpla in, dagens uppgifter och schemat. Morgon-, dag- och kvällspass ligger alltid i den ordningen. På checklistorna syns hela namnet och räknaren ligger snyggt under.
