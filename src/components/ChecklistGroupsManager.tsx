@@ -20,6 +20,7 @@ export type ChecklistGroup = {
   color: string;
   sort_order: number;
   lodge_unit?: string | null;
+  is_evening_round?: boolean;
 };
 
 export type GroupShiftLink = { group_id: string; shift_type: string };
