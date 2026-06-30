@@ -273,10 +273,17 @@ const AdminChecklists = () => {
   const persistTemplate = async () => {
     if (!editing) return;
     const name = editName.trim() || "Namnlös mall";
+    const description = editDescription.trim() ? editDescription.trim() : null;
 
     const { error: nameErr } = await supabase
       .from("checklist_templates")
-      .update({ name, lodge_unit: editLodgeUnit, updated_at: new Date().toISOString() } as any)
+      .update({
+        name,
+        lodge_unit: editLodgeUnit,
+        description,
+        group_id: editGroupId,
+        updated_at: new Date().toISOString(),
+      } as any)
       .eq("id", editing.id);
     if (nameErr) throw nameErr;
 
@@ -287,7 +294,12 @@ const AdminChecklists = () => {
     if (delErr) throw delErr;
 
     const filtered = editItems
-      .map((i, idx) => ({ text: i.text.trim(), sort_order: idx, template_id: editing.id }))
+      .map((i, idx) => ({
+        text: i.text.trim(),
+        sort_order: idx,
+        template_id: editing.id,
+        description: i.description?.trim() ? i.description.trim() : null,
+      }))
       .filter((i) => i.text.length > 0);
 
     if (filtered.length > 0) {
