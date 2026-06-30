@@ -430,22 +430,21 @@ const AdminChecklists = () => {
       shift_types?: string[];
     }[] = [];
     for (const g of groups) {
-      const items = byGroup.get(g.id);
-      if (items && items.length > 0) {
-        sections.push({
-          id: g.id,
-          name: g.name,
-          color: g.color,
-          items,
-          lodge_unit: (g as any).lodge_unit ?? null,
-          shift_types: groupShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type),
-        });
-      }
+      const items = byGroup.get(g.id) ?? [];
+      sections.push({
+        id: g.id,
+        name: g.name,
+        color: g.color,
+        items,
+        lodge_unit: (g as any).lodge_unit ?? null,
+        shift_types: groupShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type),
+      });
     }
-    if (noGroup.length > 0) {
-      sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
-    }
-    return sections;
+    sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
+    const filtered = groupFilter === "all"
+      ? sections.filter((s) => s.items.length > 0 || s.id !== null)
+      : sections.filter((s) => (s.id ?? "_none") === groupFilter);
+    return filtered;
   })();
 
   return (
