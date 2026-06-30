@@ -159,40 +159,44 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
             className="space-y-2 rounded-xl border bg-muted/30 p-3"
             style={g.color ? { borderLeft: `3px solid ${g.color}` } : undefined}
           >
-            <div className="flex items-center gap-2 w-full">
-              <button
-                type="button"
-                onClick={() => toggleOpen(list.id)}
-                aria-expanded={open}
-                className="flex items-center gap-2 flex-1 min-w-0 text-left"
-              >
-                <ChevronDown
-                  className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
-                />
-                <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
-              </button>
-              {list.description && (
-                <Button
+            <div className="space-y-1.5 w-full">
+              <div className="flex items-center gap-2 w-full">
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0"
-                  onClick={() =>
-                    setOpenListDesc((p) => ({ ...p, [list.id]: !p[list.id] }))
-                  }
-                  aria-label="Visa beskrivning"
-                  title="Visa beskrivning"
+                  onClick={() => toggleOpen(list.id)}
+                  aria-expanded={open}
+                  className="flex items-start gap-2 flex-1 min-w-0 text-left"
                 >
-                  <Info className="h-3.5 w-3.5" />
-                </Button>
-              )}
-              <Progress
-                value={pct}
-                className={`h-1.5 w-20 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
-              />
-              <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
-                {done}/{total}
-              </span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground shrink-0 mt-0.5 transition-transform ${open ? "" : "-rotate-90"}`}
+                  />
+                  <p className="text-sm font-semibold text-foreground flex-1 min-w-0 break-words">{list.name}</p>
+                </button>
+                {list.description && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0"
+                    onClick={() =>
+                      setOpenListDesc((p) => ({ ...p, [list.id]: !p[list.id] }))
+                    }
+                    aria-label="Visa beskrivning"
+                    title="Visa beskrivning"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-2 pl-6">
+                <Progress
+                  value={pct}
+                  className={`h-1.5 flex-1 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
+                />
+                <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                  {done}/{total}
+                </span>
+              </div>
             </div>
             {descOpen && list.description && (
               <p className="text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5 whitespace-pre-wrap">
