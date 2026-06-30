@@ -438,14 +438,16 @@ const AdminChecklists = () => {
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>
             <p className="text-xs text-muted-foreground">Mallar för återkommande uppgifter</p>
           </div>
-          <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
-            <Plus className="h-4 w-4 mr-1.5" />
-            Ny mall
-          </Button>
+          <div className="flex items-center gap-2">
+            <ChecklistGroupsManager />
+            <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Ny mall
+            </Button>
+          </div>
         </div>
         <EveningRoundChecklistPicker />
 
-        
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
@@ -456,54 +458,96 @@ const AdminChecklists = () => {
             <p className="text-sm text-muted-foreground">Inga mallar ännu. Skapa din första mall.</p>
           </Card>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleTemplateDragEnd}
-          >
-            <SortableContext items={templates.map((t) => t.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {templates.map((tpl) => (
-                  <SortableItem key={tpl.id} id={tpl.id}>
-                    <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
-                      <button
-                        onClick={() => handleOpenExisting(tpl)}
-                        className="text-left w-full"
+          <div className="space-y-5">
+            {groupedTemplates.map((section) => {
+              const collapsed = !!collapsedGroups[section.id ?? "_none"];
+              return (
+                <section key={section.id ?? "_none"} className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCollapsedGroups((p) => ({
+                        ...p,
+                        [section.id ?? "_none"]: !p[section.id ?? "_none"],
+                      }))
+                    }
+                    className="flex items-center gap-2 w-full text-left"
+                    aria-expanded={!collapsed}
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        collapsed ? "-rotate-90" : ""
+                      }`}
+                    />
+                    <span
+                      className="h-2.5 w-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: section.color }}
+                      aria-hidden
+                    />
+                    <h2 className="text-sm font-semibold text-foreground">{section.name}</h2>
+                    <span className="text-xs text-muted-foreground">({section.items.length})</span>
+                  </button>
+                  {!collapsed && (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleTemplateDragEnd}
+                    >
+                      <SortableContext
+                        items={section.items.map((t) => t.id)}
+                        strategy={rectSortingStrategy}
                       >
-                        <div className="flex items-start justify-between gap-3 pr-8">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <ListChecks className="h-4 w-4 text-primary shrink-0" />
-                              <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1.5">
-                              {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
-                            </p>
-                          </div>
-                          <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {section.items.map((tpl) => (
+                            <SortableItem key={tpl.id} id={tpl.id}>
+                              <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
+                                <button
+                                  onClick={() => handleOpenExisting(tpl)}
+                                  className="text-left w-full"
+                                >
+                                  <div className="flex items-start justify-between gap-3 pr-8">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <ListChecks className="h-4 w-4 text-primary shrink-0" />
+                                        <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
+                                        {(tpl as any).description && (
+                                          <Info className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1.5">
+                                        {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
+                                      </p>
+                                    </div>
+                                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                                  </div>
+                                </button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    duplicateTemplate.mutate(tpl);
+                                  }}
+                                  disabled={duplicateTemplate.isPending}
+                                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                                  aria-label="Kopiera mall"
+                                  title="Kopiera mall"
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                              </Card>
+                            </SortableItem>
+                          ))}
                         </div>
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          duplicateTemplate.mutate(tpl);
-                        }}
-                        disabled={duplicateTemplate.isPending}
-                        className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-                        aria-label="Kopiera mall"
-                        title="Kopiera mall"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                    </Card>
-                  </SortableItem>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+                      </SortableContext>
+                    </DndContext>
+                  )}
+                </section>
+              );
+            })}
+          </div>
         )}
+
 
         <ShiftTypeChecklistOrder />
       </div>
