@@ -324,7 +324,6 @@ const AdminChecklists = () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
           queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] }),
-          queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] }),
         ]);
         setAutoSaveState("saved");
       } catch {
@@ -334,7 +333,7 @@ const AdminChecklists = () => {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editName, editDescription, editGroupId, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
+  }, [editName, editDescription, editGroupId, editItems, editLodgeUnit, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
@@ -880,40 +879,12 @@ const AdminChecklists = () => {
 
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
-              <p className="text-[11px] text-muted-foreground">
-                Checklistan läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
-              </p>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                {SHIFT_TYPE_OPTIONS.map((opt) => {
-                  const checked = editShiftTypes.includes(opt.value);
-                  return (
-                    <label
-                      key={opt.value}
-                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
-                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(v) => {
-                          setEditShiftTypes((prev) =>
-                            v === true ? [...prev, opt.value] : prev.filter((s) => s !== opt.value),
-                          );
-                        }}
-                      />
-                      <span className="text-base leading-none">{opt.emoji}</span>
-                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Koppla till lodge-enhet (valfritt)</label>
               <p className="text-[11px] text-muted-foreground">
                 När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs checklistan automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Checklistan blir låst på passet och kan inte tas bort manuellt.
+              </p>
+              <p className="text-[11px] text-muted-foreground italic">
+                Tips: använd hellre en <strong>grupp</strong> med lodge-enhet — då hamnar alla checklistor i gruppen automatiskt på rätt bytesdag. Hantera kopplingar mellan grupper, passtyper och lodge-enheter under fliken <strong>Förhandsvisning</strong>.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <button
@@ -943,11 +914,6 @@ const AdminChecklists = () => {
                   );
                 })}
               </div>
-              {editLodgeUnit !== null && editShiftTypes.length > 0 && (
-                <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                  Tips: när en lodge-enhet är vald hanteras checklistan via kalendern. Du kan ta bort passtyperna ovan om checklistan <em>bara</em> ska köras på avfärdsdagar.
-                </p>
-              )}
             </div>
           </div>
 
