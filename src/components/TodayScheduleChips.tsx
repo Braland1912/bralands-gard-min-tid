@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 import LodgeDaySection from "@/components/LodgeDaySection";
+import { sortShiftsByType } from "@/lib/shift-order";
 
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
