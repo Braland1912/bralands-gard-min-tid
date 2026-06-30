@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { StickyNote, ChevronDown, Info } from "lucide-react";
 import { useState } from "react";
+import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
 
 interface Props {
   shiftId: string;
