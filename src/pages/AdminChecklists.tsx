@@ -496,6 +496,13 @@ const AdminChecklists = () => {
           </div>
         </details>
 
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="list">Checklistor</TabsTrigger>
+            <TabsTrigger value="preview">Förhandsvisning</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-5 mt-4">
         {groups.length > 0 && (
           <div className="rounded-lg border border-border bg-card">
             <button
@@ -716,10 +723,14 @@ const AdminChecklists = () => {
             })}
           </div>
         )}
+          </TabsContent>
 
-
-        <ShiftTypeChecklistOrder />
+          <TabsContent value="preview" className="mt-4">
+            <ChecklistPreview />
+          </TabsContent>
+        </Tabs>
       </div>
+
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent
