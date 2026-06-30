@@ -124,19 +124,23 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
                     type="button"
                     onClick={() => toggleOpen(list.id)}
                     aria-expanded={open}
-                    className="flex items-center gap-2 w-full text-left"
+                    className="flex flex-col gap-1.5 w-full text-left"
                   >
-                    <ChevronDown
-                      className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
-                    />
-                    <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
-                    <Progress
-                      value={pct}
-                      className={`h-1.5 w-20 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
-                    />
-                    <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
-                      {done}/{total}
-                    </span>
+                    <div className="flex items-start gap-2 w-full">
+                      <ChevronDown
+                        className={`h-4 w-4 text-muted-foreground shrink-0 mt-0.5 transition-transform ${open ? "" : "-rotate-90"}`}
+                      />
+                      <p className="text-sm font-semibold text-foreground flex-1 min-w-0 break-words">{list.name}</p>
+                    </div>
+                    <div className="flex items-center gap-2 pl-6">
+                      <Progress
+                        value={pct}
+                        className={`h-1.5 flex-1 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
+                      />
+                      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                        {done}/{total}
+                      </span>
+                    </div>
                   </button>
                   {open && (
                     <ul className="space-y-1 pl-6">
