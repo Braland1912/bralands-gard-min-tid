@@ -420,11 +420,25 @@ const AdminChecklists = () => {
         byGroup.get(gid)!.push(t);
       }
     }
-    const sections: { id: string | null; name: string; color: string; items: Template[] }[] = [];
+    const sections: {
+      id: string | null;
+      name: string;
+      color: string;
+      items: Template[];
+      lodge_unit?: string | null;
+      shift_types?: string[];
+    }[] = [];
     for (const g of groups) {
       const items = byGroup.get(g.id);
       if (items && items.length > 0) {
-        sections.push({ id: g.id, name: g.name, color: g.color, items });
+        sections.push({
+          id: g.id,
+          name: g.name,
+          color: g.color,
+          items,
+          lodge_unit: (g as any).lodge_unit ?? null,
+          shift_types: groupShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type),
+        });
       }
     }
     if (noGroup.length > 0) {
