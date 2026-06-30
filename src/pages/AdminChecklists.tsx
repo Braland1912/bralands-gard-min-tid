@@ -580,7 +580,7 @@ const AdminChecklists = () => {
                     >
                       <SortableContext
                         items={section.items.map((t) => t.id)}
-                        strategy={rectSortingStrategy}
+                        strategy={verticalListSortingStrategy}
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {section.items.map((tpl) => (
