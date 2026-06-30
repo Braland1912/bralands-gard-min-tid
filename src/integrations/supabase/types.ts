@@ -156,18 +156,21 @@ export type Database = {
           group_id: string
           id: string
           shift_type: string
+          sort_order: number
         }
         Insert: {
           created_at?: string
           group_id: string
           id?: string
           shift_type: string
+          sort_order?: number
         }
         Update: {
           created_at?: string
           group_id?: string
           id?: string
           shift_type?: string
+          sort_order?: number
         }
         Relationships: [
           {

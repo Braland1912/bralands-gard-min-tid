@@ -323,33 +323,29 @@ const AdminSchedule = () => {
         .maybeSingle();
       if (!created) return;
 
-      const { data: links } = await supabase
-        .from("checklist_template_shift_types")
-        .select("template_id, sort_order")
-        .eq("shift_type", shiftType)
-        .order("sort_order", { ascending: true });
-      const directIds: string[] = (links ?? []).map((l: any) => l.template_id);
-
-      // Hämta mallar via grupp-kopplingar för shift-typen
+      // Hämta mallar via grupp-kopplingar för passtypen, i gruppernas ordning
       const { data: groupLinks } = await supabase
         .from("checklist_group_shift_types" as any)
-        .select("group_id")
-        .eq("shift_type", shiftType);
+        .select("group_id, sort_order")
+        .eq("shift_type", shiftType)
+        .order("sort_order", { ascending: true });
       const groupIds = ((groupLinks ?? []) as any[]).map((g) => g.group_id);
-      let viaGroupIds: string[] = [];
+      let templateIds: string[] = [];
       if (groupIds.length > 0) {
         const { data: tplsG } = await supabase
           .from("checklist_templates")
-          .select("id")
-          .in("group_id", groupIds);
-        viaGroupIds = ((tplsG ?? []) as any[]).map((t) => t.id);
-      }
-
-      // Dedupera: direkt-kopplingar först (behåller deras ordning), sedan grupp-kopplingar
-      const seen = new Set<string>();
-      const templateIds: string[] = [];
-      for (const id of [...directIds, ...viaGroupIds]) {
-        if (!seen.has(id)) { seen.add(id); templateIds.push(id); }
+          .select("id, group_id, sort_order")
+          .in("group_id", groupIds)
+          .order("sort_order", { ascending: true });
+        // Ordna mallar grupp-för-grupp i gruppordningen
+        const byGroup = new Map<string, string[]>();
+        for (const t of (tplsG ?? []) as any[]) {
+          if (!byGroup.has(t.group_id)) byGroup.set(t.group_id, []);
+          byGroup.get(t.group_id)!.push(t.id);
+        }
+        for (const gid of groupIds) {
+          for (const tid of byGroup.get(gid) ?? []) templateIds.push(tid);
+        }
       }
       if (templateIds.length === 0) return;
 

@@ -35,7 +35,8 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
-import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
+import ChecklistPreview from "@/components/ChecklistPreview";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ChecklistGroupsManager, { useChecklistGroups, useChecklistGroupShiftTypes } from "@/components/ChecklistGroupsManager";
 
@@ -82,7 +83,7 @@ const AdminChecklists = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [editItems, setEditItems] = useState<Item[]>([]);
-  const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
+  
   const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
   const [showDescField, setShowDescField] = useState(false);
@@ -130,21 +131,7 @@ const AdminChecklists = () => {
     enabled: !!user,
   });
 
-  const { data: allShiftLinks = [] } = useQuery({
-    queryKey: ["checklist-template-shift-types"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("checklist_template_shift_types")
-        .select("template_id, shift_type");
-      if (error) throw error;
-      return data as ShiftLink[];
-    },
-    enabled: !!user,
-  });
-
   const countFor = (id: string) => allItems.filter((i) => i.template_id === id).length;
-  const shiftTypesFor = (id: string) =>
-    allShiftLinks.filter((l) => l.template_id === id).map((l) => l.shift_type);
 
   const trimmedEditName = editName.trim().toLowerCase();
   const nameTaken =
@@ -174,7 +161,7 @@ const AdminChecklists = () => {
     },
     onSuccess: (tpl) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
-      openEdit(tpl, [], []);
+      openEdit(tpl, []);
     },
     onError: () => toast({ title: "Kunde inte skapa checklista", variant: "destructive" }),
   });
@@ -216,14 +203,13 @@ const AdminChecklists = () => {
     reorderTemplates.mutate(orderedIds);
   };
 
-  const openEdit = (tpl: Template, items: Item[], shiftTypes: string[]) => {
+  const openEdit = (tpl: Template, items: Item[]) => {
     skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
     setEditDescription((tpl.description ?? "") as string);
     setEditGroupId((tpl.group_id ?? null) as string | null);
     setEditItems(items);
-    setEditShiftTypes(shiftTypes);
     setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
     setShowDescField(!!(tpl.description && (tpl.description as string).trim()));
@@ -233,7 +219,7 @@ const AdminChecklists = () => {
 
   const handleOpenExisting = (tpl: Template) => {
     const items = allItems.filter((i) => i.template_id === tpl.id);
-    openEdit(tpl, items, shiftTypesFor(tpl.id));
+    openEdit(tpl, items);
   };
 
   const handleAddItem = () => {
@@ -321,17 +307,6 @@ const AdminChecklists = () => {
       if (insErr) throw insErr;
     }
 
-    const { error: delLinkErr } = await supabase
-      .from("checklist_template_shift_types")
-      .delete()
-      .eq("template_id", editing.id);
-    if (delLinkErr) throw delLinkErr;
-    if (editShiftTypes.length > 0) {
-      const { error: linkErr } = await supabase
-        .from("checklist_template_shift_types")
-        .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
-      if (linkErr) throw linkErr;
-    }
   };
 
   // Autosave debounce
@@ -349,7 +324,6 @@ const AdminChecklists = () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ["checklist-templates"] }),
           queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] }),
-          queryClient.invalidateQueries({ queryKey: ["checklist-template-shift-types"] }),
         ]);
         setAutoSaveState("saved");
       } catch {
@@ -359,7 +333,7 @@ const AdminChecklists = () => {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editName, editDescription, editGroupId, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
+  }, [editName, editDescription, editGroupId, editItems, editLodgeUnit, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
@@ -379,7 +353,6 @@ const AdminChecklists = () => {
   const duplicateTemplate = useMutation({
     mutationFn: async (tpl: Template) => {
       const items = allItems.filter((i) => i.template_id === tpl.id);
-      const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
         .insert({
@@ -403,15 +376,14 @@ const AdminChecklists = () => {
           );
         if (insErr) throw insErr;
       }
-      return { tpl: newTpl as Template, items, linkedTypes };
+      return { tpl: newTpl as Template, items };
     },
-    onSuccess: ({ tpl, items, linkedTypes }) => {
+    onSuccess: ({ tpl, items }) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
       openEdit(
         tpl,
         items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })),
-        linkedTypes,
       );
       toast({ title: "Checklista kopierad", description: "Döp om den och spara." });
     },
@@ -495,6 +467,13 @@ const AdminChecklists = () => {
           </div>
         </details>
 
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="list">Checklistor</TabsTrigger>
+            <TabsTrigger value="preview">Förhandsvisning</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-5 mt-4">
         {groups.length > 0 && (
           <div className="rounded-lg border border-border bg-card">
             <button
@@ -715,10 +694,14 @@ const AdminChecklists = () => {
             })}
           </div>
         )}
+          </TabsContent>
 
-
-        <ShiftTypeChecklistOrder />
+          <TabsContent value="preview" className="mt-4">
+            <ChecklistPreview />
+          </TabsContent>
+        </Tabs>
       </div>
+
 
       <Sheet open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <SheetContent
@@ -896,40 +879,12 @@ const AdminChecklists = () => {
 
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>
-              <p className="text-[11px] text-muted-foreground">
-                Checklistan läggs till automatiskt när ett nytt pass av vald typ schemaläggs. Kan tas bort på enskilt pass vid behov.
-              </p>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                {SHIFT_TYPE_OPTIONS.map((opt) => {
-                  const checked = editShiftTypes.includes(opt.value);
-                  return (
-                    <label
-                      key={opt.value}
-                      className={`flex items-center gap-2 rounded-md border px-2.5 py-2 cursor-pointer transition ${
-                        checked ? `${opt.bg} ${opt.border}` : "border-border bg-muted/30 hover:bg-muted/50"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(v) => {
-                          setEditShiftTypes((prev) =>
-                            v === true ? [...prev, opt.value] : prev.filter((s) => s !== opt.value),
-                          );
-                        }}
-                      />
-                      <span className="text-base leading-none">{opt.emoji}</span>
-                      <span className={`text-sm ${checked ? opt.text : "text-foreground"}`}>{opt.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Koppla till lodge-enhet (valfritt)</label>
               <p className="text-[11px] text-muted-foreground">
                 När en enhet har <strong>avfärd (bytesdag)</strong> enligt lodge-kalendern läggs checklistan automatiskt till på dagpasset – och tas bort om bokningen ändras eller avbokas. Checklistan blir låst på passet och kan inte tas bort manuellt.
+              </p>
+              <p className="text-[11px] text-muted-foreground italic">
+                Tips: använd hellre en <strong>grupp</strong> med lodge-enhet — då hamnar alla checklistor i gruppen automatiskt på rätt bytesdag. Hantera kopplingar mellan grupper, passtyper och lodge-enheter under fliken <strong>Förhandsvisning</strong>.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <button
@@ -959,11 +914,6 @@ const AdminChecklists = () => {
                   );
                 })}
               </div>
-              {editLodgeUnit !== null && editShiftTypes.length > 0 && (
-                <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                  Tips: när en lodge-enhet är vald hanteras checklistan via kalendern. Du kan ta bort passtyperna ovan om checklistan <em>bara</em> ska köras på avfärdsdagar.
-                </p>
-              )}
             </div>
           </div>
 
