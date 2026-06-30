@@ -185,35 +185,36 @@ const ChecklistGroupsManager = () => {
     onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
   });
 
-  const swapOrder = useMutation({
-    mutationFn: async ({ a, b }: { a: ChecklistGroup; b: ChecklistGroup }) => {
-      // Use a temp value to avoid unique constraint collisions if any
-      const tmp = -1000000 - Math.floor(Math.random() * 1000);
-      const { error: e0 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: tmp })
-        .eq("id", a.id);
-      if (e0) throw e0;
-      const { error: e1 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: a.sort_order })
-        .eq("id", b.id);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: b.sort_order })
-        .eq("id", a.id);
-      if (e2) throw e2;
+  const reorder = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      // Two-phase update to avoid any potential unique collisions
+      const offset = 1000000;
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_template_groups" as any)
+          .update({ sort_order: offset + i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_template_groups" as any)
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
     },
-    onMutate: async ({ a, b }) => {
+    onMutate: async (orderedIds: string[]) => {
       await queryClient.cancelQueries({ queryKey: ["checklist-template-groups"] });
       const prev = queryClient.getQueryData<ChecklistGroup[]>(["checklist-template-groups"]);
       if (prev) {
-        const next = prev.map((g) => {
-          if (g.id === a.id) return { ...g, sort_order: b.sort_order };
-          if (g.id === b.id) return { ...g, sort_order: a.sort_order };
-          return g;
-        }).sort((x, y) => x.sort_order - y.sort_order || x.name.localeCompare(y.name));
+        const byId = new Map(prev.map((g) => [g.id, g]));
+        const next = orderedIds
+          .map((id, i) => {
+            const g = byId.get(id);
+            return g ? { ...g, sort_order: i } : null;
+          })
+          .filter(Boolean) as ChecklistGroup[];
         queryClient.setQueryData(["checklist-template-groups"], next);
       }
       return { prev };
@@ -226,6 +227,22 @@ const ChecklistGroupsManager = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-groups"] });
     },
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const ids = groups.map((g) => g.id);
+    const oldIdx = ids.indexOf(active.id as string);
+    const newIdx = ids.indexOf(over.id as string);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const next = arrayMove(ids, oldIdx, newIdx);
+    reorder.mutate(next);
+  };
 
   const startEdit = (g: ChecklistGroup) => {
     setEditId(g.id);
