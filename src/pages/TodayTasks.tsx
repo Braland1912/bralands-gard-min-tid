@@ -59,7 +59,7 @@ const TodayTasks = () => {
       if (schedulesRes.error) throw schedulesRes.error;
       if (dayRes.error) throw dayRes.error;
       return {
-        shifts: schedulesRes.data || [],
+        shifts: sortShiftsByType(schedulesRes.data || []),
         published: dayRes.data?.is_published === true,
       };
     },
