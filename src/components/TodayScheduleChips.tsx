@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { CalendarDays, Plus, Minus, StickyNote, ChevronDown } from "lucide-react";
+import { CalendarDays, Plus, Minus, StickyNote } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 import LodgeDaySection from "@/components/LodgeDaySection";
 import { sortShiftsByType } from "@/lib/shift-order";
-import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
+import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
