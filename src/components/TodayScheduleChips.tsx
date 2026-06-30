@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 import LodgeDaySection from "@/components/LodgeDaySection";
 import { sortShiftsByType } from "@/lib/shift-order";
+import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
 
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
