@@ -333,11 +333,11 @@ const AdminSchedule = () => {
 
       const { data: templates } = await supabase
         .from("checklist_templates")
-        .select("id, name")
+        .select("id, name, description, group_id, checklist_template_groups(name, color)" as any)
         .in("id", templateIds);
       const { data: items } = await supabase
         .from("checklist_template_items")
-        .select("template_id, text, sort_order")
+        .select("template_id, text, sort_order, description" as any)
         .in("template_id", templateIds)
         .order("sort_order", { ascending: true });
 
@@ -357,9 +357,17 @@ const AdminSchedule = () => {
       for (let i = 0; i < orderedTplIds.length; i++) {
         const tpl = (templates as any[])?.find((t) => t.id === orderedTplIds[i]);
         if (!tpl) continue;
+        const grp = tpl.checklist_template_groups ?? null;
         const { data: newList, error: clErr } = await supabase
           .from("shift_checklists")
-          .insert({ shift_id: created.id, name: tpl.name, sort_order: i })
+          .insert({
+            shift_id: created.id,
+            name: tpl.name,
+            sort_order: i,
+            description: tpl.description ?? null,
+            group_name: grp?.name ?? null,
+            group_color: grp?.color ?? null,
+          } as any)
           .select("id")
           .single();
         if (clErr || !newList) continue;
@@ -370,6 +378,7 @@ const AdminSchedule = () => {
               shift_checklist_id: newList.id,
               text: it.text,
               sort_order: idx,
+              description: it.description ?? null,
             })),
           );
         }

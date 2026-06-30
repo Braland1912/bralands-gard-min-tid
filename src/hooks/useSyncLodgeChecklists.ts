@@ -67,14 +67,14 @@ export function useSyncLodgeChecklists(
           // Hämta mallar för efterfrågade enheter
           const { data: tpls } = await supabase
             .from("checklist_templates")
-            .select("id, name, lodge_unit")
+            .select("id, name, lodge_unit, description, group_id, checklist_template_groups(name, color)" as any)
             .in("lodge_unit", toAdd as string[]);
-          const templates = tpls ?? [];
+          const templates = (tpls ?? []) as any[];
           if (templates.length > 0) {
             const tplIds = templates.map((t) => t.id);
             const { data: tplItems } = await supabase
               .from("checklist_template_items")
-              .select("template_id, text, sort_order")
+              .select("template_id, text, sort_order, description" as any)
               .in("template_id", tplIds)
               .order("sort_order", { ascending: true });
 
@@ -87,6 +87,7 @@ export function useSyncLodgeChecklists(
 
             for (const tpl of templates) {
               if (!tpl.lodge_unit) continue;
+              const grp = (tpl as any).checklist_template_groups ?? null;
               const { data: created, error: insErr } = await supabase
                 .from("shift_checklists")
                 .insert({
@@ -94,17 +95,21 @@ export function useSyncLodgeChecklists(
                   name: tpl.name,
                   sort_order: nextSort++,
                   lodge_unit: tpl.lodge_unit,
-                })
+                  description: tpl.description ?? null,
+                  group_name: grp?.name ?? null,
+                  group_color: grp?.color ?? null,
+                } as any)
                 .select("id")
                 .single();
               if (insErr || !created) continue;
-              const items = (tplItems ?? []).filter((it) => it.template_id === tpl.id);
+              const items = ((tplItems ?? []) as any[]).filter((it) => it.template_id === tpl.id);
               if (items.length > 0) {
                 await supabase.from("shift_checklist_items").insert(
-                  items.map((it, idx) => ({
+                  items.map((it: any, idx) => ({
                     shift_checklist_id: created.id,
                     text: it.text,
                     sort_order: idx,
+                    description: it.description ?? null,
                   })),
                 );
               }

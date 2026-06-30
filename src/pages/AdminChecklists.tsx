@@ -4,7 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { Plus, Trash2, ListChecks, Pencil, Copy, Check, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ListChecks,
+  Pencil,
+  Copy,
+  Check,
+  Loader2,
+  Info,
+  ChevronDown,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,10 +35,25 @@ import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
+import ChecklistGroupsManager, { useChecklistGroups } from "@/components/ChecklistGroupsManager";
 
-type Template = { id: string; name: string; sort_order: number; lodge_unit?: string | null };
-type Item = { id: string; template_id: string; text: string; sort_order: number };
+type Template = {
+  id: string;
+  name: string;
+  sort_order: number;
+  lodge_unit?: string | null;
+  description?: string | null;
+  group_id?: string | null;
+};
+type Item = {
+  id: string;
+  template_id: string;
+  text: string;
+  sort_order: number;
+  description?: string | null;
+};
 type ShiftLink = { template_id: string; shift_type: string };
+
 
 const LODGE_UNITS: { value: string; label: string; chip: string }[] = [
   { value: "Öringen",       label: "Nr. 1 Öringen",       chip: "bg-amber-50 text-amber-800 border-amber-300" },
@@ -52,10 +77,17 @@ const AdminChecklists = () => {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<Template | null>(null);
   const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
   const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
+  const [showDescField, setShowDescField] = useState(false);
+  const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+
+  const { data: groups = [] } = useChecklistGroups();
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["checklist-templates"],
@@ -174,10 +206,14 @@ const AdminChecklists = () => {
     skipNextSaveRef.current = true;
     setEditing(tpl);
     setEditName(tpl.name);
+    setEditDescription((tpl.description ?? "") as string);
+    setEditGroupId((tpl.group_id ?? null) as string | null);
     setEditItems(items);
     setEditShiftTypes(shiftTypes);
     setEditLodgeUnit((tpl.lodge_unit ?? null) as string | null);
     setNewItemText("");
+    setShowDescField(!!(tpl.description && (tpl.description as string).trim()));
+    setExpandedItemDesc({});
     setAutoSaveState("idle");
   };
 
@@ -190,7 +226,7 @@ const AdminChecklists = () => {
     const newId = `tmp-${Date.now()}-${Math.random()}`;
     setEditItems((prev) => [
       ...prev,
-      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length },
+      { id: newId, template_id: editing!.id, text: "", sort_order: prev.length, description: "" },
     ]);
     setNewItemText("");
     // focus next render
@@ -203,6 +239,13 @@ const AdminChecklists = () => {
   const updateItemText = (id: string, text: string) => {
     setEditItems((prev) => prev.map((i) => (i.id === id ? { ...i, text } : i)));
   };
+
+  const updateItemDescription = (id: string, description: string) => {
+    setEditItems((prev) => prev.map((i) => (i.id === id ? { ...i, description } : i)));
+  };
+
+  const toggleItemDesc = (id: string) =>
+    setExpandedItemDesc((p) => ({ ...p, [id]: !p[id] }));
 
   const removeItem = (id: string) => {
     setEditItems((prev) => prev.filter((i) => i.id !== id));
@@ -230,10 +273,17 @@ const AdminChecklists = () => {
   const persistTemplate = async () => {
     if (!editing) return;
     const name = editName.trim() || "Namnlös mall";
+    const description = editDescription.trim() ? editDescription.trim() : null;
 
     const { error: nameErr } = await supabase
       .from("checklist_templates")
-      .update({ name, lodge_unit: editLodgeUnit, updated_at: new Date().toISOString() } as any)
+      .update({
+        name,
+        lodge_unit: editLodgeUnit,
+        description,
+        group_id: editGroupId,
+        updated_at: new Date().toISOString(),
+      } as any)
       .eq("id", editing.id);
     if (nameErr) throw nameErr;
 
@@ -244,7 +294,12 @@ const AdminChecklists = () => {
     if (delErr) throw delErr;
 
     const filtered = editItems
-      .map((i, idx) => ({ text: i.text.trim(), sort_order: idx, template_id: editing.id }))
+      .map((i, idx) => ({
+        text: i.text.trim(),
+        sort_order: idx,
+        template_id: editing.id,
+        description: i.description?.trim() ? i.description.trim() : null,
+      }))
       .filter((i) => i.text.length > 0);
 
     if (filtered.length > 0) {
@@ -290,7 +345,7 @@ const AdminChecklists = () => {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editName, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
+  }, [editName, editDescription, editGroupId, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
@@ -313,7 +368,11 @@ const AdminChecklists = () => {
       const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
-        .insert({ name: `${tpl.name} (kopia)` })
+        .insert({
+          name: `${tpl.name} (kopia)`,
+          description: (tpl as any).description ?? null,
+          group_id: (tpl as any).group_id ?? null,
+        } as any)
         .select()
         .single();
       if (error) throw error;
@@ -325,6 +384,7 @@ const AdminChecklists = () => {
               template_id: newTpl.id,
               text: i.text,
               sort_order: idx,
+              description: (i as any).description ?? null,
             })),
           );
         if (insErr) throw insErr;
@@ -344,6 +404,32 @@ const AdminChecklists = () => {
     onError: () => toast({ title: "Kunde inte kopiera", variant: "destructive" }),
   });
 
+  // Gruppera mallar för listvyn
+  const groupedTemplates = (() => {
+    const byGroup = new Map<string, Template[]>();
+    const noGroup: Template[] = [];
+    for (const t of templates) {
+      const gid = (t as any).group_id ?? null;
+      if (!gid) {
+        noGroup.push(t);
+      } else {
+        if (!byGroup.has(gid)) byGroup.set(gid, []);
+        byGroup.get(gid)!.push(t);
+      }
+    }
+    const sections: { id: string | null; name: string; color: string; items: Template[] }[] = [];
+    for (const g of groups) {
+      const items = byGroup.get(g.id);
+      if (items && items.length > 0) {
+        sections.push({ id: g.id, name: g.name, color: g.color, items });
+      }
+    }
+    if (noGroup.length > 0) {
+      sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
+    }
+    return sections;
+  })();
+
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
@@ -352,14 +438,16 @@ const AdminChecklists = () => {
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>
             <p className="text-xs text-muted-foreground">Mallar för återkommande uppgifter</p>
           </div>
-          <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
-            <Plus className="h-4 w-4 mr-1.5" />
-            Ny mall
-          </Button>
+          <div className="flex items-center gap-2">
+            <ChecklistGroupsManager />
+            <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Ny mall
+            </Button>
+          </div>
         </div>
         <EveningRoundChecklistPicker />
 
-        
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
@@ -370,54 +458,96 @@ const AdminChecklists = () => {
             <p className="text-sm text-muted-foreground">Inga mallar ännu. Skapa din första mall.</p>
           </Card>
         ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleTemplateDragEnd}
-          >
-            <SortableContext items={templates.map((t) => t.id)} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {templates.map((tpl) => (
-                  <SortableItem key={tpl.id} id={tpl.id}>
-                    <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
-                      <button
-                        onClick={() => handleOpenExisting(tpl)}
-                        className="text-left w-full"
+          <div className="space-y-5">
+            {groupedTemplates.map((section) => {
+              const collapsed = !!collapsedGroups[section.id ?? "_none"];
+              return (
+                <section key={section.id ?? "_none"} className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCollapsedGroups((p) => ({
+                        ...p,
+                        [section.id ?? "_none"]: !p[section.id ?? "_none"],
+                      }))
+                    }
+                    className="flex items-center gap-2 w-full text-left"
+                    aria-expanded={!collapsed}
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        collapsed ? "-rotate-90" : ""
+                      }`}
+                    />
+                    <span
+                      className="h-2.5 w-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: section.color }}
+                      aria-hidden
+                    />
+                    <h2 className="text-sm font-semibold text-foreground">{section.name}</h2>
+                    <span className="text-xs text-muted-foreground">({section.items.length})</span>
+                  </button>
+                  {!collapsed && (
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleTemplateDragEnd}
+                    >
+                      <SortableContext
+                        items={section.items.map((t) => t.id)}
+                        strategy={rectSortingStrategy}
                       >
-                        <div className="flex items-start justify-between gap-3 pr-8">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <ListChecks className="h-4 w-4 text-primary shrink-0" />
-                              <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1.5">
-                              {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
-                            </p>
-                          </div>
-                          <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {section.items.map((tpl) => (
+                            <SortableItem key={tpl.id} id={tpl.id}>
+                              <Card className="p-4 hover:bg-muted/30 transition-colors h-full relative flex-1 min-w-0">
+                                <button
+                                  onClick={() => handleOpenExisting(tpl)}
+                                  className="text-left w-full"
+                                >
+                                  <div className="flex items-start justify-between gap-3 pr-8">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <ListChecks className="h-4 w-4 text-primary shrink-0" />
+                                        <h3 className="text-sm font-semibold text-foreground truncate">{tpl.name}</h3>
+                                        {(tpl as any).description && (
+                                          <Info className="h-3 w-3 text-muted-foreground/70 shrink-0" />
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-muted-foreground mt-1.5">
+                                        {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
+                                      </p>
+                                    </div>
+                                    <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+                                  </div>
+                                </button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    duplicateTemplate.mutate(tpl);
+                                  }}
+                                  disabled={duplicateTemplate.isPending}
+                                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+                                  aria-label="Kopiera mall"
+                                  title="Kopiera mall"
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                              </Card>
+                            </SortableItem>
+                          ))}
                         </div>
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          duplicateTemplate.mutate(tpl);
-                        }}
-                        disabled={duplicateTemplate.isPending}
-                        className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-                        aria-label="Kopiera mall"
-                        title="Kopiera mall"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                    </Card>
-                  </SortableItem>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+                      </SortableContext>
+                    </DndContext>
+                  )}
+                </section>
+              );
+            })}
+          </div>
         )}
+
 
         <ShiftTypeChecklistOrder />
       </div>
@@ -453,6 +583,44 @@ const AdminChecklists = () => {
               )}
             </div>
 
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-muted-foreground">Beskrivning av mallen</label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setShowDescField((v) => !v)}
+                >
+                  {showDescField || editDescription ? "Dölj" : "Lägg till"}
+                </Button>
+              </div>
+              {(showDescField || editDescription) && (
+                <Textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Kort beskrivning av syftet med checklistan…"
+                  rows={2}
+                  className="resize-none"
+                />
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground">Grupp</label>
+              <select
+                value={editGroupId ?? ""}
+                onChange={(e) => setEditGroupId(e.target.value || null)}
+                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">— Ingen grupp —</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Punkter</label>
               <div className="space-y-2">
@@ -461,38 +629,67 @@ const AdminChecklists = () => {
                 )}
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={editItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                    <div className="space-y-2">
-                      {editItems.map((item) => (
-                        <SortableItem key={item.id} id={item.id}>
-                          <Textarea
-                            data-item-id={item.id}
-                            value={item.text}
-                            onChange={(e) => updateItemText(item.id, e.target.value)}
-                            placeholder="Punkt..."
-                            rows={1}
-                            className="min-h-[40px] resize-none overflow-hidden py-2"
-                            onInput={(e) => {
-                              const el = e.currentTarget;
-                              el.style.height = "auto";
-                              el.style.height = el.scrollHeight + "px";
-                            }}
-                            ref={(el) => {
-                              if (el) {
-                                el.style.height = "auto";
-                                el.style.height = el.scrollHeight + "px";
-                              }
-                            }}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeItem(item.id)}
-                            className="text-destructive hover:text-destructive shrink-0"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </SortableItem>
-                      ))}
+                    <div className="space-y-3">
+                      {editItems.map((item) => {
+                        const open = !!expandedItemDesc[item.id] || !!item.description;
+                        return (
+                          <SortableItem key={item.id} id={item.id}>
+                            <div className="flex-1 min-w-0 space-y-1.5">
+                              <div className="flex items-start gap-1.5">
+                                <Textarea
+                                  data-item-id={item.id}
+                                  value={item.text}
+                                  onChange={(e) => updateItemText(item.id, e.target.value)}
+                                  placeholder="Punkt..."
+                                  rows={1}
+                                  className="min-h-[40px] resize-none overflow-hidden py-2 flex-1"
+                                  onInput={(e) => {
+                                    const el = e.currentTarget;
+                                    el.style.height = "auto";
+                                    el.style.height = el.scrollHeight + "px";
+                                  }}
+                                  ref={(el) => {
+                                    if (el) {
+                                      el.style.height = "auto";
+                                      el.style.height = el.scrollHeight + "px";
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => toggleItemDesc(item.id)}
+                                  className={`shrink-0 ${
+                                    item.description ? "text-primary" : "text-muted-foreground"
+                                  }`}
+                                  title="Beskrivning"
+                                  aria-label="Visa/dölj beskrivning"
+                                >
+                                  <Info className="h-4 w-4" />
+                                </Button>
+                              </div>
+                              {open && (
+                                <Textarea
+                                  value={item.description ?? ""}
+                                  onChange={(e) => updateItemDescription(item.id, e.target.value)}
+                                  placeholder="Hur utförs punkten? (visas för medarbetaren via info-ikon)"
+                                  rows={2}
+                                  className="resize-none text-xs bg-muted/40"
+                                />
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeItem(item.id)}
+                              className="text-destructive hover:text-destructive shrink-0"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </SortableItem>
+                        );
+                      })}
                     </div>
                   </SortableContext>
                 </DndContext>
@@ -507,6 +704,7 @@ const AdminChecklists = () => {
                 Ny punkt
               </Button>
             </div>
+
 
             <div className="space-y-2">
               <label className="text-xs font-medium text-muted-foreground">Lägg till automatiskt på passtyper</label>

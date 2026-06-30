@@ -150,9 +150,37 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_template_groups: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       checklist_template_items: {
         Row: {
           created_at: string
+          description: string | null
           id: string
           sort_order: number
           template_id: string
@@ -160,6 +188,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
           sort_order?: number
           template_id: string
@@ -167,6 +196,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
           sort_order?: number
           template_id?: string
@@ -217,6 +247,8 @@ export type Database = {
       checklist_templates: {
         Row: {
           created_at: string
+          description: string | null
+          group_id: string | null
           id: string
           lodge_unit: string | null
           name: string
@@ -225,6 +257,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
+          group_id?: string | null
           id?: string
           lodge_unit?: string | null
           name: string
@@ -233,13 +267,23 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
+          group_id?: string | null
           id?: string
           lodge_unit?: string | null
           name?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "checklist_templates_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_template_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       evening_round_activity_log: {
         Row: {
@@ -679,6 +723,7 @@ export type Database = {
       shift_checklist_items: {
         Row: {
           created_at: string
+          description: string | null
           id: string
           is_checked: boolean
           shift_checklist_id: string
@@ -687,6 +732,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           id?: string
           is_checked?: boolean
           shift_checklist_id: string
@@ -695,6 +741,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           id?: string
           is_checked?: boolean
           shift_checklist_id?: string
@@ -714,6 +761,9 @@ export type Database = {
       shift_checklists: {
         Row: {
           created_at: string
+          description: string | null
+          group_color: string | null
+          group_name: string | null
           id: string
           lodge_unit: string | null
           name: string
@@ -722,6 +772,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
+          group_color?: string | null
+          group_name?: string | null
           id?: string
           lodge_unit?: string | null
           name: string
@@ -730,6 +783,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
+          group_color?: string | null
+          group_name?: string | null
           id?: string
           lodge_unit?: string | null
           name?: string
