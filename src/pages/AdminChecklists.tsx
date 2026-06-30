@@ -431,7 +431,7 @@ const AdminChecklists = () => {
 
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
-      <div className="max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
+      <div className="max-w-4xl mx-auto px-4 py-6 pb-40 md:pb-6 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>
