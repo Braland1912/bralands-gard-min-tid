@@ -1,1 +1,1 @@
-Tvingande uppdatering – appen laddar om automatiskt så alla kör senaste versionen.
+Checklistor är nu helt grupp-baserade. Grupper kopplas till passtyper eller till bytesdagar i lodgen, och du kan dra för att ändra ordning. Ny förhandsvisning visar exakt vilka checklistor som dyker upp på varje pass. Alla grupper är stängda från start och färgerna matchar lodge-enheterna.
