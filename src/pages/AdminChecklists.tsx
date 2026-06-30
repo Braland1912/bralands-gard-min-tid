@@ -88,7 +88,17 @@ const AdminChecklists = () => {
   const [showDescField, setShowDescField] = useState(false);
   const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
-  const [groupFilter, setGroupFilter] = useState<string | "all">("all");
+  const [groupFilter, setGroupFilter] = useState<Set<string>>(new Set());
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const toggleGroupFilter = (id: string) => {
+    setGroupFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const { data: groups = [], isLoading: groupsLoading } = useChecklistGroups();
   const { data: groupShiftLinks = [], isLoading: groupShiftLinksLoading } = useChecklistGroupShiftTypes();
@@ -441,9 +451,9 @@ const AdminChecklists = () => {
       });
     }
     sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
-    const filtered = groupFilter === "all"
+    const filtered = groupFilter.size === 0
       ? sections.filter((s) => s.items.length > 0 || s.id !== null)
-      : sections.filter((s) => (s.id ?? "_none") === groupFilter);
+      : sections.filter((s) => groupFilter.has(s.id ?? "_none"));
     return filtered;
   })();
 
@@ -480,48 +490,80 @@ const AdminChecklists = () => {
         </details>
 
         {groups.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="rounded-lg border border-border bg-card">
             <button
               type="button"
-              onClick={() => setGroupFilter("all")}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                groupFilter === "all"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-foreground border-border hover:bg-muted"
-              }`}
+              onClick={() => setFilterOpen((v) => !v)}
+              className="flex items-center justify-between w-full px-3 py-2 text-xs font-medium text-foreground"
+              aria-expanded={filterOpen}
             >
-              Alla
-            </button>
-            {groups.map((g) => (
-              <button
-                key={g.id}
-                type="button"
-                onClick={() => setGroupFilter(g.id)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                  groupFilter === g.id
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background text-foreground border-border hover:bg-muted"
-                }`}
-              >
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: g.color }}
-                  aria-hidden
+              <span className="flex items-center gap-1.5">
+                Filter
+                {groupFilter.size > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold">
+                    {groupFilter.size}
+                  </span>
+                )}
+                {groupFilter.size === 0 && (
+                  <span className="text-muted-foreground font-normal">visar alla</span>
+                )}
+              </span>
+              <span className="flex items-center gap-2">
+                {groupFilter.size > 0 && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); setGroupFilter(new Set()); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setGroupFilter(new Set()); } }}
+                    className="text-[11px] text-muted-foreground hover:text-foreground underline-offset-2 hover:underline cursor-pointer"
+                  >
+                    Rensa
+                  </span>
+                )}
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${filterOpen ? "rotate-180" : ""}`}
                 />
-                {g.name}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setGroupFilter("_none")}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
-                groupFilter === "_none"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-foreground border-border hover:bg-muted"
-              }`}
-            >
-              Ogrupperade
+              </span>
             </button>
+            {filterOpen && (
+              <div className="px-3 pb-3 pt-1 flex flex-wrap gap-1.5 border-t border-border">
+                {groups.map((g) => {
+                  const active = groupFilter.has(g.id);
+                  return (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => toggleGroupFilter(g.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                        active
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: g.color }}
+                        aria-hidden
+                      />
+                      {g.name}
+                      {active && <Check className="h-3 w-3" />}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => toggleGroupFilter("_none")}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                    groupFilter.has("_none")
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background text-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  Ogrupperade
+                  {groupFilter.has("_none") && <Check className="h-3 w-3" />}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
