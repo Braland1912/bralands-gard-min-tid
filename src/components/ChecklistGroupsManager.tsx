@@ -20,7 +20,6 @@ export type ChecklistGroup = {
   color: string;
   sort_order: number;
   lodge_unit?: string | null;
-  is_evening_round?: boolean;
 };
 
 export type GroupShiftLink = { group_id: string; shift_type: string };
@@ -83,7 +82,6 @@ const ChecklistGroupsManager = () => {
   const [draftColor, setDraftColor] = useState(PALETTE[0]);
   const [draftShiftTypes, setDraftShiftTypes] = useState<string[]>([]);
   const [draftLodgeUnit, setDraftLodgeUnit] = useState<string | null>(null);
-  const [draftIsEveningRound, setDraftIsEveningRound] = useState(false);
 
   const reset = () => {
     setEditId(null);
@@ -91,21 +89,12 @@ const ChecklistGroupsManager = () => {
     setDraftColor(PALETTE[0]);
     setDraftShiftTypes([]);
     setDraftLodgeUnit(null);
-    setDraftIsEveningRound(false);
   };
 
   const save = useMutation({
     mutationFn: async () => {
       const name = draftName.trim();
       if (!name) throw new Error("Namn saknas");
-      // Om denna grupp ska bli kvällsrundans grupp – nollställ ev. tidigare först
-      if (draftIsEveningRound) {
-        await supabase
-          .from("checklist_template_groups" as any)
-          .update({ is_evening_round: false })
-          .eq("is_evening_round", true)
-          .neq("id", editId ?? "00000000-0000-0000-0000-000000000000");
-      }
       let groupId = editId;
       if (editId) {
         const { error } = await supabase
@@ -114,7 +103,6 @@ const ChecklistGroupsManager = () => {
             name,
             color: draftColor,
             lodge_unit: draftLodgeUnit,
-            is_evening_round: draftIsEveningRound,
           })
           .eq("id", editId);
         if (error) throw error;
@@ -127,7 +115,6 @@ const ChecklistGroupsManager = () => {
             color: draftColor,
             sort_order: next,
             lodge_unit: draftLodgeUnit,
-            is_evening_round: draftIsEveningRound,
           })
           .select("id")
           .single();
@@ -178,7 +165,6 @@ const ChecklistGroupsManager = () => {
     setDraftName(g.name);
     setDraftColor(g.color);
     setDraftLodgeUnit((g.lodge_unit ?? null) as string | null);
-    setDraftIsEveningRound(!!g.is_evening_round);
     setDraftShiftTypes(allShiftLinks.filter((l) => l.group_id === g.id).map((l) => l.shift_type));
   };
 
@@ -223,7 +209,7 @@ const ChecklistGroupsManager = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="text-sm truncate">{g.name}</div>
-                      {(labels.length > 0 || g.lodge_unit || g.is_evening_round) && (
+                      {(labels.length > 0 || g.lodge_unit) && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {labels.map((l) => (
                             <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
@@ -231,11 +217,6 @@ const ChecklistGroupsManager = () => {
                           {g.lodge_unit && (
                             <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
                               {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
-                            </span>
-                          )}
-                          {g.is_evening_round && (
-                            <span className="text-[10px] rounded-full bg-primary/15 text-primary px-1.5 py-0.5">
-                              Kvällsrundan
                             </span>
                           )}
                         </div>
@@ -343,23 +324,6 @@ const ChecklistGroupsManager = () => {
               </p>
             </div>
 
-            <label
-              className={`flex items-start gap-2 rounded-md border px-3 py-2 cursor-pointer text-sm ${
-                draftIsEveningRound ? "bg-primary/5 border-primary/40" : "border-border bg-muted/30"
-              }`}
-            >
-              <Checkbox
-                checked={draftIsEveningRound}
-                onCheckedChange={(v) => setDraftIsEveningRound(v === true)}
-                className="mt-0.5"
-              />
-              <div className="space-y-0.5">
-                <div className="font-medium">Använd som Kvällsrundans checklista</div>
-                <p className="text-[10px] text-muted-foreground">
-                  Alla mallar i gruppen visas på fliken Lista i Kvällsrundan. Endast en grupp åt gången.
-                </p>
-              </div>
-            </label>
 
             <div className="flex gap-2">
               {editId && (

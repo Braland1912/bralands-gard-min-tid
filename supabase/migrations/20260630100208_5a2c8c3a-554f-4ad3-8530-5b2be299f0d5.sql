@@ -1,0 +1,1 @@
+ALTER TABLE public.checklist_template_groups DROP COLUMN IF EXISTS is_evening_round;

@@ -184,7 +184,6 @@ export type Database = {
           color: string
           created_at: string
           id: string
-          is_evening_round: boolean
           lodge_unit: string | null
           name: string
           sort_order: number
@@ -194,7 +193,6 @@ export type Database = {
           color?: string
           created_at?: string
           id?: string
-          is_evening_round?: boolean
           lodge_unit?: string | null
           name: string
           sort_order?: number
@@ -204,7 +202,6 @@ export type Database = {
           color?: string
           created_at?: string
           id?: string
-          is_evening_round?: boolean
           lodge_unit?: string | null
           name?: string
           sort_order?: number

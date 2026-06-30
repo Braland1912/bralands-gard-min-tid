@@ -898,7 +898,6 @@ const EveningRound = () => {
                       workerId={worker.id}
                       roundDate={date}
                       showQuickStart={false}
-                      showChecklist={false}
                     />
                   </div>
                 )}
@@ -910,7 +909,6 @@ const EveningRound = () => {
                 workerId={worker?.id}
                 roundDate={date}
                 showQuickStart={false}
-                showChecklist={false}
               />
             )}
           </TabsContent>
