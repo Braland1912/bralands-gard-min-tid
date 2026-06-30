@@ -519,6 +519,17 @@ const AdminChecklists = () => {
                                       <p className="text-xs text-muted-foreground mt-1.5">
                                         {countFor(tpl.id)} {countFor(tpl.id) === 1 ? "punkt" : "punkter"}
                                       </p>
+                                      {tpl.lodge_unit && (
+                                        <div className="mt-1.5">
+                                          <span
+                                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${styleFor(tpl.lodge_unit).chip}`}
+                                            title="Kopplad till lodge-enhet — läggs till automatiskt på dagpass vid bytesdag"
+                                          >
+                                            <Home className="h-2.5 w-2.5" />
+                                            {UNIT_NUMBER[tpl.lodge_unit] ?? ""} {tpl.lodge_unit}
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
                                     <Pencil className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                                   </div>
