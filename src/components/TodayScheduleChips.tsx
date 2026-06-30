@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
 import LodgeDaySection from "@/components/LodgeDaySection";
 import { sortShiftsByType } from "@/lib/shift-order";
+import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
 
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
@@ -75,11 +76,13 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
     },
   });
 
+  const { data: groupOrder } = useGroupOrder();
+
   if (isLoading) return <Skeleton className="h-16 w-full rounded-lg" />;
   if (!lists || lists.length === 0) return null;
 
   // Gruppera per group_name i visningsordning
-  const grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+  let grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
   {
     const idx = new Map<string, number>();
     for (const l of lists as any[]) {
@@ -90,6 +93,7 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
       }
       grouped[idx.get(key)!].lists.push(l);
     }
+    grouped = sortGroups(grouped, groupOrder);
   }
 
   return (
