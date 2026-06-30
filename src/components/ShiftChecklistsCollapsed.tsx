@@ -35,6 +35,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     },
     enabled: !!shiftId,
   });
+  const { data: groupOrder } = useGroupOrder();
 
   if (isLoading) {
     return (
@@ -42,7 +43,6 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     );
   }
 
-  const { data: groupOrder } = useGroupOrder();
   const lists = (data?.lists ?? []) as any[];
 
   // Gruppera per group_name i visningsordning
