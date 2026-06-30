@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, FolderOpen, X, Check, Pencil, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Trash2, FolderOpen, X, Check, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -14,6 +14,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableItem } from "@/components/SortableItem";
 
 export type ChecklistGroup = {
   id: string;
@@ -169,35 +185,36 @@ const ChecklistGroupsManager = () => {
     onError: () => toast({ title: "Kunde inte ta bort", variant: "destructive" }),
   });
 
-  const swapOrder = useMutation({
-    mutationFn: async ({ a, b }: { a: ChecklistGroup; b: ChecklistGroup }) => {
-      // Use a temp value to avoid unique constraint collisions if any
-      const tmp = -1000000 - Math.floor(Math.random() * 1000);
-      const { error: e0 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: tmp })
-        .eq("id", a.id);
-      if (e0) throw e0;
-      const { error: e1 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: a.sort_order })
-        .eq("id", b.id);
-      if (e1) throw e1;
-      const { error: e2 } = await supabase
-        .from("checklist_template_groups" as any)
-        .update({ sort_order: b.sort_order })
-        .eq("id", a.id);
-      if (e2) throw e2;
+  const reorder = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      // Two-phase update to avoid any potential unique collisions
+      const offset = 1000000;
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_template_groups" as any)
+          .update({ sort_order: offset + i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
+      for (let i = 0; i < orderedIds.length; i++) {
+        const { error } = await supabase
+          .from("checklist_template_groups" as any)
+          .update({ sort_order: i })
+          .eq("id", orderedIds[i]);
+        if (error) throw error;
+      }
     },
-    onMutate: async ({ a, b }) => {
+    onMutate: async (orderedIds: string[]) => {
       await queryClient.cancelQueries({ queryKey: ["checklist-template-groups"] });
       const prev = queryClient.getQueryData<ChecklistGroup[]>(["checklist-template-groups"]);
       if (prev) {
-        const next = prev.map((g) => {
-          if (g.id === a.id) return { ...g, sort_order: b.sort_order };
-          if (g.id === b.id) return { ...g, sort_order: a.sort_order };
-          return g;
-        }).sort((x, y) => x.sort_order - y.sort_order || x.name.localeCompare(y.name));
+        const byId = new Map(prev.map((g) => [g.id, g]));
+        const next = orderedIds
+          .map((id, i) => {
+            const g = byId.get(id);
+            return g ? { ...g, sort_order: i } : null;
+          })
+          .filter(Boolean) as ChecklistGroup[];
         queryClient.setQueryData(["checklist-template-groups"], next);
       }
       return { prev };
@@ -210,6 +227,22 @@ const ChecklistGroupsManager = () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-groups"] });
     },
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const ids = groups.map((g) => g.id);
+    const oldIdx = ids.indexOf(active.id as string);
+    const newIdx = ids.indexOf(over.id as string);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const next = arrayMove(ids, oldIdx, newIdx);
+    reorder.mutate(next);
+  };
 
   const startEdit = (g: ChecklistGroup) => {
     setEditId(g.id);
@@ -246,84 +279,69 @@ const ChecklistGroupsManager = () => {
           </p>
 
           {groups.length > 0 && (
-            <ul className="space-y-1.5 max-h-72 overflow-y-auto">
-              {groups.map((g, idx) => {
-                const labels = shiftLabelsFor(g.id);
-                const prevG = groups[idx - 1];
-                const nextG = groups[idx + 1];
-                return (
-                  <li
-                    key={g.id}
-                    className="flex items-start gap-2 rounded-md border border-border px-2 py-1.5"
-                  >
-                    <div className="flex flex-col -mx-1 mt-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-6"
-                        disabled={!prevG || swapOrder.isPending}
-                        onClick={() => prevG && swapOrder.mutate({ a: g, b: prevG })}
-                        aria-label="Flytta upp"
-                      >
-                        <ChevronUp className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-6"
-                        disabled={!nextG || swapOrder.isPending}
-                        onClick={() => nextG && swapOrder.mutate({ a: g, b: nextG })}
-                        aria-label="Flytta ner"
-                      >
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <span
-                      className="h-3.5 w-3.5 rounded-full shrink-0 mt-1"
-                      style={{ backgroundColor: g.color }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm truncate">{g.name}</div>
-                      {(labels.length > 0 || g.lodge_unit) && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {labels.map((l) => (
-                            <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
-                          ))}
-                          {g.lodge_unit && (
-                            <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
-                              {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => startEdit(g)}
-                      aria-label="Redigera"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive"
-                      onClick={() => {
-                        if (confirm(`Ta bort gruppen "${g.name}"? Mallar i gruppen blir ogrupperade.`)) {
-                          remove.mutate(g.id);
-                        }
-                      }}
-                      aria-label="Ta bort"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="max-h-72 overflow-y-auto">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={groups.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="space-y-1.5">
+                    {groups.map((g) => {
+                      const labels = shiftLabelsFor(g.id);
+                      return (
+                        <SortableItem key={g.id} id={g.id}>
+                          <div className="flex items-start gap-2 rounded-md border border-border px-2 py-1.5 flex-1 min-w-0 bg-background">
+                            <span
+                              className="h-3.5 w-3.5 rounded-full shrink-0 mt-1"
+                              style={{ backgroundColor: g.color }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm truncate">{g.name}</div>
+                              {(labels.length > 0 || g.lodge_unit) && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {labels.map((l) => (
+                                    <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
+                                  ))}
+                                  {g.lodge_unit && (
+                                    <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
+                                      {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => { e.stopPropagation(); startEdit(g); }}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              aria-label="Redigera"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Ta bort gruppen "${g.name}"? Mallar i gruppen blir ogrupperade.`)) {
+                                  remove.mutate(g.id);
+                                }
+                              }}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              aria-label="Ta bort"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </SortableItem>
+                      );
+                    })}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            </div>
           )}
+
 
           <div className="rounded-md border border-border p-3 space-y-3 bg-muted/30">
             <div className="text-xs font-medium text-muted-foreground">
