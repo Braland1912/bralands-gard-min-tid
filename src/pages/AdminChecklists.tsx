@@ -131,21 +131,7 @@ const AdminChecklists = () => {
     enabled: !!user,
   });
 
-  const { data: allShiftLinks = [] } = useQuery({
-    queryKey: ["checklist-template-shift-types"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("checklist_template_shift_types")
-        .select("template_id, shift_type");
-      if (error) throw error;
-      return data as ShiftLink[];
-    },
-    enabled: !!user,
-  });
-
   const countFor = (id: string) => allItems.filter((i) => i.template_id === id).length;
-  const shiftTypesFor = (id: string) =>
-    allShiftLinks.filter((l) => l.template_id === id).map((l) => l.shift_type);
 
   const trimmedEditName = editName.trim().toLowerCase();
   const nameTaken =
