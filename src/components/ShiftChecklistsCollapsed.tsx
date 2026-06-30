@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronDown, ListChecks } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ListChecks, Info } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -17,7 +18,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     queryFn: async () => {
       const { data: lists, error } = await supabase
         .from("shift_checklists")
-        .select("id, name, sort_order, lodge_unit")
+        .select("id, name, sort_order, lodge_unit, description")
         .eq("shift_id", shiftId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
@@ -25,7 +26,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
       if (listIds.length === 0) return { lists: [], items: [] as any[] };
       const { data: items, error: itemsErr } = await supabase
         .from("shift_checklist_items")
-        .select("id, shift_checklist_id, text, is_checked, sort_order")
+        .select("id, shift_checklist_id, text, is_checked, sort_order, description")
         .in("shift_checklist_id", listIds)
         .order("sort_order", { ascending: true });
       if (itemsErr) throw itemsErr;
@@ -59,6 +60,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
               <ChecklistRow
                 key={list.id}
                 name={list.name}
+                description={list.description}
                 done={done}
                 total={total}
                 items={listItems}
@@ -73,27 +75,49 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
 
 const ChecklistRow = ({
   name,
+  description,
   done,
   total,
   items,
 }: {
   name: string;
+  description?: string | null;
   done: number;
   total: number;
-  items: { id: string; text: string; is_checked: boolean }[];
+  items: { id: string; text: string; is_checked: boolean; description?: string | null }[];
 }) => {
   const [open, setOpen] = useState(false);
+  const [descOpen, setDescOpen] = useState(false);
+  const [openItemDesc, setOpenItemDesc] = useState<Record<string, boolean>>({});
   const complete = total > 0 && done === total;
   return (
     <li className="rounded-lg border border-border bg-muted/20 overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-muted/40 transition-colors"
-        aria-expanded={open}
-      >
-        <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <span className="text-sm font-medium text-foreground truncate flex-1">{name}</span>
+      <div className="flex items-center gap-1 px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-2 flex-1 min-w-0 text-left"
+          aria-expanded={open}
+        >
+          <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-foreground truncate flex-1">{name}</span>
+        </button>
+        {description && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDescOpen((o) => !o);
+            }}
+            aria-label="Visa beskrivning"
+            title="Visa beskrivning"
+          >
+            <Info className="h-3.5 w-3.5" />
+          </Button>
+        )}
         {total > 0 && (
           <span
             className={`text-[11px] tabular-nums shrink-0 ${
@@ -103,38 +127,75 @@ const ChecklistRow = ({
             {done}/{total}
           </span>
         )}
-        <ChevronDown
-          className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
-        />
-      </button>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? "Dölj" : "Visa"}
+          className="shrink-0"
+        >
+          <ChevronDown
+            className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+      {descOpen && description && (
+        <div className="px-3 pb-2">
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5 whitespace-pre-wrap">
+            {description}
+          </p>
+        </div>
+      )}
       {open && (
-        <ul className="px-3 pb-2 pt-1 space-y-1 border-t border-border bg-background">
+        <ul className="divide-y divide-border/60 border-t border-border bg-background">
           {items.length === 0 ? (
-            <li className="text-xs text-muted-foreground italic py-1">Inga punkter.</li>
+            <li className="px-3 py-2 text-xs text-muted-foreground italic">Inga punkter.</li>
           ) : (
-            items.map((it) => (
-              <li key={it.id} className="flex items-start gap-2 text-sm">
-                <span
-                  className={`mt-0.5 h-3.5 w-3.5 rounded-sm border shrink-0 ${
-                    it.is_checked
-                      ? "bg-[hsl(150_45%_45%)] border-[hsl(150_45%_45%)]"
-                      : "bg-background border-border"
-                  }`}
-                  aria-hidden
-                />
-                <span
-                  className={
-                    it.is_checked
-                      ? "text-muted-foreground line-through"
-                      : "text-foreground"
-                  }
-                >
-                  {it.text}
-                </span>
-              </li>
-            ))
+            items.map((it) => {
+              const itemDescOpen = !!openItemDesc[it.id];
+              return (
+                <li key={it.id} className="px-3 py-2.5">
+                  <div className="flex items-start gap-2">
+                    <span
+                      className={`mt-0.5 h-3.5 w-3.5 rounded-sm border shrink-0 ${
+                        it.is_checked
+                          ? "bg-[hsl(150_45%_45%)] border-[hsl(150_45%_45%)]"
+                          : "bg-background border-border"
+                      }`}
+                      aria-hidden
+                    />
+                    <span
+                      className={`flex-1 text-sm leading-snug ${
+                        it.is_checked
+                          ? "text-muted-foreground line-through"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {it.text}
+                    </span>
+                    {it.description && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-primary shrink-0 -mr-1"
+                        onClick={() =>
+                          setOpenItemDesc((p) => ({ ...p, [it.id]: !p[it.id] }))
+                        }
+                        aria-label="Mer info"
+                        title="Mer info"
+                      >
+                        <Info className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                  {itemDescOpen && it.description && (
+                    <p className="mt-1.5 ml-5 text-xs text-muted-foreground bg-muted/50 rounded-md px-2.5 py-1.5 whitespace-pre-wrap">
+                      {it.description}
+                    </p>
+                  )}
+                </li>
+              );
+            })
           )}
         </ul>
       )}
