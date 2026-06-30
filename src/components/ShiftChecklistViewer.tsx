@@ -23,7 +23,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     queryFn: async () => {
       const { data: cls, error } = await supabase
         .from("shift_checklists")
-        .select("id, name, sort_order, description")
+        .select("id, name, sort_order, description, group_name, group_color")
         .eq("shift_id", shiftId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
@@ -34,12 +34,27 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
         .in("shift_checklist_id", cls.map((c) => c.id))
         .order("sort_order", { ascending: true });
       if (e2) throw e2;
-      return cls.map((c) => ({
+      return cls.map((c: any) => ({
         ...c,
         items: (items || []).filter((i) => i.shift_checklist_id === c.id),
       }));
     },
   });
+
+  // Gruppera i visningsordning efter group_name (null → "Övrigt")
+  const grouped = (() => {
+    const out: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+    const idx = new Map<string, number>();
+    for (const l of (lists ?? []) as any[]) {
+      const key = l.group_name ?? "__none__";
+      if (!idx.has(key)) {
+        idx.set(key, out.length);
+        out.push({ key, name: l.group_name ?? null, color: l.group_color ?? null, lists: [] });
+      }
+      out[idx.get(key)!].lists.push(l);
+    }
+    return out;
+  })();
 
   // Hämta passets datum + ev. notering från admin
   const { data: shiftMeta } = useQuery({
