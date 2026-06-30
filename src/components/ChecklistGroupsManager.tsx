@@ -44,6 +44,13 @@ export type GroupShiftLink = { group_id: string; shift_type: string };
 const PALETTE = [
   "#4e8283", "#b45309", "#0369a1", "#7c3aed",
   "#be185d", "#15803d", "#b91c1c", "#475569",
+  // Lodge-enheter (matchar färgerna i /lodge)
+  "#f59e0b", // Nr. 1 Öringen (amber)
+  "#f43f5e", // Nr. 2 Laxen (rose)
+  "#0ea5e9", // Nr. 3 Kungsfiskaren (sky)
+  "#10b981", // Nr. 4 Strömstaren (emerald)
+  "#8b5cf6", // Nr. 5 Husvagnen (violet)
+  "#f97316", // Bytesdag (orange)
 ];
 
 const SHIFT_OPTIONS = [
