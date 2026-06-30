@@ -707,7 +707,28 @@ const AdminChecklists = () => {
               <label className="text-xs font-medium text-muted-foreground">Grupp</label>
               <select
                 value={editGroupId ?? ""}
-                onChange={(e) => setEditGroupId(e.target.value || null)}
+                onChange={async (e) => {
+                  const next = e.target.value || null;
+                  setEditGroupId(next);
+                  // Persist group_id direkt så den inte tappas av en avbruten debounce
+                  if (editing) {
+                    const targetId = editing.id;
+                    // Optimistisk cache-uppdatering
+                    queryClient.setQueryData<Template[]>(["checklist-templates"], (old) =>
+                      old?.map((t) => (t.id === targetId ? { ...t, group_id: next } : t)) ?? old,
+                    );
+                    skipNextSaveRef.current = true; // hoppa över debouncad autosave för denna förändring
+                    const { error } = await supabase
+                      .from("checklist_templates")
+                      .update({ group_id: next, updated_at: new Date().toISOString() } as any)
+                      .eq("id", targetId);
+                    if (error) {
+                      toast({ title: "Kunde inte spara grupp", variant: "destructive" });
+                    } else {
+                      queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
+                    }
+                  }
+                }}
                 className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
               >
                 <option value="">— Ingen grupp —</option>
