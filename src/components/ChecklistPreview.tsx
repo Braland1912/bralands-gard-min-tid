@@ -34,7 +34,7 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { ChevronDown, ListChecks, Plus, X, Wand2, Home, RefreshCw } from "lucide-react";
-import { UNIT_NUMBER, styleFor, LODGE_UNITS } from "@/lib/lodge-calendar";
+import { UNIT_NUMBER, styleFor, UNIT_ORDER } from "@/lib/lodge-calendar";
 
 type Group = { id: string; name: string; color: string; sort_order: number; lodge_unit: string | null };
 type GroupShiftLink = { id: string; group_id: string; shift_type: string; sort_order: number };
