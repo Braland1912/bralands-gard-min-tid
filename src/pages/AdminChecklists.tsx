@@ -83,7 +83,7 @@ const AdminChecklists = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [editItems, setEditItems] = useState<Item[]>([]);
-  const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
+  
   const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
   const [showDescField, setShowDescField] = useState(false);
@@ -307,17 +307,6 @@ const AdminChecklists = () => {
       if (insErr) throw insErr;
     }
 
-    const { error: delLinkErr } = await supabase
-      .from("checklist_template_shift_types")
-      .delete()
-      .eq("template_id", editing.id);
-    if (delLinkErr) throw delLinkErr;
-    if (editShiftTypes.length > 0) {
-      const { error: linkErr } = await supabase
-        .from("checklist_template_shift_types")
-        .insert(editShiftTypes.map((st) => ({ template_id: editing.id, shift_type: st })));
-      if (linkErr) throw linkErr;
-    }
   };
 
   // Autosave debounce
