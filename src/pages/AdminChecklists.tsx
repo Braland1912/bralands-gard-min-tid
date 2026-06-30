@@ -14,7 +14,9 @@ import {
   Loader2,
   Info,
   ChevronDown,
+  Home,
 } from "lucide-react";
+import { UNIT_NUMBER, styleFor } from "@/lib/lodge-calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
