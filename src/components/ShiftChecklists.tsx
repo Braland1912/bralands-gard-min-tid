@@ -34,6 +34,9 @@ export type ShiftChecklist = {
   name: string;
   sort_order: number;
   lodge_unit?: string | null;
+  description?: string | null;
+  group_name?: string | null;
+  group_color?: string | null;
 };
 
 export type ShiftChecklistItem = {
@@ -42,6 +45,7 @@ export type ShiftChecklistItem = {
   text: string;
   is_checked: boolean;
   sort_order: number;
+  description?: string | null;
 };
 
 type Props = {
