@@ -680,72 +680,11 @@ export const ShiftChecklists = ({ shiftId, mode }: Props) => {
           </SortableContext>
         </DndContext>
       ) : (
-        <div className="space-y-3">
-          {lists.map((list) => {
-            const listItems = items.filter((i) => i.shift_checklist_id === list.id);
-            const doneCount = listItems.filter((i) => i.is_checked).length;
-            const totalCount = listItems.length;
-            const allDone = totalCount > 0 && doneCount === totalCount;
-            const pct = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
-            const isLocked = !!list.lodge_unit;
-            return (
-              <div key={list.id} className={`border rounded-xl p-3 space-y-2 ${isLocked ? "border-amber-300 bg-amber-50/30" : "border-border bg-background"}`}>
-                <div className="space-y-2">
-                  {isLocked && (
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5 w-fit">
-                      <Lock className="h-2.5 w-2.5" />
-                      Från kalender · {list.lodge_unit}
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-foreground truncate">{list.name}</span>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {totalCount > 0 && (
-                        <span
-                          className={`text-[11px] font-medium tabular-nums ${
-                            allDone ? "text-emerald-700" : "text-muted-foreground"
-                          }`}
-                        >
-                          {doneCount}/{totalCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {totalCount > 0 && (
-                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-300 ${
-                          allDone ? "bg-emerald-500" : "bg-primary"
-                        }`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  {listItems.map((item) => (
-                    <div key={item.id} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={item.is_checked}
-                        onCheckedChange={(v) =>
-                          toggleItem.mutate({ id: item.id, checked: v === true })
-                        }
-                      />
-                      <span
-                        className={`flex-1 text-sm ${
-                          item.is_checked ? "line-through text-muted-foreground" : "text-foreground"
-                        }`}
-                      >
-                        {item.text}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <WorkerChecklistsView
+          lists={lists}
+          items={items}
+          onToggle={(id, checked) => toggleItem.mutate({ id, checked })}
+        />
       )}
     </div>
   );
