@@ -4,7 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { Plus, Trash2, ListChecks, Pencil, Copy, Check, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ListChecks,
+  Pencil,
+  Copy,
+  Check,
+  Loader2,
+  Info,
+  ChevronDown,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,10 +35,25 @@ import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
 import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
+import ChecklistGroupsManager, { useChecklistGroups } from "@/components/ChecklistGroupsManager";
 
-type Template = { id: string; name: string; sort_order: number; lodge_unit?: string | null };
-type Item = { id: string; template_id: string; text: string; sort_order: number };
+type Template = {
+  id: string;
+  name: string;
+  sort_order: number;
+  lodge_unit?: string | null;
+  description?: string | null;
+  group_id?: string | null;
+};
+type Item = {
+  id: string;
+  template_id: string;
+  text: string;
+  sort_order: number;
+  description?: string | null;
+};
 type ShiftLink = { template_id: string; shift_type: string };
+
 
 const LODGE_UNITS: { value: string; label: string; chip: string }[] = [
   { value: "Öringen",       label: "Nr. 1 Öringen",       chip: "bg-amber-50 text-amber-800 border-amber-300" },
