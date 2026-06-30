@@ -279,84 +279,69 @@ const ChecklistGroupsManager = () => {
           </p>
 
           {groups.length > 0 && (
-            <ul className="space-y-1.5 max-h-72 overflow-y-auto">
-              {groups.map((g, idx) => {
-                const labels = shiftLabelsFor(g.id);
-                const prevG = groups[idx - 1];
-                const nextG = groups[idx + 1];
-                return (
-                  <li
-                    key={g.id}
-                    className="flex items-start gap-2 rounded-md border border-border px-2 py-1.5"
-                  >
-                    <div className="flex flex-col -mx-1 mt-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-6"
-                        disabled={!prevG || swapOrder.isPending}
-                        onClick={() => prevG && swapOrder.mutate({ a: g, b: prevG })}
-                        aria-label="Flytta upp"
-                      >
-                        <ChevronUp className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-6"
-                        disabled={!nextG || swapOrder.isPending}
-                        onClick={() => nextG && swapOrder.mutate({ a: g, b: nextG })}
-                        aria-label="Flytta ner"
-                      >
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <span
-                      className="h-3.5 w-3.5 rounded-full shrink-0 mt-1"
-                      style={{ backgroundColor: g.color }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm truncate">{g.name}</div>
-                      {(labels.length > 0 || g.lodge_unit) && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {labels.map((l) => (
-                            <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
-                          ))}
-                          {g.lodge_unit && (
-                            <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
-                              {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => startEdit(g)}
-                      aria-label="Redigera"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive"
-                      onClick={() => {
-                        if (confirm(`Ta bort gruppen "${g.name}"? Mallar i gruppen blir ogrupperade.`)) {
-                          remove.mutate(g.id);
-                        }
-                      }}
-                      aria-label="Ta bort"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="max-h-72 overflow-y-auto">
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={groups.map((g) => g.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="space-y-1.5">
+                    {groups.map((g) => {
+                      const labels = shiftLabelsFor(g.id);
+                      return (
+                        <SortableItem key={g.id} id={g.id}>
+                          <div className="flex items-start gap-2 rounded-md border border-border px-2 py-1.5 flex-1 min-w-0 bg-background">
+                            <span
+                              className="h-3.5 w-3.5 rounded-full shrink-0 mt-1"
+                              style={{ backgroundColor: g.color }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm truncate">{g.name}</div>
+                              {(labels.length > 0 || g.lodge_unit) && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {labels.map((l) => (
+                                    <span key={l} className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">{l}</span>
+                                  ))}
+                                  {g.lodge_unit && (
+                                    <span className="text-[10px] rounded-full bg-muted px-1.5 py-0.5">
+                                      {LODGE_OPTIONS.find((u) => u.value === g.lodge_unit)?.label ?? g.lodge_unit}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => { e.stopPropagation(); startEdit(g); }}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              aria-label="Redigera"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Ta bort gruppen "${g.name}"? Mallar i gruppen blir ogrupperade.`)) {
+                                  remove.mutate(g.id);
+                                }
+                              }}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              aria-label="Ta bort"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </SortableItem>
+                      );
+                    })}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            </div>
           )}
+
 
           <div className="rounded-md border border-border p-3 space-y-3 bg-muted/30">
             <div className="text-xs font-medium text-muted-foreground">
