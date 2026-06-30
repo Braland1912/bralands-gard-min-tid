@@ -109,12 +109,14 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
 const ChecklistRow = ({
   name,
   description,
+  color,
   done,
   total,
   items,
 }: {
   name: string;
   description?: string | null;
+  color?: string | null;
   done: number;
   total: number;
   items: { id: string; text: string; is_checked: boolean; description?: string | null }[];
@@ -124,7 +126,10 @@ const ChecklistRow = ({
   const [openItemDesc, setOpenItemDesc] = useState<Record<string, boolean>>({});
   const complete = total > 0 && done === total;
   return (
-    <li className="rounded-lg border border-border bg-muted/20 overflow-hidden">
+    <li
+      className="rounded-lg border bg-muted/20 overflow-hidden"
+      style={color ? { borderLeft: `3px solid ${color}` } : undefined}
+    >
       <div className="flex items-center gap-1 px-3 py-2">
         <button
           type="button"
