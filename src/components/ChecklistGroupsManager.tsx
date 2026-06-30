@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, FolderOpen, X, Check, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -45,8 +46,10 @@ const LODGE_OPTIONS: { value: string; label: string }[] = [
   { value: "Husvagnen",     label: "Nr. 5 Husvagnen" },
 ];
 
-export const useChecklistGroups = () =>
-  useQuery({
+export const useChecklistGroups = () => {
+  const { user } = useAuth();
+
+  return useQuery({
     queryKey: ["checklist-template-groups"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -57,10 +60,14 @@ export const useChecklistGroups = () =>
       if (error) throw error;
       return ((data ?? []) as unknown) as ChecklistGroup[];
     },
+    enabled: !!user,
   });
+};
 
-export const useChecklistGroupShiftTypes = () =>
-  useQuery({
+export const useChecklistGroupShiftTypes = () => {
+  const { user } = useAuth();
+
+  return useQuery({
     queryKey: ["checklist-group-shift-types"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -69,7 +76,9 @@ export const useChecklistGroupShiftTypes = () =>
       if (error) throw error;
       return ((data ?? []) as unknown) as GroupShiftLink[];
     },
+    enabled: !!user,
   });
+};
 
 const ChecklistGroupsManager = () => {
   const { toast } = useToast();
