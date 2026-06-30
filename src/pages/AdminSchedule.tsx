@@ -328,7 +328,29 @@ const AdminSchedule = () => {
         .select("template_id, sort_order")
         .eq("shift_type", shiftType)
         .order("sort_order", { ascending: true });
-      const templateIds = (links ?? []).map((l: any) => l.template_id);
+      const directIds: string[] = (links ?? []).map((l: any) => l.template_id);
+
+      // Hämta mallar via grupp-kopplingar för shift-typen
+      const { data: groupLinks } = await supabase
+        .from("checklist_group_shift_types" as any)
+        .select("group_id")
+        .eq("shift_type", shiftType);
+      const groupIds = ((groupLinks ?? []) as any[]).map((g) => g.group_id);
+      let viaGroupIds: string[] = [];
+      if (groupIds.length > 0) {
+        const { data: tplsG } = await supabase
+          .from("checklist_templates")
+          .select("id")
+          .in("group_id", groupIds);
+        viaGroupIds = ((tplsG ?? []) as any[]).map((t) => t.id);
+      }
+
+      // Dedupera: direkt-kopplingar först (behåller deras ordning), sedan grupp-kopplingar
+      const seen = new Set<string>();
+      const templateIds: string[] = [];
+      for (const id of [...directIds, ...viaGroupIds]) {
+        if (!seen.has(id)) { seen.add(id); templateIds.push(id); }
+      }
       if (templateIds.length === 0) return;
 
       const { data: templates } = await supabase

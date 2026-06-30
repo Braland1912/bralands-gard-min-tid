@@ -41,20 +41,20 @@ export function useSyncLodgeChecklists(
         // Befintliga låsta lodge-checklistor på passet
         const { data: existing } = await supabase
           .from("shift_checklists")
-          .select("id, lodge_unit")
+          .select("id, lodge_unit, name")
           .eq("shift_id", shiftId)
           .not("lodge_unit", "is", null);
 
-        const existingMap = new Map<string, string>(); // unit -> list id
+        const existingPairs = new Set<string>(); // unit|name
         for (const row of existing ?? []) {
-          if (row.lodge_unit) existingMap.set(row.lodge_unit, row.id);
+          if (row.lodge_unit) existingPairs.add(`${row.lodge_unit}|${row.name}`);
         }
 
         const toRemove = (existing ?? [])
           .filter((r) => !r.lodge_unit || !wantedUnits.includes(r.lodge_unit as LodgeUnit))
           .map((r) => r.id);
 
-        const toAdd = wantedUnits.filter((u) => !existingMap.has(u));
+        const toAdd = wantedUnits;
 
         let changed = false;
 
@@ -64,12 +64,48 @@ export function useSyncLodgeChecklists(
         }
 
         if (toAdd.length > 0) {
-          // Hämta mallar för efterfrågade enheter
-          const { data: tpls } = await supabase
+          // 1) Mallar direkt kopplade till enheten
+          const { data: tplsDirect } = await supabase
             .from("checklist_templates")
             .select("id, name, lodge_unit, description, group_id, checklist_template_groups(name, color)" as any)
             .in("lodge_unit", toAdd as string[]);
-          const templates = (tpls ?? []) as any[];
+
+          // 2) Grupper kopplade till enheten → alla mallar i dessa grupper
+          const { data: groupsForUnits } = await supabase
+            .from("checklist_template_groups" as any)
+            .select("id, lodge_unit")
+            .in("lodge_unit", toAdd as string[]);
+          const groupIds = ((groupsForUnits ?? []) as any[]).map((g) => g.id);
+          const groupUnitMap = new Map<string, string>(
+            ((groupsForUnits ?? []) as any[]).map((g) => [g.id, g.lodge_unit]),
+          );
+
+          let tplsViaGroup: any[] = [];
+          if (groupIds.length > 0) {
+            const { data: tplsG } = await supabase
+              .from("checklist_templates")
+              .select("id, name, lodge_unit, description, group_id, checklist_template_groups(name, color)" as any)
+              .in("group_id", groupIds);
+            // Ge dessa mallar en "effective" lodge_unit från gruppen om de saknar egen
+            tplsViaGroup = ((tplsG ?? []) as any[]).map((t) => ({
+              ...t,
+              lodge_unit: t.lodge_unit ?? groupUnitMap.get(t.group_id) ?? null,
+            }));
+          }
+
+          // Slå ihop och deduplicera per template-id
+          const combined = new Map<string, any>();
+          for (const t of (tplsDirect ?? []) as any[]) combined.set(t.id, t);
+          for (const t of tplsViaGroup) if (!combined.has(t.id)) combined.set(t.id, t);
+
+          // Filtrera bort mallar vars effective lodge_unit inte är efterfrågad
+          // och dedupe mot redan befintliga (lodge_unit, name)-par på passet
+          const templates = Array.from(combined.values()).filter(
+            (t) =>
+              t.lodge_unit &&
+              toAdd.includes(t.lodge_unit) &&
+              !existingPairs.has(`${t.lodge_unit}|${t.name}`),
+          );
           if (templates.length > 0) {
             const tplIds = templates.map((t) => t.id);
             const { data: tplItems } = await supabase

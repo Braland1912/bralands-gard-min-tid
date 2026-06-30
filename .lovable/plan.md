@@ -1,65 +1,72 @@
-## Steg 2 – Lodge-kalender styr checklistor på pass
+## Mål
 
-### Beslut (bekräftade)
-- Auto-koppling triggas av **avfärd (bytesdag)** för en enhet.
-- Auto-koppling sker **enbart på dagpass**.
-- "Lodgen idag"-sektion visas **både på morgon- och dagpass** (morgonen kan börja förbereda).
-- Checklistorna kopplas **automatiskt** när en bokning finns i kalendern – aldrig manuellt.
-- Auto-tillagda checklistor är **låsta** i passvyn – de styrs av kalendern.
-- När en bokning **tillkommer, ändras eller avbokas** ska berörda pass uppdateras direkt.
+Idag kopplas checklistor till pass per mall (shift-typ via `checklist_template_shift_types`, lodge-enhet via `checklist_templates.lodge_unit`). Vi lägger till **samma kopplingsmöjligheter på gruppnivå** så man kan styra många mallar samtidigt.
 
----
+## Regler
+
+- **Additivt (OR)**: en mall hamnar på ett pass om antingen mallens egen koppling eller dess grupps koppling matchar.
+- **Oberoende fält**: en grupp kan ha shift-typer OCH/ELLER en lodge-enhet — de är två separata regler, inte ett AND-villkor.
+- **Lodge-koppling triggar bara på dagpass med avfärd för enheten** (samma logik som idag).
+- **Inga dubbletter**: om både mall och grupp matchar samma pass läggs mallen bara en gång.
+- **Ingen mall-koppling raderas**: gruppkoppling är ett tillägg, befintliga mall-kopplingar fungerar som förut.
+
+## Exempel
+
+**Exempel 1 — Grupp "Säsongsstart" kopplad till shift-typ "Dag"**
+
+Gruppen innehåller mallar: *Brandgenomgång*, *Nyckelrutiner*, *Wifi-koll*.
+Ingen av mallarna har egen shift-typ-koppling.
+→ Alla tre läggs automatiskt på varje nytt dagpass.
+
+**Exempel 2 — Grupp "Lodge" kopplad till lodge-enhet "Laxen"**
+
+Gruppen innehåller: *Lägenhet Nr2 Laxen*, *Extra städning Laxen*.
+→ Båda mallarna läggs på dagpass där Laxen har avfärd.
+*(Idag måste man sätta `lodge_unit = Laxen` på varje mall manuellt.)*
+
+**Exempel 3 — Mall-koppling vinner inte, den adderas**
+
+Grupp "Säsongsstart" kopplad till "Dag".
+Mallen *Brandgenomgång* i gruppen har dessutom egen koppling till "Morgon".
+→ *Brandgenomgång* läggs på både morgon- och dagpass.
+
+**Exempel 4 — Grupp utan koppling**
+
+Grupp "Övrigt" har varken shift-typ eller lodge-enhet.
+→ Bara organisatorisk rubrik i admin/medarbetar-vyn, ingen auto-koppling. (Som idag.)
+
+**Exempel 5 — Grupp med både shift-typ och lodge-enhet**
+
+Grupp "Lodge-bytesdag" kopplad till shift-typ "Dag" OCH lodge-enhet "Kungsfiskaren".
+→ Mallarna läggs på alla dagpass (från shift-typ-regeln) PLUS på dagpass med Kungsfiskaren-avfärd (lodge-regeln triggar inget extra här eftersom dagpass redan är täckt). I praktiken samma som bara "Dag" — användaren får varning i UI om dubbel-koppling är onödig.
+
+## Teknisk plan
 
 ### 1. Databas
-Lägg till på `checklist_templates`:
-- `lodge_unit` (text, nullable) – en av `Öringen | Laxen | Kungsfiskaren | Strömstaren | Husvagnen`.
+- Ny tabell `checklist_group_shift_types` (group_id, shift_type, unique(group_id, shift_type)). Speglar `checklist_template_shift_types`.
+- Ny kolumn `checklist_template_groups.lodge_unit` (nullable text, samma CHECK-värden som mallens fält).
+- GRANT + RLS: läs för authenticated, skriv för `can_manage_checklists()`.
 
-I checklist-editorn (`/admin/checklists`): dropdown "Koppla till lodge-enhet (valfritt)".
-När `lodge_unit` är satt: mallen blir en **enhets-mall** och kopplas inte längre via shift-typ – den följer kalendern istället.
+### 2. Admin UI (`AdminChecklists.tsx`)
+- I gruppens rad/redigering: lägg shift-typ-väljare (chips för Morgon/Dag/Kväll) och lodge-enhet-dropdown.
+- Visa gruppkopplingar som chips på gruppens rubrik (likadana som mall-chips idag).
+- I mall-listan: tysta chip som "ärvd från gruppen" så admin ser var koppling kommer ifrån.
 
-### 2. Logik – vilka checklistor körs på ett pass
-För ett pass beräknar vi listan dynamiskt vid render:
+### 3. Synk-logik
+- `upsertShift` (i `AdminSchedule.tsx`): när nytt pass skapas, hämta mallar via union av:
+  - `checklist_template_shift_types` (som idag)
+  - `checklist_group_shift_types` → alla mallar i de grupperna
+  - dedupa per template_id.
+- `useSyncLodgeChecklists`: hämta mallar för avfärds-enheter via union av `checklist_templates.lodge_unit` + `checklist_template_groups.lodge_unit → mallar i gruppen`.
 
-```
-checklistor på passet =
-    (mallar kopplade till passets shift-typ, som idag)
-  +  om pass.typ == "dag":
-       för varje enhet med AVFÄRD på pass.datum (från lodge-kalendern):
-         lägg till mall där lodge_unit == enheten   [LÅST]
-```
+### 4. Visning (medarbetare)
+Ingen ändring — checklistor visas redan grupperat. Effekten är bara att fler/färre mallar dyker upp automatiskt.
 
-Inget persisteras per pass – sanningskällan är kalendern + mallarnas `lodge_unit`. Det gör att avbokning/ändring/ny bokning slår igenom direkt nästa gång passet öppnas (och vid realtidsuppdatering, se nedan).
+## Filer som rörs
+- Migration (ny tabell + kolumn + grants/policies)
+- `src/components/ChecklistGroupsManager.tsx` — koppling-fält i grupp-formulär
+- `src/pages/AdminChecklists.tsx` — visa ärvda kopplingar
+- `src/pages/AdminSchedule.tsx` — utöka `upsertShift`-hämtningen
+- `src/hooks/useSyncLodgeChecklists.ts` — utöka mall-query
 
-### 3. "Lodgen idag"-sektion i passvyn
-Ovanför checklistorna, på **morgon- och dagpass**:
-- Samma fyra grupper som i admin-översiktens kort: Avfärd / Ankomst / Pågående / Kan tillkomma.
-- Hopfällbar (chevron). Default: **utfälld om det finns avfärd idag**, annars hopfälld. Tillstånd sparas per användare i `localStorage`.
-
-### 4. Visning av låsta auto-checklistor
-- Märks med liten "Från kalender · {Enhet}"-tagg.
-- Ingen X-knapp för borttagning. Tooltip: "Styrs av lodge-kalendern".
-- Försvinner automatiskt om bokningen avbokas.
-
-### 5. Synk när kalendern ändras
-iCloud-kalendern är read-only för oss, så vi pollar `lodge-calendar`-edge-functionen:
-- Vid öppning av ett pass: hämta färsk data.
-- Cache (React Query) i 2 min – `staleTime` kort så ändringar märks snabbt.
-- Manuell "Uppdatera"-knapp i "Lodgen idag"-sektionen som invaliderar cachen.
-
-Eftersom checklistorna beräknas från kalendern + `lodge_unit` (inte sparas), uppdateras passet direkt när kalenderdatan uppdateras.
-
----
-
-### Filer som rörs
-- Migration: `checklist_templates.lodge_unit` (nullable text + CHECK för giltiga värden).
-- `src/pages/AdminChecklists.tsx` (eller redigeringsdialogen): dropdown för `lodge_unit`.
-- Ny hook `useLodgeUnitsByRole(date)` som returnerar `{ departures, arrivals, ongoing, potential }`.
-- Passvyn (där checklistor visas idag): inkludera auto-mallar för dag-pass + render "Lodgen idag"-sektion på morgon/dag.
-- Liten badge-komponent "Från kalender · {Enhet}".
-
-### Default-koppling (frågan om Laxen)
-Jag föreslår: ingen hårdkodning. Du sätter `lodge_unit` på varje mall i checklist-editorn (t.ex. "Lägenhet Nr2 Laxen" → `Laxen`). Då följer den kalendern automatiskt – flexiblare än hårdkodad regel.
-
----
-
-OK att köra på detta? När du säger ja börjar jag med migrationen.
+Godkänn så börjar jag med migrationen.
