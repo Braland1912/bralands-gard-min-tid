@@ -519,7 +519,7 @@ const Index = () => {
             {activeEntry && !forgottenEntry && checklistStatus && checklistStatus.total > 0 && (
               <button
                 type="button"
-                onClick={() => navigate("/my-schedule")}
+                onClick={() => navigate("/today-tasks")}
                 className={`w-full text-left rounded-xl border p-3 transition-colors ${
                   checklistStatus.unchecked > 0
                     ? "bg-amber-50 border-amber-200 hover:bg-amber-100"
