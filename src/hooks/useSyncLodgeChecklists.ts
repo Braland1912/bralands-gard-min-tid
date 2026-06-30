@@ -64,12 +64,44 @@ export function useSyncLodgeChecklists(
         }
 
         if (toAdd.length > 0) {
-          // Hämta mallar för efterfrågade enheter
-          const { data: tpls } = await supabase
+          // 1) Mallar direkt kopplade till enheten
+          const { data: tplsDirect } = await supabase
             .from("checklist_templates")
             .select("id, name, lodge_unit, description, group_id, checklist_template_groups(name, color)" as any)
             .in("lodge_unit", toAdd as string[]);
-          const templates = (tpls ?? []) as any[];
+
+          // 2) Grupper kopplade till enheten → alla mallar i dessa grupper
+          const { data: groupsForUnits } = await supabase
+            .from("checklist_template_groups" as any)
+            .select("id, lodge_unit")
+            .in("lodge_unit", toAdd as string[]);
+          const groupIds = ((groupsForUnits ?? []) as any[]).map((g) => g.id);
+          const groupUnitMap = new Map<string, string>(
+            ((groupsForUnits ?? []) as any[]).map((g) => [g.id, g.lodge_unit]),
+          );
+
+          let tplsViaGroup: any[] = [];
+          if (groupIds.length > 0) {
+            const { data: tplsG } = await supabase
+              .from("checklist_templates")
+              .select("id, name, lodge_unit, description, group_id, checklist_template_groups(name, color)" as any)
+              .in("group_id", groupIds);
+            // Ge dessa mallar en "effective" lodge_unit från gruppen om de saknar egen
+            tplsViaGroup = ((tplsG ?? []) as any[]).map((t) => ({
+              ...t,
+              lodge_unit: t.lodge_unit ?? groupUnitMap.get(t.group_id) ?? null,
+            }));
+          }
+
+          // Slå ihop och deduplicera per template-id
+          const combined = new Map<string, any>();
+          for (const t of (tplsDirect ?? []) as any[]) combined.set(t.id, t);
+          for (const t of tplsViaGroup) if (!combined.has(t.id)) combined.set(t.id, t);
+
+          // Filtrera bort mallar vars effective lodge_unit inte är efterfrågad
+          const templates = Array.from(combined.values()).filter(
+            (t) => t.lodge_unit && toAdd.includes(t.lodge_unit) && !existingMap.has(t.lodge_unit),
+          );
           if (templates.length > 0) {
             const tplIds = templates.map((t) => t.id);
             const { data: tplItems } = await supabase
