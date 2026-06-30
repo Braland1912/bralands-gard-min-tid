@@ -345,7 +345,7 @@ const AdminChecklists = () => {
     }, 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editName, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
+  }, [editName, editDescription, editGroupId, editItems, editShiftTypes, editLodgeUnit, editing?.id]);
 
   const deleteTemplate = useMutation({
     mutationFn: async () => {
