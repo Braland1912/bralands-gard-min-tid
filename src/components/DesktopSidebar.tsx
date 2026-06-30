@@ -117,7 +117,7 @@ const DesktopSidebar = () => {
 
   const canManageChecklists = isAdmin || (worker as any)?.can_manage_checklists === true;
   const baseItems = (isAdmin ? adminItems : memberItems).filter(
-    (i) => i.id !== "checklistor" || canManageChecklists,
+    (i) => (i.id !== "checklistor" || canManageChecklists) && i.id !== "lodge",
   );
   const showLodge = isAdmin || worker?.can_see_lodge === true;
   const lodgeItem: NavItem = { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" };
