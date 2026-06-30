@@ -99,8 +99,12 @@ export function useSyncLodgeChecklists(
           for (const t of tplsViaGroup) if (!combined.has(t.id)) combined.set(t.id, t);
 
           // Filtrera bort mallar vars effective lodge_unit inte är efterfrågad
+          // och dedupe mot redan befintliga (lodge_unit, name)-par på passet
           const templates = Array.from(combined.values()).filter(
-            (t) => t.lodge_unit && toAdd.includes(t.lodge_unit) && !existingMap.has(t.lodge_unit),
+            (t) =>
+              t.lodge_unit &&
+              toAdd.includes(t.lodge_unit) &&
+              !existingPairs.has(`${t.lodge_unit}|${t.name}`),
           );
           if (templates.length > 0) {
             const tplIds = templates.map((t) => t.id);
