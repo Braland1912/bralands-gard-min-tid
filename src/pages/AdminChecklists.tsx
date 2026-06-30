@@ -36,7 +36,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
-import EveningRoundChecklistPicker from "@/components/EveningRoundChecklistPicker";
+
 import ChecklistGroupsManager, { useChecklistGroups, useChecklistGroupShiftTypes } from "@/components/ChecklistGroupsManager";
 
 type Template = {
