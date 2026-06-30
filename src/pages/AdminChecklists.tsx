@@ -90,6 +90,7 @@ const AdminChecklists = () => {
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
   const { data: groups = [] } = useChecklistGroups();
+  const { data: groupShiftLinks = [] } = useChecklistGroupShiftTypes();
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["checklist-templates"],
