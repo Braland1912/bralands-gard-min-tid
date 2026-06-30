@@ -35,7 +35,8 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableItem } from "@/components/SortableItem";
 import { Checkbox } from "@/components/ui/checkbox";
-import ShiftTypeChecklistOrder from "@/components/ShiftTypeChecklistOrder";
+import ChecklistPreview from "@/components/ChecklistPreview";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ChecklistGroupsManager, { useChecklistGroups, useChecklistGroupShiftTypes } from "@/components/ChecklistGroupsManager";
 
