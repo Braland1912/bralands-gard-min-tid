@@ -88,6 +88,7 @@ const AdminChecklists = () => {
   const [showDescField, setShowDescField] = useState(false);
   const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+  const [groupFilter, setGroupFilter] = useState<string | "all">("all");
 
   const { data: groups = [] } = useChecklistGroups();
   const { data: groupShiftLinks = [] } = useChecklistGroupShiftTypes();
