@@ -376,13 +376,19 @@ const ChecklistPreview = () => {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 flex items-start gap-3">
-        <div className="flex-1 text-xs text-muted-foreground leading-relaxed">
-          Så här ser checklistorna ut för medarbetaren på varje passtyp och vid bytesdag i lodgen. Dra för att ändra ordningen grupperna visas i. Använd <strong>"Applicera retroaktivt"</strong> för att lägga in checklistorna på framtida pass som redan är schemalagda.
-        </div>
+      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer font-medium text-foreground list-none flex items-center gap-1.5">
+            <ChevronDown className="h-3.5 w-3.5 transition-transform [details[open]_&]:rotate-180" />
+            Så fungerar förhandsvisningen
+          </summary>
+          <p className="mt-2 leading-relaxed">
+            Så här ser checklistorna ut för medarbetaren på varje passtyp och vid bytesdag i lodgen. Dra för att ändra ordningen grupperna visas i. Använd <strong>"Applicera retroaktivt"</strong> för att lägga in checklistorna på framtida pass som redan är schemalagda.
+          </p>
+        </details>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button size="sm" variant="outline" className="shrink-0" disabled={applyRetroactive.isPending}>
+            <Button size="sm" variant="outline" className="w-full sm:w-auto" disabled={applyRetroactive.isPending}>
               <Wand2 className="h-3.5 w-3.5 mr-1.5" />
               {applyRetroactive.isPending ? "Applicerar…" : "Applicera retroaktivt"}
             </Button>
