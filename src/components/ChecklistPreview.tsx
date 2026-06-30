@@ -505,7 +505,7 @@ const ChecklistPreview = () => {
           Grupper triggas på dagpass när enheten har avfärd enligt lodge-kalendern.
         </p>
         <div className="space-y-3">
-          {LODGE_UNITS.map((unit) => {
+          {UNIT_ORDER.map((unit) => {
             const groupsForUnit = groups.filter((g) => g.lodge_unit === unit);
             const available = groups.filter((g) => !g.lodge_unit);
             const style = styleFor(unit);
