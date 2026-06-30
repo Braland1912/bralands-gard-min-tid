@@ -464,6 +464,21 @@ const AdminChecklists = () => {
           </div>
         </div>
 
+        <details className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          <summary className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
+            <Info className="h-3.5 w-3.5 text-primary" />
+            Så fungerar checklistor och grupper
+          </summary>
+          <div className="mt-2 space-y-1.5 leading-relaxed">
+            <p>
+              <strong>Checklista</strong> = en sektion med några punkter som ska följas som steg, oftast ett städ- eller rutinuppdrag (t.ex. <em>Servicehuset</em>). Både hela checklistan och varje punkt kan ha en beskrivning med mer detaljer om hur det ska utföras.
+            </p>
+            <p>
+              <strong>Grupp</strong> = en samling checklistor som hör ihop. En grupp kan kopplas till en eller flera <strong>passtyper</strong> (Morgon/Dag/Kväll) — då läggs alla checklistor i gruppen automatiskt på nya pass av den typen. En grupp kan också kopplas till en <strong>lodge-enhet</strong> och triggas då den enheten har bytesdag i lodge-kalendern.
+            </p>
+          </div>
+        </details>
+
         {groups.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             <button
