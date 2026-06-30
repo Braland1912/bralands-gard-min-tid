@@ -18,7 +18,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     queryFn: async () => {
       const { data: lists, error } = await supabase
         .from("shift_checklists")
-        .select("id, name, sort_order, lodge_unit, description")
+        .select("id, name, sort_order, lodge_unit, description, group_name, group_color")
         .eq("shift_id", shiftId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
@@ -41,7 +41,21 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     );
   }
 
-  const lists = data?.lists ?? [];
+  const lists = (data?.lists ?? []) as any[];
+
+  // Gruppera per group_name i visningsordning
+  const grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+  {
+    const idx = new Map<string, number>();
+    for (const l of lists) {
+      const key = l.group_name ?? "__none__";
+      if (!idx.has(key)) {
+        idx.set(key, grouped.length);
+        grouped.push({ key, name: l.group_name ?? null, color: l.group_color ?? null, lists: [] });
+      }
+      grouped[idx.get(key)!].lists.push(l);
+    }
+  }
 
   return (
     <div>
@@ -51,23 +65,42 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
       {lists.length === 0 ? (
         <p className="text-sm text-muted-foreground italic">Inga checklistor för detta pass.</p>
       ) : (
-        <ul className="space-y-1.5">
-          {lists.map((list) => {
-            const listItems = (data!.items as any[]).filter((i) => i.shift_checklist_id === list.id);
-            const done = listItems.filter((i) => i.is_checked).length;
-            const total = listItems.length;
-            return (
-              <ChecklistRow
-                key={list.id}
-                name={list.name}
-                description={list.description}
-                done={done}
-                total={total}
-                items={listItems}
-              />
-            );
-          })}
-        </ul>
+        <div className="space-y-3">
+          {grouped.map((g) => (
+            <div key={g.key} className="space-y-1.5">
+              {g.name && (
+                <div className="flex items-center gap-2 px-0.5">
+                  <span
+                    className="h-2 w-2 rounded-full shrink-0"
+                    style={{ backgroundColor: g.color ?? "hsl(var(--muted-foreground))" }}
+                    aria-hidden
+                  />
+                  <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {g.name}
+                  </h4>
+                </div>
+              )}
+              <ul className="space-y-1.5">
+                {g.lists.map((list: any) => {
+                  const listItems = (data!.items as any[]).filter((i) => i.shift_checklist_id === list.id);
+                  const done = listItems.filter((i) => i.is_checked).length;
+                  const total = listItems.length;
+                  return (
+                    <ChecklistRow
+                      key={list.id}
+                      name={list.name}
+                      description={list.description}
+                      color={g.color}
+                      done={done}
+                      total={total}
+                      items={listItems}
+                    />
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -76,12 +109,14 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
 const ChecklistRow = ({
   name,
   description,
+  color,
   done,
   total,
   items,
 }: {
   name: string;
   description?: string | null;
+  color?: string | null;
   done: number;
   total: number;
   items: { id: string; text: string; is_checked: boolean; description?: string | null }[];
@@ -91,7 +126,10 @@ const ChecklistRow = ({
   const [openItemDesc, setOpenItemDesc] = useState<Record<string, boolean>>({});
   const complete = total > 0 && done === total;
   return (
-    <li className="rounded-lg border border-border bg-muted/20 overflow-hidden">
+    <li
+      className="rounded-lg border bg-muted/20 overflow-hidden"
+      style={color ? { borderLeft: `3px solid ${color}` } : undefined}
+    >
       <div className="flex items-center gap-1 px-3 py-2">
         <button
           type="button"
