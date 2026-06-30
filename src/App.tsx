@@ -79,9 +79,9 @@ const App = () => (
           <Route path="/today-tasks" element={<TodayTasks />} />
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/admin/checklists" element={
-            <ProtectedRoute>
+            <ChecklistManagerRoute>
               <AdminChecklists />
-            </ProtectedRoute>
+            </ChecklistManagerRoute>
           } />
           <Route path="/dev/mobile-test" element={<MobileMenuTest />} />
           <Route path="/dev/evening-widget-test" element={<EveningRoundWidgetTest />} />
