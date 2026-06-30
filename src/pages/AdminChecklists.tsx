@@ -460,16 +460,23 @@ const AdminChecklists = () => {
   return (
     <div className="min-h-screen bg-background" style={{ colorScheme: "light" }}>
       <div className="max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6 space-y-5">
-        <div className="flex items-center justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <h1 className="text-xl font-semibold text-foreground">Checklistor</h1>
-            <p className="text-xs text-muted-foreground">Återkommande städ- och rutinuppgifter, grupperade och kopplade till pass</p>
+            <p className="hidden sm:block text-xs text-muted-foreground">Återkommande städ- och rutinuppgifter, grupperade och kopplade till pass</p>
           </div>
-          <div className="flex items-center gap-2">
-            <ChecklistGroupsManager />
-            <Button onClick={() => createTemplate.mutate()} disabled={createTemplate.isPending}>
-              <Plus className="h-4 w-4 mr-1.5" />
-              Ny checklista
+          <div className="flex items-center gap-2 sm:shrink-0">
+            <div className="flex-1 sm:flex-initial">
+              <ChecklistGroupsManager />
+            </div>
+            <Button
+              onClick={() => createTemplate.mutate()}
+              disabled={createTemplate.isPending}
+              className="flex-1 sm:flex-initial whitespace-nowrap"
+            >
+              <Plus className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden xs:inline sm:inline">Ny checklista</span>
+              <span className="xs:hidden sm:hidden ml-1.5">Ny</span>
             </Button>
           </div>
         </div>
