@@ -940,31 +940,11 @@ const EveningRound = () => {
           </TabsContent>
 
           <TabsContent value="checklista" className="mt-0 space-y-4">
-            {isAdmin ? (
-              <EveningRoundHistory />
-            ) : (
-              <>
-                <EveningRoundSummaryForm
-                  eveningRoundId={round?.id}
-                  workerId={worker?.id}
-                  roundDate={date}
-                  showQuickStart={false}
-                  showCashSection={false}
-                />
-                {roundShiftId ? (
-                  <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
-                    <ShiftChecklistViewer shiftId={roundShiftId} />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-                    Ingen passchecklista hittad — du är inte schemalagd på kvällsrundan idag.
-                  </div>
-                )}
-              </>
-            )}
+            {isAdmin && <EveningRoundHistory />}
           </TabsContent>
         </Tabs>
       </div>
+
 
       <EveningRoundModal
         mode={addMode}
