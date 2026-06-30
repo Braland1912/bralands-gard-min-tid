@@ -503,6 +503,29 @@ const AdminChecklists = () => {
                     />
                     <h2 className="text-sm font-semibold text-foreground">{section.name}</h2>
                     <span className="text-xs text-muted-foreground">({section.items.length})</span>
+                    {(section.shift_types?.length ?? 0) > 0 && section.shift_types!.map((st) => {
+                      const opt = SHIFT_TYPE_OPTIONS.find((s) => s.value === st);
+                      if (!opt) return null;
+                      return (
+                        <span
+                          key={st}
+                          className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${opt.bg} ${opt.border} ${opt.text}`}
+                          title="Alla mallar i gruppen läggs auto på denna passtyp"
+                        >
+                          <span className="text-[10px] leading-none">{opt.emoji}</span>
+                          {opt.label}
+                        </span>
+                      );
+                    })}
+                    {section.lodge_unit && (
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${styleFor(section.lodge_unit).chip}`}
+                        title="Alla mallar i gruppen läggs auto på dagpass när enheten har avfärd"
+                      >
+                        <Home className="h-2.5 w-2.5" />
+                        {UNIT_NUMBER[section.lodge_unit] ?? ""} {section.lodge_unit}
+                      </span>
+                    )}
                   </button>
                   {!collapsed && (
                     <DndContext
