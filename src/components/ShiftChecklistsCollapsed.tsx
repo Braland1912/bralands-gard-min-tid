@@ -42,10 +42,11 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
     );
   }
 
+  const { data: groupOrder } = useGroupOrder();
   const lists = (data?.lists ?? []) as any[];
 
   // Gruppera per group_name i visningsordning
-  const grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+  let grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
   {
     const idx = new Map<string, number>();
     for (const l of lists) {
@@ -56,6 +57,7 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
       }
       grouped[idx.get(key)!].lists.push(l);
     }
+    grouped = sortGroups(grouped, groupOrder);
   }
 
   return (
