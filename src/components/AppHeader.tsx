@@ -61,6 +61,7 @@ const AppHeader = () => {
   ];
   const navItems = [
     ...baseNav,
+    ...((worker as any)?.can_manage_checklists ? [{ label: "Checklistor", icon: ListChecks, path: "/admin/checklists" }] : []),
     ...(worker?.can_see_lodge ? [{ label: "Uthyrning", icon: Building2, path: "/lodge" }] : []),
     { label: "Hjälp", icon: LifeBuoy, path: "/help" },
     { label: "Brand & nödläge", icon: Flame, path: "/emergency" },
