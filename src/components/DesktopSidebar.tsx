@@ -44,6 +44,7 @@ const memberItems: NavItem[] = [
   { id: "schema", label: "Schema", icon: Calendar, path: "/my-schedule", matchPath: "/my-schedule" },
   { id: "tidrapport", label: "Tidrapport", icon: Clock, path: "/my-time", matchPath: "/my-time" },
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
+  { id: "checklistor", label: "Checklistor", icon: ListChecks, path: "/admin/checklists", matchPath: "/admin/checklists" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
   { id: "emergency", label: "Brand & nödläge", icon: Flame, path: "/emergency", matchPath: "/emergency" },
 ];
@@ -114,7 +115,10 @@ const DesktopSidebar = () => {
 
   if (!user || adminLoading) return null;
 
-  const baseItems = isAdmin ? adminItems : memberItems;
+  const canManageChecklists = isAdmin || (worker as any)?.can_manage_checklists === true;
+  const baseItems = (isAdmin ? adminItems : memberItems).filter(
+    (i) => i.id !== "checklistor" || canManageChecklists,
+  );
   const showLodge = isAdmin || worker?.can_see_lodge === true;
   const lodgeItem: NavItem = { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" };
   const items = showLodge

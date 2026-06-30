@@ -8,6 +8,7 @@ import Confirmation from "./pages/Confirmation";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChecklistManagerRoute from "./components/ChecklistManagerRoute";
 import Register from "./pages/Register";
 import MemberLogin from "./pages/MemberLogin";
 import MyTime from "./pages/MyTime";
@@ -79,9 +80,9 @@ const App = () => (
           <Route path="/today-tasks" element={<TodayTasks />} />
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/admin/checklists" element={
-            <ProtectedRoute>
+            <ChecklistManagerRoute>
               <AdminChecklists />
-            </ProtectedRoute>
+            </ChecklistManagerRoute>
           } />
           <Route path="/dev/mobile-test" element={<MobileMenuTest />} />
           <Route path="/dev/evening-widget-test" element={<EveningRoundWidgetTest />} />

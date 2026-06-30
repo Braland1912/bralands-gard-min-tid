@@ -917,6 +917,7 @@ export type Database = {
       }
       workers: {
         Row: {
+          can_manage_checklists: boolean
           can_see_lodge: boolean
           can_see_team: boolean
           created_at: string | null
@@ -928,6 +929,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          can_manage_checklists?: boolean
           can_see_lodge?: boolean
           can_see_team?: boolean
           created_at?: string | null
@@ -939,6 +941,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          can_manage_checklists?: boolean
           can_see_lodge?: boolean
           can_see_team?: boolean
           created_at?: string | null
@@ -956,6 +959,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_checklists: { Args: never; Returns: boolean }
       can_view_team: { Args: never; Returns: boolean }
       get_team_workers: {
         Args: never
