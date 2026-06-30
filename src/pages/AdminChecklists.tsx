@@ -464,6 +464,52 @@ const AdminChecklists = () => {
           </div>
         </div>
 
+        {groups.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setGroupFilter("all")}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupFilter === "all"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-foreground border-border hover:bg-muted"
+              }`}
+            >
+              Alla
+            </button>
+            {groups.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => setGroupFilter(g.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                  groupFilter === g.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-foreground border-border hover:bg-muted"
+                }`}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: g.color }}
+                  aria-hidden
+                />
+                {g.name}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setGroupFilter("_none")}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                groupFilter === "_none"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-foreground border-border hover:bg-muted"
+              }`}
+            >
+              Ogrupperade
+            </button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
