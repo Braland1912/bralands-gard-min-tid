@@ -76,11 +76,13 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
     },
   });
 
+  const { data: groupOrder } = useGroupOrder();
+
   if (isLoading) return <Skeleton className="h-16 w-full rounded-lg" />;
   if (!lists || lists.length === 0) return null;
 
   // Gruppera per group_name i visningsordning
-  const grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+  let grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
   {
     const idx = new Map<string, number>();
     for (const l of lists as any[]) {
@@ -91,6 +93,7 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
       }
       grouped[idx.get(key)!].lists.push(l);
     }
+    grouped = sortGroups(grouped, groupOrder);
   }
 
   return (
