@@ -98,18 +98,37 @@ const ChecklistGroupsManager = () => {
     mutationFn: async () => {
       const name = draftName.trim();
       if (!name) throw new Error("Namn saknas");
+      // Om denna grupp ska bli kvällsrundans grupp – nollställ ev. tidigare först
+      if (draftIsEveningRound) {
+        await supabase
+          .from("checklist_template_groups" as any)
+          .update({ is_evening_round: false })
+          .eq("is_evening_round", true)
+          .neq("id", editId ?? "00000000-0000-0000-0000-000000000000");
+      }
       let groupId = editId;
       if (editId) {
         const { error } = await supabase
           .from("checklist_template_groups" as any)
-          .update({ name, color: draftColor, lodge_unit: draftLodgeUnit })
+          .update({
+            name,
+            color: draftColor,
+            lodge_unit: draftLodgeUnit,
+            is_evening_round: draftIsEveningRound,
+          })
           .eq("id", editId);
         if (error) throw error;
       } else {
         const next = (groups[groups.length - 1]?.sort_order ?? -1) + 1;
         const { data, error } = await supabase
           .from("checklist_template_groups" as any)
-          .insert({ name, color: draftColor, sort_order: next, lodge_unit: draftLodgeUnit })
+          .insert({
+            name,
+            color: draftColor,
+            sort_order: next,
+            lodge_unit: draftLodgeUnit,
+            is_evening_round: draftIsEveningRound,
+          })
           .select("id")
           .single();
         if (error) throw error;
@@ -131,6 +150,7 @@ const ChecklistGroupsManager = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["checklist-template-groups"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-group-shift-types"] });
+      queryClient.invalidateQueries({ queryKey: ["evening-round-checklist-items"] });
       reset();
     },
     onError: (e: Error) =>
