@@ -43,7 +43,7 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
     queryFn: async () => {
       const { data: cls, error } = await supabase
         .from("shift_checklists")
-        .select("id, name, sort_order")
+        .select("id, name, sort_order, group_name, group_color")
         .eq("shift_id", shiftId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
@@ -54,7 +54,7 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
         .in("shift_checklist_id", cls.map((c) => c.id))
         .order("sort_order", { ascending: true });
       if (e2) throw e2;
-      return cls.map((c) => ({
+      return cls.map((c: any) => ({
         ...c,
         items: (items || []).filter((i) => i.shift_checklist_id === c.id),
       }));
@@ -77,61 +77,98 @@ const ShiftChecklistsView = ({ shiftId }: { shiftId: string }) => {
   if (isLoading) return <Skeleton className="h-16 w-full rounded-lg" />;
   if (!lists || lists.length === 0) return null;
 
+  // Gruppera per group_name i visningsordning
+  const grouped: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
+  {
+    const idx = new Map<string, number>();
+    for (const l of lists as any[]) {
+      const key = l.group_name ?? "__none__";
+      if (!idx.has(key)) {
+        idx.set(key, grouped.length);
+        grouped.push({ key, name: l.group_name ?? null, color: l.group_color ?? null, lists: [] });
+      }
+      grouped[idx.get(key)!].lists.push(l);
+    }
+  }
+
   return (
-    <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-3">
-      {lists.map((list) => {
-        const total = list.items.length;
-        const done = list.items.filter((i) => i.is_checked).length;
-        const pct = total > 0 ? (done / total) * 100 : 0;
-        const open = !!openLists[list.id];
-        return (
-          <div key={list.id} className="space-y-1.5">
-            <button
-              type="button"
-              onClick={() => toggleOpen(list.id)}
-              aria-expanded={open}
-              className="flex items-center gap-2 w-full text-left"
-            >
-              <ChevronDown
-                className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
+    <div className="space-y-4 rounded-xl border border-border bg-muted/30 p-3">
+      {grouped.map((g) => (
+        <div key={g.key} className="space-y-2">
+          {g.name && (
+            <div className="flex items-center gap-2">
+              <span
+                className="h-2 w-2 rounded-full shrink-0"
+                style={{ backgroundColor: g.color ?? "hsl(var(--muted-foreground))" }}
+                aria-hidden
               />
-              <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
-              <Progress
-                value={pct}
-                className={`h-1.5 w-20 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
-              />
-              <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
-                {done}/{total}
-              </span>
-            </button>
-            {open && (
-              <ul className="space-y-1 pl-6">
-                {list.items.map((item) => (
-                  <li key={item.id} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`it-${item.id}`}
-                      checked={item.is_checked}
-                      onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true })}
+              <h4 className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {g.name}
+              </h4>
+            </div>
+          )}
+          <div className="space-y-3">
+            {g.lists.map((list: any) => {
+              const total = list.items.length;
+              const done = list.items.filter((i: any) => i.is_checked).length;
+              const pct = total > 0 ? (done / total) * 100 : 0;
+              const open = !!openLists[list.id];
+              return (
+                <div
+                  key={list.id}
+                  className="space-y-1.5 rounded-lg bg-background/60 p-2"
+                  style={g.color ? { borderLeft: `3px solid ${g.color}` } : undefined}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleOpen(list.id)}
+                    aria-expanded={open}
+                    className="flex items-center gap-2 w-full text-left"
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${open ? "" : "-rotate-90"}`}
                     />
-                    <label
-                      htmlFor={`it-${item.id}`}
-                      className={`text-sm cursor-pointer ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}
-                    >
-                      {item.text}
-                    </label>
-                  </li>
-                ))}
-                {total === 0 && (
-                  <li className="text-xs text-muted-foreground italic">Inga punkter</li>
-                )}
-              </ul>
-            )}
+                    <p className="text-sm font-semibold text-foreground flex-1 truncate">{list.name}</p>
+                    <Progress
+                      value={pct}
+                      className={`h-1.5 w-20 transition-colors ${pct === 100 ? "[&>div]:bg-emerald-500" : ""}`}
+                    />
+                    <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                      {done}/{total}
+                    </span>
+                  </button>
+                  {open && (
+                    <ul className="space-y-1 pl-6">
+                      {list.items.map((item: any) => (
+                        <li key={item.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`it-${item.id}`}
+                            checked={item.is_checked}
+                            onCheckedChange={(v) => toggle.mutate({ id: item.id, checked: v === true })}
+                          />
+                          <label
+                            htmlFor={`it-${item.id}`}
+                            className={`text-sm cursor-pointer ${item.is_checked ? "line-through text-muted-foreground" : "text-foreground"}`}
+                          >
+                            {item.text}
+                          </label>
+                        </li>
+                      ))}
+                      {total === 0 && (
+                        <li className="text-xs text-muted-foreground italic">Inga punkter</li>
+                      )}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 };
+
 
 const TodayScheduleChips = ({ userId }: Props) => {
   const today = format(new Date(), "yyyy-MM-dd");
