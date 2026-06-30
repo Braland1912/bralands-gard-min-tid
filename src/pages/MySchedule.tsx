@@ -739,9 +739,9 @@ const MySchedule = () => {
             .map((w) => {
               const days = weekDays.map((d, dayIdx) => {
                 const dateStr = format(d, "yyyy-MM-dd");
-                const shifts = (schedules as any[])
-                  .filter((s) => s.user_id === w.user_id && s.date === dateStr)
-                  .sort((a, b) => (a.shift_index ?? 0) - (b.shift_index ?? 0));
+                const shifts = sortShiftsByType(
+                  (schedules as any[]).filter((s) => s.user_id === w.user_id && s.date === dateStr),
+                );
                 return { dayIdx, shifts, isToday: isToday(d) };
               });
               const hasAny = days.some((d) => d.shifts.length > 0);
