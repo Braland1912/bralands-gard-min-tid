@@ -11,6 +11,7 @@ import ShiftChecklistViewer from "@/components/ShiftChecklistViewer";
 import LodgeDaySection from "@/components/LodgeDaySection";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import { useSyncLodgeChecklists } from "@/hooks/useSyncLodgeChecklists";
+import { sortShiftsByType } from "@/lib/shift-order";
 
 const SHIFT_LABEL: Record<string, string> = {
   morning: "Morgonpass",
@@ -58,7 +59,7 @@ const TodayTasks = () => {
       if (schedulesRes.error) throw schedulesRes.error;
       if (dayRes.error) throw dayRes.error;
       return {
-        shifts: schedulesRes.data || [],
+        shifts: sortShiftsByType(schedulesRes.data || []),
         published: dayRes.data?.is_published === true,
       };
     },
