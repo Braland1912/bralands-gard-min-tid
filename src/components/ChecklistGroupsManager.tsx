@@ -343,6 +343,24 @@ const ChecklistGroupsManager = () => {
               </p>
             </div>
 
+            <label
+              className={`flex items-start gap-2 rounded-md border px-3 py-2 cursor-pointer text-sm ${
+                draftIsEveningRound ? "bg-primary/5 border-primary/40" : "border-border bg-muted/30"
+              }`}
+            >
+              <Checkbox
+                checked={draftIsEveningRound}
+                onCheckedChange={(v) => setDraftIsEveningRound(v === true)}
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <div className="font-medium">Använd som Kvällsrundans checklista</div>
+                <p className="text-[10px] text-muted-foreground">
+                  Alla mallar i gruppen visas på fliken Lista i Kvällsrundan. Endast en grupp åt gången.
+                </p>
+              </div>
+            </label>
+
             <div className="flex gap-2">
               {editId && (
                 <Button variant="outline" size="sm" onClick={reset} className="gap-1.5">
