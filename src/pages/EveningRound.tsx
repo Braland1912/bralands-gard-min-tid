@@ -412,7 +412,7 @@ const EveningRound = () => {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className={`w-full grid ${isAdmin ? "grid-cols-4" : "grid-cols-3"} gap-1 h-auto p-1`}>
+          <TabsList className="w-full grid grid-cols-3 gap-1 h-auto p-1">
             <TabsTrigger value="forbetalda" className="relative px-1 text-xs sm:text-sm">
               Förbetalda
               {incomingGuestsAll.length > 0 && (
@@ -423,9 +423,6 @@ const EveningRound = () => {
             </TabsTrigger>
             <TabsTrigger value="rundan" className="px-1 text-xs sm:text-sm">Rundan</TabsTrigger>
             <TabsTrigger value="redovisning" className="px-1 text-xs sm:text-sm">Ekonomi</TabsTrigger>
-            {isAdmin && (
-              <TabsTrigger value="checklista" className="px-1 text-xs sm:text-sm">Historik</TabsTrigger>
-            )}
           </TabsList>
 
 
