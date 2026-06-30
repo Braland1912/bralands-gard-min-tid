@@ -451,9 +451,9 @@ const AdminChecklists = () => {
       });
     }
     sections.push({ id: null, name: "Ogrupperade", color: "#94a3b8", items: noGroup });
-    const filtered = groupFilter === "all"
+    const filtered = groupFilter.size === 0
       ? sections.filter((s) => s.items.length > 0 || s.id !== null)
-      : sections.filter((s) => (s.id ?? "_none") === groupFilter);
+      : sections.filter((s) => groupFilter.has(s.id ?? "_none"));
     return filtered;
   })();
 
