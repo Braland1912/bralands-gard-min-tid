@@ -161,7 +161,7 @@ const AdminChecklists = () => {
     },
     onSuccess: (tpl) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
-      openEdit(tpl, [], []);
+      openEdit(tpl, []);
     },
     onError: () => toast({ title: "Kunde inte skapa checklista", variant: "destructive" }),
   });
@@ -365,7 +365,6 @@ const AdminChecklists = () => {
   const duplicateTemplate = useMutation({
     mutationFn: async (tpl: Template) => {
       const items = allItems.filter((i) => i.template_id === tpl.id);
-      const linkedTypes = shiftTypesFor(tpl.id);
       const { data: newTpl, error } = await supabase
         .from("checklist_templates")
         .insert({
@@ -389,15 +388,14 @@ const AdminChecklists = () => {
           );
         if (insErr) throw insErr;
       }
-      return { tpl: newTpl as Template, items, linkedTypes };
+      return { tpl: newTpl as Template, items };
     },
-    onSuccess: ({ tpl, items, linkedTypes }) => {
+    onSuccess: ({ tpl, items }) => {
       queryClient.invalidateQueries({ queryKey: ["checklist-templates"] });
       queryClient.invalidateQueries({ queryKey: ["checklist-template-items"] });
       openEdit(
         tpl,
         items.map((i, idx) => ({ ...i, id: `tmp-${Date.now()}-${idx}`, template_id: tpl.id, sort_order: idx })),
-        linkedTypes,
       );
       toast({ title: "Checklista kopierad", description: "Döp om den och spara." });
     },
