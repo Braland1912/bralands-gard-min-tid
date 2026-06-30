@@ -276,7 +276,7 @@ const MySchedule = () => {
       });
       return Object.entries(byDate)
         .sort(([a], [b]) => (a < b ? -1 : 1))
-        .map(([date, shifts]) => ({ date, shifts }));
+        .map(([date, shifts]) => ({ date, shifts: sortShiftsByType(shifts) }));
     },
     enabled: !!myUserId,
   });
