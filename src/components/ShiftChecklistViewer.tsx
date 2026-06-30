@@ -42,6 +42,8 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
+  const { data: groupOrder } = useGroupOrder();
+
   // Gruppera i visningsordning efter group_name (null → "Övrigt")
   const grouped = (() => {
     const out: Array<{ key: string; name: string | null; color: string | null; lists: any[] }> = [];
@@ -54,7 +56,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
       }
       out[idx.get(key)!].lists.push(l);
     }
-    return out;
+    return sortGroups(out, groupOrder);
   })();
 
   // Hämta passets datum + ev. notering från admin
