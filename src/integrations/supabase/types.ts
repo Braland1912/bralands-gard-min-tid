@@ -150,11 +150,41 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_group_shift_types: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          shift_type: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          shift_type: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          shift_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_group_shift_types_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_template_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       checklist_template_groups: {
         Row: {
           color: string
           created_at: string
           id: string
+          lodge_unit: string | null
           name: string
           sort_order: number
           updated_at: string
@@ -163,6 +193,7 @@ export type Database = {
           color?: string
           created_at?: string
           id?: string
+          lodge_unit?: string | null
           name: string
           sort_order?: number
           updated_at?: string
@@ -171,6 +202,7 @@ export type Database = {
           color?: string
           created_at?: string
           id?: string
+          lodge_unit?: string | null
           name?: string
           sort_order?: number
           updated_at?: string
