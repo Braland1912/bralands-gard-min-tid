@@ -77,10 +77,17 @@ const AdminChecklists = () => {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<Template | null>(null);
   const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editGroupId, setEditGroupId] = useState<string | null>(null);
   const [editItems, setEditItems] = useState<Item[]>([]);
   const [editShiftTypes, setEditShiftTypes] = useState<string[]>([]);
   const [editLodgeUnit, setEditLodgeUnit] = useState<string | null>(null);
   const [newItemText, setNewItemText] = useState("");
+  const [showDescField, setShowDescField] = useState(false);
+  const [expandedItemDesc, setExpandedItemDesc] = useState<Record<string, boolean>>({});
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+
+  const { data: groups = [] } = useChecklistGroups();
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["checklist-templates"],
