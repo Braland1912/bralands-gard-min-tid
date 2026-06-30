@@ -466,7 +466,7 @@ const AdminChecklists = () => {
             <p className="hidden sm:block text-xs text-muted-foreground">Återkommande städ- och rutinuppgifter, grupperade och kopplade till pass</p>
           </div>
           <div className="flex items-center gap-2 sm:shrink-0">
-            <div className="flex-1 sm:flex-initial">
+            <div className="flex-1 sm:flex-initial [&>button]:w-full sm:[&>button]:w-auto">
               <ChecklistGroupsManager />
             </div>
             <Button
@@ -474,9 +474,8 @@ const AdminChecklists = () => {
               disabled={createTemplate.isPending}
               className="flex-1 sm:flex-initial whitespace-nowrap"
             >
-              <Plus className="h-4 w-4 sm:mr-1.5" />
-              <span className="hidden xs:inline sm:inline">Ny checklista</span>
-              <span className="xs:hidden sm:hidden ml-1.5">Ny</span>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Ny checklista
             </Button>
           </div>
         </div>
