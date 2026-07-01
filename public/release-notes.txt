@@ -1,1 +1,1 @@
-Vi har rensat bort dubbla checklistor på pass och lagt in ett skydd så att "Applicera retroaktivt" aldrig kan skapa dubbletter igen — varken för admin eller team lead.
+Checklistegrupper går nu att fälla ihop, och när en grupp är öppen fastnar rubriken högst upp så du alltid vet var du är och hur mycket som är kvar i gruppen.
