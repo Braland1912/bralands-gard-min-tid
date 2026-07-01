@@ -298,9 +298,11 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
           </div>
         );
             })}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
