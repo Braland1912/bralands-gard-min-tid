@@ -64,20 +64,14 @@ export const useEveningRoundSession = (
     mutationFn: async () => {
       if (!workerId) throw new Error("Saknar medarbetare");
       const now = new Date().toISOString();
-      const existing = query.data;
-      if (existing) {
-        const { data, error } = await supabase
-          .from("evening_round_sessions")
-          .update({ session_start: now, session_end: null })
-          .eq("id", existing.id)
-          .select("*")
-          .single();
-        if (error) throw error;
-        return data;
-      }
+      // Upsert på (worker_id, round_date) för att undvika race/stale-cache-krock
+      // mot unik-index evening_round_sessions_worker_id_round_date_key.
       const { data, error } = await supabase
         .from("evening_round_sessions")
-        .insert({ worker_id: workerId, round_date: date, session_start: now })
+        .upsert(
+          { worker_id: workerId, round_date: date, session_start: now, session_end: null },
+          { onConflict: "worker_id,round_date" },
+        )
         .select("*")
         .single();
       if (error) throw error;
