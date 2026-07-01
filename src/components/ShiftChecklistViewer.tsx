@@ -136,24 +136,52 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {NoteBanner}
-      {grouped.map((g) => (
-        <div key={g.key} className="space-y-2">
-          {g.name && (
-            <div className="flex items-center gap-2">
-              <span
-                className="h-2.5 w-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: g.color ?? "hsl(var(--muted-foreground))" }}
-                aria-hidden
+      {grouped.map((g) => {
+        const groupOpen = !!openGroups[g.key];
+        const groupTotal = g.lists.reduce((s: number, l: any) => s + l.items.length, 0);
+        const groupDone = g.lists.reduce(
+          (s: number, l: any) => s + l.items.filter((i: any) => i.is_checked).length,
+          0,
+        );
+        const groupComplete = groupTotal > 0 && groupDone === groupTotal;
+        return (
+          <div key={g.key} className="rounded-xl border border-border/60 bg-card overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleGroup(g.key)}
+              aria-expanded={groupOpen}
+              className={`w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors ${
+                groupOpen
+                  ? "sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border/60 shadow-sm"
+                  : "hover:bg-muted/40"
+              }`}
+            >
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${groupOpen ? "" : "-rotate-90"}`}
               />
-              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                {g.name}
+              {g.name && (
+                <span
+                  className="h-2.5 w-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: g.color ?? "hsl(var(--muted-foreground))" }}
+                  aria-hidden
+                />
+              )}
+              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground flex-1 min-w-0 truncate">
+                {g.name ?? "Övrigt"}
               </h3>
-            </div>
-          )}
-          <div className="space-y-3">
-            {g.lists.map((list: any) => {
+              <span
+                className={`text-[11px] tabular-nums shrink-0 ${
+                  groupComplete ? "text-emerald-600 font-semibold" : "text-muted-foreground"
+                }`}
+              >
+                {groupDone}/{groupTotal}
+              </span>
+            </button>
+            {groupOpen && (
+              <div className="space-y-3 p-3">
+                {g.lists.map((list: any) => {
         const total = list.items.length;
         const done = list.items.filter((i: any) => i.is_checked).length;
         const pct = total > 0 ? (done / total) * 100 : 0;
