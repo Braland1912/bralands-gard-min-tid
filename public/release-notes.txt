@@ -1,1 +1,1 @@
-Ny hjälpsida: Städrutiner. Under Hjälp hittar du nu en tydlig guide med vår grundordning (damma, såpa, diskmedel, ytdesinfektion), tips för metall och kalk, vilka trasor som används till vad och hur grovstädning med dammsugning och moppning ska gå till.
+"Applicera retroaktivt" synkar nu ändringar fullt ut på framtida pass: nya checklistor och punkter läggs till, redigerad text och beskrivningar uppdateras, borttagna punkter försvinner, och redan avbockade punkter behåller sitt bock-tillstånd.
