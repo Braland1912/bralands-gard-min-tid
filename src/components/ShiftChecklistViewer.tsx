@@ -17,8 +17,11 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
   const [openLists, setOpenLists] = useState<Record<string, boolean>>({});
   const [openListDesc, setOpenListDesc] = useState<Record<string, boolean>>({});
   const [openItemDesc, setOpenItemDesc] = useState<Record<string, boolean>>({});
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const toggleOpen = (id: string) =>
     setOpenLists((p) => ({ ...p, [id]: !p[id] }));
+  const toggleGroup = (key: string) =>
+    setOpenGroups((p) => ({ ...p, [key]: !p[key] }));
   const { data: lists, isLoading } = useQuery({
     queryKey: ["shift-checklists-viewer", shiftId],
     queryFn: async () => {
