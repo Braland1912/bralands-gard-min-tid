@@ -546,7 +546,7 @@ const ChecklistPreview = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Applicera grupper på befintliga pass?</AlertDialogTitle>
             <AlertDialogDescription>
-              Alla checklistor från kopplade grupper läggs till på framtida pass (från och med idag) av matchande passtyp. Checklistor med samma namn hoppas över så inget dubbleras. Tidigare borttagna checklistor kommer tillbaka.
+              Synkar framtida pass (från och med idag) mot mallarna: lägger till nya checklistor och punkter, uppdaterar ändrad text och tar bort borttagna punkter. Avbockade punkter behåller sitt bock-tillstånd när texten matchar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
