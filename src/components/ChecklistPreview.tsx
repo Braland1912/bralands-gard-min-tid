@@ -188,11 +188,11 @@ const ChecklistPreview = () => {
     onError: () => toast({ title: "Kunde inte uppdatera", variant: "destructive" }),
   });
 
-  // Retroactive: applicera grupp→passtyp på framtida pass
+  // Retroactive: applicera grupp→passtyp på framtida pass + synka punkter på befintliga listor
   const applyRetroactive = useMutation({
     mutationFn: async () => {
       const usedShiftTypes = Array.from(new Set(shiftLinks.map((l) => l.shift_type)));
-      if (usedShiftTypes.length === 0) return { added: 0, scanned: 0 };
+      if (usedShiftTypes.length === 0) return { added: 0, updated: 0, scanned: 0 };
 
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -202,18 +202,37 @@ const ChecklistPreview = () => {
         .select("id, shift_type, date")
         .gte("date", todayStr)
         .in("shift_type", usedShiftTypes);
-      if (!shifts || shifts.length === 0) return { added: 0, scanned: 0 };
+      if (!shifts || shifts.length === 0) return { added: 0, updated: 0, scanned: 0 };
 
       const shiftIds = shifts.map((s: any) => s.id);
       const { data: existingLists } = await supabase
         .from("shift_checklists")
-        .select("shift_id, name")
+        .select("id, shift_id, name, description, group_name, group_color")
         .in("shift_id", shiftIds);
-      const existingByShift = new Map<string, Set<string>>();
+      const existingByShift = new Map<string, Map<string, any>>();
       (existingLists ?? []).forEach((r: any) => {
-        if (!existingByShift.has(r.shift_id)) existingByShift.set(r.shift_id, new Set());
-        existingByShift.get(r.shift_id)!.add(r.name);
+        if (!existingByShift.has(r.shift_id)) existingByShift.set(r.shift_id, new Map());
+        existingByShift.get(r.shift_id)!.set(r.name, r);
       });
+
+      // Hämta befintliga items för alla matchade listor
+      const existingListIds = (existingLists ?? []).map((r: any) => r.id);
+      const existingItemsByList = new Map<string, any[]>();
+      if (existingListIds.length > 0) {
+        const CHUNK_IN = 200;
+        for (let i = 0; i < existingListIds.length; i += CHUNK_IN) {
+          const slice = existingListIds.slice(i, i + CHUNK_IN);
+          const { data: eItems, error } = await supabase
+            .from("shift_checklist_items")
+            .select("id, shift_checklist_id, text, sort_order, description, is_checked")
+            .in("shift_checklist_id", slice);
+          if (error) throw error;
+          (eItems ?? []).forEach((it: any) => {
+            if (!existingItemsByList.has(it.shift_checklist_id)) existingItemsByList.set(it.shift_checklist_id, []);
+            existingItemsByList.get(it.shift_checklist_id)!.push(it);
+          });
+        }
+      }
 
       // Bygg ordnad mall-lista per shift_type
       const orderedTplsByShift: Record<string, Template[]> = {};
@@ -231,35 +250,50 @@ const ChecklistPreview = () => {
         orderedTplsByShift[st] = list;
       }
 
-      // Bygg batch av alla nya checklists
-      const toInsert: any[] = [];
-      const tplRefs: { tplId: string; shiftId: string }[] = [];
+      const CHUNK = 200;
+
+      // 1. Nya checklistor att skapa
+      const toInsertLists: any[] = [];
+      const newTplRefs: { tplId: string; shiftId: string }[] = [];
+      // 2. Befintliga checklistor att synka items på
+      const listsToSync: { existingId: string; tpl: Template; sortOrder: number; existingList: any }[] = [];
+      // 3. Listor att uppdatera metadata på (order/description/group)
+      const listMetaUpdates: { id: string; sort_order: number; description: string | null; group_name: string | null; group_color: string | null }[] = [];
+
       for (const shift of shifts as any[]) {
         const ordered = orderedTplsByShift[shift.shift_type] ?? [];
+        const existMap = existingByShift.get(shift.id);
         for (let i = 0; i < ordered.length; i++) {
           const tpl = ordered[i];
-          const existing = existingByShift.get(shift.id);
-          if (existing && existing.has(tpl.name)) continue;
           const grp = groups.find((g) => g.id === tpl.group_id) ?? null;
-          toInsert.push({
-            shift_id: shift.id,
-            name: tpl.name,
-            sort_order: i,
-            description: tpl.description ?? null,
-            group_name: grp?.name ?? null,
-            group_color: grp?.color ?? null,
-          });
-          tplRefs.push({ tplId: tpl.id, shiftId: shift.id });
+          const existing = existMap?.get(tpl.name);
+          if (existing) {
+            listsToSync.push({ existingId: existing.id, tpl, sortOrder: i, existingList: existing });
+            listMetaUpdates.push({
+              id: existing.id,
+              sort_order: i,
+              description: tpl.description ?? null,
+              group_name: grp?.name ?? null,
+              group_color: grp?.color ?? null,
+            });
+          } else {
+            toInsertLists.push({
+              shift_id: shift.id,
+              name: tpl.name,
+              sort_order: i,
+              description: tpl.description ?? null,
+              group_name: grp?.name ?? null,
+              group_color: grp?.color ?? null,
+            });
+            newTplRefs.push({ tplId: tpl.id, shiftId: shift.id });
+          }
         }
       }
 
-      if (toInsert.length === 0) return { added: 0, scanned: shifts.length };
-
-      // Bulk-insert i chunks
-      const CHUNK = 200;
+      // Skapa nya listor
       const insertedIds: string[] = [];
-      for (let i = 0; i < toInsert.length; i += CHUNK) {
-        const slice = toInsert.slice(i, i + CHUNK);
+      for (let i = 0; i < toInsertLists.length; i += CHUNK) {
+        const slice = toInsertLists.slice(i, i + CHUNK);
         const { data, error } = await supabase
           .from("shift_checklists")
           .insert(slice)
@@ -268,13 +302,13 @@ const ChecklistPreview = () => {
         (data ?? []).forEach((r: any) => insertedIds.push(r.id));
       }
 
-      // Bygg alla items i en enda batch
-      const itemRows: any[] = [];
+      // Items för nya listor
+      const newItemRows: any[] = [];
       insertedIds.forEach((newId, idx) => {
-        const { tplId } = tplRefs[idx];
-        const tplItems = items.filter((it) => it.template_id === tplId);
+        const { tplId } = newTplRefs[idx];
+        const tplItems = items.filter((it) => it.template_id === tplId).sort((a, b) => a.sort_order - b.sort_order);
         tplItems.forEach((it, i2) => {
-          itemRows.push({
+          newItemRows.push({
             shift_checklist_id: newId,
             text: it.text,
             sort_order: i2,
@@ -282,24 +316,118 @@ const ChecklistPreview = () => {
           });
         });
       });
-      for (let i = 0; i < itemRows.length; i += CHUNK) {
-        const slice = itemRows.slice(i, i + CHUNK);
+      for (let i = 0; i < newItemRows.length; i += CHUNK) {
+        const slice = newItemRows.slice(i, i + CHUNK);
         const { error } = await supabase.from("shift_checklist_items").insert(slice);
         if (error) throw error;
       }
 
-      return { added: insertedIds.length, scanned: shifts.length };
+      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad)
+      let listsUpdated = 0;
+      for (const u of listMetaUpdates) {
+        const cur = (existingLists ?? []).find((r: any) => r.id === u.id);
+        if (!cur) continue;
+        if (
+          cur.description === u.description &&
+          cur.group_name === u.group_name &&
+          cur.group_color === u.group_color
+        ) continue;
+        const { error } = await supabase
+          .from("shift_checklists")
+          .update({
+            description: u.description,
+            group_name: u.group_name,
+            group_color: u.group_color,
+          })
+          .eq("id", u.id);
+        if (error) throw error;
+        listsUpdated++;
+      }
 
+      // Synka items på befintliga listor: matcha per sort_order-position
+      // - uppdatera text/description om ändrat
+      // - infoga nya
+      // - ta bort de som finns i shift men inte i mallen
+      const itemInserts: any[] = [];
+      const itemDeletes: string[] = [];
+      let itemsUpdated = 0;
+
+      for (const sync of listsToSync) {
+        const tplItems = items
+          .filter((it) => it.template_id === sync.tpl.id)
+          .sort((a, b) => a.sort_order - b.sort_order);
+        const existingItems = (existingItemsByList.get(sync.existingId) ?? [])
+          .sort((a: any, b: any) => a.sort_order - b.sort_order);
+
+        // Matcha primärt på text (bevarar checked-state), sekundärt på position
+        const usedExisting = new Set<string>();
+        for (let i = 0; i < tplItems.length; i++) {
+          const t = tplItems[i];
+          let match = existingItems.find(
+            (e: any) => !usedExisting.has(e.id) && e.text === t.text,
+          );
+          if (!match) {
+            match = existingItems.find(
+              (e: any) => !usedExisting.has(e.id) && e.sort_order === i,
+            );
+          }
+          if (match) {
+            usedExisting.add(match.id);
+            const needsUpdate =
+              match.text !== t.text ||
+              match.description !== (t.description ?? null) ||
+              match.sort_order !== i;
+            if (needsUpdate) {
+              const { error } = await supabase
+                .from("shift_checklist_items")
+                .update({ text: t.text, description: t.description ?? null, sort_order: i })
+                .eq("id", match.id);
+              if (error) throw error;
+              itemsUpdated++;
+            }
+          } else {
+            itemInserts.push({
+              shift_checklist_id: sync.existingId,
+              text: t.text,
+              sort_order: i,
+              description: t.description ?? null,
+            });
+          }
+        }
+        for (const e of existingItems) {
+          if (!usedExisting.has(e.id)) itemDeletes.push(e.id);
+        }
+      }
+
+      for (let i = 0; i < itemInserts.length; i += CHUNK) {
+        const slice = itemInserts.slice(i, i + CHUNK);
+        const { error } = await supabase.from("shift_checklist_items").insert(slice);
+        if (error) throw error;
+      }
+      for (let i = 0; i < itemDeletes.length; i += CHUNK) {
+        const slice = itemDeletes.slice(i, i + CHUNK);
+        const { error } = await supabase.from("shift_checklist_items").delete().in("id", slice);
+        if (error) throw error;
+      }
+
+      return {
+        added: insertedIds.length,
+        updated: listsUpdated + itemsUpdated + itemInserts.length + itemDeletes.length,
+        scanned: shifts.length,
+      };
     },
-    onSuccess: ({ added, scanned }) => {
+    onSuccess: ({ added, updated, scanned }) => {
       qc.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
       qc.invalidateQueries({ queryKey: ["shift-checklists-viewer"] });
+      const parts: string[] = [];
+      if (added > 0) parts.push(`${added} ny${added === 1 ? "" : "a"} checklist${added === 1 ? "a" : "or"}`);
+      if (updated > 0) parts.push(`${updated} synkade ändring${updated === 1 ? "" : "ar"}`);
       toast({
         title: "Klart",
         description:
-          added === 0
-            ? `Inga nya checklistor behövdes (${scanned} pass kontrollerade).`
-            : `${added} checklist${added === 1 ? "a" : "or"} tillagda på ${scanned} pass.`,
+          parts.length === 0
+            ? `Allt är redan i synk (${scanned} pass kontrollerade).`
+            : `${parts.join(" och ")} på ${scanned} pass.`,
       });
     },
     onError: () => toast({ title: "Kunde inte applicera", variant: "destructive" }),
@@ -418,7 +546,7 @@ const ChecklistPreview = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Applicera grupper på befintliga pass?</AlertDialogTitle>
             <AlertDialogDescription>
-              Alla checklistor från kopplade grupper läggs till på framtida pass (från och med idag) av matchande passtyp. Checklistor med samma namn hoppas över så inget dubbleras. Tidigare borttagna checklistor kommer tillbaka.
+              Synkar framtida pass (från och med idag) mot mallarna: lägger till nya checklistor och punkter, uppdaterar ändrad text och tar bort borttagna punkter. Avbockade punkter behåller sitt bock-tillstånd när texten matchar.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
