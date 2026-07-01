@@ -43,7 +43,7 @@ type Item = { id: string; template_id: string; text: string; sort_order: number;
 
 const PAGE_SIZE = 1000;
 
-async function fetchAllPages<T>(queryPage: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>) {
+async function fetchAllPages<T>(queryPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>) {
   const rows: T[] = [];
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await queryPage(from, from + PAGE_SIZE - 1);
