@@ -1,1 +1,1 @@
-Checklistemanagers (som Vendela och Fina) kan nu applicera checklistor retroaktivt på alla framtida pass, inte bara sina egna.
+Fixade ett fel som kunde göra att kvällsrundan inte gick att starta ("duplicate key"). Nu startar rundan alltid som den ska.
