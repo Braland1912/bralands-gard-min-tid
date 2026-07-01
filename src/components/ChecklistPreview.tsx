@@ -231,44 +231,65 @@ const ChecklistPreview = () => {
         orderedTplsByShift[st] = list;
       }
 
-      let added = 0;
+      // Bygg batch av alla nya checklists
+      const toInsert: any[] = [];
+      const tplRefs: { tplId: string; shiftId: string }[] = [];
       for (const shift of shifts as any[]) {
         const ordered = orderedTplsByShift[shift.shift_type] ?? [];
         for (let i = 0; i < ordered.length; i++) {
           const tpl = ordered[i];
           const existing = existingByShift.get(shift.id);
           if (existing && existing.has(tpl.name)) continue;
-
           const grp = groups.find((g) => g.id === tpl.group_id) ?? null;
-          const { data: newList, error: clErr } = await supabase
-            .from("shift_checklists")
-            .insert({
-              shift_id: shift.id,
-              name: tpl.name,
-              sort_order: i,
-              description: tpl.description ?? null,
-              group_name: grp?.name ?? null,
-              group_color: grp?.color ?? null,
-            } as any)
-            .select("id")
-            .single();
-          if (clErr || !newList) continue;
-          added++;
-
-          const tplItems = items.filter((it) => it.template_id === tpl.id);
-          if (tplItems.length > 0) {
-            await supabase.from("shift_checklist_items").insert(
-              tplItems.map((it, idx) => ({
-                shift_checklist_id: newList.id,
-                text: it.text,
-                sort_order: idx,
-                description: it.description ?? null,
-              })),
-            );
-          }
+          toInsert.push({
+            shift_id: shift.id,
+            name: tpl.name,
+            sort_order: i,
+            description: tpl.description ?? null,
+            group_name: grp?.name ?? null,
+            group_color: grp?.color ?? null,
+          });
+          tplRefs.push({ tplId: tpl.id, shiftId: shift.id });
         }
       }
-      return { added, scanned: shifts.length };
+
+      if (toInsert.length === 0) return { added: 0, scanned: shifts.length };
+
+      // Bulk-insert i chunks
+      const CHUNK = 200;
+      const insertedIds: string[] = [];
+      for (let i = 0; i < toInsert.length; i += CHUNK) {
+        const slice = toInsert.slice(i, i + CHUNK);
+        const { data, error } = await supabase
+          .from("shift_checklists")
+          .insert(slice)
+          .select("id");
+        if (error) throw error;
+        (data ?? []).forEach((r: any) => insertedIds.push(r.id));
+      }
+
+      // Bygg alla items i en enda batch
+      const itemRows: any[] = [];
+      insertedIds.forEach((newId, idx) => {
+        const { tplId } = tplRefs[idx];
+        const tplItems = items.filter((it) => it.template_id === tplId);
+        tplItems.forEach((it, i2) => {
+          itemRows.push({
+            shift_checklist_id: newId,
+            text: it.text,
+            sort_order: i2,
+            description: it.description ?? null,
+          });
+        });
+      });
+      for (let i = 0; i < itemRows.length; i += CHUNK) {
+        const slice = itemRows.slice(i, i + CHUNK);
+        const { error } = await supabase.from("shift_checklist_items").insert(slice);
+        if (error) throw error;
+      }
+
+      return { added: insertedIds.length, scanned: shifts.length };
+
     },
     onSuccess: ({ added, scanned }) => {
       qc.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
