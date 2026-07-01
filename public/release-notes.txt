@@ -1,1 +1,1 @@
-Checklistegrupper går nu att fälla ihop, och när en grupp är öppen fastnar rubriken högst upp så du alltid vet var du är och hur mycket som är kvar i gruppen.
+Checklistemanagers (som Vendela och Fina) kan nu applicera checklistor retroaktivt på alla framtida pass, inte bara sina egna.
