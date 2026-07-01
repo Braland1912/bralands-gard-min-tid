@@ -435,7 +435,12 @@ const ChecklistPreview = () => {
             : `${parts.join(" och ")} på ${scanned} pass.`,
       });
     },
-    onError: () => toast({ title: "Kunde inte applicera", variant: "destructive" }),
+    onError: (err: any) => {
+      // eslint-disable-next-line no-console
+      console.error("[applyRetroactive] failed:", err);
+      const msg = err?.message || err?.details || err?.hint || "Okänt fel";
+      toast({ title: "Kunde inte applicera", description: msg, variant: "destructive" });
+    },
   });
 
   const templatesByGroup = useMemo(() => {
