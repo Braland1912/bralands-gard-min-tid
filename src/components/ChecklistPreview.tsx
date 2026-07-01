@@ -41,6 +41,20 @@ type GroupShiftLink = { id: string; group_id: string; shift_type: string; sort_o
 type Template = { id: string; name: string; group_id: string | null; sort_order: number; description: string | null; lodge_unit: string | null };
 type Item = { id: string; template_id: string; text: string; sort_order: number; description: string | null };
 
+const PAGE_SIZE = 1000;
+
+async function fetchAllPages<T>(queryPage: (from: number, to: number) => Promise<{ data: T[] | null; error: any }>) {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await queryPage(from, from + PAGE_SIZE - 1);
+    if (error) throw error;
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) break;
+  }
+  return rows;
+}
+
 const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; border: string; text: string; ring: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700", ring: "ring-orange-200" },
   { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", ring: "ring-blue-200" },
@@ -197,37 +211,50 @@ const ChecklistPreview = () => {
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-      const { data: shifts } = await supabase
-        .from("schedules")
-        .select("id, shift_type, date")
-        .gte("date", todayStr)
-        .in("shift_type", usedShiftTypes);
+      const shifts = await fetchAllPages<any>((from, to) =>
+        supabase
+          .from("schedules")
+          .select("id, shift_type, date")
+          .gte("date", todayStr)
+          .in("shift_type", usedShiftTypes)
+          .range(from, to),
+      );
       if (!shifts || shifts.length === 0) return { added: 0, updated: 0, scanned: 0 };
 
       const shiftIds = shifts.map((s: any) => s.id);
-      const { data: existingLists } = await supabase
-        .from("shift_checklists")
-        .select("id, shift_id, name, description, group_name, group_color")
-        .in("shift_id", shiftIds);
+      const existingLists: any[] = [];
+      const CHUNK_IN = 100;
+      for (let i = 0; i < shiftIds.length; i += CHUNK_IN) {
+        const slice = shiftIds.slice(i, i + CHUNK_IN);
+        const pageRows = await fetchAllPages<any>((from, to) =>
+          supabase
+            .from("shift_checklists")
+            .select("id, shift_id, name, description, group_name, group_color")
+            .in("shift_id", slice)
+            .range(from, to),
+        );
+        existingLists.push(...pageRows);
+      }
       const existingByShift = new Map<string, Map<string, any>>();
-      (existingLists ?? []).forEach((r: any) => {
+      existingLists.forEach((r: any) => {
         if (!existingByShift.has(r.shift_id)) existingByShift.set(r.shift_id, new Map());
         existingByShift.get(r.shift_id)!.set(r.name, r);
       });
 
       // Hämta befintliga items för alla matchade listor
-      const existingListIds = (existingLists ?? []).map((r: any) => r.id);
+      const existingListIds = existingLists.map((r: any) => r.id);
       const existingItemsByList = new Map<string, any[]>();
       if (existingListIds.length > 0) {
-        const CHUNK_IN = 200;
         for (let i = 0; i < existingListIds.length; i += CHUNK_IN) {
           const slice = existingListIds.slice(i, i + CHUNK_IN);
-          const { data: eItems, error } = await supabase
-            .from("shift_checklist_items")
-            .select("id, shift_checklist_id, text, sort_order, description, is_checked")
-            .in("shift_checklist_id", slice);
-          if (error) throw error;
-          (eItems ?? []).forEach((it: any) => {
+          const eItems = await fetchAllPages<any>((from, to) =>
+            supabase
+              .from("shift_checklist_items")
+              .select("id, shift_checklist_id, text, sort_order, description, is_checked")
+              .in("shift_checklist_id", slice)
+              .range(from, to),
+          );
+          eItems.forEach((it: any) => {
             if (!existingItemsByList.has(it.shift_checklist_id)) existingItemsByList.set(it.shift_checklist_id, []);
             existingItemsByList.get(it.shift_checklist_id)!.push(it);
           });
@@ -330,7 +357,7 @@ const ChecklistPreview = () => {
       // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad)
       let listsUpdated = 0;
       for (const u of listMetaUpdates) {
-        const cur = (existingLists ?? []).find((r: any) => r.id === u.id);
+        const cur = existingLists.find((r: any) => r.id === u.id);
         if (!cur) continue;
         if (
           cur.description === u.description &&
