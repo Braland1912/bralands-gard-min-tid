@@ -234,18 +234,23 @@ const ChecklistPreview = () => {
         }
       }
 
-      // Bygg ordnad mall-lista per shift_type
+      // Bygg ordnad mall-lista per shift_type (deduplicera på namn — unik-regel i DB)
       const orderedTplsByShift: Record<string, Template[]> = {};
       for (const st of usedShiftTypes) {
         const linksForShift = shiftLinks
           .filter((l) => l.shift_type === st)
           .sort((a, b) => a.sort_order - b.sort_order);
         const list: Template[] = [];
+        const seenNames = new Set<string>();
         for (const gl of linksForShift) {
           const tplsInGroup = templates
             .filter((t) => t.group_id === gl.group_id)
             .sort((a, b) => a.sort_order - b.sort_order);
-          list.push(...tplsInGroup);
+          for (const t of tplsInGroup) {
+            if (seenNames.has(t.name)) continue;
+            seenNames.add(t.name);
+            list.push(t);
+          }
         }
         orderedTplsByShift[st] = list;
       }
