@@ -1,1 +1,1 @@
-"Applicera retroaktivt" synkar nu ändringar fullt ut på framtida pass: nya checklistor och punkter läggs till, redigerad text och beskrivningar uppdateras, borttagna punkter försvinner, och redan avbockade punkter behåller sitt bock-tillstånd.
+Vi har rensat bort dubbla checklistor på pass och lagt in ett skydd så att "Applicera retroaktivt" aldrig kan skapa dubbletter igen — varken för admin eller team lead.
