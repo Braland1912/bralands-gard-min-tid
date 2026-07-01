@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Moon, LifeBuoy, BookOpen } from "lucide-react";
+import { ChevronRight, Moon, LifeBuoy, BookOpen, Sparkles } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type HelpItem = {
@@ -16,6 +16,13 @@ const items: HelpItem[] = [
       "Så fungerar kvällsrundan: förbetalda, fasta platser, tillfälliga platser, ekonomi och daglig checklista.",
     path: "/evening-round/help",
     icon: Moon,
+  },
+  {
+    title: "Städrutiner",
+    description:
+      "Så dammar och städar vi steg för steg: grundordningen, metall & kalk, trasor och grovstädning.",
+    path: "/help/cleaning",
+    icon: Sparkles,
   },
 ];
 
