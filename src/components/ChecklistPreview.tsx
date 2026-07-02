@@ -55,6 +55,22 @@ async function fetchAllPages<T>(queryPage: (from: number, to: number) => Promise
   return rows;
 }
 
+// Kör async-tasks parallellt med begränsad concurrency så vi inte kvävs
+// av hundratals sekventiella round-trips (som gav timeout/rött fel).
+async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit = 8): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, async () => {
+    while (true) {
+      const i = cursor++;
+      if (i >= tasks.length) return;
+      results[i] = await tasks[i]();
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; border: string; text: string; ring: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700", ring: "ring-orange-200" },
   { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", ring: "ring-blue-200" },
@@ -354,8 +370,9 @@ const ChecklistPreview = () => {
         if (error) throw error;
       }
 
-      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad)
+      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad) — parallellt
       let listsUpdated = 0;
+      const metaTasks: (() => Promise<void>)[] = [];
       for (const u of listMetaUpdates) {
         const cur = existingLists.find((r: any) => r.id === u.id);
         if (!cur) continue;
@@ -364,17 +381,20 @@ const ChecklistPreview = () => {
           cur.group_name === u.group_name &&
           cur.group_color === u.group_color
         ) continue;
-        const { error } = await supabase
-          .from("shift_checklists")
-          .update({
-            description: u.description,
-            group_name: u.group_name,
-            group_color: u.group_color,
-          })
-          .eq("id", u.id);
-        if (error) throw error;
-        listsUpdated++;
+        metaTasks.push(async () => {
+          const { error } = await supabase
+            .from("shift_checklists")
+            .update({
+              description: u.description,
+              group_name: u.group_name,
+              group_color: u.group_color,
+            })
+            .eq("id", u.id);
+          if (error) throw error;
+          listsUpdated++;
+        });
       }
+      await runWithConcurrency(metaTasks, 8);
 
       // Synka items på befintliga listor: matcha per sort_order-position
       // - uppdatera text/description om ändrat
@@ -382,7 +402,7 @@ const ChecklistPreview = () => {
       // - ta bort de som finns i shift men inte i mallen
       const itemInserts: any[] = [];
       const itemDeletes: string[] = [];
-      let itemsUpdated = 0;
+      const itemUpdateTasks: (() => Promise<void>)[] = [];
 
       for (const sync of listsToSync) {
         const tplItems = items
@@ -410,12 +430,15 @@ const ChecklistPreview = () => {
               match.description !== (t.description ?? null) ||
               match.sort_order !== i;
             if (needsUpdate) {
-              const { error } = await supabase
-                .from("shift_checklist_items")
-                .update({ text: t.text, description: t.description ?? null, sort_order: i })
-                .eq("id", match.id);
-              if (error) throw error;
-              itemsUpdated++;
+              const id = match.id;
+              const payload = { text: t.text, description: t.description ?? null, sort_order: i };
+              itemUpdateTasks.push(async () => {
+                const { error } = await supabase
+                  .from("shift_checklist_items")
+                  .update(payload)
+                  .eq("id", id);
+                if (error) throw error;
+              });
             }
           } else {
             itemInserts.push({
@@ -430,6 +453,9 @@ const ChecklistPreview = () => {
           if (!usedExisting.has(e.id)) itemDeletes.push(e.id);
         }
       }
+
+      const itemsUpdated = itemUpdateTasks.length;
+      await runWithConcurrency(itemUpdateTasks, 8);
 
       for (let i = 0; i < itemInserts.length; i += CHUNK) {
         const slice = itemInserts.slice(i, i + CHUNK);
