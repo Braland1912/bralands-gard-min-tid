@@ -32,6 +32,7 @@ import DesktopSidebar from "./components/DesktopSidebar";
 import InstallAppModal from "./components/InstallAppModal";
 import UpdateBanner from "./components/UpdateBanner";
 import VersionTracker from "./components/VersionTracker";
+import CleaningAnnouncementModal from "./components/CleaningAnnouncementModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ const App = () => (
         <UpdateBanner />
         <VersionTracker />
         <InstallAppModal />
+        <CleaningAnnouncementModal />
         <DesktopSidebar />
         <AppHeader />
         <div className="md:pl-64">
