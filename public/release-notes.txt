@@ -1,1 +1,1 @@
-Retroaktiv applicering synkar nu även borttagna grupper och ny ordning – resultatet blir identiskt med förhandsvisningen. Snabbare och stabilare för alla med behörighet att administrera checklistor.
+Dagens och kommande pass visar nu alltid grupperna i rätt ordning, och borttagna grupper försvinner direkt. Medarbetarnas vyer uppdateras automatiskt var 15:e sekund så ändringar syns utan att ladda om.
