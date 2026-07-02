@@ -55,6 +55,22 @@ async function fetchAllPages<T>(queryPage: (from: number, to: number) => Promise
   return rows;
 }
 
+// Kör async-tasks parallellt med begränsad concurrency så vi inte kvävs
+// av hundratals sekventiella round-trips (som gav timeout/rött fel).
+async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit = 8): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, async () => {
+    while (true) {
+      const i = cursor++;
+      if (i >= tasks.length) return;
+      results[i] = await tasks[i]();
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; border: string; text: string; ring: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700", ring: "ring-orange-200" },
   { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", ring: "ring-blue-200" },
