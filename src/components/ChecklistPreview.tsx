@@ -245,7 +245,7 @@ const ChecklistPreview = () => {
         const pageRows = await fetchAllPages<any>((from, to) =>
           supabase
             .from("shift_checklists")
-            .select("id, shift_id, name, description, group_name, group_color, lodge_unit")
+            .select("id, shift_id, name, description, group_name, group_color, lodge_unit, sort_order")
             .in("shift_id", slice)
             .range(from, to),
         );
