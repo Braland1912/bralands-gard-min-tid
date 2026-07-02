@@ -1,1 +1,1 @@
-Fixade ett fel som kunde göra att kvällsrundan inte gick att starta ("duplicate key"). Nu startar rundan alltid som den ska.
+Retroaktiv applicering synkar nu även borttagna grupper och ny ordning – resultatet blir identiskt med förhandsvisningen. Snabbare och stabilare för alla med behörighet att administrera checklistor.
