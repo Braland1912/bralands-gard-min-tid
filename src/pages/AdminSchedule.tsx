@@ -142,6 +142,33 @@ const AdminSchedule = () => {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
 
+  const [collapsedWorkers, setCollapsedWorkers] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = localStorage.getItem("admin-schedule-collapsed-workers");
+      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set();
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "admin-schedule-collapsed-workers",
+        JSON.stringify(Array.from(collapsedWorkers)),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [collapsedWorkers]);
+  const toggleCollapse = (workerId: string) =>
+    setCollapsedWorkers((prev) => {
+      const next = new Set(prev);
+      if (next.has(workerId)) next.delete(workerId);
+      else next.add(workerId);
+      return next;
+    });
+
   const { data: allWorkers = [], isLoading: workersLoading } = useQuery({
     queryKey: ["admin-workers-schedule"],
     queryFn: async () => {
