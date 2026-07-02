@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ListChecks, Info } from "lucide-react";
 import { useState } from "react";
-import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
 
 interface Props {
   shiftId: string;
@@ -34,8 +33,8 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
       return { lists: lists ?? [], items: items ?? [] };
     },
     enabled: !!shiftId,
+    refetchInterval: 15000,
   });
-  const { data: groupOrder } = useGroupOrder();
 
   if (isLoading) {
     return (
@@ -57,7 +56,6 @@ const ShiftChecklistsCollapsed = ({ shiftId }: Props) => {
       }
       grouped[idx.get(key)!].lists.push(l);
     }
-    grouped = sortGroups(grouped, groupOrder);
   }
 
   return (

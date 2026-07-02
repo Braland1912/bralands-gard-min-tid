@@ -6,7 +6,6 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { StickyNote, ChevronDown, Info } from "lucide-react";
 import { useState } from "react";
-import { useGroupOrder, sortGroups } from "@/hooks/useGroupOrder";
 
 interface Props {
   shiftId: string;
@@ -43,9 +42,8 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
         items: (items || []).filter((i) => i.shift_checklist_id === c.id),
       }));
     },
+    refetchInterval: 15000,
   });
-
-  const { data: groupOrder } = useGroupOrder();
 
   // Gruppera i visningsordning efter group_name (null → "Övrigt")
   const grouped = (() => {
@@ -59,7 +57,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
       }
       out[idx.get(key)!].lists.push(l);
     }
-    return sortGroups(out, groupOrder);
+    return out;
   })();
 
   // Hämta passets datum + ev. notering från admin
