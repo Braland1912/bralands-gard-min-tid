@@ -840,6 +840,32 @@ const AdminSchedule = () => {
           </div>
         </div>
 
+        {/* Täckningsvarning: dagar som saknar morgon-, dag- eller kvällspass */}
+        {!isLoading && coverageGaps.length > 0 && (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3 sm:p-4">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="text-sm font-semibold text-amber-900">
+                  Pass saknas denna vecka
+                </div>
+                <ul className="text-xs sm:text-sm text-amber-900/90 space-y-0.5">
+                  {coverageGaps.map(({ date, missing }) => (
+                    <li key={format(date, "yyyy-MM-dd")} className="flex flex-wrap gap-x-1.5">
+                      <span className="font-medium capitalize">
+                        {format(date, "EEEE d MMM", { locale: sv })}:
+                      </span>
+                      <span>
+                        saknar {missing.map((m) => m.label.toLowerCase()).join(", ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Grid */}
         <Card className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
