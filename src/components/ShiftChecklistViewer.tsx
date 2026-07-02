@@ -111,6 +111,38 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
+  const bulkToggle = useMutation({
+    mutationFn: async ({ list, checked }: { list: any; checked: boolean }) => {
+      const targets = list.items.filter((i: any) => i.is_checked !== checked);
+      if (targets.length === 0) return;
+      const ids = targets.map((i: any) => i.id);
+      const { error } = await supabase
+        .from("shift_checklist_items")
+        .update({ is_checked: checked })
+        .in("id", ids);
+      if (error) throw error;
+      const { data: userRes } = await supabase.auth.getUser();
+      const userId = userRes?.user?.id;
+      const shiftDate = shiftMeta?.date;
+      if (userId && shiftDate) {
+        await supabase.from("shift_checklist_completion_log").insert(
+          targets.map((i: any) => ({
+            checklist_item_id: i.id,
+            shift_checklist_id: list.id,
+            shift_id: shiftId,
+            shift_date: shiftDate,
+            worker_user_id: userId,
+            is_checked: checked,
+          })),
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-checklists-viewer", shiftId] });
+      queryClient.invalidateQueries({ queryKey: ["home-shift-checklists", shiftId] });
+    },
+  });
+
   const note = shiftMeta?.note?.trim();
   const NoteBanner = note ? (
     <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
