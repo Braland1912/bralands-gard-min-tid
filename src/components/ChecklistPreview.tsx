@@ -506,10 +506,11 @@ const ChecklistPreview = () => {
       return {
         added: insertedIds.length,
         updated: listsUpdated + itemsUpdated + itemInserts.length + itemDeletes.length,
+        removed: listsDeleted,
         scanned: shifts.length,
       };
     },
-    onSuccess: ({ added, updated, scanned }) => {
+    onSuccess: ({ added, updated, removed, scanned }) => {
       qc.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
       qc.invalidateQueries({ queryKey: ["shift-checklists-viewer"] });
       const parts: string[] = [];
