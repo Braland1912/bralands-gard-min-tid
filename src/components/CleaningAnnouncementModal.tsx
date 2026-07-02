@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Sparkles, ExternalLink, Share2, Check } from "lucide-react";
+import { Sparkles, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useToast } from "@/hooks/use-toast";
 
 const ANNOUNCEMENT_ID = "cleaning-help-v1";
 const storageKey = (userId: string) => `announcement:${ANNOUNCEMENT_ID}:acked:${userId}`;
