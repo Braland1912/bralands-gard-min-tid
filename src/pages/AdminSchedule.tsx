@@ -995,7 +995,7 @@ const AdminSchedule = () => {
 
 
                     {/* Day cells */}
-                    {weekDays.map((d, i) => {
+                    {!isCollapsed && weekDays.map((d, i) => {
                       const shift0 = w.user_id ? getShiftAt(w.user_id, d, 0) : null;
                       const shift1 = w.user_id ? getShiftAt(w.user_id, d, 1) : null;
                       const row0 = w.user_id ? getShiftRow(w.user_id, d, 0) : null;
