@@ -245,7 +245,7 @@ const ChecklistPreview = () => {
         const pageRows = await fetchAllPages<any>((from, to) =>
           supabase
             .from("shift_checklists")
-            .select("id, shift_id, name, description, group_name, group_color")
+            .select("id, shift_id, name, description, group_name, group_color, lodge_unit")
             .in("shift_id", slice)
             .range(from, to),
         );
@@ -370,7 +370,7 @@ const ChecklistPreview = () => {
         if (error) throw error;
       }
 
-      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad) — parallellt
+      // Uppdatera metadata (inkl. sort_order) på befintliga listor — parallellt
       let listsUpdated = 0;
       const metaTasks: (() => Promise<void>)[] = [];
       for (const u of listMetaUpdates) {
@@ -379,7 +379,8 @@ const ChecklistPreview = () => {
         if (
           cur.description === u.description &&
           cur.group_name === u.group_name &&
-          cur.group_color === u.group_color
+          cur.group_color === u.group_color &&
+          cur.sort_order === u.sort_order
         ) continue;
         metaTasks.push(async () => {
           const { error } = await supabase
@@ -388,6 +389,7 @@ const ChecklistPreview = () => {
               description: u.description,
               group_name: u.group_name,
               group_color: u.group_color,
+              sort_order: u.sort_order,
             })
             .eq("id", u.id);
           if (error) throw error;
@@ -395,6 +397,38 @@ const ChecklistPreview = () => {
         });
       }
       await runWithConcurrency(metaTasks, 8);
+
+      // Ta bort listor som inte längre finns i grupp→passtyp-mappningen.
+      // Skydda: lodge-låsta listor (lodge_unit != null) hanteras separat av
+      // kalender-synken och rörs inte här.
+      const keepByShift = new Map<string, Set<string>>();
+      for (const shift of shifts as any[]) {
+        const ordered = orderedTplsByShift[shift.shift_type] ?? [];
+        keepByShift.set(shift.id, new Set(ordered.map((t) => t.name)));
+      }
+      const listsToDelete: string[] = [];
+      for (const l of existingLists as any[]) {
+        if (l.lodge_unit) continue;
+        const keep = keepByShift.get(l.shift_id);
+        if (!keep || !keep.has(l.name)) listsToDelete.push(l.id);
+      }
+      let listsDeleted = 0;
+      if (listsToDelete.length > 0) {
+        // Radera punkter först ifall FK inte cascadar
+        for (let i = 0; i < listsToDelete.length; i += CHUNK) {
+          const slice = listsToDelete.slice(i, i + CHUNK);
+          await supabase.from("shift_checklist_items").delete().in("shift_checklist_id", slice);
+        }
+        for (let i = 0; i < listsToDelete.length; i += CHUNK) {
+          const slice = listsToDelete.slice(i, i + CHUNK);
+          const { error } = await supabase.from("shift_checklists").delete().in("id", slice);
+          if (error) throw error;
+          listsDeleted += slice.length;
+        }
+      }
+      // Ta även bort synk-arbete för listor vi just raderat
+      const deletedSet = new Set(listsToDelete);
+
 
       // Synka items på befintliga listor: matcha per sort_order-position
       // - uppdatera text/description om ändrat
@@ -405,6 +439,7 @@ const ChecklistPreview = () => {
       const itemUpdateTasks: (() => Promise<void>)[] = [];
 
       for (const sync of listsToSync) {
+        if (deletedSet.has(sync.existingId)) continue;
         const tplItems = items
           .filter((it) => it.template_id === sync.tpl.id)
           .sort((a, b) => a.sort_order - b.sort_order);
@@ -471,15 +506,17 @@ const ChecklistPreview = () => {
       return {
         added: insertedIds.length,
         updated: listsUpdated + itemsUpdated + itemInserts.length + itemDeletes.length,
+        removed: listsDeleted,
         scanned: shifts.length,
       };
     },
-    onSuccess: ({ added, updated, scanned }) => {
+    onSuccess: ({ added, updated, removed, scanned }) => {
       qc.invalidateQueries({ queryKey: ["shift-checklist-counts"] });
       qc.invalidateQueries({ queryKey: ["shift-checklists-viewer"] });
       const parts: string[] = [];
       if (added > 0) parts.push(`${added} ny${added === 1 ? "" : "a"} checklist${added === 1 ? "a" : "or"}`);
       if (updated > 0) parts.push(`${updated} synkade ändring${updated === 1 ? "" : "ar"}`);
+      if (removed > 0) parts.push(`${removed} borttagen${removed === 1 ? "" : "a"} checklist${removed === 1 ? "a" : "or"}`);
       toast({
         title: "Klart",
         description:
