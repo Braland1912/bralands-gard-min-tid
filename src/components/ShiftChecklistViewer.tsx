@@ -236,6 +236,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
               </p>
             )}
             {open && (
+              <>
               <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-hidden">
                 {list.items.map((item: any) => {
                   const itemDescOpen = !!openItemDesc[item.id];
