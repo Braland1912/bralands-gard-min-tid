@@ -293,6 +293,19 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
                   <li className="px-3 py-2 text-xs text-muted-foreground italic">Inga punkter</li>
                 )}
               </ul>
+              {total > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2 h-8 text-xs"
+                  onClick={() => bulkToggle.mutate({ list, checked: done < total })}
+                  disabled={bulkToggle.isPending}
+                >
+                  {done < total ? "Bocka i alla" : "Bocka av alla"}
+                </Button>
+              )}
+              </>
             )}
           </div>
         );
