@@ -950,18 +950,49 @@ const AdminSchedule = () => {
                   const selectedRing = isSelected
                     ? "ring-2 ring-inset ring-primary/60 relative z-10"
                     : "";
+                  const shiftCount = w.user_id ? (shiftCountsByUser[w.user_id] ?? 0) : 0;
+                  const isCollapsed = collapsedWorkers.has(w.id);
                   return (
                   <div
                     key={w.id}
                     className={`grid border-b border-border last:border-b-0 transition-colors ${rowBg} ${rowHover} ${selectedRing}`}
-                    style={gridStyle}
+                    style={isCollapsed ? { gridTemplateColumns: "1fr" } : gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 z-20 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center gap-1.5 sticky left-0 z-20 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                      {w.user_id && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleCollapse(w.id); }}
+                          aria-label={isCollapsed ? "Visa vecka" : "Dölj vecka"}
+                          title={isCollapsed ? "Visa vecka" : "Dölj vecka (medarbetare inaktiv)"}
+                          className="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-md text-muted-foreground hover:bg-muted transition-colors"
+                        >
+                          {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                        </button>
+                      )}
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
+                      {w.user_id && (
+                        <span
+                          className={`ml-auto flex-shrink-0 inline-flex items-center justify-center min-w-[22px] h-[20px] px-1.5 rounded-full text-[10px] font-semibold border ${
+                            shiftCount === 0
+                              ? "bg-muted text-muted-foreground border-border"
+                              : "bg-primary/10 text-primary border-primary/20"
+                          }`}
+                          title={`${shiftCount} pass denna vecka`}
+                        >
+                          {shiftCount}
+                        </span>
+                      )}
+                      {isCollapsed && (
+                        <span className="ml-2 text-[10px] text-muted-foreground italic hidden sm:inline">
+                          Dold denna vecka
+                        </span>
+                      )}
                     </div>
+
 
                     {/* Day cells */}
                     {weekDays.map((d, i) => {
