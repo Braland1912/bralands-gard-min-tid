@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu, LogOut, Clock, CalendarDays, Home, Moon, LifeBuoy, Building2, ListChecks, Flame } from "lucide-react";
 import logo from "@/assets/logo-braland.svg";
 import VersionTag from "@/components/VersionTag";
+import HeaderVersion from "@/components/HeaderVersion";
 
 const AppHeader = () => {
   const location = useLocation();
@@ -71,10 +72,11 @@ const AppHeader = () => {
     <header className="md:hidden w-full border-b border-border bg-card px-5 py-3 flex items-center justify-between">
       <button
         onClick={() => navigate("/")}
-        className="flex items-center focus:outline-none"
+        className="flex items-center gap-2 focus:outline-none"
         aria-label="Gå till startsidan"
       >
         <img src={logo} alt="Brålands Gård" className="h-9 sm:h-10 w-auto" />
+        <HeaderVersion />
       </button>
 
       {showUserInfo && (
