@@ -1,1 +1,1 @@
-Dagens och kommande pass visar nu alltid grupperna i rätt ordning, och borttagna grupper försvinner direkt. Medarbetarnas vyer uppdateras automatiskt var 15:e sekund så ändringar syns utan att ladda om.
+Nu kan du bocka i eller av alla punkter i en checklista med ett enda tryck – knappen finns längst ned i varje öppen lista.
