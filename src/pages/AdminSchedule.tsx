@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2, AlertTriangle, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -141,6 +141,33 @@ const AdminSchedule = () => {
   const weekNumber = getISOWeek(referenceDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
+
+  const [collapsedWorkers, setCollapsedWorkers] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const raw = localStorage.getItem("admin-schedule-collapsed-workers");
+      return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set();
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "admin-schedule-collapsed-workers",
+        JSON.stringify(Array.from(collapsedWorkers)),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [collapsedWorkers]);
+  const toggleCollapse = (workerId: string) =>
+    setCollapsedWorkers((prev) => {
+      const next = new Set(prev);
+      if (next.has(workerId)) next.delete(workerId);
+      else next.add(workerId);
+      return next;
+    });
 
   const { data: allWorkers = [], isLoading: workersLoading } = useQuery({
     queryKey: ["admin-workers-schedule"],
@@ -700,6 +727,38 @@ const AdminSchedule = () => {
     return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
   }, [allWorkers, isMobile]);
 
+  // Active shift types som räknas som "arbetspass" (räknas mot täckning + veckoräkning)
+  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "fishing", "clearing"];
+  const COVERAGE_TYPES: { type: ShiftType; label: string }[] = [
+    { type: "morning", label: "Morgon" },
+    { type: "day", label: "Dag" },
+    { type: "evening", label: "Kväll" },
+  ];
+
+  // Räkna aktiva pass per medarbetare denna vecka
+  const shiftCountsByUser = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of schedules as any[]) {
+      if (!s.user_id) continue;
+      if (!ACTIVE_TYPES.includes(s.shift_type as ShiftType)) continue;
+      counts[s.user_id] = (counts[s.user_id] ?? 0) + 1;
+    }
+    return counts;
+  }, [schedules]);
+
+  // Hitta dagar som saknar morgon/dag/kväll (räknar alla medarbetare tillsammans)
+  const coverageGaps = useMemo(() => {
+    return weekDays.map((d) => {
+      const dateStr = format(d, "yyyy-MM-dd");
+      const daySchedules = (schedules as any[]).filter((s) => s.date === dateStr);
+      const missing = COVERAGE_TYPES.filter(
+        (ct) => !daySchedules.some((s) => s.shift_type === ct.type),
+      );
+      return { date: d, dateStr, missing };
+    }).filter((x) => x.missing.length > 0);
+  }, [schedules, weekDays]);
+
+
   const gridStyle = {
     gridTemplateColumns: `${nameColPx}px repeat(7, minmax(0, 1fr))`,
   };
@@ -780,6 +839,32 @@ const AdminSchedule = () => {
             </div>
           </div>
         </div>
+
+        {/* Täckningsvarning: dagar som saknar morgon-, dag- eller kvällspass */}
+        {!isLoading && coverageGaps.length > 0 && (
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3 sm:p-4">
+            <div className="flex items-start gap-2.5">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="text-sm font-semibold text-amber-900">
+                  Pass saknas denna vecka
+                </div>
+                <ul className="text-xs sm:text-sm text-amber-900/90 space-y-0.5">
+                  {coverageGaps.map(({ date, missing }) => (
+                    <li key={format(date, "yyyy-MM-dd")} className="flex flex-wrap gap-x-1.5">
+                      <span className="font-medium capitalize">
+                        {format(date, "EEEE d MMM", { locale: sv })}:
+                      </span>
+                      <span>
+                        saknar {missing.map((m) => m.label.toLowerCase()).join(", ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Grid */}
         <Card className="overflow-hidden">
@@ -865,21 +950,52 @@ const AdminSchedule = () => {
                   const selectedRing = isSelected
                     ? "ring-2 ring-inset ring-primary/60 relative z-10"
                     : "";
+                  const shiftCount = w.user_id ? (shiftCountsByUser[w.user_id] ?? 0) : 0;
+                  const isCollapsed = collapsedWorkers.has(w.id);
                   return (
                   <div
                     key={w.id}
                     className={`grid border-b border-border last:border-b-0 transition-colors ${rowBg} ${rowHover} ${selectedRing}`}
-                    style={gridStyle}
+                    style={isCollapsed ? { gridTemplateColumns: "1fr" } : gridStyle}
                   >
                     {/* Worker cell */}
-                    <div className={`${cellPadX} ${cellPadY} flex items-center sticky left-0 z-20 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                    <div className={`${cellPadX} ${cellPadY} flex items-center gap-1.5 sticky left-0 z-20 ${rowBg} overflow-hidden ${isSelected ? "border-l-2 border-l-primary" : ""}`}>
+                      {w.user_id && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleCollapse(w.id); }}
+                          aria-label={isCollapsed ? "Visa vecka" : "Dölj vecka"}
+                          title={isCollapsed ? "Visa vecka" : "Dölj vecka (medarbetare inaktiv)"}
+                          className="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-md text-muted-foreground hover:bg-muted transition-colors"
+                        >
+                          {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+                        </button>
+                      )}
                       <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
                         {isMobile ? getShortName(w.name) : w.name}
                       </span>
+                      {w.user_id && (
+                        <span
+                          className={`ml-auto flex-shrink-0 inline-flex items-center justify-center min-w-[22px] h-[20px] px-1.5 rounded-full text-[10px] font-semibold border ${
+                            shiftCount === 0
+                              ? "bg-muted text-muted-foreground border-border"
+                              : "bg-primary/10 text-primary border-primary/20"
+                          }`}
+                          title={`${shiftCount} pass denna vecka`}
+                        >
+                          {shiftCount}
+                        </span>
+                      )}
+                      {isCollapsed && (
+                        <span className="ml-2 text-[10px] text-muted-foreground italic hidden sm:inline">
+                          Dold denna vecka
+                        </span>
+                      )}
                     </div>
 
+
                     {/* Day cells */}
-                    {weekDays.map((d, i) => {
+                    {!isCollapsed && weekDays.map((d, i) => {
                       const shift0 = w.user_id ? getShiftAt(w.user_id, d, 0) : null;
                       const shift1 = w.user_id ? getShiftAt(w.user_id, d, 1) : null;
                       const row0 = w.user_id ? getShiftRow(w.user_id, d, 0) : null;
