@@ -727,6 +727,38 @@ const AdminSchedule = () => {
     return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
   }, [allWorkers, isMobile]);
 
+  // Active shift types som räknas som "arbetspass" (räknas mot täckning + veckoräkning)
+  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "fishing", "clearing"];
+  const COVERAGE_TYPES: { type: ShiftType; label: string }[] = [
+    { type: "morning", label: "Morgon" },
+    { type: "day", label: "Dag" },
+    { type: "evening", label: "Kväll" },
+  ];
+
+  // Räkna aktiva pass per medarbetare denna vecka
+  const shiftCountsByUser = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of schedules as any[]) {
+      if (!s.user_id) continue;
+      if (!ACTIVE_TYPES.includes(s.shift_type as ShiftType)) continue;
+      counts[s.user_id] = (counts[s.user_id] ?? 0) + 1;
+    }
+    return counts;
+  }, [schedules]);
+
+  // Hitta dagar som saknar morgon/dag/kväll (räknar alla medarbetare tillsammans)
+  const coverageGaps = useMemo(() => {
+    return weekDays.map((d) => {
+      const dateStr = format(d, "yyyy-MM-dd");
+      const daySchedules = (schedules as any[]).filter((s) => s.date === dateStr);
+      const missing = COVERAGE_TYPES.filter(
+        (ct) => !daySchedules.some((s) => s.shift_type === ct.type),
+      );
+      return { date: d, dateStr, missing };
+    }).filter((x) => x.missing.length > 0);
+  }, [schedules, weekDays]);
+
+
   const gridStyle = {
     gridTemplateColumns: `${nameColPx}px repeat(7, minmax(0, 1fr))`,
   };
