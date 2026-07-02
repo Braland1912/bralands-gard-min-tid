@@ -402,7 +402,7 @@ const ChecklistPreview = () => {
       // - ta bort de som finns i shift men inte i mallen
       const itemInserts: any[] = [];
       const itemDeletes: string[] = [];
-      let itemsUpdated = 0;
+      const itemUpdateTasks: (() => Promise<void>)[] = [];
 
       for (const sync of listsToSync) {
         const tplItems = items
@@ -430,12 +430,15 @@ const ChecklistPreview = () => {
               match.description !== (t.description ?? null) ||
               match.sort_order !== i;
             if (needsUpdate) {
-              const { error } = await supabase
-                .from("shift_checklist_items")
-                .update({ text: t.text, description: t.description ?? null, sort_order: i })
-                .eq("id", match.id);
-              if (error) throw error;
-              itemsUpdated++;
+              const id = match.id;
+              const payload = { text: t.text, description: t.description ?? null, sort_order: i };
+              itemUpdateTasks.push(async () => {
+                const { error } = await supabase
+                  .from("shift_checklist_items")
+                  .update(payload)
+                  .eq("id", id);
+                if (error) throw error;
+              });
             }
           } else {
             itemInserts.push({
@@ -450,6 +453,9 @@ const ChecklistPreview = () => {
           if (!usedExisting.has(e.id)) itemDeletes.push(e.id);
         }
       }
+
+      const itemsUpdated = itemUpdateTasks.length;
+      await runWithConcurrency(itemUpdateTasks, 8);
 
       for (let i = 0; i < itemInserts.length; i += CHUNK) {
         const slice = itemInserts.slice(i, i + CHUNK);
