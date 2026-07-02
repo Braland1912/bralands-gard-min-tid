@@ -439,6 +439,7 @@ const ChecklistPreview = () => {
       const itemUpdateTasks: (() => Promise<void>)[] = [];
 
       for (const sync of listsToSync) {
+        if (deletedSet.has(sync.existingId)) continue;
         const tplItems = items
           .filter((it) => it.template_id === sync.tpl.id)
           .sort((a, b) => a.sort_order - b.sort_order);
