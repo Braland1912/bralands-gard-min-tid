@@ -221,8 +221,7 @@ const ChecklistPreview = () => {
   // Retroactive: applicera grupp→passtyp på framtida pass + synka punkter på befintliga listor
   const applyRetroactive = useMutation({
     mutationFn: async () => {
-      const usedShiftTypes = Array.from(new Set(shiftLinks.map((l) => l.shift_type)));
-      if (usedShiftTypes.length === 0) return { added: 0, updated: 0, scanned: 0 };
+      const usedShiftTypes = SHIFT_TYPES.map((s) => s.value);
 
       const today = new Date();
       const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
