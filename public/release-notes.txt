@@ -1,1 +1,1 @@
-Nu kan du bocka i eller av alla punkter i en checklista med ett enda tryck – knappen finns längst ned i varje öppen lista.
+Nu visas en ruta när du loggar in med länk till våra nya städrutiner. Rutan försvinner så snart du öppnat städrutinerna en gång.
