@@ -516,6 +516,7 @@ const ChecklistPreview = () => {
       const parts: string[] = [];
       if (added > 0) parts.push(`${added} ny${added === 1 ? "" : "a"} checklist${added === 1 ? "a" : "or"}`);
       if (updated > 0) parts.push(`${updated} synkade ändring${updated === 1 ? "" : "ar"}`);
+      if (removed > 0) parts.push(`${removed} borttagen${removed === 1 ? "" : "a"} checklist${removed === 1 ? "a" : "or"}`);
       toast({
         title: "Klart",
         description:
