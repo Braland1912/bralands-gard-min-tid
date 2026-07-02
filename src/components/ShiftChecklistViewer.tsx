@@ -111,6 +111,38 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
     },
   });
 
+  const bulkToggle = useMutation({
+    mutationFn: async ({ list, checked }: { list: any; checked: boolean }) => {
+      const targets = list.items.filter((i: any) => i.is_checked !== checked);
+      if (targets.length === 0) return;
+      const ids = targets.map((i: any) => i.id);
+      const { error } = await supabase
+        .from("shift_checklist_items")
+        .update({ is_checked: checked })
+        .in("id", ids);
+      if (error) throw error;
+      const { data: userRes } = await supabase.auth.getUser();
+      const userId = userRes?.user?.id;
+      const shiftDate = shiftMeta?.date;
+      if (userId && shiftDate) {
+        await supabase.from("shift_checklist_completion_log").insert(
+          targets.map((i: any) => ({
+            checklist_item_id: i.id,
+            shift_checklist_id: list.id,
+            shift_id: shiftId,
+            shift_date: shiftDate,
+            worker_user_id: userId,
+            is_checked: checked,
+          })),
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["shift-checklists-viewer", shiftId] });
+      queryClient.invalidateQueries({ queryKey: ["home-shift-checklists", shiftId] });
+    },
+  });
+
   const note = shiftMeta?.note?.trim();
   const NoteBanner = note ? (
     <div className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3">
@@ -236,6 +268,7 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
               </p>
             )}
             {open && (
+              <>
               <ul className="divide-y divide-border/60 rounded-lg border border-border/60 overflow-hidden">
                 {list.items.map((item: any) => {
                   const itemDescOpen = !!openItemDesc[item.id];
@@ -292,6 +325,19 @@ const ShiftChecklistViewer = ({ shiftId }: Props) => {
                   <li className="px-3 py-2 text-xs text-muted-foreground italic">Inga punkter</li>
                 )}
               </ul>
+              {total > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2 h-8 text-xs"
+                  onClick={() => bulkToggle.mutate({ list, checked: done < total })}
+                  disabled={bulkToggle.isPending}
+                >
+                  {done < total ? "Bocka i alla" : "Bocka av alla"}
+                </Button>
+              )}
+              </>
             )}
           </div>
         );
