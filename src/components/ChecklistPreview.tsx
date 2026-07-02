@@ -370,8 +370,9 @@ const ChecklistPreview = () => {
         if (error) throw error;
       }
 
-      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad)
+      // Uppdatera metadata på befintliga listor (bara vid faktisk skillnad) — parallellt
       let listsUpdated = 0;
+      const metaTasks: (() => Promise<void>)[] = [];
       for (const u of listMetaUpdates) {
         const cur = existingLists.find((r: any) => r.id === u.id);
         if (!cur) continue;
@@ -380,17 +381,20 @@ const ChecklistPreview = () => {
           cur.group_name === u.group_name &&
           cur.group_color === u.group_color
         ) continue;
-        const { error } = await supabase
-          .from("shift_checklists")
-          .update({
-            description: u.description,
-            group_name: u.group_name,
-            group_color: u.group_color,
-          })
-          .eq("id", u.id);
-        if (error) throw error;
-        listsUpdated++;
+        metaTasks.push(async () => {
+          const { error } = await supabase
+            .from("shift_checklists")
+            .update({
+              description: u.description,
+              group_name: u.group_name,
+              group_color: u.group_color,
+            })
+            .eq("id", u.id);
+          if (error) throw error;
+          listsUpdated++;
+        });
       }
+      await runWithConcurrency(metaTasks, 8);
 
       // Synka items på befintliga listor: matcha per sort_order-position
       // - uppdatera text/description om ändrat
