@@ -887,7 +887,7 @@ const MySchedule = () => {
           );
         })()}
 
-        <SwapShiftSection workerId={worker?.id} userId={user?.id} />
+        {false && <SwapShiftSection workerId={worker?.id} userId={user?.id} />}
 
         {user?.id && (
           <CalendarSyncCard
