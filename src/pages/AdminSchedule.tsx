@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2, AlertTriangle, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2, AlertTriangle, ChevronDown, ChevronUp, EyeOff, CalendarDays, List } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
