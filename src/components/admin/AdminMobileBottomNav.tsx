@@ -27,6 +27,7 @@ const moreTabs = [
   { id: "checklistor", label: "Checklistor", icon: ListChecks },
   { id: "bjudin", label: "Bjud in", icon: Link2 },
   { id: "lon", label: "Löner", icon: DollarSign },
+  { id: "installningar", label: "Inställningar", icon: Settings },
   { id: "versioner", label: "Versioner", icon: GitBranch },
   { id: "lodge", label: "Uthyrning", icon: Building2 },
   { id: "emergency", label: "Brand & nödläge", icon: Flame },
