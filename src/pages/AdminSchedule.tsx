@@ -1067,10 +1067,8 @@ const AdminSchedule = () => {
             </div>
           </div>
         </Card>
-
-        {/* Kommande pass per medarbetare */}
-        <AdminWorkerUpcomingShifts workers={allWorkers as any[]} />
       </div>
+
 
       {/* Shift edit sheet */}
       <Sheet open={!!sheet} onOpenChange={(o) => { if (!o) { setSheet(null); setDragX(0); } }}>
