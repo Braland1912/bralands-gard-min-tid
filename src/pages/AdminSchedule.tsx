@@ -1601,7 +1601,7 @@ const AdminSchedule = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <CalendarSyncCard title="Synka hela schemat till kalender" />
+
 
       <AdminMobileBottomNav active="schema" />
     </div>
