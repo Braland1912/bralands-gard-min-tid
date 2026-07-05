@@ -900,50 +900,22 @@ const AdminSchedule = () => {
         )}
 
         {isMobile && mobileView === "day" ? (
-          <Card className="overflow-hidden">
-            {/* Day picker */}
-            <div className="flex gap-1.5 overflow-x-auto p-2 border-b border-border bg-muted/40">
-              {weekDays.map((d, i) => {
-                const today = isToday(d);
-                const sel = i === selectedDayIdx;
-                const published = isDayPublished(d);
-                return (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedDayIdx(i)}
-                    className={`flex flex-col items-center px-2.5 py-1.5 rounded-xl min-w-[52px] flex-shrink-0 border transition-colors ${
-                      sel
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : today
-                          ? "bg-primary/10 text-primary border-primary/20"
-                          : "bg-background text-foreground border-border"
-                    }`}
-                  >
-                    <span className="text-[10px] font-medium uppercase tracking-wide">{DAY_NAMES[i]}</span>
-                    <span className="text-base font-semibold leading-tight mt-0.5">{format(d, "d")}</span>
-                    <span
-                      className={`mt-1 w-1.5 h-1.5 rounded-full ${
-                        published ? "bg-green-500" : "bg-yellow-400"
-                      }`}
-                      aria-hidden="true"
-                    />
-                  </button>
-                );
-              })}
-            </div>
-            {/* Selected day list */}
-            {(() => {
-              const d = weekDays[selectedDayIdx] ?? weekDays[0];
+          <div className="space-y-3">
+            {weekDays.map((d, dayIdx) => {
               const dateStr = format(d, "yyyy-MM-dd");
               const published = isDayPublished(d);
+              const today = isToday(d);
               return (
-                <div>
-                  <div className="flex items-center justify-between gap-3 p-3 border-b border-border bg-card">
+                <Card
+                  key={dayIdx}
+                  className={`overflow-hidden ${today ? "ring-2 ring-primary/40" : ""}`}
+                >
+                  <div className={`flex items-center justify-between gap-3 px-3 py-2.5 border-b border-border ${today ? "bg-primary/5" : "bg-muted/40"}`}>
                     <div className="min-w-0">
-                      <div className="text-base font-semibold text-foreground capitalize truncate">
+                      <div className="text-sm font-semibold text-foreground capitalize truncate">
                         {format(d, "EEEE d MMMM", { locale: sv })}
                       </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                      <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
                             published ? "bg-green-500" : "bg-yellow-400"
@@ -957,27 +929,23 @@ const AdminSchedule = () => {
                         togglePublish.mutate({ date: dateStr, publish: !published })
                       }
                       disabled={togglePublish.isPending}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-50 ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors disabled:opacity-50 shrink-0 ${
                         published
                           ? "bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
                           : "bg-green-50 border-green-300 text-green-800 hover:bg-green-100"
                       }`}
                     >
                       {published ? (
-                        <>
-                          <Undo2 className="h-3.5 w-3.5" /> Avpublicera
-                        </>
+                        <><Undo2 className="h-3.5 w-3.5" /> Avpublicera</>
                       ) : (
-                        <>
-                          <Check className="h-3.5 w-3.5" /> Publicera
-                        </>
+                        <><Check className="h-3.5 w-3.5" /> Publicera</>
                       )}
                     </button>
                   </div>
                   {isLoading ? (
-                    <div className="p-4 space-y-2">
-                      {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                    <div className="p-3 space-y-2">
+                      {[1, 2].map((i) => (
+                        <Skeleton key={i} className="h-10 w-full rounded-xl" />
                       ))}
                     </div>
                   ) : (
@@ -1011,7 +979,7 @@ const AdminSchedule = () => {
                                         setSheet({
                                           worker: w,
                                           date: d,
-                                          dayIndex: selectedDayIdx,
+                                          dayIndex: dayIdx,
                                           shiftIndex: 0,
                                         });
                                       },
@@ -1024,7 +992,7 @@ const AdminSchedule = () => {
                                         setSheet({
                                           worker: w,
                                           date: d,
-                                          dayIndex: selectedDayIdx,
+                                          dayIndex: dayIdx,
                                           shiftIndex: 0,
                                         })
                                       }
@@ -1044,7 +1012,7 @@ const AdminSchedule = () => {
                                         setSheet({
                                           worker: w,
                                           date: d,
-                                          dayIndex: selectedDayIdx,
+                                          dayIndex: dayIdx,
                                           shiftIndex: 1,
                                         });
                                       },
@@ -1057,7 +1025,7 @@ const AdminSchedule = () => {
                                         setSheet({
                                           worker: w,
                                           date: d,
-                                          dayIndex: selectedDayIdx,
+                                          dayIndex: dayIdx,
                                           shiftIndex: 1,
                                         })
                                       }
@@ -1074,10 +1042,10 @@ const AdminSchedule = () => {
                         })}
                     </ul>
                   )}
-                </div>
+                </Card>
               );
-            })()}
-          </Card>
+            })}
+          </div>
         ) : (
         <Card className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
