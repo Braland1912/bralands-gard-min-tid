@@ -58,6 +58,7 @@ const Lodge = () => {
   const { isAdmin, loading: adminLoading } = useAdmin();
   const [cursor, setCursor] = useState(new Date());
   const [openDay, setOpenDay] = useState<Date | null>(null);
+  const [unitFilter, setUnitFilter] = useState<Set<string>>(new Set(UNIT_ORDER));
 
   const canAccess = isAdmin || worker?.can_see_lodge === true;
   const ready = !workerLoading && !adminLoading;
