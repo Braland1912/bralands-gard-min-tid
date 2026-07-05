@@ -134,6 +134,13 @@ const AdminDashboard = () => {
         return <SalaryReport />;
       case "versioner":
         return <AdminVersions />;
+      case "installningar":
+        return (
+          <div className="space-y-3 pb-24 md:pb-6">
+            <h1 className="text-xl font-semibold text-foreground">Inställningar</h1>
+            <CalendarSyncCard title="Synka hela schemat till kalender" />
+          </div>
+        );
       default:
         return <AdminOverview onNavigate={handleOverviewNavigate} />;
     }
