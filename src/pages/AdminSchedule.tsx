@@ -738,12 +738,12 @@ const AdminSchedule = () => {
 
   // Compute name column width based on longest displayed name
   const nameColPx = useMemo(() => {
-    const names = (allWorkers as any[]).map((w) => (isMobile ? getShortName(w.name) : w.name));
+    const names = (allWorkers as any[]).map((w) => w.name as string);
     const longest = names.reduce((a, b) => (b.length > a.length ? b : a), "");
-    const charPx = isMobile ? 6.2 : 8.5;
-    const padding = isMobile ? 8 : 26;
-    const min = isMobile ? 48 : 110;
-    const max = isMobile ? 110 : 220;
+    const charPx = isMobile ? 6.5 : 8.5;
+    const padding = isMobile ? 44 : 26;
+    const min = isMobile ? 100 : 110;
+    const max = isMobile ? 150 : 220;
     return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
   }, [allWorkers, isMobile]);
 
