@@ -58,6 +58,7 @@ const Lodge = () => {
   const { isAdmin, loading: adminLoading } = useAdmin();
   const [cursor, setCursor] = useState(new Date());
   const [openDay, setOpenDay] = useState<Date | null>(null);
+  const [unitFilter, setUnitFilter] = useState<Set<string>>(new Set(UNIT_ORDER));
 
   const canAccess = isAdmin || worker?.can_see_lodge === true;
   const ready = !workerLoading && !adminLoading;
@@ -341,6 +342,124 @@ const Lodge = () => {
             </div>
           )}
         </Card>
+
+        {/* Bytesdagar – filter per enhet */}
+        {!isLoading && !error && (() => {
+          const todayRef = new Date();
+          todayRef.setHours(0, 0, 0, 0);
+          type Change = { date: Date; dateISO: string; units: { unit: string; event: LodgeEvent }[] };
+          const byDate = new Map<string, Change>();
+          for (const e of events) {
+            if (!unitFilter.has(e.unit)) continue;
+            // Avfärd = end (exklusiv) - 1 dag = bytesdag
+            const dep = addDays(parseISO(e.end), -1);
+            dep.setHours(0, 0, 0, 0);
+            if (dep < todayRef) continue;
+            const key = format(dep, "yyyy-MM-dd");
+            if (!byDate.has(key)) byDate.set(key, { date: dep, dateISO: key, units: [] });
+            byDate.get(key)!.units.push({ unit: e.unit, event: e });
+          }
+          const changes = Array.from(byDate.values())
+            .sort((a, b) => a.date.getTime() - b.date.getTime())
+            .slice(0, 30);
+
+          const toggleUnit = (u: string) => {
+            setUnitFilter((prev) => {
+              const next = new Set(prev);
+              if (next.has(u)) next.delete(u);
+              else next.add(u);
+              return next;
+            });
+          };
+          const allOn = unitFilter.size === UNIT_ORDER.length;
+
+          return (
+            <Card className="p-4 mb-4">
+              <div className="flex items-center justify-between mb-3 gap-2">
+                <div>
+                  <div className="text-sm font-semibold">Bytesdagar</div>
+                  <div className="text-xs text-muted-foreground">Kommande avfärder – filtrera per enhet</div>
+                </div>
+                <button
+                  onClick={() => setUnitFilter(allOn ? new Set() : new Set(UNIT_ORDER))}
+                  className="text-xs text-primary hover:underline shrink-0"
+                >
+                  {allOn ? "Rensa" : "Välj alla"}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {UNIT_ORDER.map((u) => {
+                  const s = styleFor(u);
+                  const on = unitFilter.has(u);
+                  return (
+                    <button
+                      key={u}
+                      onClick={() => toggleUnit(u)}
+                      className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition-colors ${
+                        on ? s.chip : "bg-muted/40 text-muted-foreground border-border opacity-60"
+                      }`}
+                    >
+                      <span className={`h-2 w-2 rounded-full ${on ? s.dot : "bg-muted-foreground/40"}`} />
+                      <span className="font-medium">{UNIT_NUMBER[u]}</span> {u}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {unitFilter.size === 0 ? (
+                <p className="text-xs text-muted-foreground italic">Välj minst en enhet för att se bytesdagar.</p>
+              ) : changes.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">Inga kommande bytesdagar för valda enheter.</p>
+              ) : (
+                <ul className="divide-y divide-border rounded-lg border border-border overflow-hidden">
+                  {changes.map((c) => {
+                    const isTodayDay = c.date.getTime() === todayRef.getTime();
+                    return (
+                      <li key={c.dateISO}>
+                        <button
+                          onClick={() => setOpenDay(c.date)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-accent transition-colors ${
+                            isTodayDay ? "bg-primary/5" : ""
+                          }`}
+                        >
+                          <div className="w-14 shrink-0 text-center">
+                            <div className={`text-[10px] uppercase font-medium ${isTodayDay ? "text-primary" : "text-muted-foreground"}`}>
+                              {format(c.date, "EEE", { locale: sv })}
+                            </div>
+                            <div className={`text-lg font-semibold leading-tight ${isTodayDay ? "text-primary" : "text-foreground"}`}>
+                              {format(c.date, "d")}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground capitalize">
+                              {format(c.date, "MMM", { locale: sv })}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap gap-1">
+                              {c.units.map(({ unit }) => {
+                                const s = styleFor(unit);
+                                return (
+                                  <span key={unit} className={`text-[11px] px-1.5 py-0.5 rounded border ${s.chip} flex items-center gap-1`}>
+                                    <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+                                    {unit}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-0.5">
+                              {c.units.length} byte{c.units.length === 1 ? "" : "n"} – städ behövs
+                            </div>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </Card>
+          );
+        })()}
 
         {/* Förklaring */}
         {unitsInMonth.length > 0 && (
