@@ -125,6 +125,48 @@ const Lodge = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Dagpass-schemalagda per datum (publicerade) — för Bytesdagar-listan
+  const dayShiftFrom = format(new Date(), "yyyy-MM-dd");
+  const dayShiftTo = format(addDays(new Date(), 90), "yyyy-MM-dd");
+  const { data: dayShiftsByDate } = useQuery({
+    queryKey: ["lodge-day-shifts", dayShiftFrom, dayShiftTo],
+    queryFn: async () => {
+      const [shiftsRes, daysRes, workersRes] = await Promise.all([
+        supabase
+          .from("schedules")
+          .select("date,user_id")
+          .eq("shift_type", "day")
+          .gte("date", dayShiftFrom)
+          .lte("date", dayShiftTo),
+        supabase
+          .from("schedule_days")
+          .select("date,is_published")
+          .gte("date", dayShiftFrom)
+          .lte("date", dayShiftTo),
+        supabase.from("workers").select("user_id,name"),
+      ]);
+      const published = new Set(
+        (daysRes.data || []).filter((d: any) => d.is_published === true).map((d: any) => d.date),
+      );
+      const nameByUser = new Map<string, string>();
+      (workersRes.data || []).forEach((w: any) => {
+        if (w.user_id) nameByUser.set(w.user_id, w.name);
+      });
+      const map = new Map<string, string[]>();
+      (shiftsRes.data || []).forEach((s: any) => {
+        if (!published.has(s.date)) return;
+        const name = nameByUser.get(s.user_id);
+        if (!name) return;
+        if (!map.has(s.date)) map.set(s.date, []);
+        map.get(s.date)!.push(name);
+      });
+      return map;
+    },
+    enabled: ready && canAccess,
+    staleTime: 5 * 60 * 1000,
+  });
+
+
   // Bygg månadsrutnät
   const monthStart = startOfMonth(cursor);
   const monthEnd = endOfMonth(cursor);
