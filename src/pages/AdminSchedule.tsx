@@ -152,6 +152,16 @@ const AdminSchedule = () => {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
 
+  useEffect(() => {
+    if (isCurrentWeek) {
+      const now = new Date();
+      const dow = now.getDay();
+      setSelectedDayIdx(dow === 0 ? 6 : dow - 1);
+    } else {
+      setSelectedDayIdx(0);
+    }
+  }, [weekOffset, isCurrentWeek]);
+
   const [collapsedWorkers, setCollapsedWorkers] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
     try {
