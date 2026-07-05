@@ -36,8 +36,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
-import AdminWorkerUpcomingShifts from "@/components/AdminWorkerUpcomingShifts";
-import CalendarSyncCard from "@/components/admin/CalendarSyncCard";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
