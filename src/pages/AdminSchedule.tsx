@@ -896,7 +896,186 @@ const AdminSchedule = () => {
           </div>
         )}
 
-        {/* Grid */}
+        {isMobile && mobileView === "day" ? (
+          <Card className="overflow-hidden">
+            {/* Day picker */}
+            <div className="flex gap-1.5 overflow-x-auto p-2 border-b border-border bg-muted/40">
+              {weekDays.map((d, i) => {
+                const today = isToday(d);
+                const sel = i === selectedDayIdx;
+                const published = isDayPublished(d);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedDayIdx(i)}
+                    className={`flex flex-col items-center px-2.5 py-1.5 rounded-xl min-w-[52px] flex-shrink-0 border transition-colors ${
+                      sel
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : today
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "bg-background text-foreground border-border"
+                    }`}
+                  >
+                    <span className="text-[10px] font-medium uppercase tracking-wide">{DAY_NAMES[i]}</span>
+                    <span className="text-base font-semibold leading-tight mt-0.5">{format(d, "d")}</span>
+                    <span
+                      className={`mt-1 w-1.5 h-1.5 rounded-full ${
+                        published ? "bg-green-500" : "bg-yellow-400"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            {/* Selected day list */}
+            {(() => {
+              const d = weekDays[selectedDayIdx] ?? weekDays[0];
+              const dateStr = format(d, "yyyy-MM-dd");
+              const published = isDayPublished(d);
+              return (
+                <div>
+                  <div className="flex items-center justify-between gap-3 p-3 border-b border-border bg-card">
+                    <div className="min-w-0">
+                      <div className="text-base font-semibold text-foreground capitalize truncate">
+                        {format(d, "EEEE d MMMM", { locale: sv })}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            published ? "bg-green-500" : "bg-yellow-400"
+                          }`}
+                        />
+                        {published ? "Publicerat" : "Ej publicerat"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() =>
+                        togglePublish.mutate({ date: dateStr, publish: !published })
+                      }
+                      disabled={togglePublish.isPending}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-50 ${
+                        published
+                          ? "bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
+                          : "bg-green-50 border-green-300 text-green-800 hover:bg-green-100"
+                      }`}
+                    >
+                      {published ? (
+                        <>
+                          <Undo2 className="h-3.5 w-3.5" /> Avpublicera
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-3.5 w-3.5" /> Publicera
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {isLoading ? (
+                    <div className="p-4 space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {(allWorkers as any[])
+                        .filter((w) => !!w.user_id)
+                        .map((w: any) => {
+                          const shift0 = getShiftAt(w.user_id, d, 0);
+                          const shift1 = getShiftAt(w.user_id, d, 1);
+                          const row0 = getShiftRow(w.user_id, d, 0);
+                          const row1 = getShiftRow(w.user_id, d, 1);
+                          const has0 = !!(row0 && checklistCounts[row0.id]);
+                          const has1 = !!(row1 && checklistCounts[row1.id]);
+                          return (
+                            <li
+                              key={w.id}
+                              className="flex items-center gap-2 px-3 py-2"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-foreground break-words leading-tight">
+                                  {w.name}
+                                </div>
+                              </div>
+                              <div className="flex gap-1.5 w-[152px] shrink-0">
+                                <div className="flex-1">
+                                  {shift0 ? (
+                                    renderChip(
+                                      shift0,
+                                      (e) => {
+                                        e.stopPropagation();
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 0,
+                                        });
+                                      },
+                                      has0,
+                                      row0?.note,
+                                    )
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 0,
+                                        })
+                                      }
+                                      className="w-full min-h-[44px] flex items-center justify-center rounded-md border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                                      aria-label="Lägg till pass"
+                                    >
+                                      <Plus className="h-3.5 w-3.5 text-muted-foreground/60" />
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  {shift1 ? (
+                                    renderChip(
+                                      shift1,
+                                      (e) => {
+                                        e.stopPropagation();
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 1,
+                                        });
+                                      },
+                                      has1,
+                                      row1?.note,
+                                    )
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 1,
+                                        })
+                                      }
+                                      className="w-full min-h-[44px] flex items-center justify-center rounded-md border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                                      aria-label="Lägg till andra pass"
+                                    >
+                                      <Plus className="h-3.5 w-3.5 text-muted-foreground/60" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  )}
+                </div>
+              );
+            })()}
+          </Card>
+        ) : (
         <Card className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
             <div style={minWidthStyle}>
