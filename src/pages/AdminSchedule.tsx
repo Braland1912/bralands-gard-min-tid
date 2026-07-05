@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2, AlertTriangle, ChevronDown, ChevronUp, EyeOff } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Plus, Trash2, ClipboardList, X, Undo2, Rows3, Rows2, UserCog, Loader2, AlertTriangle, ChevronDown, ChevronUp, EyeOff, CalendarDays, List } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -82,6 +82,18 @@ const AdminSchedule = () => {
   const dayCellGap = isCompact ? "gap-0.5" : "gap-1";
   const headerPadY = isCompact ? "py-2" : "py-3";
   const [weekOffset, setWeekOffset] = useState(0);
+  const [mobileView, setMobileView] = useState<"day" | "week">(() => {
+    if (typeof window === "undefined") return "day";
+    return (localStorage.getItem("admin-schedule-mobile-view") as "day" | "week") || "day";
+  });
+  useEffect(() => {
+    localStorage.setItem("admin-schedule-mobile-view", mobileView);
+  }, [mobileView]);
+  const [selectedDayIdx, setSelectedDayIdx] = useState<number>(() => {
+    const now = new Date();
+    const dow = now.getDay(); // 0=sun..6=sat
+    return dow === 0 ? 6 : dow - 1;
+  });
   const [sheet, setSheet] = useState<{
     worker: any;
     date: Date;
@@ -139,6 +151,16 @@ const AdminSchedule = () => {
   const weekNumber = getISOWeek(referenceDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
+
+  useEffect(() => {
+    if (isCurrentWeek) {
+      const now = new Date();
+      const dow = now.getDay();
+      setSelectedDayIdx(dow === 0 ? 6 : dow - 1);
+    } else {
+      setSelectedDayIdx(0);
+    }
+  }, [weekOffset, isCurrentWeek]);
 
   const [collapsedWorkers, setCollapsedWorkers] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -716,12 +738,12 @@ const AdminSchedule = () => {
 
   // Compute name column width based on longest displayed name
   const nameColPx = useMemo(() => {
-    const names = (allWorkers as any[]).map((w) => (isMobile ? getShortName(w.name) : w.name));
+    const names = (allWorkers as any[]).map((w) => w.name as string);
     const longest = names.reduce((a, b) => (b.length > a.length ? b : a), "");
-    const charPx = isMobile ? 6.2 : 8.5;
-    const padding = isMobile ? 8 : 26;
-    const min = isMobile ? 48 : 110;
-    const max = isMobile ? 110 : 220;
+    const charPx = isMobile ? 6.5 : 8.5;
+    const padding = isMobile ? 44 : 26;
+    const min = isMobile ? 100 : 110;
+    const max = isMobile ? 150 : 220;
     return Math.max(min, Math.min(max, Math.ceil(longest.length * charPx + padding)));
   }, [allWorkers, isMobile]);
 
@@ -803,6 +825,16 @@ const AdminSchedule = () => {
             <p className="text-xs text-muted-foreground">Planera arbetspass per medarbetare</p>
           </div>
           <div className="flex items-center gap-2">
+            {isMobile && (
+              <button
+                onClick={() => setMobileView(mobileView === "day" ? "week" : "day")}
+                aria-label={mobileView === "day" ? "Byt till veckovy" : "Byt till dagvy"}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium bg-muted text-foreground border border-border hover:bg-muted/70 transition-colors"
+              >
+                {mobileView === "day" ? <CalendarDays className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
+                <span>{mobileView === "day" ? "Vecka" : "Dag"}</span>
+              </button>
+            )}
             <button
               onClick={() => setDensity(isCompact ? "comfortable" : "compact")}
               aria-label={isCompact ? "Byt till bekväm vy" : "Byt till kompakt vy"}
@@ -864,7 +896,186 @@ const AdminSchedule = () => {
           </div>
         )}
 
-        {/* Grid */}
+        {isMobile && mobileView === "day" ? (
+          <Card className="overflow-hidden">
+            {/* Day picker */}
+            <div className="flex gap-1.5 overflow-x-auto p-2 border-b border-border bg-muted/40">
+              {weekDays.map((d, i) => {
+                const today = isToday(d);
+                const sel = i === selectedDayIdx;
+                const published = isDayPublished(d);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedDayIdx(i)}
+                    className={`flex flex-col items-center px-2.5 py-1.5 rounded-xl min-w-[52px] flex-shrink-0 border transition-colors ${
+                      sel
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : today
+                          ? "bg-primary/10 text-primary border-primary/20"
+                          : "bg-background text-foreground border-border"
+                    }`}
+                  >
+                    <span className="text-[10px] font-medium uppercase tracking-wide">{DAY_NAMES[i]}</span>
+                    <span className="text-base font-semibold leading-tight mt-0.5">{format(d, "d")}</span>
+                    <span
+                      className={`mt-1 w-1.5 h-1.5 rounded-full ${
+                        published ? "bg-green-500" : "bg-yellow-400"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            {/* Selected day list */}
+            {(() => {
+              const d = weekDays[selectedDayIdx] ?? weekDays[0];
+              const dateStr = format(d, "yyyy-MM-dd");
+              const published = isDayPublished(d);
+              return (
+                <div>
+                  <div className="flex items-center justify-between gap-3 p-3 border-b border-border bg-card">
+                    <div className="min-w-0">
+                      <div className="text-base font-semibold text-foreground capitalize truncate">
+                        {format(d, "EEEE d MMMM", { locale: sv })}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            published ? "bg-green-500" : "bg-yellow-400"
+                          }`}
+                        />
+                        {published ? "Publicerat" : "Ej publicerat"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() =>
+                        togglePublish.mutate({ date: dateStr, publish: !published })
+                      }
+                      disabled={togglePublish.isPending}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-50 ${
+                        published
+                          ? "bg-yellow-50 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
+                          : "bg-green-50 border-green-300 text-green-800 hover:bg-green-100"
+                      }`}
+                    >
+                      {published ? (
+                        <>
+                          <Undo2 className="h-3.5 w-3.5" /> Avpublicera
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-3.5 w-3.5" /> Publicera
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {isLoading ? (
+                    <div className="p-4 space-y-2">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="divide-y divide-border">
+                      {(allWorkers as any[])
+                        .filter((w) => !!w.user_id)
+                        .map((w: any) => {
+                          const shift0 = getShiftAt(w.user_id, d, 0);
+                          const shift1 = getShiftAt(w.user_id, d, 1);
+                          const row0 = getShiftRow(w.user_id, d, 0);
+                          const row1 = getShiftRow(w.user_id, d, 1);
+                          const has0 = !!(row0 && checklistCounts[row0.id]);
+                          const has1 = !!(row1 && checklistCounts[row1.id]);
+                          return (
+                            <li
+                              key={w.id}
+                              className="flex items-center gap-2 px-3 py-2"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-foreground break-words leading-tight">
+                                  {w.name}
+                                </div>
+                              </div>
+                              <div className="flex gap-1.5 w-[152px] shrink-0">
+                                <div className="flex-1">
+                                  {shift0 ? (
+                                    renderChip(
+                                      shift0,
+                                      (e) => {
+                                        e.stopPropagation();
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 0,
+                                        });
+                                      },
+                                      has0,
+                                      row0?.note,
+                                    )
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 0,
+                                        })
+                                      }
+                                      className="w-full min-h-[44px] flex items-center justify-center rounded-md border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                                      aria-label="Lägg till pass"
+                                    >
+                                      <Plus className="h-3.5 w-3.5 text-muted-foreground/60" />
+                                    </button>
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  {shift1 ? (
+                                    renderChip(
+                                      shift1,
+                                      (e) => {
+                                        e.stopPropagation();
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 1,
+                                        });
+                                      },
+                                      has1,
+                                      row1?.note,
+                                    )
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        setSheet({
+                                          worker: w,
+                                          date: d,
+                                          dayIndex: selectedDayIdx,
+                                          shiftIndex: 1,
+                                        })
+                                      }
+                                      className="w-full min-h-[44px] flex items-center justify-center rounded-md border border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                                      aria-label="Lägg till andra pass"
+                                    >
+                                      <Plus className="h-3.5 w-3.5 text-muted-foreground/60" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        })}
+                    </ul>
+                  )}
+                </div>
+              );
+            })()}
+          </Card>
+        ) : (
         <Card className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
             <div style={minWidthStyle}>
@@ -969,8 +1180,8 @@ const AdminSchedule = () => {
                           {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
                         </button>
                       )}
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
-                        {isMobile ? getShortName(w.name) : w.name}
+                      <span className={`${isMobile ? "text-[11px] leading-tight line-clamp-2 break-words" : "text-sm truncate"} font-semibold flex-1 min-w-0 ${isSelected ? "text-primary" : "text-foreground"}`}>
+                        {w.name}
                       </span>
                       {w.user_id && (
                         <span
@@ -1067,6 +1278,7 @@ const AdminSchedule = () => {
             </div>
           </div>
         </Card>
+        )}
       </div>
 
 
