@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import EveningRoundWidget from "@/components/admin/EveningRoundWidget";
 import LodgeTodayCard from "@/components/admin/LodgeTodayCard";
+import AdminWorkerUpcomingShifts from "@/components/AdminWorkerUpcomingShifts";
 import { format, startOfWeek, endOfWeek, addDays, formatDistanceToNowStrict, addWeeks, getISOWeek, isSameWeek, isToday } from "date-fns";
 import { sv } from "date-fns/locale";
 import VersionTag from "@/components/VersionTag";
@@ -719,6 +720,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
           )}
         </SheetContent>
       </Sheet>
+
+      <div className="pt-2">
+        <AdminWorkerUpcomingShifts workers={workers as any[]} />
+      </div>
 
       <VersionTag className="text-center pt-2" />
     </div>

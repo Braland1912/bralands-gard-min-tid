@@ -18,6 +18,7 @@ import {
   Building2,
   LogIn,
   Flame,
+  Settings,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,6 +61,7 @@ const adminItems: NavItem[] = [
   { id: "kvallsrundan", label: "Kvällsrundan", icon: Moon, path: "/evening-round", matchPath: "/evening-round" },
   { id: "bjudin", label: "Bjud in", icon: Link2, dashboardTab: "bjudin", matchTab: "bjudin" },
   { id: "lon", label: "Löner", icon: DollarSign, dashboardTab: "lon", matchTab: "lon" },
+  { id: "installningar", label: "Inställningar", icon: Settings, dashboardTab: "installningar", matchTab: "installningar" },
   { id: "versioner", label: "Versioner", icon: GitBranch, dashboardTab: "versioner", matchTab: "versioner" },
   { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },

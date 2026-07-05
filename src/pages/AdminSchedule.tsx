@@ -36,8 +36,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
-import AdminWorkerUpcomingShifts from "@/components/AdminWorkerUpcomingShifts";
-import CalendarSyncCard from "@/components/admin/CalendarSyncCard";
 
 type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
 
@@ -1069,10 +1067,8 @@ const AdminSchedule = () => {
             </div>
           </div>
         </Card>
-
-        {/* Kommande pass per medarbetare */}
-        <AdminWorkerUpcomingShifts workers={allWorkers as any[]} />
       </div>
+
 
       {/* Shift edit sheet */}
       <Sheet open={!!sheet} onOpenChange={(o) => { if (!o) { setSheet(null); setDragX(0); } }}>
@@ -1605,7 +1601,7 @@ const AdminSchedule = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <CalendarSyncCard title="Synka hela schemat till kalender" />
+
 
       <AdminMobileBottomNav active="schema" />
     </div>
