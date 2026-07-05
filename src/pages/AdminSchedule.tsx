@@ -82,6 +82,18 @@ const AdminSchedule = () => {
   const dayCellGap = isCompact ? "gap-0.5" : "gap-1";
   const headerPadY = isCompact ? "py-2" : "py-3";
   const [weekOffset, setWeekOffset] = useState(0);
+  const [mobileView, setMobileView] = useState<"day" | "week">(() => {
+    if (typeof window === "undefined") return "day";
+    return (localStorage.getItem("admin-schedule-mobile-view") as "day" | "week") || "day";
+  });
+  useEffect(() => {
+    localStorage.setItem("admin-schedule-mobile-view", mobileView);
+  }, [mobileView]);
+  const [selectedDayIdx, setSelectedDayIdx] = useState<number>(() => {
+    const now = new Date();
+    const dow = now.getDay(); // 0=sun..6=sat
+    return dow === 0 ? 6 : dow - 1;
+  });
   const [sheet, setSheet] = useState<{
     worker: any;
     date: Date;
