@@ -721,6 +721,10 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
         </SheetContent>
       </Sheet>
 
+      <div className="pt-2">
+        <AdminWorkerUpcomingShifts workers={workers as any[]} />
+      </div>
+
       <VersionTag className="text-center pt-2" />
     </div>
   );
