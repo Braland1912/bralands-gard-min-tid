@@ -991,8 +991,8 @@ const AdminSchedule = () => {
                           {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
                         </button>
                       )}
-                      <span className={`${isMobile ? "text-xs" : "text-sm"} font-semibold ${isSelected ? "text-primary" : "text-foreground"} truncate`}>
-                        {isMobile ? getShortName(w.name) : w.name}
+                      <span className={`${isMobile ? "text-[11px] leading-tight line-clamp-2 break-words" : "text-sm truncate"} font-semibold flex-1 min-w-0 ${isSelected ? "text-primary" : "text-foreground"}`}>
+                        {w.name}
                       </span>
                       {w.user_id && (
                         <span
