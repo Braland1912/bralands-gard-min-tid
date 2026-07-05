@@ -491,6 +491,19 @@ const Lodge = () => {
                             <div className="text-[11px] text-muted-foreground mt-0.5">
                               {c.units.length} byte{c.units.length === 1 ? "" : "n"} – städ behövs
                             </div>
+                            {(() => {
+                              const names = dayShiftsByDate?.get(c.dateISO) ?? [];
+                              return (
+                                <div className="text-[11px] mt-0.5 flex items-center gap-1 flex-wrap">
+                                  <span className="text-muted-foreground">Dagpass:</span>
+                                  {names.length > 0 ? (
+                                    <span className="font-medium text-foreground">{names.join(", ")}</span>
+                                  ) : (
+                                    <span className="italic text-muted-foreground">ingen schemalagd</span>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </div>
                           <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                         </button>
