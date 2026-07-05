@@ -1278,6 +1278,7 @@ const AdminSchedule = () => {
             </div>
           </div>
         </Card>
+        )}
       </div>
 
 
