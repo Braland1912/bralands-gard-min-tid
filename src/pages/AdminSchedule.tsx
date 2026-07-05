@@ -1180,10 +1180,10 @@ const AdminSchedule = () => {
                           {isCollapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
                         </button>
                       )}
-                      <span className={`${isMobile ? "text-[11px] leading-tight line-clamp-2 break-words" : "text-sm truncate"} font-semibold flex-1 min-w-0 ${isSelected ? "text-primary" : "text-foreground"}`}>
-                        {w.name}
+                      <span className={`${isMobile ? "text-[11px] leading-tight truncate" : "text-sm truncate"} font-semibold flex-1 min-w-0 ${isSelected ? "text-primary" : "text-foreground"}`}>
+                        {isMobile ? (w.name?.split(" ")[0] ?? w.name) : w.name}
                       </span>
-                      {w.user_id && (
+                      {w.user_id && !isMobile && (
                         <span
                           className={`ml-auto flex-shrink-0 inline-flex items-center justify-center min-w-[22px] h-[20px] px-1.5 rounded-full text-[10px] font-semibold border ${
                             shiftCount === 0
