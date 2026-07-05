@@ -825,6 +825,16 @@ const AdminSchedule = () => {
             <p className="text-xs text-muted-foreground">Planera arbetspass per medarbetare</p>
           </div>
           <div className="flex items-center gap-2">
+            {isMobile && (
+              <button
+                onClick={() => setMobileView(mobileView === "day" ? "week" : "day")}
+                aria-label={mobileView === "day" ? "Byt till veckovy" : "Byt till dagvy"}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium bg-muted text-foreground border border-border hover:bg-muted/70 transition-colors"
+              >
+                {mobileView === "day" ? <CalendarDays className="h-3.5 w-3.5" /> : <List className="h-3.5 w-3.5" />}
+                <span>{mobileView === "day" ? "Vecka" : "Dag"}</span>
+              </button>
+            )}
             <button
               onClick={() => setDensity(isCompact ? "comfortable" : "compact")}
               aria-label={isCompact ? "Byt till bekväm vy" : "Byt till kompakt vy"}
