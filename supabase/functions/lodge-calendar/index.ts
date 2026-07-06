@@ -183,7 +183,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const events = await getEvents();
+    const url = new URL(req.url);
+    const forceRefresh = url.searchParams.get("refresh") === "1";
+    const events = await getEvents(forceRefresh);
 
     return new Response(
       JSON.stringify({ events, fetchedAt: cache?.fetchedAt ?? Date.now() }),
