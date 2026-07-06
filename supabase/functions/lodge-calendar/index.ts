@@ -122,9 +122,9 @@ function parseICS(ics: string): ParsedEvent[] {
   return events;
 }
 
-async function getEvents(): Promise<ParsedEvent[]> {
+async function getEvents(forceRefresh = false): Promise<ParsedEvent[]> {
   const now = Date.now();
-  if (cache && now - cache.fetchedAt < CACHE_MS) {
+  if (!forceRefresh && cache && now - cache.fetchedAt < CACHE_MS) {
     return cache.events;
   }
   const res = await fetch(ICAL_URL, { headers: { Accept: "text/calendar" } });
