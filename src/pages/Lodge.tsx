@@ -63,13 +63,16 @@ const Lodge = () => {
   const canAccess = isAdmin || worker?.can_see_lodge === true;
   const ready = !workerLoading && !adminLoading;
 
+  const forceRefreshRef = useRef(false);
   const { data, isLoading, refetch, isFetching, error } = useQuery({
     queryKey: ["lodge-calendar"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Ej inloggad");
+      const force = forceRefreshRef.current;
+      forceRefreshRef.current = false;
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lodge-calendar`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lodge-calendar${force ? "?refresh=1" : ""}`,
         {
           headers: {
             "Content-Type": "application/json",
