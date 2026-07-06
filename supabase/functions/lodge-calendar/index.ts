@@ -11,7 +11,7 @@ const ICAL_URL =
 
 // Enkel in-memory-cache (per warm instance)
 let cache: { fetchedAt: number; events: ParsedEvent[] } | null = null;
-const CACHE_MS = 30 * 60 * 1000; // 30 min
+const CACHE_MS = 5 * 60 * 1000; // 5 min
 
 type ParsedEvent = {
   uid: string;
