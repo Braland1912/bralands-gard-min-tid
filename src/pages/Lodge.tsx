@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,13 +63,16 @@ const Lodge = () => {
   const canAccess = isAdmin || worker?.can_see_lodge === true;
   const ready = !workerLoading && !adminLoading;
 
+  const forceRefreshRef = useRef(false);
   const { data, isLoading, refetch, isFetching, error } = useQuery({
     queryKey: ["lodge-calendar"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Ej inloggad");
+      const force = forceRefreshRef.current;
+      forceRefreshRef.current = false;
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lodge-calendar`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lodge-calendar${force ? "?refresh=1" : ""}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -264,7 +267,7 @@ const Lodge = () => {
               <p className="text-xs text-muted-foreground">Bokningar från iCloud-kalendern</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => refetch()} disabled={isFetching} aria-label="Uppdatera">
+          <Button variant="ghost" size="icon" onClick={() => { forceRefreshRef.current = true; refetch(); }} disabled={isFetching} aria-label="Uppdatera">
             <RefreshCw className={`h-5 w-5 ${isFetching ? "animate-spin" : ""}`} />
           </Button>
         </div>

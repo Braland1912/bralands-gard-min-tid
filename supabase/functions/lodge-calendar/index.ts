@@ -11,7 +11,7 @@ const ICAL_URL =
 
 // Enkel in-memory-cache (per warm instance)
 let cache: { fetchedAt: number; events: ParsedEvent[] } | null = null;
-const CACHE_MS = 30 * 60 * 1000; // 30 min
+const CACHE_MS = 5 * 60 * 1000; // 5 min
 
 type ParsedEvent = {
   uid: string;
@@ -122,9 +122,9 @@ function parseICS(ics: string): ParsedEvent[] {
   return events;
 }
 
-async function getEvents(): Promise<ParsedEvent[]> {
+async function getEvents(forceRefresh = false): Promise<ParsedEvent[]> {
   const now = Date.now();
-  if (cache && now - cache.fetchedAt < CACHE_MS) {
+  if (!forceRefresh && cache && now - cache.fetchedAt < CACHE_MS) {
     return cache.events;
   }
   const res = await fetch(ICAL_URL, { headers: { Accept: "text/calendar" } });
@@ -183,7 +183,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const events = await getEvents();
+    const url = new URL(req.url);
+    const forceRefresh = url.searchParams.get("refresh") === "1";
+    const events = await getEvents(forceRefresh);
 
     return new Response(
       JSON.stringify({ events, fetchedAt: cache?.fetchedAt ?? Date.now() }),
