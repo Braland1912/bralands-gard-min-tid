@@ -267,7 +267,7 @@ const Lodge = () => {
               <p className="text-xs text-muted-foreground">Bokningar från iCloud-kalendern</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => refetch()} disabled={isFetching} aria-label="Uppdatera">
+          <Button variant="ghost" size="icon" onClick={() => { forceRefreshRef.current = true; refetch(); }} disabled={isFetching} aria-label="Uppdatera">
             <RefreshCw className={`h-5 w-5 ${isFetching ? "animate-spin" : ""}`} />
           </Button>
         </div>
