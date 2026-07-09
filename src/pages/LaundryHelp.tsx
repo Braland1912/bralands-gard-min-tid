@@ -52,15 +52,15 @@ const LaundryHelp = () => {
     },
     {
       n: 3,
-      title: "Slå på maskinen och välj Snabbtvätt",
+      title: "Slå på maskinen och välj Cotton",
       image: step3.url,
-      alt: "Hand vrider programratten till Snabbtvätt",
+      alt: "Hand vrider programratten till Cotton",
       body: (
         <>
           Tryck på <strong>power-knappen</strong> (vänster om ratten) så tänds
-          displayen. Vrid sedan ratten till <strong>Snabbtvätt</strong>. Nu står
-          det <strong>14 min</strong> i displayen — det är standard, men vi
-          ändrar temp och varv i nästa steg.
+          displayen. Vrid sedan ratten till <strong>Cotton</strong> — det är{" "}
+          <strong>ett klick till vänster om Snabbtvätt</strong>. Vi ändrar temp
+          och varv i nästa steg.
         </>
       ),
     },
@@ -72,8 +72,7 @@ const LaundryHelp = () => {
       body: (
         <>
           Tryck på knappen <strong>Temp</strong> upprepade gånger tills{" "}
-          <strong>40°C</strong> lyser i displayen. Snabbtvätt ligger som
-          standard på Cold — vi vill ha 40°C för att få rent på riktigt.
+          <strong>40°C</strong> lyser i displayen.
         </>
       ),
     },
@@ -147,7 +146,7 @@ const LaundryHelp = () => {
             Tvättmaskin – så startar du
           </h1>
           <p className="text-sm text-muted-foreground">
-            Vi kör alltid <strong>Snabbtvätt</strong> med <strong>40°C</strong>{" "}
+            Vi kör alltid <strong>Cotton</strong> med <strong>40°C</strong>{" "}
             och <strong>1200 varv</strong>. Följ stegen nedan — bilderna visar
             exakt vad du ska trycka på.
           </p>
@@ -326,7 +325,7 @@ const LaundryHelp = () => {
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
-                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong> (23 min).
+                Vårt standardprogram: <strong>Cotton · 40°C · 1200 varv</strong>.
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
