@@ -81,12 +81,13 @@ export default function LaundryAnnouncementModal() {
             <WashingMachine className="h-6 w-6" />
           </div>
           <DialogTitle className="text-center">
-            Nytt: Tvättmaskin – guide
+            Nytt: Tvättmaskin &amp; torktumlare – guide
           </DialogTitle>
           <DialogDescription className="text-center">
-            Nu finns en steg-för-steg-guide för tvättmaskinen i hjälpavsnittet.
-            Sortering, dosering och Snabbtvätt på 40°C med 1200 varv — med
-            bilder från maskinen så du ser exakt vad du ska trycka på.
+            Nu finns en steg-för-steg-guide för tvättmaskinen och torktumlaren
+            i hjälpavsnittet. Sortering, dosering och Cotton på 40°C med
+            1400 varv (25 min) — med bilder från maskinen så du ser exakt vad
+            du ska trycka på.
           </DialogDescription>
         </DialogHeader>
 
