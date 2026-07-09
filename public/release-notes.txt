@@ -1,1 +1,1 @@
-Nu visas en ruta när du loggar in med länk till våra nya städrutiner. Rutan försvinner så snart du öppnat städrutinerna en gång.
+Ny hjälpsida för tvättmaskinen med bilder steg för steg. En ruta öppnas när du loggar in och tar dig direkt till guiden — den försvinner när du öppnat den en gång.

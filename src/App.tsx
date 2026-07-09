@@ -34,6 +34,7 @@ import InstallAppModal from "./components/InstallAppModal";
 import UpdateBanner from "./components/UpdateBanner";
 import VersionTracker from "./components/VersionTracker";
 import CleaningAnnouncementModal from "./components/CleaningAnnouncementModal";
+import LaundryAnnouncementModal from "./components/LaundryAnnouncementModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ const App = () => (
         <VersionTracker />
         <InstallAppModal />
         <CleaningAnnouncementModal />
+        <LaundryAnnouncementModal />
         <DesktopSidebar />
         <AppHeader />
         <div className="md:pl-64">
