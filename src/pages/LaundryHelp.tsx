@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import step1 from "@/assets/laundry/step-1-door.jpg.asset.json";
-import step2 from "@/assets/laundry/step-2-programs.jpg.asset.json";
+import step2 from "@/assets/laundry/detergent-drawer.jpg.asset.json";
 import step3 from "@/assets/laundry/step-3-dial.jpg.asset.json";
 import step4 from "@/assets/laundry/step-4-temp.jpg.asset.json";
 import step5 from "@/assets/laundry/step-5-spin.jpg.asset.json";
 import step6 from "@/assets/laundry/step-6-start.jpg.asset.json";
+import whiteBox from "@/assets/laundry/white-box.jpg.asset.json";
 
 type Step = {
   n: number;
@@ -35,14 +36,15 @@ const LaundryHelp = () => {
     },
     {
       n: 2,
-      title: "Dosera tvättmedel direkt i trumman",
+      title: "Dosera tvättmedel i tvättmedelsfacket",
       image: step2.url,
-      alt: "Tvättmaskinens programratt med Snabbtvätt synligt",
+      alt: "Tvättmedelsfacket utdraget med sked pulver i vänstra facket",
       body: (
         <>
-          Häll <strong>2 tsk (ca 10 ml) tvättmedel</strong> från en av burkarna
-          direkt <strong>i trumman</strong> — inte i facket. Det räcker gott för
-          en normal maskin.
+          Dra ut <strong>tvättmedelsfacket</strong> längst upp till vänster på
+          maskinen. Häll <strong>2 tsk (ca 10 ml) tvättmedel</strong> från en av
+          burkarna i det <strong>vänstra facket</strong> (se bilden). Skjut in
+          facket igen. Sköljmedel behövs inte.
         </>
       ),
     },
@@ -179,12 +181,27 @@ const LaundryHelp = () => {
                   3
                 </span>
                 <span>
-                  <strong>Handdukar och städtrasor</strong> för sig — i egen
-                  IKEA-påse. Är de <strong>blöta</strong> lägger du dem i den{" "}
-                  <strong>vita lådan</strong> istället så det inte blir mögligt.
+                  <strong>Handdukar, städtrasor och tvättlappar</strong> för sig
+                  — i egen IKEA-påse. Är de <strong>blöta</strong> lägger du dem
+                  i den <strong>vita lådan</strong> bredvid maskinen (se bilden
+                  nedan) istället så det inte blir mögligt.
                 </span>
               </li>
             </ul>
+            <div className="rounded-xl overflow-hidden border border-primary/20 bg-background">
+              <div className="aspect-[4/3] bg-muted overflow-hidden">
+                <img
+                  src={whiteBox.url}
+                  alt="Vit plastlåda på golvet bredvid tvättmaskinen för blöta handdukar och städtrasor"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground p-3">
+                Den vita lådan – här läggs blöta handdukar, städtrasor och
+                tvättlappar tills det är dags att tvätta.
+              </p>
+            </div>
             <p className="text-xs text-muted-foreground pt-1">
               Blanda aldrig färgat och vitt — då riskerar vitt att bli gråaktigt
               eller färga av sig.
@@ -238,8 +255,8 @@ const LaundryHelp = () => {
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
-                Tvättmedel <strong>direkt i trumman</strong>, inte i facket. 2 tsk
-                räcker.
+                Tvättmedel i <strong>vänstra facket</strong> i tvättmedelslådan
+                — 2 tsk räcker.
               </li>
               <li>Töm maskinen direkt när den är klar — annars börjar det lukta.</li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
