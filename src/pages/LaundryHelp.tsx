@@ -94,13 +94,13 @@ const LaundryHelp = () => {
       n: 6,
       title: "Tryck på Start",
       image: step6.url,
-      alt: "Start-knapp på tvättmaskinen",
+      alt: "Hand nära Start-knappen till vänster om ratten, display visar 23 min",
       body: (
         <>
-          Tryck på <strong>Start</strong>-knappen (höger om ratten, med
-          play-symbolen). Nedräkningen startar och maskinen låser luckan. När
-          maskinen är klar — <strong>töm den direkt</strong>, häng upp eller
-          lägg i torktumlaren.
+          Tryck på <strong>Start</strong>-knappen (till vänster om ratten, med
+          play-symbolen). Nedräkningen från 23 min startar och maskinen låser
+          luckan. Töm sedan maskinen i god tid så tvätten <strong>hinner torka</strong>{" "}
+          — vi vill alltid ha rena handdukar och sängkläder redo för byte.
         </>
       ),
     },
