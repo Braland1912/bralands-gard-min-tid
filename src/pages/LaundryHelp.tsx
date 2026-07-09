@@ -324,9 +324,6 @@ const LaundryHelp = () => {
           </h2>
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>
-                Vårt standardprogram: <strong>Cotton · 40°C · 1400 varv</strong>.
-              </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
                 Tvättmedel i <strong>vänstra facket</strong> i tvättmedelslådan
@@ -337,6 +334,10 @@ const LaundryHelp = () => {
                 och det alltid finns handdukar och sängkläder redo för byte.
               </li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
+              <li>
+                <strong>(Torktumlaren)</strong> Vårt standardprogram:{" "}
+                <strong>Cotton · 40°C · 1400 varv</strong>.
+              </li>
             </ul>
           </div>
         </section>
