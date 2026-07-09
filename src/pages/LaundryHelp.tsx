@@ -308,10 +308,7 @@ const LaundryHelp = () => {
                   maskinen så snart den är klar och rensa filtret igen.
                 </li>
 
-                <li>
-                  Tryck på <strong>Start</strong>-knappen (play-symbolen). Töm
-                  maskinen så snart den är klar och rensa filtret igen.
-                </li>
+
               </ol>
             </div>
           </article>
