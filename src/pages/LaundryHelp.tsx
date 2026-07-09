@@ -146,7 +146,7 @@ const LaundryHelp = () => {
             Tvättmaskin – så startar du
           </h1>
           <p className="text-sm text-muted-foreground">
-            Vi kör alltid <strong>Snabbtvätt</strong> med <strong>40°C</strong>{" "}
+            Vi kör alltid <strong>Cotton</strong> med <strong>40°C</strong>{" "}
             och <strong>1200 varv</strong>. Följ stegen nedan — bilderna visar
             exakt vad du ska trycka på.
           </p>
