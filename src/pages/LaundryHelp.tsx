@@ -325,7 +325,7 @@ const LaundryHelp = () => {
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
-                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong> (23 min).
+                Vårt standardprogram: <strong>Cotton · 40°C · 1200 varv</strong>.
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
