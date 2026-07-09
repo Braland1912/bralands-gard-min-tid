@@ -56,6 +56,7 @@ const App = () => (
         <VersionTracker />
         <InstallAppModal />
         <CleaningAnnouncementModal />
+        <LaundryAnnouncementModal />
         <DesktopSidebar />
         <AppHeader />
         <div className="md:pl-64">
