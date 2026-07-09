@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Moon, LifeBuoy, BookOpen, Sparkles } from "lucide-react";
+import { ChevronRight, Moon, LifeBuoy, BookOpen, Sparkles, WashingMachine } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type HelpItem = {
