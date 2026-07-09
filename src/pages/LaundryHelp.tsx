@@ -80,12 +80,13 @@ const LaundryHelp = () => {
       n: 5,
       title: "Öka centrifugering till 1200 varv",
       image: step5.url,
-      alt: "Display visar 1200 varv centrifugering",
+      alt: "Display visar 23 min, 40°C och 1200 varv efter valda inställningar",
       body: (
         <>
           Tryck på knappen <strong>Spin</strong> tills <strong>1200</strong>{" "}
-          lyser. Då centrifugeras kläderna hårdare och blir mindre blöta — bra
-          för torkning på tvättlinan eller torktumlaren.
+          lyser. Nu ska displayen visa <strong>23 min</strong> — det är rätt tid
+          när du valt 40°C och 1200 varv. Kläderna blir mindre blöta, vilket är
+          bra för torkning på tvättlinan eller i torktumlaren.
         </>
       ),
     },
