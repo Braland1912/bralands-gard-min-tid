@@ -181,12 +181,27 @@ const LaundryHelp = () => {
                   3
                 </span>
                 <span>
-                  <strong>Handdukar och städtrasor</strong> för sig — i egen
-                  IKEA-påse. Är de <strong>blöta</strong> lägger du dem i den{" "}
-                  <strong>vita lådan</strong> istället så det inte blir mögligt.
+                  <strong>Handdukar, städtrasor och tvättlappar</strong> för sig
+                  — i egen IKEA-påse. Är de <strong>blöta</strong> lägger du dem
+                  i den <strong>vita lådan</strong> bredvid maskinen (se bilden
+                  nedan) istället så det inte blir mögligt.
                 </span>
               </li>
             </ul>
+            <div className="rounded-xl overflow-hidden border border-primary/20 bg-background">
+              <div className="aspect-[4/3] bg-muted overflow-hidden">
+                <img
+                  src={whiteBox.url}
+                  alt="Vit plastlåda på golvet bredvid tvättmaskinen för blöta handdukar och städtrasor"
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground p-3">
+                Den vita lådan – här läggs blöta handdukar, städtrasor och
+                tvättlappar tills det är dags att tvätta.
+              </p>
+            </div>
             <p className="text-xs text-muted-foreground pt-1">
               Blanda aldrig färgat och vitt — då riskerar vitt att bli gråaktigt
               eller färga av sig.
