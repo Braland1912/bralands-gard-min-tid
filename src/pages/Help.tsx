@@ -40,6 +40,20 @@ const Help = () => {
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-8">
       <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (window.history.length > 1) navigate(-1);
+            else navigate("/");
+          }}
+          className="gap-1.5 -ml-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Tillbaka
+        </Button>
+
+
         <header className="space-y-1 border-b border-border pb-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             <LifeBuoy className="h-3.5 w-3.5" />
