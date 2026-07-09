@@ -255,8 +255,8 @@ const LaundryHelp = () => {
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
-                Tvättmedel <strong>direkt i trumman</strong>, inte i facket. 2 tsk
-                räcker.
+                Tvättmedel i <strong>vänstra facket</strong> i tvättmedelslådan
+                — 2 tsk räcker.
               </li>
               <li>Töm maskinen direkt när den är klar — annars börjar det lukta.</li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
