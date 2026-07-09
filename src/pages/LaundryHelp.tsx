@@ -80,12 +80,13 @@ const LaundryHelp = () => {
       n: 5,
       title: "Öka centrifugering till 1200 varv",
       image: step5.url,
-      alt: "Display visar 1200 varv centrifugering",
+      alt: "Display visar 23 min, 40°C och 1200 varv efter valda inställningar",
       body: (
         <>
           Tryck på knappen <strong>Spin</strong> tills <strong>1200</strong>{" "}
-          lyser. Då centrifugeras kläderna hårdare och blir mindre blöta — bra
-          för torkning på tvättlinan eller torktumlaren.
+          lyser. Nu ska displayen visa <strong>23 min</strong> — det är rätt tid
+          när du valt 40°C och 1200 varv. Kläderna blir mindre blöta, vilket är
+          bra för torkning på tvättlinan eller i torktumlaren.
         </>
       ),
     },
@@ -93,13 +94,13 @@ const LaundryHelp = () => {
       n: 6,
       title: "Tryck på Start",
       image: step6.url,
-      alt: "Start-knapp på tvättmaskinen",
+      alt: "Hand nära Start-knappen till vänster om ratten, display visar 23 min",
       body: (
         <>
-          Tryck på <strong>Start</strong>-knappen (höger om ratten, med
-          play-symbolen). Nedräkningen startar och maskinen låser luckan. När
-          maskinen är klar — <strong>töm den direkt</strong>, häng upp eller
-          lägg i torktumlaren.
+          Tryck på <strong>Start</strong>-knappen (till vänster om ratten, med
+          play-symbolen). Nedräkningen från 23 min startar och maskinen låser
+          luckan. Töm sedan maskinen i god tid så tvätten <strong>hinner torka</strong>{" "}
+          — vi vill alltid ha rena handdukar och sängkläder redo för byte.
         </>
       ),
     },
@@ -252,14 +253,17 @@ const LaundryHelp = () => {
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
-                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong>.
+                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong> (23 min).
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
                 Tvättmedel i <strong>vänstra facket</strong> i tvättmedelslådan
                 — 2 tsk räcker.
               </li>
-              <li>Töm maskinen direkt när den är klar — annars börjar det lukta.</li>
+              <li>
+                Töm maskinen i god tid så tvätten <strong>hinner torka</strong>{" "}
+                och det alltid finns handdukar och sängkläder redo för byte.
+              </li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
             </ul>
           </div>
