@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 
-const ANNOUNCEMENT_ID = "laundry-help-v1";
+const ANNOUNCEMENT_ID = "laundry-help-v2";
 const storageKey = (userId: string) =>
   `announcement:${ANNOUNCEMENT_ID}:acked:${userId}`;
 const LAUNDRY_PATH = "/help/laundry";
