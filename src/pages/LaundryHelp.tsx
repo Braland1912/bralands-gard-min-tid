@@ -42,9 +42,10 @@ const LaundryHelp = () => {
       body: (
         <>
           Dra ut <strong>tvättmedelsfacket</strong> längst upp till vänster på
-          maskinen. Häll <strong>2 tsk (ca 10 ml) tvättmedel</strong> från en av
-          burkarna i det <strong>vänstra facket</strong> (se bilden). Skjut in
-          facket igen. Sköljmedel behövs inte.
+          maskinen. Tvättmedlet finns i de <strong>grå hinkarna med vitt lock</strong>{" "}
+          — <strong>teskedsmåttet ligger i hinken</strong>. Häll{" "}
+          <strong>2 tsk (ca 10 ml)</strong> i det <strong>vänstra facket</strong>{" "}
+          (se bilden). Skjut in facket igen. Sköljmedel behövs inte.
         </>
       ),
     },
