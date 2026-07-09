@@ -8,6 +8,7 @@ import step4 from "@/assets/laundry/step-4-temp.jpg.asset.json";
 import step5 from "@/assets/laundry/step-5-spin.jpg.asset.json";
 import step6 from "@/assets/laundry/step-6-start.jpg.asset.json";
 import whiteBox from "@/assets/laundry/white-box.jpg.asset.json";
+import dryer from "@/assets/laundry/dryer.jpg.asset.json";
 
 type Step = {
   n: number;
