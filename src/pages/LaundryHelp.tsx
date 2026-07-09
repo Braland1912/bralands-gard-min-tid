@@ -300,13 +300,14 @@ const LaundryHelp = () => {
                   Tryck på <strong>power-knappen</strong> så tänds displayen.
                 </li>
                 <li>
-                  Vrid ratten till <strong>Timed Drying</strong> (tidsstyrd
-                  torkning).
+                  Vrid ratten till <strong>Cotton</strong> — ett snäpp till
+                  vänster om <em>Timed Drying</em>.
                 </li>
                 <li>
-                  Torkgraden ska stå på <strong>Cupboard</strong> (skåptorrt) —
-                  då är tvätten helt torr när den är klar.
+                  Tryck på <strong>Start</strong>-knappen (play-symbolen). Töm
+                  maskinen så snart den är klar och rensa filtret igen.
                 </li>
+
                 <li>
                   Tryck på <strong>Start</strong>-knappen (play-symbolen). Töm
                   maskinen så snart den är klar och rensa filtret igen.
