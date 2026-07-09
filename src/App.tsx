@@ -18,6 +18,7 @@ import AdminChecklists from "./pages/AdminChecklists";
 import EveningRound from "./pages/EveningRound";
 import EveningRoundHelp from "./pages/EveningRoundHelp";
 import CleaningHelp from "./pages/CleaningHelp";
+import LaundryHelp from "./pages/LaundryHelp";
 import Help from "./pages/Help";
 import MobileMenuTest from "./pages/MobileMenuTest";
 import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
@@ -79,6 +80,7 @@ const App = () => (
           <Route path="/evening-round" element={<EveningRound />} />
           <Route path="/evening-round/help" element={<EveningRoundHelp />} />
           <Route path="/help/cleaning" element={<CleaningHelp />} />
+          <Route path="/help/laundry" element={<LaundryHelp />} />
           <Route path="/help" element={<Help />} />
           <Route path="/lodge" element={<Lodge />} />
           <Route path="/today-tasks" element={<TodayTasks />} />

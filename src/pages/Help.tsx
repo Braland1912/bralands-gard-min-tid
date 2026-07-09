@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Moon, LifeBuoy, BookOpen, Sparkles } from "lucide-react";
+import { ChevronRight, Moon, LifeBuoy, BookOpen, Sparkles, WashingMachine } from "lucide-react";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 
 type HelpItem = {
@@ -23,6 +23,13 @@ const items: HelpItem[] = [
       "Så dammar och städar vi steg för steg: grundordningen, metall & kalk, trasor och grovstädning.",
     path: "/help/cleaning",
     icon: Sparkles,
+  },
+  {
+    title: "Tvättmaskin",
+    description:
+      "Så startar du tvättmaskinen: sortering, dosering och Snabbtvätt på 40°C med 1200 varv — steg för steg med bilder från maskinen.",
+    path: "/help/laundry",
+    icon: WashingMachine,
   },
 ];
 
