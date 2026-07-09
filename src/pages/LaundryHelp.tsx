@@ -78,14 +78,14 @@ const LaundryHelp = () => {
     },
     {
       n: 5,
-      title: "Öka centrifugering till 1200 varv",
+      title: "Öka centrifugering till 1400 varv",
       image: step5.url,
-      alt: "Display visar 23 min, 40°C och 1200 varv efter valda inställningar",
+      alt: "Display visar 25 min, 40°C och 1400 varv efter valda inställningar",
       body: (
         <>
-          Tryck på knappen <strong>Spin</strong> tills <strong>1200</strong>{" "}
-          lyser. Nu ska displayen visa <strong>23 min</strong> — det är rätt tid
-          när du valt 40°C och 1200 varv. Kläderna blir mindre blöta, vilket är
+          Tryck på knappen <strong>Spin</strong> tills <strong>1400</strong>{" "}
+          lyser. Nu ska displayen visa <strong>25 min</strong> — det är rätt tid
+          när du valt 40°C och 1400 varv. Kläderna blir mindre blöta, vilket är
           bra för torkning på tvättlinan eller i torktumlaren.
         </>
       ),
@@ -94,11 +94,11 @@ const LaundryHelp = () => {
       n: 6,
       title: "Tryck på Start",
       image: step6.url,
-      alt: "Hand nära Start-knappen till vänster om ratten, display visar 23 min",
+      alt: "Hand nära Start-knappen till vänster om ratten, display visar 25 min",
       body: (
         <>
           Tryck på <strong>Start</strong>-knappen (till vänster om ratten, med
-          play-symbolen). Nedräkningen från 23 min startar och maskinen låser
+          play-symbolen). Nedräkningen från 25 min startar och maskinen låser
           luckan. Töm sedan maskinen i god tid så tvätten <strong>hinner torka</strong>{" "}
           — vi vill alltid ha rena handdukar och sängkläder redo för byte.
         </>
@@ -147,7 +147,7 @@ const LaundryHelp = () => {
           </h1>
           <p className="text-sm text-muted-foreground">
             Vi kör alltid <strong>Cotton</strong> med <strong>40°C</strong>{" "}
-            och <strong>1200 varv</strong>. Följ stegen nedan — bilderna visar
+            och <strong>1400 varv</strong>. Följ stegen nedan — bilderna visar
             exakt vad du ska trycka på.
           </p>
         </header>
@@ -325,7 +325,7 @@ const LaundryHelp = () => {
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
-                Vårt standardprogram: <strong>Cotton · 40°C · 1200 varv</strong>.
+                Vårt standardprogram: <strong>Cotton · 40°C · 1400 varv</strong>.
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
