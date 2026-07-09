@@ -8,6 +8,7 @@ import step4 from "@/assets/laundry/step-4-temp.jpg.asset.json";
 import step5 from "@/assets/laundry/step-5-spin.jpg.asset.json";
 import step6 from "@/assets/laundry/step-6-start.jpg.asset.json";
 import whiteBox from "@/assets/laundry/white-box.jpg.asset.json";
+import dryer from "@/assets/laundry/dryer.jpg.asset.json";
 
 type Step = {
   n: number;
@@ -244,6 +245,78 @@ const LaundryHelp = () => {
             ))}
           </div>
         </section>
+
+        {/* TORKTUMLARE */}
+        <section className="space-y-3 keep-together">
+          <h2 className="text-lg font-semibold text-foreground">
+            Torktumlaren
+          </h2>
+
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-5 space-y-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+              Vad som får torktumlas
+            </p>
+            <ul className="space-y-2 text-sm text-foreground">
+              <li className="flex gap-3">
+                <span className="shrink-0 h-6 w-6 rounded-full bg-primary/15 text-primary font-bold text-xs flex items-center justify-center mt-0.5">
+                  Ja
+                </span>
+                <span>
+                  <strong>Frottéhanddukar</strong> (mjuka badhanddukar) och{" "}
+                  <strong>städtrasor</strong> — dessa tål tumlaren.
+                </span>
+              </li>
+              <li className="flex gap-3">
+                <span className="shrink-0 h-6 w-6 rounded-full bg-destructive/15 text-destructive font-bold text-[10px] flex items-center justify-center mt-0.5">
+                  Nej
+                </span>
+                <span>
+                  <strong>Inga kökshanddukar</strong>, inga lakan eller
+                  örngott, inga färgade plagg. De hängs på tvättlinan istället.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <article className="rounded-2xl border border-border bg-card overflow-hidden keep-together">
+            <div className="aspect-[4/3] bg-muted overflow-hidden">
+              <img
+                src={dryer.url}
+                alt="Torktumlarens panel med Timed Drying valt och Cupboard som torkgrad"
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="p-4 space-y-3 text-sm text-foreground">
+              <p>
+                <strong>Så startar du torktumlaren:</strong>
+              </p>
+              <ol className="list-decimal pl-5 space-y-1.5">
+                <li>
+                  Rensa <strong>luddfiltret</strong> i luckan innan du börjar
+                  (det står <em>"Töm filter"</em> på maskinen — det är viktigt).
+                </li>
+                <li>Lägg in frottéhandukarna eller städtrasorna. Stäng luckan.</li>
+                <li>
+                  Tryck på <strong>power-knappen</strong> så tänds displayen.
+                </li>
+                <li>
+                  Vrid ratten till <strong>Timed Drying</strong> (tidsstyrd
+                  torkning).
+                </li>
+                <li>
+                  Torkgraden ska stå på <strong>Cupboard</strong> (skåptorrt) —
+                  då är tvätten helt torr när den är klar.
+                </li>
+                <li>
+                  Tryck på <strong>Start</strong>-knappen (play-symbolen). Töm
+                  maskinen så snart den är klar och rensa filtret igen.
+                </li>
+              </ol>
+            </div>
+          </article>
+        </section>
+
 
         {/* SNABBFAKTA */}
         <section className="space-y-3 keep-together">
