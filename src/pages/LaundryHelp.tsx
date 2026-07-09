@@ -36,14 +36,15 @@ const LaundryHelp = () => {
     },
     {
       n: 2,
-      title: "Dosera tvättmedel direkt i trumman",
+      title: "Dosera tvättmedel i tvättmedelsfacket",
       image: step2.url,
-      alt: "Tvättmaskinens programratt med Snabbtvätt synligt",
+      alt: "Tvättmedelsfacket utdraget med sked pulver i vänstra facket",
       body: (
         <>
-          Häll <strong>2 tsk (ca 10 ml) tvättmedel</strong> från en av burkarna
-          direkt <strong>i trumman</strong> — inte i facket. Det räcker gott för
-          en normal maskin.
+          Dra ut <strong>tvättmedelsfacket</strong> längst upp till vänster på
+          maskinen. Häll <strong>2 tsk (ca 10 ml) tvättmedel</strong> från en av
+          burkarna i det <strong>vänstra facket</strong> (se bilden). Skjut in
+          facket igen. Sköljmedel behövs inte.
         </>
       ),
     },
