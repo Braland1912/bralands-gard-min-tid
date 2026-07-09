@@ -52,15 +52,15 @@ const LaundryHelp = () => {
     },
     {
       n: 3,
-      title: "Slå på maskinen och välj Snabbtvätt",
+      title: "Slå på maskinen och välj Cotton",
       image: step3.url,
-      alt: "Hand vrider programratten till Snabbtvätt",
+      alt: "Hand vrider programratten till Cotton",
       body: (
         <>
           Tryck på <strong>power-knappen</strong> (vänster om ratten) så tänds
-          displayen. Vrid sedan ratten till <strong>Snabbtvätt</strong>. Nu står
-          det <strong>14 min</strong> i displayen — det är standard, men vi
-          ändrar temp och varv i nästa steg.
+          displayen. Vrid sedan ratten till <strong>Cotton</strong> — det är{" "}
+          <strong>ett klick till vänster om Snabbtvätt</strong>. Vi ändrar temp
+          och varv i nästa steg.
         </>
       ),
     },
