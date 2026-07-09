@@ -24,6 +24,13 @@ const items: HelpItem[] = [
     path: "/help/cleaning",
     icon: Sparkles,
   },
+  {
+    title: "Tvättmaskin",
+    description:
+      "Så startar du tvättmaskinen: sortering, dosering och Snabbtvätt på 40°C med 1200 varv — steg för steg med bilder från maskinen.",
+    path: "/help/laundry",
+    icon: WashingMachine,
+  },
 ];
 
 const Help = () => {
