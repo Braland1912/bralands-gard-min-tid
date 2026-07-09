@@ -253,14 +253,17 @@ const LaundryHelp = () => {
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             <ul className="list-disc pl-5 space-y-1.5">
               <li>
-                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong>.
+                Vårt standardprogram: <strong>Snabbtvätt · 40°C · 1200 varv</strong> (23 min).
               </li>
               <li>Fyll trumman till max 3/4 — kläderna måste kunna röra sig.</li>
               <li>
                 Tvättmedel i <strong>vänstra facket</strong> i tvättmedelslådan
                 — 2 tsk räcker.
               </li>
-              <li>Töm maskinen direkt när den är klar — annars börjar det lukta.</li>
+              <li>
+                Töm maskinen i god tid så tvätten <strong>hinner torka</strong>{" "}
+                och det alltid finns handdukar och sängkläder redo för byte.
+              </li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
             </ul>
           </div>
