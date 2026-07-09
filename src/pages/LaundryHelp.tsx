@@ -72,8 +72,7 @@ const LaundryHelp = () => {
       body: (
         <>
           Tryck på knappen <strong>Temp</strong> upprepade gånger tills{" "}
-          <strong>40°C</strong> lyser i displayen. Snabbtvätt ligger som
-          standard på Cold — vi vill ha 40°C för att få rent på riktigt.
+          <strong>40°C</strong> lyser i displayen.
         </>
       ),
     },
