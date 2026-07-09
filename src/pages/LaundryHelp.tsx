@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import step1 from "@/assets/laundry/step-1-door.jpg.asset.json";
-import step2 from "@/assets/laundry/step-2-programs.jpg.asset.json";
+import step2 from "@/assets/laundry/detergent-drawer.jpg.asset.json";
 import step3 from "@/assets/laundry/step-3-dial.jpg.asset.json";
 import step4 from "@/assets/laundry/step-4-temp.jpg.asset.json";
 import step5 from "@/assets/laundry/step-5-spin.jpg.asset.json";
 import step6 from "@/assets/laundry/step-6-start.jpg.asset.json";
+import whiteBox from "@/assets/laundry/white-box.jpg.asset.json";
 
 type Step = {
   n: number;
