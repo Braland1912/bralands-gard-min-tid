@@ -330,9 +330,12 @@ const EveningRoundModal = ({
     guest.accommodation_type !== "temporary" &&
     !guest.is_prepaid;
 
-  // Boende-väljaren visas när ingen fast plats är vald (skapande av ny plats
-  // eller specialläge). I `temporary`-läge är boendet låst till "temporary".
-  const showAccommodationPicker = !place && mode !== "temporary";
+  // Boende-väljaren visas när ingen plats är vald, ELLER när en tillfällig plats
+  // är vald (tillfälliga platser kan vara både fordon och tält).
+  // Endast fasta platser (1-31, E1-E6) är fordon-bara.
+  // I `temporary`-läge är boendet låst till "temporary".
+  const isStandardPlace = !!place && standardSet.has(place);
+  const showAccommodationPicker = !isStandardPlace && mode !== "temporary";
   const isTemporary = accommodation === "temporary" || mode === "temporary";
   const effectiveAccommodation: AccommodationType = isTemporary
     ? "temporary"
@@ -343,10 +346,10 @@ const EveningRoundModal = ({
   // På fasta platser är boendet alltid fordon – tvinga state till "vehicle"
   // så att Spara skickar rätt värde även om användaren tidigare valt tält.
   useEffect(() => {
-    if (place && accommodation !== "vehicle" && mode === "normal") {
+    if (isStandardPlace && accommodation !== "vehicle" && mode === "normal") {
       setAccommodation("vehicle");
     }
-  }, [place, accommodation, mode]);
+  }, [isStandardPlace, accommodation, mode]);
 
   // Räkna om belopp automatiskt när vistelse/typ ändras (om betalningsmetod valts).
   // SEK visas direkt; EUR avrundas uppåt till hela euro (1 EUR = 10 SEK).
