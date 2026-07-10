@@ -1,1 +1,3 @@
-Ny hjälpsida för tvättmaskinen och torktumlaren finns nu under Hjälp. Steg-för-steg med bilder: sortering, dosering och Cotton på 40°C med 1400 varv (25 min). Torktumlaren – bara frottéhanddukar och städtrasor, inga kökshanddukar.
+Fixat: Nu kan du välja Tält som boende även när du lägger till en tillfällig plats i kvällsrundan. Tidigare gick det bara via knappen längst ner på sidan.
+
+Torktumlaren – uppdaterad steg-för-steg: vrid ratten till Cotton (ett snäpp till vänster om Timed Drying) och tryck Start. Rubrikerna i tvättguiden finns nu på svenska, engelska och tyska.
