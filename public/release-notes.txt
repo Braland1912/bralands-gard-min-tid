@@ -1,3 +1,1 @@
-Fixat: Nu kan du välja Tält som boende även när du lägger till en tillfällig plats i kvällsrundan. Tidigare gick det bara via knappen längst ner på sidan.
-
-Torktumlaren – uppdaterad steg-för-steg: vrid ratten till Cotton (ett snäpp till vänster om Timed Drying) och tryck Start. Rubrikerna i tvättguiden finns nu på svenska, engelska och tyska.
+Alla dagpass börjar nu kl 10:00 som standard – även pass som redan lagts ut i schemat är uppdaterade.
