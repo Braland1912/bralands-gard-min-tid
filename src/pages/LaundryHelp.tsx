@@ -341,8 +341,13 @@ const LaundryHelp = () => {
               </li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
               <li>
-                <strong>(Torktumlaren)</strong> Vårt standardprogram:{" "}
-                <strong>Cotton · 40°C · 1400 varv</strong>.
+                <strong>Högsäsong:</strong> Tvätten körs på snabbprogrammet{" "}
+                <strong>Cotton · 40°C · 1400 varv (25 min)</strong> och
+                torktumlaren på <strong>Mixed Fabric (1:10 min)</strong>.
+              </li>
+              <li>
+                <strong>(Torktumlaren)</strong> Töm alltid luddfiltret före{" "}
+                <em>och</em> efter varje körning.
               </li>
             </ul>
           </div>
