@@ -281,7 +281,7 @@ const LaundryHelp = () => {
             <div className="aspect-[4/3] bg-muted overflow-hidden">
               <img
                 src={dryer.url}
-                alt="Torktumlarens panel med Timed Drying valt och Cupboard som torkgrad"
+                alt="Torktumlarens panel med Mixed Fabric valt och 1:10 min i displayen"
                 loading="lazy"
                 className="w-full h-full object-cover"
               />
@@ -292,24 +292,32 @@ const LaundryHelp = () => {
               </p>
               <ol className="list-decimal pl-5 space-y-1.5">
                 <li>
-                  Rensa <strong>luddfiltret</strong> i luckan innan du börjar
-                  (det står <em>"Töm filter"</em> på maskinen — det är viktigt).
+                  <strong>Kontrollera alltid filtret.</strong> Öppna luckan,
+                  dra ut <strong>luddfiltret</strong> och töm det på ludd
+                  innan du börjar — det står <em>"Töm filter"</em> på maskinen.
                 </li>
                 <li>Lägg in frottéhandukarna eller städtrasorna. Stäng luckan.</li>
                 <li>
                   Tryck på <strong>power-knappen</strong> så tänds displayen.
                 </li>
                 <li>
-                  Vrid ratten till <strong>Cotton</strong> — ett snäpp till
-                  vänster om <em>Timed Drying</em>.
+                  Vrid ratten till <strong>Mixed Fabric</strong> (pilen på
+                  masking-tejpen visar vilken position det är). Displayen
+                  ska visa <strong>1:10 min</strong>.
                 </li>
                 <li>
-                  Tryck på <strong>Start</strong>-knappen (play-symbolen). Töm
-                  maskinen så snart den är klar och rensa filtret igen.
+                  Tryck på <strong>Start</strong>-knappen (play-symbolen).
                 </li>
-
-
+                <li>
+                  När maskinen är klar: töm tumlaren <strong>och</strong>{" "}
+                  töm luddfiltret igen. Tömmer du tumlaren tömmer du också
+                  luddet — alltid.
+                </li>
               </ol>
+              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs text-foreground">
+                <strong>Kom ihåg:</strong> Tömmer du torktumlaren tömmer du
+                också luddfiltret. Alltid.
+              </div>
             </div>
           </article>
         </section>
@@ -333,8 +341,13 @@ const LaundryHelp = () => {
               </li>
               <li>Fråga hellre en gång för mycket om något känns fel.</li>
               <li>
-                <strong>(Torktumlaren)</strong> Vårt standardprogram:{" "}
-                <strong>Cotton · 40°C · 1400 varv</strong>.
+                <strong>Högsäsong:</strong> Tvätten körs på snabbprogrammet{" "}
+                <strong>Cotton · 40°C · 1400 varv (25 min)</strong> och
+                torktumlaren på <strong>Mixed Fabric (1:10 min)</strong>.
+              </li>
+              <li>
+                <strong>(Torktumlaren)</strong> Töm alltid luddfiltret före{" "}
+                <em>och</em> efter varje körning.
               </li>
             </ul>
           </div>
