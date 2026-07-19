@@ -33,7 +33,6 @@ import DesktopSidebar from "./components/DesktopSidebar";
 import InstallAppModal from "./components/InstallAppModal";
 import UpdateBanner from "./components/UpdateBanner";
 import VersionTracker from "./components/VersionTracker";
-import CleaningAnnouncementModal from "./components/CleaningAnnouncementModal";
 import LaundryAnnouncementModal from "./components/LaundryAnnouncementModal";
 
 const queryClient = new QueryClient({
@@ -55,7 +54,6 @@ const App = () => (
         <UpdateBanner />
         <VersionTracker />
         <InstallAppModal />
-        <CleaningAnnouncementModal />
         <LaundryAnnouncementModal />
         <DesktopSidebar />
         <AppHeader />

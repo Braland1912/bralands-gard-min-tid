@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWorker } from "@/hooks/useWorker";
 import { useAdmin } from "@/hooks/useAdmin";
 
-const ANNOUNCEMENT_ID = "laundry-help-v2";
+const ANNOUNCEMENT_ID = "laundry-highseason-v1";
 const storageKey = (userId: string) =>
   `announcement:${ANNOUNCEMENT_ID}:acked:${userId}`;
 const LAUNDRY_PATH = "/help/laundry";
@@ -81,13 +81,13 @@ export default function LaundryAnnouncementModal() {
             <WashingMachine className="h-6 w-6" />
           </div>
           <DialogTitle className="text-center">
-            Nytt: Tvättmaskin &amp; torktumlare – guide
+            Högsäsong: snabbprogram i tvättstugan
           </DialogTitle>
           <DialogDescription className="text-center">
-            Nu finns en steg-för-steg-guide för tvättmaskinen och torktumlaren
-            i hjälpavsnittet. Sortering, dosering och Cotton på 40°C med
-            1400 varv (25 min) — med bilder från maskinen så du ser exakt vad
-            du ska trycka på.
+            Nu på högsäsong kör vi <strong>snabbprogrammet på tvättmaskinen</strong>{" "}
+            — Cotton, 40°C, 1400 varv (25 min). Torktumlaren körs på{" "}
+            <strong>Mixed Fabric</strong> (1:10 min). Kom ihåg att alltid
+            kontrollera och tömma luddfiltret — före och efter varje körning.
           </DialogDescription>
         </DialogHeader>
 
