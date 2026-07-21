@@ -167,7 +167,7 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
               <span className="font-medium capitalize text-foreground">{m.label}</span>
               <div className="flex items-center gap-2 flex-wrap justify-end">
                 <Badge variant="secondary" className="font-mono text-xs">
-                  {formatHours(m.hours)}
+                  {formatHours(m.netHours)}
                 </Badge>
                 {showPay && hourlyRate > 0 && (
                   <Badge className="bg-primary/10 text-primary hover:bg-primary/10 font-mono text-xs">
@@ -179,8 +179,14 @@ const MonthlySummary = ({ workerId, showPay = false, hourlyRate = 0 }: Props) =>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
             <dl className="grid grid-cols-2 gap-y-2 text-sm">
-              <dt className="text-muted-foreground">Totala timmar</dt>
-              <dd className="text-right font-medium">{formatHours(m.hours)}</dd>
+              <dt className="text-muted-foreground">Netto timmar</dt>
+              <dd className="text-right font-medium text-primary">{formatHours(m.netHours)}</dd>
+
+              <dt className="text-muted-foreground">Varav rast</dt>
+              <dd className="text-right font-medium">{m.breakHours > 0 ? formatHours(m.breakHours) : "—"}</dd>
+
+              <dt className="text-muted-foreground">Brutto tid</dt>
+              <dd className="text-right font-medium text-muted-foreground">{formatHours(m.grossHours)}</dd>
 
               <dt className="text-muted-foreground">Arbetsdagar</dt>
               <dd className="text-right font-medium">{m.days} st</dd>
