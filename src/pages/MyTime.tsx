@@ -24,6 +24,17 @@ import ShiftChecklists from "@/components/ShiftChecklists";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import MonthlySummary from "@/components/MonthlySummary";
+import { calcWorkedMinutes } from "@/lib/workedTime";
+
+const db = supabase as any;
+
+type BreakLog = {
+  time_entry_id: string;
+  started_at: string;
+  ended_at: string | null;
+  is_break: boolean | null;
+  category_label: string | null;
+};
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
