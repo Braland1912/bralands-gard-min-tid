@@ -215,25 +215,18 @@ const MyTime = () => {
   });
 
   const todayStats = (() => {
-    let totalMs = 0;
+    let totalH = 0;
     let activeStart: string | null = null;
     for (const e of todayEntries) {
-      if (e.clock_in && e.clock_out) {
-        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
-      } else if (e.clock_in && !e.clock_out) {
+      if (e.clock_in && !e.clock_out) {
         activeStart = e.clock_in;
-        totalMs += Date.now() - new Date(e.clock_in).getTime();
       }
+      totalH += netHoursFor(e as any);
     }
-    return { totalH: totalMs / 3600000, activeStart };
+    return { totalH, activeStart };
   })();
 
-  const monthTotal = entries.reduce((sum, e) => {
-    if (e.clock_in && e.clock_out) {
-      return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
-    }
-    return sum;
-  }, 0);
+  const monthTotal = entries.reduce((sum, e) => sum + netHoursFor(e as any), 0);
 
   // Group entries by day, then by week
   const groupedByWeek = useMemo(() => {
@@ -254,9 +247,7 @@ const MyTime = () => {
       const existing = weekMap.get(weekNum) || { days: [], totalHours: 0 };
       let dayTotal = 0;
       dayEntries.forEach((e) => {
-        if (e.clock_in && e.clock_out) {
-          dayTotal += (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
-        }
+        dayTotal += netHoursFor(e as any);
       });
       existing.days.push([day, dayEntries]);
       existing.totalHours += dayTotal;
@@ -264,7 +255,7 @@ const MyTime = () => {
     });
 
     return Array.from(weekMap.entries()).sort((a, b) => b[0] - a[0]);
-  }, [entries]);
+  }, [entries, breaksByEntry]);
 
   const { data: corrections = [] } = useQuery({
     queryKey: ["my-corrections", worker?.id],
