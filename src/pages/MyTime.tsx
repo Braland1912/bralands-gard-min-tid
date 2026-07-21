@@ -555,9 +555,7 @@ const MyTime = () => {
                         {/* Entries */}
                         <div className="divide-y divide-border">
                           {dayEntries.map((e) => {
-                            const hours = e.clock_in && e.clock_out
-                              ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
-                              : null;
+                            const hours = e.clock_in ? netHoursFor(e as any) : null;
                             const isExpanded = expandedEntries.has(e.id);
                             return (
                               <div key={e.id} className="px-4 py-3 space-y-2">
