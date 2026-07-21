@@ -128,7 +128,7 @@ const MyTime = () => {
       if (!worker) return [];
       const { data, error } = await supabase
         .from("time_entries")
-        .select("clock_in, clock_out")
+        .select("id, clock_in, clock_out")
         .eq("worker_id", worker.id)
         .gte("clock_in", todayStart)
         .order("clock_in", { ascending: false });
@@ -138,6 +138,45 @@ const MyTime = () => {
     enabled: !!worker,
     refetchInterval: 15000,
   });
+
+  const allEntryIds = useMemo(() => entries.map((e: any) => e.id), [entries]);
+
+  const { data: breakLogs = [] } = useQuery({
+    queryKey: ["my-time-breaks", allEntryIds.join(",")],
+    queryFn: async (): Promise<BreakLog[]> => {
+      if (allEntryIds.length === 0) return [];
+      const { data, error } = await db
+        .from("activity_logs")
+        .select("time_entry_id, started_at, ended_at, category_label, task_categories!inner(is_break)")
+        .in("time_entry_id", allEntryIds)
+        .eq("task_categories.is_break", true);
+      if (error) throw error;
+      return (data ?? []).map((row: any) => ({
+        time_entry_id: row.time_entry_id,
+        started_at: row.started_at,
+        ended_at: row.ended_at,
+        category_label: row.category_label,
+        is_break: row.task_categories?.is_break ?? true,
+      }));
+    },
+    enabled: allEntryIds.length > 0,
+  });
+
+  const breaksByEntry = useMemo(() => {
+    const map = new Map<string, BreakLog[]>();
+    for (const log of breakLogs) {
+      const list = map.get(log.time_entry_id) ?? [];
+      list.push(log);
+      map.set(log.time_entry_id, list);
+    }
+    return map;
+  }, [breakLogs]);
+
+  const netHoursFor = (entry: { id: string; clock_in: string | null; clock_out: string | null }) => {
+    if (!entry.clock_in) return 0;
+    const end = entry.clock_out ?? new Date().toISOString();
+    return calcWorkedMinutes(entry.clock_in, end, breaksByEntry.get(entry.id) ?? []) / 60;
+  };
 
   const todayDateStr = format(now, "yyyy-MM-dd");
   const { data: todayShifts = [] } = useQuery({
