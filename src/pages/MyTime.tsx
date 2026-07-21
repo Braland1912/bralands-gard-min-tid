@@ -24,6 +24,17 @@ import ShiftChecklists from "@/components/ShiftChecklists";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MemberMobileBottomNav from "@/components/MemberMobileBottomNav";
 import MonthlySummary from "@/components/MonthlySummary";
+import { calcWorkedMinutes } from "@/lib/workedTime";
+
+const db = supabase as any;
+
+type BreakLog = {
+  time_entry_id: string;
+  started_at: string;
+  ended_at: string | null;
+  is_break: boolean | null;
+  category_label: string | null;
+};
 
 const MyTime = () => {
   const { user, loading, signOut } = useAuth();
@@ -117,7 +128,7 @@ const MyTime = () => {
       if (!worker) return [];
       const { data, error } = await supabase
         .from("time_entries")
-        .select("clock_in, clock_out")
+        .select("id, clock_in, clock_out")
         .eq("worker_id", worker.id)
         .gte("clock_in", todayStart)
         .order("clock_in", { ascending: false });
@@ -127,6 +138,45 @@ const MyTime = () => {
     enabled: !!worker,
     refetchInterval: 15000,
   });
+
+  const allEntryIds = useMemo(() => entries.map((e: any) => e.id), [entries]);
+
+  const { data: breakLogs = [] } = useQuery({
+    queryKey: ["my-time-breaks", allEntryIds.join(",")],
+    queryFn: async (): Promise<BreakLog[]> => {
+      if (allEntryIds.length === 0) return [];
+      const { data, error } = await db
+        .from("activity_logs")
+        .select("time_entry_id, started_at, ended_at, category_label, task_categories!inner(is_break)")
+        .in("time_entry_id", allEntryIds)
+        .eq("task_categories.is_break", true);
+      if (error) throw error;
+      return (data ?? []).map((row: any) => ({
+        time_entry_id: row.time_entry_id,
+        started_at: row.started_at,
+        ended_at: row.ended_at,
+        category_label: row.category_label,
+        is_break: row.task_categories?.is_break ?? true,
+      }));
+    },
+    enabled: allEntryIds.length > 0,
+  });
+
+  const breaksByEntry = useMemo(() => {
+    const map = new Map<string, BreakLog[]>();
+    for (const log of breakLogs) {
+      const list = map.get(log.time_entry_id) ?? [];
+      list.push(log);
+      map.set(log.time_entry_id, list);
+    }
+    return map;
+  }, [breakLogs]);
+
+  const netHoursFor = (entry: { id: string; clock_in: string | null; clock_out: string | null }) => {
+    if (!entry.clock_in) return 0;
+    const end = entry.clock_out ?? new Date().toISOString();
+    return calcWorkedMinutes(entry.clock_in, end, breaksByEntry.get(entry.id) ?? []) / 60;
+  };
 
   const todayDateStr = format(now, "yyyy-MM-dd");
   const { data: todayShifts = [] } = useQuery({
@@ -165,25 +215,18 @@ const MyTime = () => {
   });
 
   const todayStats = (() => {
-    let totalMs = 0;
+    let totalH = 0;
     let activeStart: string | null = null;
     for (const e of todayEntries) {
-      if (e.clock_in && e.clock_out) {
-        totalMs += new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime();
-      } else if (e.clock_in && !e.clock_out) {
+      if (e.clock_in && !e.clock_out) {
         activeStart = e.clock_in;
-        totalMs += Date.now() - new Date(e.clock_in).getTime();
       }
+      totalH += netHoursFor(e as any);
     }
-    return { totalH: totalMs / 3600000, activeStart };
+    return { totalH, activeStart };
   })();
 
-  const monthTotal = entries.reduce((sum, e) => {
-    if (e.clock_in && e.clock_out) {
-      return sum + (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
-    }
-    return sum;
-  }, 0);
+  const monthTotal = entries.reduce((sum, e) => sum + netHoursFor(e as any), 0);
 
   // Group entries by day, then by week
   const groupedByWeek = useMemo(() => {
@@ -204,9 +247,7 @@ const MyTime = () => {
       const existing = weekMap.get(weekNum) || { days: [], totalHours: 0 };
       let dayTotal = 0;
       dayEntries.forEach((e) => {
-        if (e.clock_in && e.clock_out) {
-          dayTotal += (new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000;
-        }
+        dayTotal += netHoursFor(e as any);
       });
       existing.days.push([day, dayEntries]);
       existing.totalHours += dayTotal;
@@ -214,7 +255,7 @@ const MyTime = () => {
     });
 
     return Array.from(weekMap.entries()).sort((a, b) => b[0] - a[0]);
-  }, [entries]);
+  }, [entries, breaksByEntry]);
 
   const { data: corrections = [] } = useQuery({
     queryKey: ["my-corrections", worker?.id],
@@ -514,9 +555,7 @@ const MyTime = () => {
                         {/* Entries */}
                         <div className="divide-y divide-border">
                           {dayEntries.map((e) => {
-                            const hours = e.clock_in && e.clock_out
-                              ? ((new Date(e.clock_out).getTime() - new Date(e.clock_in).getTime()) / 3600000)
-                              : null;
+                            const hours = e.clock_in ? netHoursFor(e as any) : null;
                             const isExpanded = expandedEntries.has(e.id);
                             return (
                               <div key={e.id} className="px-4 py-3 space-y-2">
