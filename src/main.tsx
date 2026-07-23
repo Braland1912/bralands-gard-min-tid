@@ -32,7 +32,40 @@ if (isPreviewHost || isInIframe) {
   window.addEventListener("load", () => {
     import("virtual:pwa-register")
       .then(({ registerSW }) => {
-        registerSW({ immediate: true });
+        const updateSW = registerSW({
+          immediate: true,
+          onNeedRefresh() {
+            // Ny SW installerad och väntar → aktivera direkt och ladda om
+            updateSW(true);
+          },
+        });
+
+        if ("serviceWorker" in navigator) {
+          // När SW-controllern byts (t.ex. efter skipWaiting) → hård-reload
+          // så att appen kör den nya koden – kritiskt för PWA på hemskärmen.
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+          });
+
+          // Trigga update-check varje gång appen får fokus / blir synlig.
+          // I standalone-läge (hemskärm) räcker det inte att lita på att
+          // registrerad SW själv pollar – vi tvingar en check.
+          const checkForUpdate = async () => {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration();
+              await reg?.update();
+            } catch {
+              /* ignore */
+            }
+          };
+          window.addEventListener("focus", checkForUpdate);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") checkForUpdate();
+          });
+        }
       })
       .catch(() => {
         /* no-op om plugin inte är aktiv */
