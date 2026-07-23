@@ -540,6 +540,9 @@ const EveningRound = () => {
             { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
             { id: "fordon", label: `Fordon (${counts.vehicles})` },
             { id: "talt", label: `Tält (${counts.tents})` },
+            ...(isAdmin
+              ? [{ id: "dubbletter" as Filter, label: `Dubbletter (${counts.duplicates})` }]
+              : []),
           ];
           const activeOption = filterOptions.find((o) => o.id === filter);
           const isFiltering = filter !== "alla";
