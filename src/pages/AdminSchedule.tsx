@@ -779,9 +779,10 @@ const AdminSchedule = () => {
     return weekDays.map((d) => {
       const dateStr = format(d, "yyyy-MM-dd");
       const daySchedules = (schedules as any[]).filter((s) => s.date === dateStr);
-      const missing = COVERAGE_TYPES.filter(
-        (ct) => !daySchedules.some((s) => s.shift_type === ct.type),
-      );
+      const missing = COVERAGE_TYPES.filter((ct) => {
+        const matches = ct.matches ?? [ct.type];
+        return !daySchedules.some((s) => matches.includes(s.shift_type as ShiftType));
+      });
       return { date: d, dateStr, missing };
     }).filter((x) => x.missing.length > 0);
   }, [schedules, weekDays]);
