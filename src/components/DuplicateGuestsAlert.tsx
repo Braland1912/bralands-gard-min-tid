@@ -350,6 +350,51 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={bulkDate !== null} onOpenChange={(o) => !o && setBulkDate(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Radera {bulkDatePrepaid.length} förbetald
+              {bulkDatePrepaid.length === 1 ? "" : "a"} dubblett
+              {bulkDatePrepaid.length === 1 ? "" : "er"}
+              {bulkDate ? ` för ${formatDateLabel(bulkDate)}` : ""}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Alla förbetalda poster som har en manuell motsvarighet med samma
+                  regnummer på detta ankomstdatum tas bort i ett svep. De manuellt
+                  inlagda gästerna finns kvar. Varje radering loggas i historiken.
+                </p>
+                <ul className="max-h-52 overflow-auto rounded-md border border-border bg-muted/40 divide-y divide-border text-[12px]">
+                  {bulkDatePrepaid.map((g) => (
+                    <li key={g.id} className="px-2.5 py-1.5">
+                      <div className="font-medium text-foreground truncate">
+                        {g.guest_name || "(utan namn)"}
+                        {g.registration_number ? ` · ${g.registration_number}` : ""}
+                      </div>
+                      <div className="text-muted-foreground truncate">
+                        {g.place_label ? `Plats ${g.place_label}` : "Ingen plats"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmBulkDateDelete}
+            >
+              Radera {bulkDatePrepaid.length} post
+              {bulkDatePrepaid.length === 1 ? "" : "er"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 };
