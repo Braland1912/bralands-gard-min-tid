@@ -339,6 +339,36 @@ const AdminSchedule = () => {
         payload.note = (existing as any).note ?? null;
       }
 
+      // Autofyll anteckning för Kväll A/B när passet är nytt och saknar anteckning
+      const DEFAULT_NOTE: Partial<Record<ShiftType, string>> = {
+        evening_a: `KVÄLLSPASS A · 17:00–20:30 (3,5 h)
+
+• Håll igång tvätten – kort program på maskinen, torktumla handdukar och ev. sängkläder från dagen.
+• Städa campingen (se checklistor: service, kiosk, dass, grillstugor, lekplats).
+• Börja förbereda kvällsrundan.
+• När Person B kommer – gå rundan tillsammans.
+• Efter rundan: jämför mot förbetalda och radera manuellt inlagda dubbletter så vi vet hur många vi inväntar.`,
+        evening_b: `KVÄLLSPASS B · 18:30–22:00 (3,5 h)
+
+• Förbered rundan och gå den tillsammans med Person A.
+• Efter rundan: jämför mot förbetalda och radera manuellt inlagda dubbletter.
+• Person A går hem – du tar över.
+• Välkomna gäster som rullar in och visa var det finns ledigt.
+• Håll igång tvätten – vik torr tvätt, starta tvättmaskin och torktumlare.
+• Städa campingen (service, kiosk, dass, grillstugor, lekplats).
+• Töm alla sopor.
+• Gå runt och se om förbetalda kommit – ge dem plats i appen eller radera dubbletter.
+• Sista koll dass/servicehus: fyll på tvål och papper, rensa duschsilar, dammsug med handdammsugaren.
+• Sista koll tvätt: töm handdukar från service och starta tvättmaskin.
+• Lås källardörren, gå ut via garaget och lås garaget med *.
+• Stäng fönster i servicehuset, rensa duschsil, sopa, rengör toalett med WC-anka, stäng dörren.`,
+      };
+      if (!existing && (payload.note === undefined || payload.note === null)) {
+        const defNote = DEFAULT_NOTE[shiftType];
+        if (defNote) payload.note = defNote;
+      }
+
+
       // Default starttider om inget annat är överenskommet (sätts endast vid skapande,
       // eller om befintligt pass saknar starttid).
       const DEFAULT_START: Partial<Record<ShiftType, string>> = {
