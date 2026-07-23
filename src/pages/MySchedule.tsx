@@ -875,7 +875,7 @@ const MySchedule = () => {
 
                   {/* Legend */}
                   <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2 border-t border-border bg-muted/20 text-[10px] text-muted-foreground">
-                    {(["morning","day","evening","busy"] as ShiftType[]).map((t) => {
+                    {(["morning","day","evening_a","evening","evening_b","busy"] as ShiftType[]).map((t) => {
                       const cfg = SHIFT_CONFIG[t];
                       return (
                         <span key={t} className="inline-flex items-center gap-1">
