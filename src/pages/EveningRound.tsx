@@ -44,6 +44,8 @@ import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogD
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import DuplicateGuestsAlert from "@/components/DuplicateGuestsAlert";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
+import AdminDuplicatesPanel from "@/components/admin/AdminDuplicatesPanel";
+import { findDuplicateGuests } from "@/lib/duplicate-guests";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
 
