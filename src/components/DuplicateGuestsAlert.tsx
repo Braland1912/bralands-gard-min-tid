@@ -36,6 +36,7 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirmGuest, setConfirmGuest] = useState<EveningRoundGuest | null>(null);
   const [confirmBatch, setConfirmBatch] = useState(false);
+  const [bulkDate, setBulkDate] = useState<string | null>(null);
 
   // Rensa markeringar för poster som inte längre finns (raderade, sorterade bort).
   useEffect(() => {
