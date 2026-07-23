@@ -42,6 +42,7 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogDialog";
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
+import DuplicateGuestsAlert from "@/components/DuplicateGuestsAlert";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
@@ -505,6 +506,12 @@ const EveningRound = () => {
             </span>
           </button>
         )}
+
+        <DuplicateGuestsAlert
+          guests={guests}
+          onDelete={(id) => deleteGuest.mutate(id)}
+          variant={isAdmin ? "admin" : "worker"}
+        />
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
