@@ -81,10 +81,15 @@ export default defineConfig(({ mode }) => ({
       // Use the existing public/manifest.json instead of generating one
       manifest: false,
       workbox: {
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/, /^\/version\.json/],
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         // Säkerställ att version.json aldrig cachas
         navigateFallbackAllowlist: [/^(?!.*version\.json).*$/],
+        // Ny SW tar över omedelbart – ingen väntan på att alla flikar stängs
+        skipWaiting: true,
+        clientsClaim: true,
+        // Rensa gamla precache-entries från tidigare builds
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             // version.json: aldrig cacha – vi vill alltid se senaste
