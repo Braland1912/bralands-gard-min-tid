@@ -37,12 +37,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
-type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
+type ShiftType = "morning" | "day" | "evening" | "evening_a" | "evening_b" | "busy" | "off" | "fishing" | "clearing";
 
 const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; bg: string; border: string; text: string }[] = [
   { type: "morning", emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
   { type: "day", emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { type: "evening_a", emoji: "🌙", label: "Kväll A", bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700" },
   { type: "evening", emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { type: "evening_b", emoji: "🌙", label: "Kväll B", bg: "bg-indigo-50", border: "border-indigo-300", text: "text-indigo-700" },
   { type: "busy", emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
   { type: "fishing", emoji: "🎣", label: "Guidning", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
   { type: "clearing", emoji: "🚜", label: "Gården", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
@@ -341,8 +343,10 @@ const AdminSchedule = () => {
       // eller om befintligt pass saknar starttid).
       const DEFAULT_START: Partial<Record<ShiftType, string>> = {
         morning: "07:00:00",
-        day: "10:00:00",
+        day: "09:00:00",
         evening: "18:00:00",
+        evening_a: "17:00:00",
+        evening_b: "18:30:00",
       };
       const defaultStart = DEFAULT_START[shiftType];
       if (defaultStart) {
@@ -751,11 +755,12 @@ const AdminSchedule = () => {
   }, [allWorkers, isMobile]);
 
   // Active shift types som räknas som "arbetspass" (räknas mot täckning + veckoräkning)
-  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "fishing", "clearing"];
-  const COVERAGE_TYPES: { type: ShiftType; label: string }[] = [
+  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "evening_a", "evening_b", "fishing", "clearing"];
+  const COVERAGE_TYPES: { type: ShiftType; label: string; matches?: ShiftType[] }[] = [
     { type: "morning", label: "Morgon" },
     { type: "day", label: "Dag" },
-    { type: "evening", label: "Kväll" },
+    // "Kväll" täcks av valfri kvällsvariant (evening / evening_a / evening_b)
+    { type: "evening", label: "Kväll", matches: ["evening", "evening_a", "evening_b"] },
   ];
 
   // Räkna aktiva pass per medarbetare denna vecka
@@ -774,9 +779,10 @@ const AdminSchedule = () => {
     return weekDays.map((d) => {
       const dateStr = format(d, "yyyy-MM-dd");
       const daySchedules = (schedules as any[]).filter((s) => s.date === dateStr);
-      const missing = COVERAGE_TYPES.filter(
-        (ct) => !daySchedules.some((s) => s.shift_type === ct.type),
-      );
+      const missing = COVERAGE_TYPES.filter((ct) => {
+        const matches = ct.matches ?? [ct.type];
+        return !daySchedules.some((s) => matches.includes(s.shift_type as ShiftType));
+      });
       return { date: d, dateStr, missing };
     }).filter((x) => x.missing.length > 0);
   }, [schedules, weekDays]);

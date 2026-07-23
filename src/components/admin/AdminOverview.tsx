@@ -34,7 +34,9 @@ const SHIFT_EMOJI: Record<string, string> = {
 const SHIFT_CHIP: Record<string, { emoji: string; label: string; bg: string; border: string; text: string }> = {
   morning: { emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
   day: { emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  evening_a: { emoji: "🌙", label: "Kväll A", bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700" },
   evening: { emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  evening_b: { emoji: "🌙", label: "Kväll B", bg: "bg-indigo-50", border: "border-indigo-300", text: "text-indigo-700" },
   busy: { emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
   fishing: { emoji: "🎣", label: "Guidning", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
   clearing: { emoji: "🚜", label: "Gården", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
@@ -195,7 +197,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   });
 
   // Today's shifts grouped per user_id (sorted, excluding "off")
-  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
+  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening_a: 2, evening: 3, evening_b: 4, busy: 5, off: 6 };
   const todayShiftsByUser = new Map<string, string[]>();
   const todayShiftIdsByUser = new Map<string, string[]>();
   (todayShifts as any[])
@@ -571,7 +573,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             </ul>
             {/* Teckenförklaring */}
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2 border-t bg-muted/20 text-[10px] text-muted-foreground">
-              {(["morning","day","evening"] as const).map((t) => {
+              {(["morning","day","evening_a","evening","evening_b"] as const).map((t) => {
                 const chip = SHIFT_CHIP[t];
                 return (
                   <span key={t} className="inline-flex items-center gap-1">

@@ -38,7 +38,7 @@ export default function SwapShiftSection({ workerId, userId }: SwapShiftSectionP
         .select("date, shift_type")
         .eq("user_id", userId!)
         .gte("date", today)
-        .in("shift_type", ["morning", "day", "evening", "fishing", "clearing"])
+        .in("shift_type", ["morning", "day", "evening", "evening_a", "evening_b", "fishing", "clearing"])
         .order("date", { ascending: true })
         .limit(8);
       if (error) throw error;

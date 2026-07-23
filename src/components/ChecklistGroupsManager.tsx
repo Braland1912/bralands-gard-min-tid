@@ -56,7 +56,9 @@ const PALETTE = [
 const SHIFT_OPTIONS = [
   { value: "morning", label: "Morgon", emoji: "🌅" },
   { value: "day", label: "Dag", emoji: "☀️" },
+  { value: "evening_a", label: "Kväll A", emoji: "🌙" },
   { value: "evening", label: "Kväll", emoji: "🌙" },
+  { value: "evening_b", label: "Kväll B", emoji: "🌙" },
   { value: "fishing", label: "Guidning", emoji: "🎣" },
   { value: "clearing", label: "Gården", emoji: "🚜" },
 ];
