@@ -759,8 +759,8 @@ const AdminSchedule = () => {
   const COVERAGE_TYPES: { type: ShiftType; label: string; matches?: ShiftType[] }[] = [
     { type: "morning", label: "Morgon" },
     { type: "day", label: "Dag" },
-    // "Kväll" täcks av valfri kvällsvariant (evening / evening_a / evening_b)
-    { type: "evening", label: "Kväll", matches: ["evening", "evening_a", "evening_b"] },
+    // "Kväll" täcks antingen av ett vanligt kvällspass ELLER av både Kväll A och Kväll B
+    { type: "evening", label: "Kväll" },
   ];
 
   // Räkna aktiva pass per medarbetare denna vecka
@@ -779,9 +779,16 @@ const AdminSchedule = () => {
     return weekDays.map((d) => {
       const dateStr = format(d, "yyyy-MM-dd");
       const daySchedules = (schedules as any[]).filter((s) => s.date === dateStr);
+      const types = new Set(daySchedules.map((s) => s.shift_type as ShiftType));
       const missing = COVERAGE_TYPES.filter((ct) => {
+        if (ct.type === "evening") {
+          // Täckt om vanligt kvällspass finns, eller om både Kväll A och Kväll B finns
+          const hasEvening = types.has("evening");
+          const hasBoth = types.has("evening_a") && types.has("evening_b");
+          return !(hasEvening || hasBoth);
+        }
         const matches = ct.matches ?? [ct.type];
-        return !daySchedules.some((s) => matches.includes(s.shift_type as ShiftType));
+        return !matches.some((m) => types.has(m));
       });
       return { date: d, dateStr, missing };
     }).filter((x) => x.missing.length > 0);
