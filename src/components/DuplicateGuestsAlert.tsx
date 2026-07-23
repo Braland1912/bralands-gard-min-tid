@@ -36,6 +36,7 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirmGuest, setConfirmGuest] = useState<EveningRoundGuest | null>(null);
   const [confirmBatch, setConfirmBatch] = useState(false);
+  const [bulkDate, setBulkDate] = useState<string | null>(null);
 
   // Rensa markeringar för poster som inte längre finns (raderade, sorterade bort).
   useEffect(() => {
@@ -75,10 +76,30 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
     .flatMap((g) => g.prepaid)
     .filter((g) => selected.has(g.id));
 
+  const byDate = useMemo(() => {
+    const map = new Map<string, EveningRoundGuest[]>();
+    groups.forEach((g) => {
+      const prev = map.get(g.arrivalDate) ?? [];
+      map.set(g.arrivalDate, [...prev, ...g.prepaid]);
+    });
+    return Array.from(map.entries())
+      .map(([date, prepaid]) => ({ date, prepaid }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [groups]);
+
+  const bulkDatePrepaid = bulkDate
+    ? byDate.find((d) => d.date === bulkDate)?.prepaid ?? []
+    : [];
+
   const confirmBatchDelete = () => {
     selectedGuests.forEach((g) => onDelete(g.id));
     setSelected(new Set());
     setConfirmBatch(false);
+  };
+
+  const confirmBulkDateDelete = () => {
+    bulkDatePrepaid.forEach((g) => onDelete(g.id));
+    setBulkDate(null);
   };
 
   return (
@@ -138,6 +159,29 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
               </button>
             )}
           </div>
+
+          {!reviewMode && byDate.length > 0 && (
+            <div className="rounded-lg border border-amber-300 bg-amber-100/60 px-2.5 py-2 space-y-1.5">
+              <div className="text-[11px] font-semibold text-amber-900 uppercase tracking-wide">
+                Snabbrensning per ankomstdatum
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {byDate.map(({ date, prepaid }) => (
+                  <button
+                    key={date}
+                    type="button"
+                    onClick={() => setBulkDate(date)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-white text-destructive text-[11px] font-semibold px-2 py-1 hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    {formatDateLabel(date)} · radera {prepaid.length} förbetald
+                    {prepaid.length === 1 ? "" : "a"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
 
           {groups.map((group) => (
             <div
@@ -302,6 +346,51 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
             >
               Radera {selectedGuests.length} post
               {selectedGuests.length === 1 ? "" : "er"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDate !== null} onOpenChange={(o) => !o && setBulkDate(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Radera {bulkDatePrepaid.length} förbetald
+              {bulkDatePrepaid.length === 1 ? "" : "a"} dubblett
+              {bulkDatePrepaid.length === 1 ? "" : "er"}
+              {bulkDate ? ` för ${formatDateLabel(bulkDate)}` : ""}?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  Alla förbetalda poster som har en manuell motsvarighet med samma
+                  regnummer på detta ankomstdatum tas bort i ett svep. De manuellt
+                  inlagda gästerna finns kvar. Varje radering loggas i historiken.
+                </p>
+                <ul className="max-h-52 overflow-auto rounded-md border border-border bg-muted/40 divide-y divide-border text-[12px]">
+                  {bulkDatePrepaid.map((g) => (
+                    <li key={g.id} className="px-2.5 py-1.5">
+                      <div className="font-medium text-foreground truncate">
+                        {g.guest_name || "(utan namn)"}
+                        {g.registration_number ? ` · ${g.registration_number}` : ""}
+                      </div>
+                      <div className="text-muted-foreground truncate">
+                        {g.place_label ? `Plats ${g.place_label}` : "Ingen plats"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmBulkDateDelete}
+            >
+              Radera {bulkDatePrepaid.length} post
+              {bulkDatePrepaid.length === 1 ? "" : "er"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
