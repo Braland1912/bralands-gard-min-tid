@@ -195,7 +195,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
   });
 
   // Today's shifts grouped per user_id (sorted, excluding "off")
-  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening: 2, busy: 3, off: 4 };
+  const SHIFT_ORDER: Record<string, number> = { morning: 0, day: 1, evening_a: 2, evening: 3, evening_b: 4, busy: 5, off: 6 };
   const todayShiftsByUser = new Map<string, string[]>();
   const todayShiftIdsByUser = new Map<string, string[]>();
   (todayShifts as any[])
