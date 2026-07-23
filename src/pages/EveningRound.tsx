@@ -636,8 +636,15 @@ const EveningRound = () => {
           );
         })()}
 
-
-
+        {isAdmin && filter === "dubbletter" ? (
+          <AdminDuplicatesPanel
+            guests={guests}
+            selectedDate={selectedDate}
+            onEdit={openEdit}
+            onDelete={(id) => deleteGuest.mutate(id)}
+          />
+        ) : (
+        <>
         {temporaryGuests.length > 0 && (
           <div className="space-y-2">
             <button
