@@ -97,8 +97,12 @@ const isNightBeforeFree = (events: LodgeEvent[], unit: string, day: Date): boole
   for (const e of events) {
     if (e.unit !== unit) continue;
     const start = parseISO(e.start);
-    const end = parseISO(e.end); // exklusiv
-    if (start <= prev && end > prev) return false;
+    const end = parseISO(e.end);
+    // I den här kalendern motsvarar DTEND checkout-morgon (sista synliga dagen
+    // i Apple Calendar). Gäst sover nätter [start, end-2]. Natten prev→day är
+    // därför upptagen om start ≤ prev OCH end > day (dvs prev ligger inom
+    // gästens nätter).
+    if (start <= prev && end > day) return false;
   }
   return true;
 };
