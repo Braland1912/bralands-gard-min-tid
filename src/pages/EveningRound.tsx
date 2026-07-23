@@ -42,6 +42,7 @@ import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 import AdminExtraPlacesDialog from "@/components/admin/AdminExtraPlacesDialog";
 import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogDialog";
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
+import DuplicateGuestsAlert from "@/components/DuplicateGuestsAlert";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
