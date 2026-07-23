@@ -343,8 +343,10 @@ const AdminSchedule = () => {
       // eller om befintligt pass saknar starttid).
       const DEFAULT_START: Partial<Record<ShiftType, string>> = {
         morning: "07:00:00",
-        day: "10:00:00",
+        day: "09:00:00",
         evening: "18:00:00",
+        evening_a: "17:00:00",
+        evening_b: "18:30:00",
       };
       const defaultStart = DEFAULT_START[shiftType];
       if (defaultStart) {
