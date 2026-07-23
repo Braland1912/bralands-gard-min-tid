@@ -76,10 +76,30 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
     .flatMap((g) => g.prepaid)
     .filter((g) => selected.has(g.id));
 
+  const byDate = useMemo(() => {
+    const map = new Map<string, EveningRoundGuest[]>();
+    groups.forEach((g) => {
+      const prev = map.get(g.arrivalDate) ?? [];
+      map.set(g.arrivalDate, [...prev, ...g.prepaid]);
+    });
+    return Array.from(map.entries())
+      .map(([date, prepaid]) => ({ date, prepaid }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [groups]);
+
+  const bulkDatePrepaid = bulkDate
+    ? byDate.find((d) => d.date === bulkDate)?.prepaid ?? []
+    : [];
+
   const confirmBatchDelete = () => {
     selectedGuests.forEach((g) => onDelete(g.id));
     setSelected(new Set());
     setConfirmBatch(false);
+  };
+
+  const confirmBulkDateDelete = () => {
+    bulkDatePrepaid.forEach((g) => onDelete(g.id));
+    setBulkDate(null);
   };
 
   return (
