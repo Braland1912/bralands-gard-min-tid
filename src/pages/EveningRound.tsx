@@ -44,10 +44,12 @@ import AdminEveningRoundLogDialog from "@/components/admin/AdminEveningRoundLogD
 import AddPlaceChoiceDialog from "@/components/AddPlaceChoiceDialog";
 import DuplicateGuestsAlert from "@/components/DuplicateGuestsAlert";
 import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
+import AdminDuplicatesPanel from "@/components/admin/AdminDuplicatesPanel";
+import { findDuplicateGuests } from "@/lib/duplicate-guests";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
 
-type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt" | "fordon" | "talt";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt" | "fordon" | "talt" | "dubbletter";
 
 const todayLocal = () => {
   const d = new Date();
@@ -241,8 +243,13 @@ const EveningRound = () => {
     const free = Math.max(0, allPlaces.length - booked);
     const vehicles = guests.filter((g) => g.accommodation_type === "vehicle").length;
     const tents = guests.filter((g) => g.accommodation_type === "tent").length;
-    return { here, not, free, booked, vehicles, tents };
-  }, [guests, allPlaces]);
+    const duplicates = findDuplicateGuests(guests).filter((grp) =>
+      grp.guests.some(
+        (x) => x.arrival_date <= selectedDate && x.departure_date > selectedDate,
+      ),
+    ).length;
+    return { here, not, free, booked, vehicles, tents, duplicates };
+  }, [guests, allPlaces, selectedDate]);
 
   const openAdd = (place: string) => {
     setEditing(null);
@@ -533,6 +540,9 @@ const EveningRound = () => {
             { id: "ej_betalt", label: `Ej betalt (${unpaidCount})` },
             { id: "fordon", label: `Fordon (${counts.vehicles})` },
             { id: "talt", label: `Tält (${counts.tents})` },
+            ...(isAdmin
+              ? [{ id: "dubbletter" as Filter, label: `Dubbletter (${counts.duplicates})` }]
+              : []),
           ];
           const activeOption = filterOptions.find((o) => o.id === filter);
           const isFiltering = filter !== "alla";
@@ -626,8 +636,15 @@ const EveningRound = () => {
           );
         })()}
 
-
-
+        {isAdmin && filter === "dubbletter" ? (
+          <AdminDuplicatesPanel
+            guests={guests}
+            selectedDate={selectedDate}
+            onEdit={openEdit}
+            onDelete={(id) => deleteGuest.mutate(id)}
+          />
+        ) : (
+        <>
         {temporaryGuests.length > 0 && (
           <div className="space-y-2">
             <button
@@ -803,6 +820,8 @@ const EveningRound = () => {
             </div>
           );
         })()}
+        </>
+        )}
 
 
 
