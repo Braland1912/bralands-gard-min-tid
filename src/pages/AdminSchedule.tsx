@@ -755,11 +755,12 @@ const AdminSchedule = () => {
   }, [allWorkers, isMobile]);
 
   // Active shift types som räknas som "arbetspass" (räknas mot täckning + veckoräkning)
-  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "fishing", "clearing"];
-  const COVERAGE_TYPES: { type: ShiftType; label: string }[] = [
+  const ACTIVE_TYPES: ShiftType[] = ["morning", "day", "evening", "evening_a", "evening_b", "fishing", "clearing"];
+  const COVERAGE_TYPES: { type: ShiftType; label: string; matches?: ShiftType[] }[] = [
     { type: "morning", label: "Morgon" },
     { type: "day", label: "Dag" },
-    { type: "evening", label: "Kväll" },
+    // "Kväll" täcks av valfri kvällsvariant (evening / evening_a / evening_b)
+    { type: "evening", label: "Kväll", matches: ["evening", "evening_a", "evening_b"] },
   ];
 
   // Räkna aktiva pass per medarbetare denna vecka
