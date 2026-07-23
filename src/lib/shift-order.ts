@@ -4,11 +4,13 @@
 export const SHIFT_TYPE_ORDER: Record<string, number> = {
   morning: 0,
   day: 1,
-  evening: 2,
-  fishing: 3,
-  clearing: 4,
-  busy: 5,
-  off: 6,
+  evening_a: 2,
+  evening: 3,
+  evening_b: 4,
+  fishing: 5,
+  clearing: 6,
+  busy: 7,
+  off: 8,
 };
 
 export function shiftTypeRank(type: string | null | undefined): number {
