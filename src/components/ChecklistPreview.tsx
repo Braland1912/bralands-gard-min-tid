@@ -74,7 +74,9 @@ async function runWithConcurrency<T>(tasks: (() => Promise<T>)[], limit = 8): Pr
 const SHIFT_TYPES: { value: string; label: string; emoji: string; bg: string; border: string; text: string; ring: string }[] = [
   { value: "morning", label: "Morgon", emoji: "🌅", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700", ring: "ring-orange-200" },
   { value: "day", label: "Dag", emoji: "☀️", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", ring: "ring-blue-200" },
+  { value: "evening_a", label: "Kväll A", emoji: "🌙", bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700", ring: "ring-rose-200" },
   { value: "evening", label: "Kväll", emoji: "🌙", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700", ring: "ring-purple-200" },
+  { value: "evening_b", label: "Kväll B", emoji: "🌙", bg: "bg-indigo-50", border: "border-indigo-300", text: "text-indigo-700", ring: "ring-indigo-200" },
   { value: "fishing", label: "Guidning", emoji: "🎣", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700", ring: "ring-cyan-200" },
   { value: "clearing", label: "Gården", emoji: "🚜", bg: "bg-green-50", border: "border-green-300", text: "text-green-700", ring: "ring-green-200" },
 ];
