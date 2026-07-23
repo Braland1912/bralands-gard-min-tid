@@ -243,8 +243,13 @@ const EveningRound = () => {
     const free = Math.max(0, allPlaces.length - booked);
     const vehicles = guests.filter((g) => g.accommodation_type === "vehicle").length;
     const tents = guests.filter((g) => g.accommodation_type === "tent").length;
-    return { here, not, free, booked, vehicles, tents };
-  }, [guests, allPlaces]);
+    const duplicates = findDuplicateGuests(guests).filter((grp) =>
+      grp.guests.some(
+        (x) => x.arrival_date <= selectedDate && x.departure_date > selectedDate,
+      ),
+    ).length;
+    return { here, not, free, booked, vehicles, tents, duplicates };
+  }, [guests, allPlaces, selectedDate]);
 
   const openAdd = (place: string) => {
     setEditing(null);
