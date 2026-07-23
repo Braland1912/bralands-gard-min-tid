@@ -573,7 +573,7 @@ const AdminOverview = ({ onNavigate }: AdminOverviewProps) => {
             </ul>
             {/* Teckenförklaring */}
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2 border-t bg-muted/20 text-[10px] text-muted-foreground">
-              {(["morning","day","evening"] as const).map((t) => {
+              {(["morning","day","evening_a","evening","evening_b"] as const).map((t) => {
                 const chip = SHIFT_CHIP[t];
                 return (
                   <span key={t} className="inline-flex items-center gap-1">
