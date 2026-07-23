@@ -47,7 +47,7 @@ import AdminDailySummaries from "@/components/admin/AdminDailySummaries";
 import { STANDARD_PLACES } from "@/lib/place-label";
 import { formatLocalDate } from "@/lib/date-format";
 
-type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt" | "fordon" | "talt";
+type Filter = "alla" | "bokade" | "lediga" | "har" | "inte_har" | "ej_betalt" | "fordon" | "talt" | "dubbletter";
 
 const todayLocal = () => {
   const d = new Date();
