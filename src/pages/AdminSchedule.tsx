@@ -37,12 +37,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import AdminMobileBottomNav from "@/components/admin/AdminMobileBottomNav";
 
-type ShiftType = "morning" | "day" | "evening" | "busy" | "off" | "fishing" | "clearing";
+type ShiftType = "morning" | "day" | "evening" | "evening_a" | "evening_b" | "busy" | "off" | "fishing" | "clearing";
 
 const SHIFT_OPTIONS: { type: ShiftType; emoji: string; label: string; bg: string; border: string; text: string }[] = [
   { type: "morning", emoji: "🌅", label: "Morgon", bg: "bg-orange-50", border: "border-yellow-300", text: "text-orange-700" },
   { type: "day", emoji: "☀️", label: "Dag", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700" },
+  { type: "evening_a", emoji: "🌙", label: "Kväll A", bg: "bg-rose-50", border: "border-rose-300", text: "text-rose-700" },
   { type: "evening", emoji: "🌙", label: "Kväll", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700" },
+  { type: "evening_b", emoji: "🌙", label: "Kväll B", bg: "bg-indigo-50", border: "border-indigo-300", text: "text-indigo-700" },
   { type: "busy", emoji: "🚫", label: "Ej tillg.", bg: "bg-red-50", border: "border-red-300", text: "text-red-700" },
   { type: "fishing", emoji: "🎣", label: "Guidning", bg: "bg-cyan-50", border: "border-cyan-300", text: "text-cyan-700" },
   { type: "clearing", emoji: "🚜", label: "Gården", bg: "bg-green-50", border: "border-green-300", text: "text-green-700" },
