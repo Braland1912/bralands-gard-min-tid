@@ -160,6 +160,29 @@ const DuplicateGuestsAlert = ({ guests, onDelete, variant = "worker" }: Props) =
             )}
           </div>
 
+          {!reviewMode && byDate.length > 0 && (
+            <div className="rounded-lg border border-amber-300 bg-amber-100/60 px-2.5 py-2 space-y-1.5">
+              <div className="text-[11px] font-semibold text-amber-900 uppercase tracking-wide">
+                Snabbrensning per ankomstdatum
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {byDate.map(({ date, prepaid }) => (
+                  <button
+                    key={date}
+                    type="button"
+                    onClick={() => setBulkDate(date)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-white text-destructive text-[11px] font-semibold px-2 py-1 hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    {formatDateLabel(date)} · radera {prepaid.length} förbetald
+                    {prepaid.length === 1 ? "" : "a"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+
           {groups.map((group) => (
             <div
               key={`${group.arrivalDate}-${group.reg}`}
