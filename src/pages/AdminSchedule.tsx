@@ -1094,7 +1094,7 @@ const AdminSchedule = () => {
             })}
           </div>
         ) : (
-        <Card className="overflow-hidden">
+        <Card key={format(weekStart, "yyyy-MM-dd")} className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
             <div style={minWidthStyle}>
               {/* Header row */}
@@ -1107,11 +1107,12 @@ const AdminSchedule = () => {
                   const dateStr = format(d, "yyyy-MM-dd");
                   return (
                     <div
-                      key={i}
+                      key={dateStr}
                       className={`${isMobile ? "px-1" : "px-2"} ${headerPadY} text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
+
                       </div>
                       <div className="mt-0.5 flex justify-center">
                         <span
