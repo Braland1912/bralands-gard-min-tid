@@ -1088,7 +1088,7 @@ const EveningRoundModal = ({
                         : "text-muted-foreground",
                     )}
                   >
-                    Med el
+                    Med ström
                   </button>
                   <button
                     type="button"
@@ -1100,7 +1100,7 @@ const EveningRoundModal = ({
                         : "text-muted-foreground",
                     )}
                   >
-                    Utan el
+                    Utan ström
                   </button>
                 </div>
               </div>
