@@ -162,7 +162,7 @@ const AddPlaceChoiceDialog = ({
                             {g.has_electricity != null && (
                               <div className="flex items-center gap-2">
                                 <Zap className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                <span>{g.has_electricity ? "Med el" : "Utan el"}</span>
+                                <span>{g.has_electricity ? "Med ström" : "Utan ström"}</span>
                               </div>
                             )}
                             {g.nationality && (
