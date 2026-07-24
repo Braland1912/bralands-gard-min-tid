@@ -148,10 +148,14 @@ const AdminSchedule = () => {
     return weekOffset > 0 ? addWeeks(now, weekOffset) : subWeeks(now, Math.abs(weekOffset));
   }, [weekOffset]);
 
-  const weekStart = startOfWeek(referenceDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(referenceDate, { weekStartsOn: 1 });
+  const weekStart = useMemo(() => startOfWeek(referenceDate, { weekStartsOn: 1 }), [referenceDate]);
+  const weekEnd = useMemo(() => endOfWeek(referenceDate, { weekStartsOn: 1 }), [referenceDate]);
   const weekNumber = getISOWeek(referenceDate);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const weekDays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    [weekStart],
+  );
+
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
 
   useEffect(() => {
