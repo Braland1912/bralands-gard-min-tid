@@ -148,10 +148,14 @@ const AdminSchedule = () => {
     return weekOffset > 0 ? addWeeks(now, weekOffset) : subWeeks(now, Math.abs(weekOffset));
   }, [weekOffset]);
 
-  const weekStart = startOfWeek(referenceDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(referenceDate, { weekStartsOn: 1 });
+  const weekStart = useMemo(() => startOfWeek(referenceDate, { weekStartsOn: 1 }), [referenceDate]);
+  const weekEnd = useMemo(() => endOfWeek(referenceDate, { weekStartsOn: 1 }), [referenceDate]);
   const weekNumber = getISOWeek(referenceDate);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const weekDays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    [weekStart],
+  );
+
   const isCurrentWeek = isSameWeek(referenceDate, new Date(), { weekStartsOn: 1 });
 
   useEffect(() => {
@@ -950,7 +954,7 @@ const AdminSchedule = () => {
               const today = isToday(d);
               return (
                 <Card
-                  key={dayIdx}
+                  key={dateStr}
                   className={`overflow-hidden ${today ? "ring-2 ring-primary/40" : ""}`}
                 >
                   <div className={`flex items-center justify-between gap-3 px-3 py-2.5 border-b border-border ${today ? "bg-primary/5" : "bg-muted/40"}`}>
@@ -1090,7 +1094,7 @@ const AdminSchedule = () => {
             })}
           </div>
         ) : (
-        <Card className="overflow-hidden">
+        <Card key={format(weekStart, "yyyy-MM-dd")} className="overflow-hidden">
           <div className="max-h-[calc(100dvh-190px)] overflow-auto md:max-h-[calc(100dvh-210px)]">
             <div style={minWidthStyle}>
               {/* Header row */}
@@ -1103,11 +1107,12 @@ const AdminSchedule = () => {
                   const dateStr = format(d, "yyyy-MM-dd");
                   return (
                     <div
-                      key={i}
+                      key={dateStr}
                       className={`${isMobile ? "px-1" : "px-2"} ${headerPadY} text-center border-l border-border ${today ? "bg-primary/5" : ""}`}
                     >
                       <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {DAY_NAMES[i]}
+
                       </div>
                       <div className="mt-0.5 flex justify-center">
                         <span
@@ -1230,7 +1235,7 @@ const AdminSchedule = () => {
 
                       return (
                         <div
-                          key={i}
+                          key={format(d, "yyyy-MM-dd")}
                           className={`border-l border-border ${dayCellMinH} ${dayCellPad} flex flex-col ${dayCellGap} ${
                             today ? "bg-primary/[0.03]" : ""
                           } ${!w.user_id ? "opacity-50" : ""}`}
