@@ -1,1 +1,3 @@
-En frisk uppdatering som rensar bort gamla cachar och säkerställer att alla får den senaste versionen, även om appen ligger sparad på hemskärmen. Inget nytt innehåll, bara en omstart så allt funkar smidigt.
+Vi har rensat bort felaktiga passinstruktioner som låg kvar på lediga/ej tillgängliga dagar i "Kommande pass". Nu visas bara det du faktiskt har schemalagt.
+
+Om appen känns vit eller inte uppdateras: stäng den helt och öppna igen så hämtas senaste versionen automatiskt.
