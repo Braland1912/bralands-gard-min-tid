@@ -1235,7 +1235,7 @@ const AdminSchedule = () => {
 
                       return (
                         <div
-                          key={i}
+                          key={format(d, "yyyy-MM-dd")}
                           className={`border-l border-border ${dayCellMinH} ${dayCellPad} flex flex-col ${dayCellGap} ${
                             today ? "bg-primary/[0.03]" : ""
                           } ${!w.user_id ? "opacity-50" : ""}`}
