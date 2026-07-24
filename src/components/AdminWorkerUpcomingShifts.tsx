@@ -43,8 +43,9 @@ const Chip = ({
   onClick?: (e?: any) => void;
 }) => {
   const cfg = SHIFT_CONFIG[shift];
+  const isAutoShiftNote = !!note && /^(KVÄLLSPASS|MORGONPASS|DAGPASS|KVÄLL A|KVÄLL B)/i.test(note.trim());
   const interactive = !!onClick && (!!hasChecklist || shift === "busy");
-  const hasNote = shift === "busy" && !!note && note.trim().length > 0;
+  const hasNote = shift === "busy" && !!note && note.trim().length > 0 && !isAutoShiftNote;
   return (
     <button
       type="button"
