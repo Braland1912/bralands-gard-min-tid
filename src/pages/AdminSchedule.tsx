@@ -954,7 +954,7 @@ const AdminSchedule = () => {
               const today = isToday(d);
               return (
                 <Card
-                  key={dayIdx}
+                  key={dateStr}
                   className={`overflow-hidden ${today ? "ring-2 ring-primary/40" : ""}`}
                 >
                   <div className={`flex items-center justify-between gap-3 px-3 py-2.5 border-b border-border ${today ? "bg-primary/5" : "bg-muted/40"}`}>
