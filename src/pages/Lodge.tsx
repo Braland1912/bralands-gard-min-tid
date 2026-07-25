@@ -779,6 +779,39 @@ const Lodge = () => {
                       </p>
                     </>
                   )}
+
+                  {tomorrowPotentialUnits.length > 0 && (
+                    <>
+                      <SectionHeader title="Kan tillkomma imorgon" count={tomorrowPotentialUnits.length} />
+                      <div className="space-y-2">
+                        {tomorrowPotentialUnits.map((u) => {
+                          const s = styleFor(u);
+                          return (
+                            <div
+                              key={u}
+                              className={`p-3 rounded-lg border-2 border-dashed ${s.chip} opacity-90`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`h-2.5 w-2.5 rounded-full ${s.dot} shrink-0`} />
+                                  <span className="text-sm font-semibold truncate">
+                                    {UNIT_NUMBER[u]} {u}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-orange-50 text-orange-800 border-orange-200 whitespace-nowrap">
+                                  Kan tillkomma imorgon
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Ledig ikväll – kan få en sen bokning med avfärd imorgon.
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
                 </div>
               </>
             );
