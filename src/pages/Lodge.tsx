@@ -582,18 +582,35 @@ const Lodge = () => {
             openRef.setHours(0, 0, 0, 0);
             const prev = addDays(openRef, -1);
             const ongoingUnits = new Set(ongoing.map((e) => e.unit));
-            const potentialUnits = openRef > todayRef
-              ? UNIT_ORDER.filter((u) => {
-                  if (ongoingUnits.has(u)) return false;
-                  for (const e of events) {
-                    if (e.unit !== u) continue;
+            const computePotential = (refDay: Date) => {
+              const prevOfRef = addDays(refDay, -1);
+              const ongoingOnRef = new Set(
+                events
+                  .filter((e) => {
                     const s = parseISO(e.start);
-                    const en = parseISO(e.end); // exklusiv
-                    if (s <= prev && en > prev) return false;
-                  }
-                  return true;
-                })
+                    const en = parseISO(e.end);
+                    return s <= refDay && en > refDay;
+                  })
+                  .map((e) => e.unit)
+              );
+              return UNIT_ORDER.filter((u) => {
+                if (ongoingOnRef.has(u)) return false;
+                for (const e of events) {
+                  if (e.unit !== u) continue;
+                  const s = parseISO(e.start);
+                  const en = parseISO(e.end); // exklusiv
+                  if (s <= prevOfRef && en > prevOfRef) return false;
+                }
+                return true;
+              });
+            };
+            const potentialUnits = openRef > todayRef ? computePotential(openRef) : [];
+            // På dagens vy: visa även vad som kan tillkomma imorgon
+            const isToday = openRef.getTime() === todayRef.getTime();
+            const tomorrowPotentialUnits = isToday
+              ? computePotential(addDays(openRef, 1)).filter((u) => !ongoingUnits.has(u))
               : [];
+
 
             const renderCard = (e: LodgeEvent, badge?: { text: string; cls: string }) => {
               const s = styleFor(e.unit);
