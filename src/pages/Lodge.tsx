@@ -695,12 +695,13 @@ const Lodge = () => {
 
 
                 <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                  {dayEvents.length === 0 && potentialUnits.length === 0 && (
+                  {dayEvents.length === 0 && potentialUnits.length === 0 && tomorrowPotentialUnits.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
                       Inga bokningar denna dag.
 
                     </p>
                   )}
+
 
                   {departures.length > 0 && (
                     <>
