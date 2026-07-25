@@ -1,3 +1,5 @@
-Vi har rensat bort felaktiga passinstruktioner som låg kvar på lediga/ej tillgängliga dagar i "Kommande pass". Nu visas bara det du faktiskt har schemalagt.
+Knappen "Med el/Utan el" heter nu "Med ström/Utan ström" så telefoner som auto-översätter inte visar konstig text.
+
+På söndagens Lodge-vy ser du nu även "Kan tillkomma imorgon" så du direkt ser vilka enheter som är lediga natten till måndag.
 
 Om appen känns vit eller inte uppdateras: stäng den helt och öppna igen så hämtas senaste versionen automatiskt.
