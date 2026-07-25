@@ -582,18 +582,35 @@ const Lodge = () => {
             openRef.setHours(0, 0, 0, 0);
             const prev = addDays(openRef, -1);
             const ongoingUnits = new Set(ongoing.map((e) => e.unit));
-            const potentialUnits = openRef > todayRef
-              ? UNIT_ORDER.filter((u) => {
-                  if (ongoingUnits.has(u)) return false;
-                  for (const e of events) {
-                    if (e.unit !== u) continue;
+            const computePotential = (refDay: Date) => {
+              const prevOfRef = addDays(refDay, -1);
+              const ongoingOnRef = new Set(
+                events
+                  .filter((e) => {
                     const s = parseISO(e.start);
-                    const en = parseISO(e.end); // exklusiv
-                    if (s <= prev && en > prev) return false;
-                  }
-                  return true;
-                })
+                    const en = parseISO(e.end);
+                    return s <= refDay && en > refDay;
+                  })
+                  .map((e) => e.unit)
+              );
+              return UNIT_ORDER.filter((u) => {
+                if (ongoingOnRef.has(u)) return false;
+                for (const e of events) {
+                  if (e.unit !== u) continue;
+                  const s = parseISO(e.start);
+                  const en = parseISO(e.end); // exklusiv
+                  if (s <= prevOfRef && en > prevOfRef) return false;
+                }
+                return true;
+              });
+            };
+            const potentialUnits = openRef > todayRef ? computePotential(openRef) : [];
+            // På dagens vy: visa även vad som kan tillkomma imorgon
+            const isToday = openRef.getTime() === todayRef.getTime();
+            const tomorrowPotentialUnits = isToday
+              ? computePotential(addDays(openRef, 1)).filter((u) => !ongoingUnits.has(u))
               : [];
+
 
             const renderCard = (e: LodgeEvent, badge?: { text: string; cls: string }) => {
               const s = styleFor(e.unit);
@@ -678,12 +695,13 @@ const Lodge = () => {
 
 
                 <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                  {dayEvents.length === 0 && potentialUnits.length === 0 && (
+                  {dayEvents.length === 0 && potentialUnits.length === 0 && tomorrowPotentialUnits.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">
                       Inga bokningar denna dag.
 
                     </p>
                   )}
+
 
                   {departures.length > 0 && (
                     <>
@@ -761,6 +779,39 @@ const Lodge = () => {
                       </p>
                     </>
                   )}
+
+                  {tomorrowPotentialUnits.length > 0 && (
+                    <>
+                      <SectionHeader title="Kan tillkomma imorgon" count={tomorrowPotentialUnits.length} />
+                      <div className="space-y-2">
+                        {tomorrowPotentialUnits.map((u) => {
+                          const s = styleFor(u);
+                          return (
+                            <div
+                              key={u}
+                              className={`p-3 rounded-lg border-2 border-dashed ${s.chip} opacity-90`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className={`h-2.5 w-2.5 rounded-full ${s.dot} shrink-0`} />
+                                  <span className="text-sm font-semibold truncate">
+                                    {UNIT_NUMBER[u]} {u}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border bg-orange-50 text-orange-800 border-orange-200 whitespace-nowrap">
+                                  Kan tillkomma imorgon
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Ledig ikväll – kan få en sen bokning med avfärd imorgon.
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+
                 </div>
               </>
             );
