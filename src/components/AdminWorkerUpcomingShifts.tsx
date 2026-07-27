@@ -68,6 +68,7 @@ const Chip = ({
 };
 
 const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
+  const queryClient = useQueryClient();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [collapsed, setCollapsed] = useState(false);
   const [openShift, setOpenShift] = useState<{
