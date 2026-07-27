@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format, getISOWeek } from "date-fns";
 import { sv } from "date-fns/locale";
 import { Plus, Minus } from "lucide-react";
@@ -68,6 +68,7 @@ const Chip = ({
 };
 
 const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
+  const queryClient = useQueryClient();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [collapsed, setCollapsed] = useState(false);
   const [openShift, setOpenShift] = useState<{
@@ -150,6 +151,40 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
     },
     enabled: upcomingShiftIds.length > 0,
   });
+
+  // Realtime: invalidera listan så snart schemat ändras (redigering, byten, dubbleringar)
+  useEffect(() => {
+    if (!selectedUserId) return;
+    const invalidate = () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-worker-upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-worker-upcoming-checklist-counts"] });
+    };
+    const channel = supabase
+      .channel(`admin-worker-upcoming-${selectedUserId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "schedules", filter: `user_id=eq.${selectedUserId}` },
+        invalidate,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "schedule_days" },
+        invalidate,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "shift_checklists" },
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["admin-worker-upcoming-checklist-counts"],
+          }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedUserId, queryClient]);
+
 
   return (
     <div className="space-y-3">
