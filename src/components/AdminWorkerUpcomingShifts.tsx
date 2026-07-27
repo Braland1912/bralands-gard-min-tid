@@ -152,6 +152,40 @@ const AdminWorkerUpcomingShifts = ({ workers }: { workers: Worker[] }) => {
     enabled: upcomingShiftIds.length > 0,
   });
 
+  // Realtime: invalidera listan så snart schemat ändras (redigering, byten, dubbleringar)
+  useEffect(() => {
+    if (!selectedUserId) return;
+    const invalidate = () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-worker-upcoming"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-worker-upcoming-checklist-counts"] });
+    };
+    const channel = supabase
+      .channel(`admin-worker-upcoming-${selectedUserId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "schedules", filter: `user_id=eq.${selectedUserId}` },
+        invalidate,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "schedule_days" },
+        invalidate,
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "shift_checklists" },
+        () =>
+          queryClient.invalidateQueries({
+            queryKey: ["admin-worker-upcoming-checklist-counts"],
+          }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedUserId, queryClient]);
+
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
