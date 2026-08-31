@@ -19,6 +19,8 @@ const db = supabase as any;
 const fmtHours = (h: number, decimals = 2) =>
   h.toFixed(decimals).replace(".", ",");
 
+const fmtPay = (n: number) => n.toFixed(2).replace(".", ",");
+
 const SalaryReport = () => {
   const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState(() => format(new Date(), "yyyy-MM"));
@@ -202,14 +204,14 @@ const SalaryReport = () => {
       fmtHours(w.totalHours),
       fmtHours(w.breakHours),
       w.hourlyRate.toFixed(0),
-      (w.totalHours * w.hourlyRate).toFixed(0),
+      (w.totalHours * w.hourlyRate).toFixed(2),
     ]);
     rows.push([
       "Totalt",
       fmtHours(totalHours),
       fmtHours(totalBreakHours),
       "—",
-      totalEarned.toFixed(0),
+      totalEarned.toFixed(2),
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
@@ -306,7 +308,7 @@ const SalaryReport = () => {
                     )}
                     <span className="font-semibold text-foreground">{worker.name}</span>
                   </div>
-                  <span className="font-bold text-foreground">{(worker.totalHours * worker.hourlyRate).toFixed(0)} kr</span>
+                  <span className="font-bold text-foreground">{fmtPay(worker.totalHours * worker.hourlyRate)} kr</span>
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground pl-6">
                   <div className="flex flex-col">
@@ -366,7 +368,7 @@ const SalaryReport = () => {
             <Card className="p-4 flex justify-between items-center bg-muted/50">
               <span className="font-bold text-foreground">Totalt</span>
               <div className="text-right">
-                <p className="font-bold text-foreground">{totalEarned.toFixed(0)} kr</p>
+                <p className="font-bold text-foreground">{fmtPay(totalEarned)} kr</p>
                 <p className="text-xs text-muted-foreground">
                   {fmtHours(totalHours)} h
                   {totalBreakHours > 0 && <> · varav rast {fmtHours(totalBreakHours)} h</>}
@@ -415,7 +417,7 @@ const SalaryReport = () => {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">{(worker.totalHours * worker.hourlyRate).toFixed(0)} kr</TableCell>
+                      <TableCell className="text-right font-semibold">{fmtPay(worker.totalHours * worker.hourlyRate)} kr</TableCell>
                     </TableRow>
                     {expandedWorkers.has(worker.id) && (entriesByWorker.get(worker.id) || []).map((entry) => {
                       const passBreaks = breaksByEntry.get(entry.id) ?? [];
@@ -427,7 +429,7 @@ const SalaryReport = () => {
                           <TableCell className="text-right text-muted-foreground">{fmtHours(workedH)}</TableCell>
                           <TableCell className="text-right text-muted-foreground">{breakH > 0 ? `${fmtHours(breakH)} h` : "—"}</TableCell>
                           <TableCell className="text-right text-muted-foreground">{format(new Date(entry.clock_in!), "HH:mm")} – {format(new Date(entry.clock_out!), "HH:mm")}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{(workedH * worker.hourlyRate).toFixed(0)} kr</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{fmtPay(workedH * worker.hourlyRate)} kr</TableCell>
                         </TableRow>
                       );
                     })}
@@ -440,7 +442,7 @@ const SalaryReport = () => {
                     {totalBreakHours > 0 ? `${fmtHours(totalBreakHours)} h` : "—"}
                   </TableCell>
                   <TableCell className="text-right">—</TableCell>
-                  <TableCell className="text-right">{totalEarned.toFixed(0)} kr</TableCell>
+                  <TableCell className="text-right">{fmtPay(totalEarned)} kr</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

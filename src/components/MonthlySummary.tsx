@@ -38,7 +38,7 @@ const formatHours = (h: number) => {
 };
 
 const formatSEK = (n: number) =>
-  new Intl.NumberFormat("sv-SE", { style: "currency", currency: "SEK", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("sv-SE", { style: "currency", currency: "SEK", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
 const db = supabase as any;
 
