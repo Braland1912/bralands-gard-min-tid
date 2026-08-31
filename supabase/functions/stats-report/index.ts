@@ -85,17 +85,29 @@ async function checkPassword(pw: string | undefined): Promise<boolean> {
   return String(stored).toLowerCase() === (await sha256(pw));
 }
 
-async function buildReport() {
-  const { data: guests, error: gErr } = await admin
-    .from("evening_round_guests")
-    .select(
-      "id, guest_name, arrival_date, departure_date, status, payment_method, payment_amount, payment_currency, payment_other_note, nationality, place_label, accommodation_type, tent_persons, is_prepaid, evening_round_id",
-    );
-  if (gErr) throw gErr;
+async function fetchAll(table: string, columns: string): Promise<any[]> {
+  const out: any[] = [];
+  const size = 1000;
+  for (let page = 0; ; page++) {
+    const { data, error } = await admin
+      .from(table)
+      .select(columns)
+      .order("id", { ascending: true })
+      .range(page * size, page * size + size - 1);
+    if (error) throw error;
+    out.push(...(data ?? []));
+    if (!data || data.length < size) break;
+  }
+  return out;
+}
 
-  const { data: rounds } = await admin
-    .from("evening_rounds")
-    .select("id, round_date, assigned_worker_id");
+async function buildReport() {
+  const guests = await fetchAll(
+    "evening_round_guests",
+    "id, guest_name, arrival_date, departure_date, status, payment_method, payment_amount, payment_currency, payment_other_note, nationality, place_label, accommodation_type, tent_persons, is_prepaid, evening_round_id",
+  );
+
+  const rounds = await fetchAll("evening_rounds", "id, round_date, assigned_worker_id");
   const { data: workers } = await admin.from("workers").select("id, name");
   const { data: summaries } = await admin
     .from("evening_round_summaries")
