@@ -19,7 +19,7 @@ import {
   LogIn,
   Flame,
   Settings,
-} from "lucide-react";
+, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -63,6 +63,7 @@ const adminItems: NavItem[] = [
   { id: "lon", label: "Löner", icon: DollarSign, dashboardTab: "lon", matchTab: "lon" },
   { id: "installningar", label: "Inställningar", icon: Settings, dashboardTab: "installningar", matchTab: "installningar" },
   { id: "versioner", label: "Versioner", icon: GitBranch, dashboardTab: "versioner", matchTab: "versioner" },
+  { id: "statistik", label: "Statistik", icon: BarChart3, path: "/statistik", matchPath: "/statistik" },
   { id: "lodge", label: "Uthyrning", icon: Building2, path: "/lodge", matchPath: "/lodge" },
   { id: "hjalp", label: "Hjälp", icon: LifeBuoy, path: "/help", matchPath: "/help" },
   { id: "emergency", label: "Brand & nödläge", icon: Flame, path: "/emergency", matchPath: "/emergency" },
@@ -151,6 +152,7 @@ const DesktopSidebar = () => {
     if (item.id === "lodge") return location.pathname === "/lodge";
     if (item.id === "hjalp") return location.pathname.startsWith("/help") || location.pathname.startsWith("/evening-round/help");
     if (item.id === "emergency") return location.pathname === "/emergency";
+    if (item.id === "statistik") return location.pathname === "/statistik";
     return false;
   };
 

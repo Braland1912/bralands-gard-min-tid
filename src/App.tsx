@@ -25,6 +25,7 @@ import EveningRoundWidgetTest from "./pages/EveningRoundWidgetTest";
 import Lodge from "./pages/Lodge";
 import TodayTasks from "./pages/TodayTasks";
 import Emergency from "./pages/Emergency";
+import Statistics from "./pages/Statistics";
 
 
 import NotFound from "./pages/NotFound";
@@ -85,6 +86,7 @@ const App = () => (
           <Route path="/lodge" element={<Lodge />} />
           <Route path="/today-tasks" element={<TodayTasks />} />
           <Route path="/emergency" element={<Emergency />} />
+          <Route path="/statistik" element={<Statistics />} />
           <Route path="/admin/checklists" element={
             <ChecklistManagerRoute>
               <AdminChecklists />
