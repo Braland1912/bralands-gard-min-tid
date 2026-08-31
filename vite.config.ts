@@ -83,6 +83,8 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api/, /^\/version\.json/],
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
+        // Huvudbunten är ~2.5 MB (xlsx/jspdf m.m.) – höj workbox 2MB-gränsen för precache
+        maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
         // Säkerställ att version.json aldrig cachas
         navigateFallbackAllowlist: [/^(?!.*version\.json).*$/],
         // Ny SW tar över omedelbart – ingen väntan på att alla flikar stängs
