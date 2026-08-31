@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon, GitBranch, Tags, Flame, Building2, Settings } from "lucide-react";
+import { LayoutDashboard, Clock, AlertTriangle, Users, Link2, LogOut, DollarSign, Calendar, ListChecks, Menu, Moon, GitBranch, Tags, Flame, Building2, Settings, BarChart3 } from "lucide-react";
 import AdminOverview from "@/components/admin/AdminOverview";
 import AdminTimeLog from "@/components/admin/AdminTimeLog";
 import TimeCorrectionRequests from "@/components/TimeCorrectionRequests";
@@ -38,6 +38,7 @@ const mobileMoreTabs = [
   { id: "lon", label: "Löner", icon: DollarSign },
   { id: "installningar", label: "Inställningar", icon: Settings },
   { id: "versioner", label: "Versioner", icon: GitBranch },
+  { id: "statistik", label: "Statistik", icon: BarChart3 },
   { id: "lodge", label: "Uthyrning", icon: Building2 },
   { id: "emergency", label: "Brand & nödläge", icon: Flame },
 ];
@@ -96,6 +97,10 @@ const AdminDashboard = () => {
     }
     if (tabId === "emergency") {
       navigate("/emergency");
+      return;
+    }
+    if (tabId === "statistik") {
+      navigate("/statistik");
       return;
     }
     if (tabId === "lodge") {
