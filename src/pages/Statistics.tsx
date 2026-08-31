@@ -49,7 +49,24 @@ const sha256Hex = async (text: string) => {
     .join("");
 };
 
+export const DEFINITIONS: [string, string][] = [
+  ["Registrerade bokningar", "Antal gästrader som lagts in i kvällsrundan under säsongen – alltså antal bokningar/platser som registrerats, inte antal nätter. En familj som står 7 nätter räknas som 1 bokning."],
+  ["Gästnätter totalt", "Summan av alla nätter för alla bokningar (avresedatum minus ankomstdatum). En bokning på 7 nätter ger 7 gästnätter. Det är detta mått som visar hur beläggningen egentligen sett ut över tid."],
+  ["Gästnätter med status \"här\"", "De gästnätter som tillhör gäster markerade som incheckade (status \"här\") i kvällsrundan. Skillnaden mot totalen är gäster som ännu inte checkats in eller som aldrig fick statusen uppdaterad."],
+  ["Snitt per natt", "Gästnätter totalt delat på antalet aktiva dygn (dygn med minst en gäst) under säsongen."],
+  ["Toppnatt", "Det datum då flest gäster sov på campingen samtidigt (högst antal gästnätter ett enskilt dygn)."],
+  ["Ankomster", "Antal bokningar med ankomstdatum den dagen/veckan."],
+  ["Intäkt rundan (SEK/EUR)", "Summa av alla belopp som registrerats på kvällsrundan – både vid gästregistrering och i sammanställningarna (kiosk m.m.)."],
+  ["Kvällsrundor genomförda", "Antal kvällsrundor som startats under säsongen."],
+  ["Sammanställningar (ekonomi)", "Antal avslutade kvällsrundor där en ekonomisammanställning (kassa/kiosk) har redovisats."],
+];
+
 const buildSheets = (r: Report): Sheet[] => [
+  {
+    name: "Definitioner",
+    columns: ["Begrepp", "Förklaring"],
+    rows: DEFINITIONS.map(([a, b]) => [a, b]),
+  },
   {
     name: "Översikt",
     columns: ["Nyckeltal", "Värde"],
