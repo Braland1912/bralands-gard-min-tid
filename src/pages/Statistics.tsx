@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { BarChart3, Download, Loader2, Lock, Link2, KeyRound } from "lucide-react";
+import { BarChart3, Download, Loader2, Lock, Link2, KeyRound, Info } from "lucide-react";
 import { exportCsv, exportPdf, exportXlsx, num, type Sheet } from "@/lib/stats-export";
 
 type Report = any;
@@ -317,6 +317,25 @@ const Statistics = () => {
           <Kpi label="Bokningar" value={num(r.kpis.bookings)} sub={`Toppnatt ${r.kpis.topNightDate ?? "-"}: ${num(r.kpis.topNightNights)}`} />
           <Kpi label="Intäkt rundan" value={`${num(r.kpis.revenueSEK)} kr`} sub={r.kpis.revenueEUR ? `+ ${num(r.kpis.revenueEUR)} EUR` : undefined} />
         </div>
+
+        <Card>
+          <details className="group">
+            <summary className="flex items-center gap-2 p-4 cursor-pointer select-none text-sm font-medium text-foreground list-none">
+              <Info className="h-4 w-4 text-primary shrink-0" />
+              Så räknas siffrorna – begrepp och definitioner
+              <span className="ml-auto text-xs text-muted-foreground group-open:hidden">Visa</span>
+              <span className="ml-auto text-xs text-muted-foreground hidden group-open:inline">Dölj</span>
+            </summary>
+            <CardContent className="pt-0 pb-4 px-4 space-y-3">
+              {DEFINITIONS.map(([term, text]) => (
+                <div key={term} className="text-sm">
+                  <p className="font-medium text-foreground">{term}</p>
+                  <p className="text-muted-foreground leading-relaxed">{text}</p>
+                </div>
+              ))}
+            </CardContent>
+          </details>
+        </Card>
 
         <Tabs defaultValue="vecka">
           <TabsList className="flex flex-wrap h-auto">
