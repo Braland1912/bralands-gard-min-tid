@@ -66,6 +66,13 @@ async function isAdminRequest(req: Request): Promise<boolean> {
   return !!role;
 }
 
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 async function checkPassword(pw: string | undefined): Promise<boolean> {
   if (!pw) return false;
   const { data } = await admin
@@ -73,9 +80,9 @@ async function checkPassword(pw: string | undefined): Promise<boolean> {
     .select("value")
     .eq("key", "stats_share_password")
     .maybeSingle();
-  const stored = (data?.value as any)?.password;
+  const stored = (data?.value as any)?.password_sha256;
   if (!stored) return false;
-  return String(stored) === pw;
+  return String(stored).toLowerCase() === (await sha256(pw));
 }
 
 async function buildReport() {
