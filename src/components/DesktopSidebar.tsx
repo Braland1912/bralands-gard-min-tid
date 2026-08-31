@@ -19,7 +19,8 @@ import {
   LogIn,
   Flame,
   Settings,
-, BarChart3 } from "lucide-react";
+  BarChart3,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
