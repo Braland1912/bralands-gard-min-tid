@@ -1,0 +1,1 @@
+import type {} from "../supabase/functions/stats-report/generated/models";

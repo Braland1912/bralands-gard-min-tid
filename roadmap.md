@@ -1,0 +1,2 @@
+- [ ] Lägg till frågor och följdfrågor på statistiksidan med befintlig åtkomstkontroll.
+- [ ] Kontrollera riktiga svar, felhantering och mobilvisning.

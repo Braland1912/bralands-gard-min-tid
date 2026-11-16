@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { BarChart3, Download, Loader2, Lock, Link2, KeyRound, Info } from "lucide-react";
 import { exportCsv, exportPdf, exportXlsx, num, type Sheet } from "@/lib/stats-export";
+import { StatisticsQuestions } from "@/components/StatisticsQuestions";
 
 type Report = any;
 
@@ -336,6 +337,8 @@ const Statistics = () => {
             </CardContent>
           </details>
         </Card>
+
+        <StatisticsQuestions isAdmin={isAdmin} />
 
         <Tabs defaultValue="vecka">
           <TabsList className="flex flex-wrap h-auto">
