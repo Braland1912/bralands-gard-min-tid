@@ -2,3 +2,6 @@
 - [x] Kontrollera riktiga svar, felhantering och mobilvisning.
 - [x] Ge statistikchatten hemsidans verifierade campingpriser; åtta tester godkända och funktionen driftsatt.
 - [x] Verifiera ett prissvar på statistiksidan med administratörskontot: korrekta säsongspriser, källdatum och skillnaden mellan 15 procent och 7 för 6; åtta tester godkända.
+- [x] Spara statistikchattar automatiskt med rubrik och gemensam historik bakom statistikens åtkomstkontroll.
+- [x] Verifiera riktiga AI-svar, sparande, återöppning, följdfrågor och mobilvisning som administratör; elva tester godkända, obehörig åtkomst nekas.
+- [ ] Verifiera återöppning med delningslösenord. Blockerat: det tidigare uppgivna lösenordet godtas inte längre; aktuellt lösenord behövs.
