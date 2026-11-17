@@ -1,2 +1,4 @@
 - [x] Lägg till frågor och följdfrågor på statistiksidan med befintlig åtkomstkontroll.
 - [x] Kontrollera riktiga svar, felhantering och mobilvisning.
+- [x] Ge statistikchatten hemsidans verifierade campingpriser; åtta tester godkända och funktionen driftsatt.
+- [ ] Verifiera ett prissvar på statistiksidan. Blockerat: testkontot saknar statistikbehörighet och tidigare delningslösenord ger inte åtkomst.

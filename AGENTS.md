@@ -1,3 +1,3 @@
 # Architecture rules
-- Statistics questions run inside the existing stats-report function after its admin/password authorization, using a freshly generated report only; this keeps shared access limited to the same statistics and avoids exposing unrelated personal records.
+- Statistics questions run inside stats-report after its admin/password authorization, using a fresh report plus a source-dated public website pricing snapshot; this limits shared access without exposing unrelated personal records and distinguishes published tariffs from historical revenue.
 - Render AI answers as sanitized Markdown without raw HTML; this supports readable tables without executing generated markup.
